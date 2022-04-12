@@ -6,10 +6,10 @@ export default class Queues<Names extends string[] = []> {
   items: GenerateObject<Names & DefaultQueueNames, Store>;
 
   constructor() {
-    this.add('default');
+      this.add('default');
   }
 
   add(name: Extract<ValueOf<Names>, string> | DefaultQueueNames, options: Omit<QueueOptions, 'name'> = {}) {
-    this.items[name as string] = new Queue({ name, ...options });
+      this.items[name as string] = new Queue({ name, ...options });
   }
 };

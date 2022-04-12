@@ -9,22 +9,25 @@ export default class Step<InitialMethods = unknown, Methods = unknown> extends B
   extendStepApi: StepCustomApiExtend<InitialMethods, Methods>;
 
   constructor(options: StepOptions<InitialMethods, Methods>) {
-    const {
-      name,
-      handler = async () => undefined,
-      controlHandler = async () => undefined,
-      failHandler = async () => undefined,
-      requestErrorHandler = async () => undefined,
-      extendStepApi = () => ({} as Methods),
-    } = options;
+      const { name } = options;
+      super({ key: 'step', name });
 
-    super({ key: 'step', name });
-
-    this.handler = handler;
-    this.controlHandler = controlHandler;
-    this.failHandler = failHandler;
-    this.requestErrorHandler = requestErrorHandler;
-    this.extendStepApi = extendStepApi;
+      this.extend(options);
   }
 
+  extend(options: Partial<StepOptions<InitialMethods, Methods>>) {
+      const {
+          handler = async () => undefined,
+          controlHandler = async () => undefined,
+          failHandler = async () => undefined,
+          requestErrorHandler = async () => undefined,
+          extendStepApi = () => ({} as Methods),
+      } = options;
+
+      this.handler = handler || this.handler;
+      this.controlHandler = controlHandler || this.controlHandler;
+      this.failHandler = failHandler || this.failHandler;
+      this.requestErrorHandler = requestErrorHandler || this.requestErrorHandler;
+      this.extendStepApi = extendStepApi || this.extendStepApi;
+  }
 }

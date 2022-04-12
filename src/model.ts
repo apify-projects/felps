@@ -6,24 +6,29 @@ export default class Model extends Base {
   private _schema: any;
 
   constructor(options: ModelOptions) {
-    const { name, schema } = options || {};
-    super({ key: 'model', name });
+      const { name } = options || {};
+      super({ key: 'model', name });
 
-    this._schema = schema;
+      this.extend(options);
+  }
+
+  extend(options: Partial<ModelOptions>) {
+      const { schema } = options || {};
+      this._schema = schema;
   }
 
   get schema() {
-    return {
-      ...this._schema,
-      "#schema-name": this.name,
-    };
+      return {
+          ...this._schema,
+          '#schema-name': this.name,
+      };
   }
 
   dependencies(): string[] {
-    const deps = new Set<string>();
-    traverse(this._schema, (key, value) => {
-      if (key === '#schema-name') deps.add(value);
-    });
-    return [...deps];
+      const deps = new Set<string>();
+      traverse(this._schema, (key, value) => {
+          if (key === '#schema-name') deps.add(value);
+      });
+      return [...deps];
   }
 }

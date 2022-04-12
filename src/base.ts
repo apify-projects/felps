@@ -1,4 +1,3 @@
-
 import { BaseOptions } from './common/types';
 import Logger from './logger';
 

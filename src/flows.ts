@@ -1,12 +1,33 @@
-import { GenerateObject } from './common/types';
+import { camelCase } from 'camel-case';
+import Base from './base';
+import { FlowOptions, FlowsOptions, GenerateFlowSetMethods, GenerateObject } from './common/types';
 import Flow from './flow';
-import Step from './step';
 
-export default class Flows<Names = ''> {
+export default class Flows<Names = ''> extends Base {
+  names: string[];
   items: GenerateObject<Names, Flow>;
 
-  add(name: Extract<Names, string>, steps: Step[] = []) {
-    this.items[name] = new Flow({ name });
-    this.items[name].add(...steps);
+  constructor(options?: FlowsOptions<Names>) {
+      const { names = [] } = options;
+      super({ key: 'flows', name: 'flows' });
+      this.names = names.map((name) => camelCase(name));
+  }
+
+  init() {
+      for (const name of this.names) {
+      // TODO: Try passing on the MethodsByStep to the Step constructor
+          this.items[name] = new Flow({ name });
+      }
+  }
+
+  get set(): GenerateFlowSetMethods<Names> {
+      return new Proxy(this, {
+          get(target, name: string) {
+              if (target.names.includes(name)) {
+                  return (options: Partial<FlowOptions>) => target.items?.[name]?.extend?.(options);
+              }
+              return undefined;
+          },
+      }) as unknown as GenerateFlowSetMethods<Names>;
   }
 };

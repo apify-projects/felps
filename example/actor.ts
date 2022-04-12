@@ -2,12 +2,11 @@ import felps from '../src';
 import { GenerateModelMethods, GenerateStepMethods, StepBaseApiMethods } from '../src/common/types';
 
 const STEPS = ['COLLECT_MOVIE_LISTING'] as const;
-// const FLOWS = ['DISCOVER_MOVIE', 'DISCOVER_EPISODE'] as const;
+const FLOWS = ['DISCOVER_MOVIE', 'DISCOVER_EPISODE'] as const;
+const MODELS = ['MOVIE', 'MOVIE_EPISODE'] as const;
 
 type StepNames = typeof STEPS[number];
-// type StepNames = 'COLLECT_MOVIE_LISTING';
-// type FlowNames = typeof FLOWS[number];
-type FlowNames = 'DISCOVER_MOVIE' | 'DISCOVER_EPISODE';
+type FlowNames = typeof FLOWS[number];
 
 type ModelDefinitions = {
   movie: {
@@ -40,22 +39,21 @@ steps.set.collectMovieListing({
       }
     }
   }
-})
+});
 
 steps.on.collectMovieListing(async (context, api) => {
 
-})
+});
 
+const flows = new felps.Flows<FlowNames>({ names: [...FLOWS] });
+flows.set.discoverEpisode({
+  steps: [
+    steps.items.COLLECT_MOVIE_LISTING
+  ]
+});
 
-steps.on.collectMovieListing()
-
-const flows = new felps.Flows<FlowNames>();
-flows.add('DISCOVER_EPISODE', [
-  steps.items.COLLECT_MOVIE_LISTING
-]);
-
-const models = new felps.Models<ModelDefinitions>();
-models.add('movieEpisode', {
+const models = new felps.Models<ModelDefinitions>({ names: [...MODELS] });
+models.set.movieEpisode({
   schema: {
     type: 'object',
     properties: {
@@ -64,7 +62,7 @@ models.add('movieEpisode', {
   }
 });
 
-models.add('movie', {
+models.set.movie({
   schema: {
     type: 'object',
     properties: {
@@ -85,7 +83,7 @@ const stepCustomApi = new felps.StepCustomApi<GlobalCustomStepApi, GeneralStepAp
 });
 
 const actor = new felps.Actor({
-  steps,
+  steps: steps as any,
   stepCustomApi,
   flows,
   models,

@@ -5,11 +5,11 @@ export default class StepCustomApi<Methods = unknown, InitialMethods = StepBaseA
   private _extend: StepCustomApiExtend<InitialMethods, Methods>;
 
   constructor(options: StepCustomApiOptions<InitialMethods, Methods>) {
-    super({ key: 'step-api', name: 'step-api' });
-    this._extend = options.extend;
+      super({ key: 'step-api', name: 'step-api' });
+      this._extend = options.extend;
   }
 
   make(crawlingContext: RequestContext, api: InitialMethods): Methods {
-    return (this._extend?.(crawlingContext, api) ?? {}) as Methods;
+      return (this._extend?.(crawlingContext, api) ?? {}) as Methods;
   }
 }

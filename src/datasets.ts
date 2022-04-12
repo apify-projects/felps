@@ -6,10 +6,10 @@ export default class Datasets<Names extends string[] = []> {
   items: GenerateObject<Names & DefaultDatasetNames, Store>;
 
   constructor() {
-    this.add('default');
+      this.add('default');
   }
 
   add(name: Extract<ValueOf<Names>, string> | DefaultDatasetNames, options: Omit<DatasetOptions, 'name'> = {}) {
-    this.items[name as string] = new Dataset({ name, ...options });
+      this.items[name as string] = new Dataset({ name, ...options });
   }
 };

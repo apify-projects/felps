@@ -18,9 +18,9 @@ import usePreNavigationHooks from './use-pre-navigation-hooks';
 import Crawler from './crawler';
 
 export default class Actor extends Base {
-  private _initialized: boolean = false;
+  private _initialized = false;
 
-  steps?: Steps<any, any>;
+  steps?: Steps<any, any, any>;
   stepBaseApi?: StepBaseApi<any>;
   stepCustomApi?: StepCustomApi<any, any>;
   flows?: Flows<any>;
@@ -31,103 +31,103 @@ export default class Actor extends Base {
   hooks?: Hooks<any>;
 
   constructor(options: ActorOptions = {}) {
-    const { name = 'default' } = options;
-    super({ key: 'actor', name });
-    this.extend(options);
+      const { name = 'default' } = options;
+      super({ key: 'actor', name });
+      this.extend(options);
   }
 
   extend(options: ActorOptions = {}) {
-    this.steps = options.steps || this.steps || new Steps();
-    this.stepBaseApi = options.stepBaseApi || this.stepBaseApi || new StepBaseApi();
-    this.stepCustomApi = options.stepCustomApi || this.stepCustomApi;
-    this.flows = options.flows || this.flows || new Flows();
-    this.models = options.models || this.models || new Models();
-    this.stores = options.stores || this.stores || new Stores();
-    this.queues = options.queues || this.queues || new Queues();
-    this.datasets = options.datasets || this.datasets || new Datasets();
-    this.hooks = options.hooks || this.hooks || new Hooks();
+      this.steps = options.steps || this.steps || new Steps();
+      this.stepBaseApi = options.stepBaseApi || this.stepBaseApi || new StepBaseApi();
+      this.stepCustomApi = options.stepCustomApi || this.stepCustomApi;
+      this.flows = options.flows || this.flows || new Flows();
+      this.models = options.models || this.models || new Models();
+      this.stores = options.stores || this.stores || new Stores();
+      this.queues = options.queues || this.queues || new Queues();
+      this.datasets = options.datasets || this.datasets || new Datasets();
+      this.hooks = options.hooks || this.hooks || new Hooks();
   }
 
   init() {
-    if (!this._initialized) {
-      Apify.events.on('migrating', async () => {
-        this.log.info('Migrating: Persisting stores...');
-        await this.stores.persist();
-      });
+      if (!this._initialized) {
+          Apify.events.on('migrating', async () => {
+              this.log.info('Migrating: Persisting stores...');
+              await this.stores.persist();
+          });
 
-      Apify.events.on('aborting', async () => {
-        this.log.info('Aborting: Persisting stores...');
-        await this.stores.persist();
-      });
+          Apify.events.on('aborting', async () => {
+              this.log.info('Aborting: Persisting stores...');
+              await this.stores.persist();
+          });
 
-      this._initialized = true;
-    }
+          this._initialized = true;
+      }
   }
 
   async run() {
-    this.init();
+      this.init();
 
-    const input = await Apify.getInput();
+      const input = await Apify.getInput();
 
-    const { proxy } = input as any;
-    const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
+      const { proxy } = input as any;
+      const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
 
-    const preNavigationHooksList = usePreNavigationHooks(this);
-    const postNavigationHooksList = usePostNavigationHooks(this);
+      const preNavigationHooksList = usePreNavigationHooks(this);
+      const postNavigationHooksList = usePostNavigationHooks(this);
 
-    // VALIDATE INPUT
+      // VALIDATE INPUT
 
-    const preNavigationHooks = [
-      preNavigationHooksList.requestHook,
-      preNavigationHooksList.trailHook,
-    ] as unknown as PlaywrightHook[];
+      const preNavigationHooks = [
+          preNavigationHooksList.requestHook,
+          preNavigationHooksList.trailHook,
+      ] as unknown as PlaywrightHook[];
 
-    const postNavigationHooks = [
-      postNavigationHooksList.trailHook,
-    ];
+      const postNavigationHooks = [
+          postNavigationHooksList.trailHook,
+      ];
 
-    const requestQueue = await Apify.openRequestQueue();
+      const requestQueue = await Apify.openRequestQueue();
 
-    const getCrawler = () => new Crawler({
-      requestQueue,
-      handlePageFunction: useHandlePageFunction(this),
-      handleFailedRequestFunction: useHandleFailedRequestFunction(this),
-      proxyConfiguration,
-      preNavigationHooks,
-      postNavigationHooks,
-    })
+      const getCrawler = () => new Crawler({
+          requestQueue,
+          handlePageFunction: useHandlePageFunction(this) as any,
+          handleFailedRequestFunction: useHandleFailedRequestFunction(this) as any,
+          proxyConfiguration,
+          preNavigationHooks,
+          postNavigationHooks,
+      });
 
-    // Hook to help with preparing the queue
-    // Given a polyfilled requestQueue and the input data
-    // User can add to the queue the starting requests to be crawled
-    await this.hooks?.[HOOK.ROUTER_STARTED]?.run?.(undefined);
+      // Hook to help with preparing the queue
+      // Given a polyfilled requestQueue and the input data
+      // User can add to the queue the starting requests to be crawled
+      await this.hooks?.[HOOK.ROUTER_STARTED]?.run?.(undefined);
 
-    await this.hooks?.[HOOK.QUEUE_STARTED]?.run?.(undefined);
+      await this.hooks?.[HOOK.QUEUE_STARTED]?.run?.(undefined);
 
-    /**
+      /**
      * Run async requests
      */
-    if (!await requestQueue.isEmpty()) {
-      await getCrawler().run();
-    }
+      if (!await requestQueue.isEmpty()) {
+          await getCrawler().run();
+      }
 
-    /**
+      /**
      * Run the serial requests
      */
 
-    // while ((storesApi.get().state.get('serial-queue') || []).length) {
-    //     const serialRequest = storesApi.get().state.shift('serial-queue');
-    //     this.log.info(`Starting a new serial request`, { serialRequest });
-    //     await requestQueue.addRequest(serialRequest);
-    //     await getCrawler().then((crawler) => crawler.run());
-    // }
+      // while ((storesApi.get().state.get('serial-queue') || []).length) {
+      //     const serialRequest = storesApi.get().state.shift('serial-queue');
+      //     this.log.info(`Starting a new serial request`, { serialRequest });
+      //     await requestQueue.addRequest(serialRequest);
+      //     await getCrawler().then((crawler) => crawler.run());
+      // }
 
-    // TODO: Provider functionnalities to the end hook
-    await this.hooks?.[HOOK.QUEUE_ENDED]?.run?.(undefined);
+      // TODO: Provider functionnalities to the end hook
+      await this.hooks?.[HOOK.QUEUE_ENDED]?.run?.(undefined);
 
-    // TODO: Provider functionnalities to the end hook
-    await this.hooks?.[HOOK.ROUTER_ENDED]?.run?.(undefined);
+      // TODO: Provider functionnalities to the end hook
+      await this.hooks?.[HOOK.ROUTER_ENDED]?.run?.(undefined);
 
-    await this.stores.persist();
+      await this.stores.persist();
   }
 };
