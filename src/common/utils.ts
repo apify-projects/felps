@@ -44,7 +44,7 @@ export const resolveUrl = (absoluteUrl: string, relativeUrl: string): string | v
         const link = new URL(absoluteUrl, relativeUrl);
         return link.href;
     } catch (error) {
-    // fail silently, return undefined
+        // fail silently, return undefined
     }
 };
 
@@ -80,7 +80,7 @@ export const orderByClosestLength = (text: string, list: any[], matcher: (item: 
 };
 
 export const traverse = (obj: any, handler: (key: string, value: any) => void) => {
-    for (const k in obj) {
+    for (const k of Object.keys(obj)) {
         handler(k, obj);
 
         if (obj.hasOwnProperty(k) && obj[k] && typeof obj[k] === 'object') {

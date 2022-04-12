@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type Apify from 'apify';
 import { Dataset } from 'apify';
 import type Actor from '../actor';

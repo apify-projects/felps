@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify, { PlaywrightHook } from 'apify';
 import Base from './base';
 import { HOOK } from './common/consts';

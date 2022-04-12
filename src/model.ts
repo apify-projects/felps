@@ -3,7 +3,7 @@ import { ModelOptions } from './common/types';
 import { traverse } from './common/utils';
 
 export default class Model extends Base {
-  private _schema: any;
+  private _schema: Record<string, unknown>;
 
   constructor(options: ModelOptions) {
       const { name } = options || {};

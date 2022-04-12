@@ -3,7 +3,7 @@ import Base from './base';
 import { GenerateModelSetMethods, GenerateObject, ModelOptions, ModelsOptions } from './common/types';
 import Model from './model';
 
-export default class Models<ModelDefinitions extends Record<string, any> = Record<string, unknown>> extends Base {
+export default class Models<ModelDefinitions extends Record<string, unknown> = Record<string, unknown>> extends Base {
   names: string[];
   items: GenerateObject<string, Model>;
 
