@@ -116,12 +116,12 @@ export default class Actor extends Base {
      * Run the serial requests
      */
 
-      // while ((storesApi.get().state.get('serial-queue') || []).length) {
-      //     const serialRequest = storesApi.get().state.shift('serial-queue');
-      //     this.log.info(`Starting a new serial request`, { serialRequest });
-      //     await requestQueue.addRequest(serialRequest);
-      //     await getCrawler().then((crawler) => crawler.run());
-      // }
+    //   while ((storesApi.get().state.get('serial-queue') || []).length) {
+    //       const serialRequest = storesApi.get().state.shift('serial-queue');
+    //       this.log.info(`Starting a new serial request`, { serialRequest });
+    //       await requestQueue.addRequest(serialRequest);
+    //       await getCrawler().then((crawler) => crawler.run());
+    //   }
 
       // TODO: Provider functionnalities to the end hook
       await this.hooks?.[HOOK.QUEUE_ENDED]?.run?.(undefined);

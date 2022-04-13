@@ -8,6 +8,7 @@ import type FileStore from '../file-store';
 import type Flows from '../flows';
 import type Hooks from '../hooks';
 import type Logger from '../logger';
+import Model from '../model';
 import type Models from '../models';
 import type Queue from '../queue';
 import type Queues from '../queues';
@@ -98,9 +99,12 @@ export type GenerateStepGotoMethods<T, ModelDefinitions extends Record<string, u
 export type GenerateStepMethods<T, ModelDefinitions extends Record<string, unknown> = Record<string, never>> = GenerateStepGotoMethods<T, ModelDefinitions>;
 
 // step-base-api.ts ------------------------------------------------------------
-export type StepBaseApiMethods<Context extends MakeStepBaseApiContext = MakeStepBaseApiContext> = StepBaseRootMethods<Context> & HookMethods;
+export type StepBaseApiMethods<
+    ModelDefinitions = unknown,
+    Context extends MakeStepBaseApiContext = MakeStepBaseApiContext
+    > = StepBaseRootMethods<ModelDefinitions, Context> & HookMethods;
 
-export type StepBaseRootMethods<Context extends MakeStepBaseApiContext = MakeStepBaseApiContext> = {
+export type StepBaseRootMethods<ModelDefinitions = unknown, Context extends MakeStepBaseApiContext = MakeStepBaseApiContext> = {
     // step
     uid: string,
     name: string,
@@ -115,7 +119,7 @@ export type StepBaseRootMethods<Context extends MakeStepBaseApiContext = MakeSte
     getUserData: () => any,
     getReferences: () => Partial<References<any>>,
     // trail
-    trail: Trail,
+    trail: Trail<ModelDefinitions>,
     // common
     log: Logger,
     // utils
@@ -127,11 +131,13 @@ export type MakeStepBaseApiContext<
     StoreNames extends string[] = [],
     DatasetNames extends string[] = [],
     QueueNames extends string[] = [],
+    ModelDefinitions extends Record<string, unknown> = Record<string, never>,
     > = {
         input: Input,
         queues: GenerateObject<QueueNames & DefaultQueueNames, Queue>,
         stores: GenerateObject<StoreNames & DefaultStoreNames, AnyStore>;
         datasets: GenerateObject<DatasetNames & DefaultDatasetNames, Dataset>,
+        models: GenerateObject<ModelDefinitions, Model>,
     };
 
 // step-custom-api.ts ------------------------------------------------------------
@@ -144,7 +150,7 @@ export type StepCustomApiExtend<
     Methods = unknown
     > = (crawlingContext: RequestContext, api: Without<InitialMethods, Methods>) => Methods
 
-export type References<T extends Record<string, unknown>> = {
+export type References<T extends Record<string, unknown> = Record<string, unknown>> = {
     [K in Extract<keyof T, string> as `${K}Key`]: string;
 } & { requestKey: string };
 
@@ -201,6 +207,31 @@ export type FileStoreOptions = {
 // trail.ts ------------------------------------------------------------
 export type TrailOptions = {
     id?: string;
+    store?: DataStore,
+    models?: Record<string, Model>,
+}
+
+export type TrailInOutMethodsOptions = {
+    name: string;
+    path: TrailStateInOutNames;
+    store: DataStore;
+}
+
+export type TrailStateInOutNames = 'digested' | 'ingested';
+
+export type TrailStateInOut = {
+    [modelName: string]: {
+        listingRequests: {
+            [key: string]: RequestSource,
+        },
+        items: {
+            [key: string]: {
+                references: Partial<References<any>>,
+                data: any,
+                request: RequestSource,
+            },
+        }
+    },
 }
 
 export type TrailState = {
@@ -217,38 +248,38 @@ export type TrailState = {
         aggregatedDurationInMs: number,
     },
     status: 'SUCCESS' | 'FAILURE' | 'PENDING',
-    ingested: {
-        [modelName: string]: {
-            listingRequests: {
-                [key: string]: RequestSource,
-            },
-            items: {
-                [key: string]: {
-                    references: Partial<References<any>>,
-                    data: any,
-                    requests: {
-                        [key: string]: RequestSource
-                    },
-                },
-            }
-        },
-    },
-    digested: {
-        [modelName: string]: {
-            listingRequests: {
-                [key: string]: RequestSource,
-            },
-            items: {
-                [key: string]: {
-                    references: Partial<References<any>>,
-                    data: any,
-                    requests: {
-                        [key: string]: RequestSource
-                    },
-                },
-            }
-        },
-    },
+    ingested: TrailStateInOut,
+    digested: TrailStateInOut,
+}
+
+export type TrailInOutMethods<ModelType = unknown> = {
+    // paths
+    getPath(ref?: References): string;
+    getReferencesPath(ref: References): string;
+    getRequestPath(ref?: References): string;
+    getListingRequestPath(ref: References): string;
+    // items
+    get(ref?: References): References;
+    getReferences(ref: References): References;
+    getItemsAsObject(): Record<string, ModelType>;
+    getItems(ref: References): ModelType[];
+    set(partialData: Partial<ModelType>, ref?: References): References;
+    update(partialData: Partial<ModelType>, ref: References): References;
+    // request
+    getRequest(ref: References): References;
+    setRequest(request: RequestSource, partialData: Partial<ModelType>, ref?: References): References;
+    getRequestItemsAsObject(): Record<string, References>;
+    getRequestItems(): References[];
+    // listing requests
+    setListingRequest(request: RequestSource, ref: References): References;
+    getListingRequest(ref: References): RequestSource;
+    getListingRequestItemsAsObject(ref: References): Record<string, RequestSource>;
+    getListingRequestItems(ref: References): RequestSource[];
+    // general
+    count(ref: References): number;
+    availableCount(ref: References): number;
+    acceptsMore(keys?: string[], ref?: References): boolean;
+    getNextKeys(keyedResults?: Record<string, unknown>, ref?: References): string[];
 }
 
 // queue.ts ------------------------------------------------------------

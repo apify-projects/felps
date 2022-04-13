@@ -18,7 +18,7 @@ type ModelDefinitions = {
   }
 }
 
-type BaseStepApi = StepBaseApiMethods;
+type BaseStepApi = StepBaseApiMethods<ModelDefinitions>;
 type GlobalCustomStepApi = {
   test: () => void;
 }

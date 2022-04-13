@@ -1,3 +1,5 @@
+import { camelCase } from 'camel-case';
+
 export const UID_KEY_PREFIX = 'uk';
 export const UID_KEY_LENGTH = 2;
 
@@ -13,5 +15,7 @@ export const HOOK = {
     QUEUE_STARTED: 'QUEUE_STARTED',
     QUEUE_ENDED: 'QUEUE_ENDED',
 };
+
+export const REFERENCE_KEY = (modelName: string) => `${camelCase(modelName)}Key`;
 
 export const METADATA_KEY = 'FELPS_METADATA';

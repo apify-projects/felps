@@ -5,13 +5,13 @@ import RequestMeta from './request-meta';
 import Step from './step';
 import Trail from './trail';
 
-export default class StepBaseApi<Context extends MakeStepBaseApiContext = MakeStepBaseApiContext> extends Base {
+export default class StepBaseApi<ModelDefinitions = unknown, Context extends MakeStepBaseApiContext = MakeStepBaseApiContext> extends Base {
     constructor() {
         super({ key: 'step-base-api', name: 'step-base-api' });
     }
 
     use(step: Step, context: Context) {
-        return (crawlingContext: RequestContext): StepBaseRootMethods<Context> => {
+        return (crawlingContext: RequestContext): StepBaseRootMethods<ModelDefinitions, Context> => {
             const meta = new RequestMeta().from(crawlingContext);
             const getTrailId = () => meta.data.trailId;
 
@@ -30,7 +30,13 @@ export default class StepBaseApi<Context extends MakeStepBaseApiContext = MakeSt
                 getUserData: () => meta.userData,
                 getReferences: () => meta.data.references,
                 // trail
-                trail: new Trail({ id: getTrailId() }),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                trail: new Trail<ModelDefinitions>({
+                    id: getTrailId(),
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    store: (context?.stores as any)?.trails,
+                    models: context?.models,
+                }),
                 // common
                 log: this.log.cloneWithSuffix(getTrailId() ? `${getTrailId()}:${crawlingContext?.request?.id}` : ''),
                 // utils
