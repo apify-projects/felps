@@ -19,6 +19,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
     "lodash.has": "^4.5.2",
+    "lodash.ismatch": "^4.4.0",
     "lodash.mergewith": "^4.6.2",
     "lodash.orderby": "^4.6.0",
     "lodash.set": "^4.3.2",

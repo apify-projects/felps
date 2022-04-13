@@ -99,6 +99,9 @@ export type GenerateStepGotoMethods<T, ModelDefinitions extends Record<string, u
 export type GenerateStepMethods<T, ModelDefinitions extends Record<string, unknown> = Record<string, never>> = GenerateStepGotoMethods<T, ModelDefinitions>;
 
 // step-base-api.ts ------------------------------------------------------------
+// export type StepBaseApiOptions = {
+// }
+
 export type StepBaseApiMethods<
     ModelDefinitions = unknown,
     Context extends MakeStepBaseApiContext = MakeStepBaseApiContext
@@ -131,13 +134,13 @@ export type MakeStepBaseApiContext<
     StoreNames extends string[] = [],
     DatasetNames extends string[] = [],
     QueueNames extends string[] = [],
-    ModelDefinitions extends Record<string, unknown> = Record<string, never>,
+    ModelDefinitions extends Record<string, unknown> = Record<string, unknown>,
     > = {
         input: Input,
         queues: GenerateObject<QueueNames & DefaultQueueNames, Queue>,
         stores: GenerateObject<StoreNames & DefaultStoreNames, AnyStore>;
         datasets: GenerateObject<DatasetNames & DefaultDatasetNames, Dataset>,
-        models: GenerateObject<ModelDefinitions, Model>,
+        models: Models<ModelDefinitions>,
     };
 
 // step-custom-api.ts ------------------------------------------------------------
@@ -150,7 +153,7 @@ export type StepCustomApiExtend<
     Methods = unknown
     > = (crawlingContext: RequestContext, api: Without<InitialMethods, Methods>) => Methods
 
-export type References<T extends Record<string, unknown> = Record<string, unknown>> = {
+export type References<T extends Record<string, string> = Record<string, string>> = {
     [K in Extract<keyof T, string> as `${K}Key`]: string;
 } & { requestKey: string };
 
@@ -170,11 +173,11 @@ export type ModelOptions = {
 }
 
 export type GenerateModelAddMethods<T extends Record<string, unknown>> = {
-    [K in Extract<keyof T, string> as `add${Capitalize<K>}`]: (value: T[K], references?: Partial<References<T>>) => Partial<References<T>>;
+    [K in Extract<keyof T, string> as `add${Capitalize<K>}`]: (value: T[K], ref?: Partial<References<T>>) => Partial<References<T>>;
 };
 
 export type GenerateModelAddPartialMethods<T extends Record<string, unknown>> = {
-    [K in Extract<keyof T, string> as `add${Capitalize<K>}Partial`]: (value: Partial<T[K]>, references?: Partial<References<T>>) => Partial<References<T>>;
+    [K in Extract<keyof T, string> as `add${Capitalize<K>}Partial`]: (value: Partial<T[K]>, ref?: Partial<References<T>>) => Partial<References<T>>;
 };
 
 export type GenerateModelGetReferencePartialMethods<T extends Record<string, unknown>> = {
@@ -208,16 +211,24 @@ export type FileStoreOptions = {
 export type TrailOptions = {
     id?: string;
     store?: DataStore,
-    models?: Record<string, Model>,
+    models?: Models,
 }
 
-export type TrailInOutMethodsOptions = {
+export type TrailInOutMethodsOptions<ModelDefinitions> = {
     name: string;
     path: TrailStateInOutNames;
     store: DataStore;
+    methods: GenerateObject<keyof ModelDefinitions, TrailInOutMethods>,
+    model: Model,
 }
 
 export type TrailStateInOutNames = 'digested' | 'ingested';
+
+export type TrailStateInOutItem = {
+    reference: Partial<References<any>>,
+    data: any,
+    request: RequestSource,
+}
 
 export type TrailStateInOut = {
     [modelName: string]: {
@@ -225,11 +236,7 @@ export type TrailStateInOut = {
             [key: string]: RequestSource,
         },
         items: {
-            [key: string]: {
-                references: Partial<References<any>>,
-                data: any,
-                request: RequestSource,
-            },
+            [key: string]: TrailStateInOutItem,
         }
     },
 }
@@ -255,14 +262,16 @@ export type TrailState = {
 export type TrailInOutMethods<ModelType = unknown> = {
     // paths
     getPath(ref?: References): string;
-    getReferencesPath(ref: References): string;
+    getReferencePath(ref: References): string;
     getRequestPath(ref?: References): string;
     getListingRequestPath(ref: References): string;
     // items
-    get(ref?: References): References;
-    getReferences(ref: References): References;
-    getItemsAsObject(): Record<string, ModelType>;
-    getItems(ref: References): ModelType[];
+    resolve(ref: References): ModelType;
+    get(ref?: References): ModelType;
+    getAsChildren(ref: References): ModelType[];
+    getReference(ref: References): References;
+    getItemsAsObject(): Record<string, TrailStateInOutItem>;
+    getItems(): TrailStateInOutItem[];
     set(partialData: Partial<ModelType>, ref?: References): References;
     update(partialData: Partial<ModelType>, ref: References): References;
     // request
@@ -281,6 +290,20 @@ export type TrailInOutMethods<ModelType = unknown> = {
     acceptsMore(keys?: string[], ref?: References): boolean;
     getNextKeys(keyedResults?: Record<string, unknown>, ref?: References): string[];
 }
+
+export type TrailModelPathsOptions = {
+    name: string;
+    path: TrailStateInOutNames;
+}
+
+export type TrailModelPathsMethods<ReferenceType> = {
+    ITEMS: (reference: Partial<ReferenceType>) => string;
+    ITEM_REQUEST: (reference: Partial<ReferenceType>) => string;
+    ITEM_DATA: (reference: Partial<ReferenceType>) => string;
+    ITEM_REFERENCE: (reference: Partial<ReferenceType>) => string;
+    LISTING_REQUEST: (reference: Partial<ReferenceType>) => string;
+}
+
 
 // queue.ts ------------------------------------------------------------
 export type QueueOptions = {

@@ -1,34 +1,46 @@
 import Base from './base';
-import { ModelOptions } from './common/types';
+import { REFERENCE_KEY } from './common/consts';
+import { ModelOptions, References } from './common/types';
 import { traverse } from './common/utils';
 
 export default class Model extends Base {
-  private _schema: Record<string, unknown>;
+    private _schema: Record<string, unknown>;
 
-  constructor(options: ModelOptions) {
-      const { name } = options || {};
-      super({ key: 'model', name });
+    constructor(options: ModelOptions) {
+        const { name } = options || {};
+        super({ key: 'model', name });
 
-      this.extend(options);
-  }
+        this.extend(options);
+    }
 
-  extend(options: Partial<ModelOptions>) {
-      const { schema } = options || {};
-      this._schema = schema;
-  }
+    extend(options: Partial<ModelOptions>) {
+        const { schema } = options || {};
+        this._schema = schema;
+    }
 
-  get schema() {
-      return {
-          ...this._schema,
-          '#schema-name': this.name,
-      };
-  }
+    get schema() {
+        return {
+            ...this._schema,
+            '#schema-name': this.name,
+        };
+    }
 
-  dependencies(): string[] {
-      const deps = new Set<string>();
-      traverse(this._schema, (key, value) => {
-          if (key === '#schema-name') deps.add(value);
-      });
-      return [...deps];
-  }
+    dependencies(): string[] {
+        const deps = new Set<string>();
+        traverse(this._schema, (key, value) => {
+            if (key === '#schema-name') deps.add(value);
+        });
+        return [...deps];
+    }
+
+    referenceKeys(): string[] {
+        return this.dependencies().map((modelName) => REFERENCE_KEY(modelName));
+    }
+
+    filterReference(ref: Partial<References>) {
+        return this.referenceKeys().reduce((acc, key) => {
+            acc[key] = ref[key];
+            return acc;
+        }, {});
+    }
 }

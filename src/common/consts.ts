@@ -16,6 +16,6 @@ export const HOOK = {
     QUEUE_ENDED: 'QUEUE_ENDED',
 };
 
-export const REFERENCE_KEY = (modelName: string) => `${camelCase(modelName)}Key`;
+export const REFERENCE_KEY = (modelName: string): string => `${camelCase(modelName)}Key`;
 
 export const METADATA_KEY = 'FELPS_METADATA';

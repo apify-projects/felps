@@ -1,9 +1,10 @@
+import isMatch from 'lodash.ismatch';
 import Base from './base';
 import { REFERENCE_KEY } from './common/consts';
 import {
     DeepPartial, GenerateObject, References,
-    TrailInOutMethods, TrailInOutMethodsOptions, TrailOptions,
-    TrailState, TrailStateInOutNames,
+    TrailInOutMethods, TrailInOutMethodsOptions, TrailModelPathsMethods,
+    TrailModelPathsOptions, TrailOptions, TrailState,
 } from './common/types';
 import { concatAsUniqueArray, craftUIDKey, pathify } from './common/utils';
 import DataStore from './data-store';
@@ -39,34 +40,23 @@ export default class Trail<ModelDefinitions> extends Base {
     }
 
     get ingested(): GenerateObject<keyof ModelDefinitions, TrailInOutMethods> {
-        return Object.keys(this._models).reduce((acc, modelName) => {
-            acc[modelName] = makeMethods({ name: modelName, path: 'ingested', store: this._store });
+        const ingested = Object.values(this._models.items).reduce((acc, model) => {
+            acc[model.name] = makeTrailInOutMethods<ModelDefinitions>({ name: model.name, path: 'ingested', store: this._store, model, methods: ingested });
             return acc;
         }, {} as GenerateObject<keyof ModelDefinitions, TrailInOutMethods>);
+        return ingested;
     }
 
     get digested(): GenerateObject<keyof ModelDefinitions, TrailInOutMethods> {
-        return Object.keys(this._models).reduce((acc, modelName) => {
-            acc[modelName] = makeMethods({ name: modelName, path: 'digested', store: this._store });
+        const digested = Object.values(this._models.items).reduce((acc, model) => {
+            acc[model.name] = makeTrailInOutMethods<ModelDefinitions>({ name: model.name, path: 'digested', store: this._store, model, methods: digested });
             return acc;
         }, {} as GenerateObject<keyof ModelDefinitions, TrailInOutMethods>);
+        return digested;
     }
 }
 
-type ModelPathsOptions = {
-    name: string;
-    path: TrailStateInOutNames;
-}
-
-type ModelPathsMethods<ReferenceType> = {
-    ITEMS: (reference: Partial<ReferenceType>) => string;
-    ITEM_REQUEST: (reference: Partial<ReferenceType>) => string;
-    ITEM_DATA: (reference: Partial<ReferenceType>) => string;
-    ITEM_REFERENCES: (reference: Partial<ReferenceType>) => string;
-    LISTING_REQUEST: (reference: Partial<ReferenceType>) => string;
-}
-
-const getModelPaths = <ReferenceType = unknown>(options: ModelPathsOptions): ModelPathsMethods<ReferenceType> => {
+const getTrailModelPaths = <ReferenceType = unknown>(options: TrailModelPathsOptions): TrailModelPathsMethods<ReferenceType> => {
     const { name, path } = options;
 
     const basePath = pathify(path, name);
@@ -76,17 +66,17 @@ const getModelPaths = <ReferenceType = unknown>(options: ModelPathsOptions): Mod
         ITEMS: (reference) => pathify(basePath, 'items', reference?.[referenceKey]),
         ITEM_REQUEST: (reference) => pathify(basePath, 'items', reference?.[referenceKey], 'request'),
         ITEM_DATA: (reference) => pathify(basePath, 'items', reference?.[referenceKey], 'data'),
-        ITEM_REFERENCES: (reference) => pathify(basePath, 'itemes', reference?.[referenceKey], 'references'),
+        ITEM_REFERENCE: (reference) => pathify(basePath, 'items', reference?.[referenceKey], 'reference'),
         LISTING_REQUEST: (reference) => pathify(basePath, 'listingRequests', reference?.[referenceKey]),
     };
 };
 
-const makeMethods = (options: TrailInOutMethodsOptions): TrailInOutMethods => {
-    const { name, path, store } = options;
+const makeTrailInOutMethods = <ModelDefinitions>(options: TrailInOutMethodsOptions<ModelDefinitions>): TrailInOutMethods => {
+    const { name, path, store, methods, model } = options;
     const referenceKey = REFERENCE_KEY(name);
-    const paths = getModelPaths({ name, path });
+    const paths = getTrailModelPaths({ name, path });
 
-    let updateMerger = (existingValue, newValue) => {
+    const updateMerger = (existingValue, newValue) => {
         if (!newValue && typeof existingValue !== 'number') return existingValue;
         if (Array.isArray(newValue)) {
             return concatAsUniqueArray(existingValue, newValue);
@@ -97,15 +87,30 @@ const makeMethods = (options: TrailInOutMethodsOptions): TrailInOutMethods => {
     return {
         // paths
         getPath: (ref) => paths.ITEMS(ref),
-        getReferencesPath: (ref) => paths.ITEM_REFERENCES(ref),
+        getReferencePath: (ref) => paths.ITEM_REFERENCE(ref),
         getRequestPath: (ref) => paths.ITEM_REQUEST(ref),
         getListingRequestPath: (ref) => paths.LISTING_REQUEST(ref),
         // items
+        resolve(ref) {
+            const doc = this.get(ref);
+            const reference = model.filterReference(this.getReference(ref));
+
+            const schema = model.schema;
+            // TODO: go through the schema to rebuild the nested data using
+            // getAsChildren to fetch related sub items in other models
+
+            return {};
+        },
         get(ref) {
             return store.get(this.getPath(ref));
         },
-        getReferences(ref) {
-            return store.get(this.getReferencesPath(ref));
+        getAsChildren(ref) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+            const { [referenceKey as any]: _, ...reference } = ref;
+            return this.getItems().filter((item) => isMatch(item.reference, reference));
+        },
+        getReference(ref) {
+            return store.get(this.getReferencePath(ref));
         },
         getItemsAsObject() {
             return store.get(this.getPath());
@@ -160,7 +165,7 @@ const makeMethods = (options: TrailInOutMethodsOptions): TrailInOutMethods => {
         },
         update(partialData, ref) {
             store.update(this.getPath(ref), partialData || {}, updateMerger);
-            const referencePath = this.getReferencesPath(ref);
+            const referencePath = this.getReferencePath(ref);
             if (referencePath) {
                 store.update(referencePath, ref, updateMerger);
             }
