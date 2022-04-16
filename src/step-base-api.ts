@@ -44,9 +44,7 @@ export default class StepBaseApi<ModelDefinitions = unknown, Context extends Mak
 
             const baseApi = {
                 // step
-                uid: step.uid,
-                name: step.name,
-                id: step.id,
+                step,
                 // main api
                 stores: context?.stores,
                 datasets: context?.datasets,

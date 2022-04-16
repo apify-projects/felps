@@ -1,75 +1,48 @@
-import isMatch from 'lodash.ismatch';
 import Base from './base';
-import { REFERENCE_KEY } from './common/consts';
-import {
-    DeepPartial, GenerateObject, References,
-    TrailInOutMethods, TrailInOutMethodsOptions, TrailModelPathsMethods,
-    TrailModelPathsOptions, TrailOptions, TrailState,
-} from './common/types';
-import { concatAsUniqueArray, craftUIDKey, pathify } from './common/utils';
-import DataStore from './data-store';
-import Model from './model';
+import { DeepPartial, TrailInstance, TrailOptions, TrailState } from '../common/types';
+import { craftUIDKey } from '../common/utils';
+import dataStore from './data-store';
 
-export default class Trail<ModelDefinitions> extends Base {
-    private _id: string;
-    private _store: DataStore;
-    private _models: Record<string, Model>;
+export const create = <T extends ModelDefinitions = ModelDefinitions>(options: TrailOptions): TrailInstance => {
+    const { id = craftUIDKey('trail'), store, models } = options || {};
 
-    constructor(options: TrailOptions) {
-        const { id = craftUIDKey('trail'), store, models = {} } = options || {};
-        super({ key: 'store-trail', name: id });
+    if (!dataStore.has(store, id)) {
+        const initialState: DeepPartial<TrailState> = {
+            id,
+            query: {},
+            requests: {},
+            stats: { startedAt: new Date().toISOString() },
+        };
 
-        this._id = id;
-        this._store = store;
-        this._models = models;
-
-        this.init();
+        dataStore.set(id, initialState);
     }
-
-    init() {
-        if (!this._store.has(this._id)) {
-            const initialState: DeepPartial<TrailState> = {
-                id: this._id,
-                query: {},
-                requests: {},
-                stats: { startedAt: new Date().toISOString() },
-            };
-
-            this._store.set(this._id, initialState);
-        }
-    }
-
-    get ingested(): GenerateObject<keyof ModelDefinitions, TrailInOutMethods> {
-        const ingested = Object.values(this._models.items).reduce((acc, model) => {
-            acc[model.name] = makeTrailInOutMethods<ModelDefinitions>({ name: model.name, path: 'ingested', store: this._store, model, methods: ingested });
-            return acc;
-        }, {} as GenerateObject<keyof ModelDefinitions, TrailInOutMethods>);
-        return ingested;
-    }
-
-    get digested(): GenerateObject<keyof ModelDefinitions, TrailInOutMethods> {
-        const digested = Object.values(this._models.items).reduce((acc, model) => {
-            acc[model.name] = makeTrailInOutMethods<ModelDefinitions>({ name: model.name, path: 'digested', store: this._store, model, methods: digested });
-            return acc;
-        }, {} as GenerateObject<keyof ModelDefinitions, TrailInOutMethods>);
-        return digested;
-    }
-}
-
-const getTrailModelPaths = <ReferenceType = unknown>(options: TrailModelPathsOptions): TrailModelPathsMethods<ReferenceType> => {
-    const { name, path } = options;
-
-    const basePath = pathify(path, name);
-    const referenceKey = REFERENCE_KEY(name);
 
     return {
-        ITEMS: (reference) => pathify(basePath, 'items', reference?.[referenceKey]),
-        ITEM_REQUEST: (reference) => pathify(basePath, 'items', reference?.[referenceKey], 'request'),
-        ITEM_DATA: (reference) => pathify(basePath, 'items', reference?.[referenceKey], 'data'),
-        ITEM_REFERENCE: (reference) => pathify(basePath, 'items', reference?.[referenceKey], 'reference'),
-        LISTING_REQUEST: (reference) => pathify(basePath, 'listingRequests', reference?.[referenceKey]),
+        ...Base.create({ key: 'store-trail', name: 'trail' }),
+        store,
+        models,
     };
 };
+
+export const ingested = (trail: TrailInstance): void => {
+    const _ingested = Object.values(trail.models).reduce((acc, model) => {
+        acc[model.name] = makeTrailInOutMethods<ModelDefinitions>({
+            name: model.name, path: 'ingested',
+            store: trail.store, model, methods: _ingested
+        });
+        return acc;
+    }, {} as GenerateObject<keyof ModelDefinitions, TrailInOutMethods>);
+    return _ingested;
+};
+
+export const digested = (trail: TrailInstance): void => {
+    const _digested = Object.values(trail.models).reduce((acc, model) => {
+        acc[model.name] = makeTrailInOutMethods<ModelDefinitions>({ name: model.name, path: 'ingested', store: trail.store, model, methods: _digested });
+        return acc;
+    }, {} as GenerateObject<keyof ModelDefinitions, TrailInOutMethods>);
+    return _digested;
+};
+
 
 const makeTrailInOutMethods = <ModelDefinitions>(options: TrailInOutMethodsOptions<ModelDefinitions>): TrailInOutMethods => {
     const { name, path, store, methods, model } = options;
@@ -235,3 +208,5 @@ const makeTrailInOutMethods = <ModelDefinitions>(options: TrailInOutMethodsOptio
         },
     };
 };
+
+export default { create };

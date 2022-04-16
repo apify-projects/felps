@@ -9,6 +9,7 @@
   "source": "src/index.ts",
   "main": "dist/index.js",
   "dependencies": {
+    "@types/json-schema": "^7.0.11",
     "@types/node": "^16.11.10",
     "ajv": "^8.11.0",
     "ajv-formats": "^2.1.1",
@@ -16,6 +17,7 @@
     "camel-case": "^4.1.2",
     "cheerio": "^1.0.0-rc.10",
     "constant-case": "^3.0.4",
+    "got-scraping": "^3.2.8",
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
     "lodash.has": "^4.5.2",
@@ -23,7 +25,8 @@
     "lodash.mergewith": "^4.6.2",
     "lodash.orderby": "^4.6.0",
     "lodash.set": "^4.3.2",
-    "nanoid": "^3.2.0"
+    "nanoid": "^3.2.0",
+    "rambda": "^7.0.3"
   },
   "devDependencies": {
     "@apify/eslint-config-ts": "^0.2.3",

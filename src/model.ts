@@ -1,10 +1,11 @@
+import { JSONSchema7 } from 'json-schema';
 import Base from './base';
 import { REFERENCE_KEY } from './common/consts';
 import { ModelOptions, References } from './common/types';
 import { traverse } from './common/utils';
 
 export default class Model extends Base {
-    private _schema: Record<string, unknown>;
+    private _schema: JSONSchema7;
 
     constructor(options: ModelOptions) {
         const { name } = options || {};

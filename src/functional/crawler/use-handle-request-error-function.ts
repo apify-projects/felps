@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { HOOK } from './common/consts';
-import { RequestContext } from './common/types';
-import Actor from './actor';
+import { HOOK } from '../../common/consts';
+import { RequestContext } from '../../common/types';
+import Actor from '../../actor';
 
 export default (actor: Actor) => {
     return async (crawlingContext: RequestContext) => {

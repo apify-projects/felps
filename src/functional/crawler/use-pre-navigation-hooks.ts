@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Actor from './actor';
-import { RequestContext } from './common/types';
-import Trail from './trail';
+import Actor from '../../actor';
+import { RequestContext } from '../../common/types';
+import Trail from '../../trail';
 import useHandleRequestErrorFunction from './use-handle-request-error-function';
 
 export default (actor: Actor) => {

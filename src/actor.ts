@@ -13,9 +13,9 @@ import StepCustomApi from './step-custom-api';
 import Steps from './steps';
 import Stores from './stores';
 import useHandleFailedRequestFunction from './use-handle-failed-request-function';
-import useHandlePageFunction from './use-handle-page-function';
-import usePostNavigationHooks from './use-post-navigation-hooks';
-import usePreNavigationHooks from './use-pre-navigation-hooks';
+import useHandlePageFunction from './functional/crawler/use-handle-page-function';
+import usePostNavigationHooks from './functional/crawler/use-post-navigation-hooks';
+import usePreNavigationHooks from './functional/crawler/use-pre-navigation-hooks';
 import Crawler from './crawler';
 
 export default class Actor extends Base {

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { HOOK } from './common/consts';
-import { RequestContext } from './common/types';
-import RequestMeta from './request-meta';
+import { HOOK } from '../../common/consts';
+import { RequestContext } from '../../common/types';
+import requestMeta from '../request-meta';
 
 export default (context: Context) => {
     return async (crawlingContext: RequestContext) => {
-        const meta = new RequestMeta().from(crawlingContext);
+        const meta = requestMeta.create(crawlingContext);
         const { step } = meta.data;
 
         // Run a general hook

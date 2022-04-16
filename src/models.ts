@@ -3,31 +3,35 @@ import Base from './base';
 import { GenerateModelSetMethods, GenerateObject, ModelOptions, ModelsOptions } from './common/types';
 import Model from './model';
 
-export default class Models<ModelDefinitions extends Record<string, unknown> = Record<string, unknown>> extends Base {
-  names: string[];
-  items: GenerateObject<string, Model>;
+export default class Models<ModelDefinitions = Record<string, never>> extends Base {
+    names: string[];
+    private _items: GenerateObject<Extract<keyof ModelDefinitions, string>, Model>;
 
-  constructor(options?: ModelsOptions<Extract<keyof ModelDefinitions, string>>) {
-      const { names = [] } = options;
-      super({ key: 'models', name: 'models' });
-      this.names = names.map((name) => camelCase(name));
-  }
+    constructor(options?: ModelsOptions<Extract<keyof ModelDefinitions, string>>) {
+        const { names = [] } = options;
+        super({ key: 'models', name: 'models' });
+        this.names = names.map((name) => camelCase(name));
+    }
 
-  init() {
-      for (const name of this.names) {
-      // TODO: Try passing on the MethodsByStep to the Step constructor
-          this.items[name] = new Model({ name });
-      }
-  }
+    init() {
+        for (const name of this.names) {
+            // TODO: Try passing on the MethodsByStep to the Step constructor
+            this._items[name as Extract<keyof ModelDefinitions, string>] = new Model({ name });
+        }
+    }
 
-  get set(): GenerateModelSetMethods<Extract<keyof ModelDefinitions, string>> {
-      return new Proxy(this, {
-          get(target, name: string) {
-              if (target.names.includes(name)) {
-                  return (options: Partial<ModelOptions>) => target.items?.[name]?.extend?.(options);
-              }
-              return undefined;
-          },
-      }) as unknown as GenerateModelSetMethods<Extract<keyof ModelDefinitions, string>>;
-  }
+    get get(): GenerateObject<Extract<keyof ModelDefinitions, string>, Model> {
+        return this._items;
+    }
+
+    get set(): GenerateModelSetMethods<Extract<keyof ModelDefinitions, string>> {
+        return new Proxy(this, {
+            get(target, name: string) {
+                if (target.names.includes(name)) {
+                    return (options: Partial<ModelOptions>) => target.get?.[name]?.extend?.(options);
+                }
+                return undefined;
+            },
+        }) as unknown as GenerateModelSetMethods<Extract<keyof ModelDefinitions, string>>;
+    }
 };
