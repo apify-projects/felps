@@ -68,8 +68,10 @@ export type FlowOptions = {
 // steps.ts ------------------------------------------------------------
 export type StepsInstance<
     Names extends Record<string, string> = Record<string, string>,
-    Methods = unknown> =
-    GeneralKeyedObject<Names, StepInstance<Methods>>;
+    Methods = unknown,
+    CustomMethods extends Partial<Record<Extract<keyof Names, string>, unknown>> = Partial<Record<Extract<keyof Names, string>, unknown>>,
+    > =
+    { [K in Extract<keyof Names, string> as `${SnakeToCamelCase<K>}`]: StepInstance<Methods & CustomMethods[K]> };
 
 export type StepsOptions = {
     names?: string[],
@@ -115,7 +117,7 @@ export type StepApiMetaFlows<FlowNames> = {
 };
 
 export type StepApiFlowsAPI<FlowNames> = {
-    [K in Extract<keyof FlowNames, string> as `start${SnakeToPascalCase<K>}`]: (options: Partial<FlowOptions>) => void;
+    start: (flowName: Extract<keyof FlowNames, string>, request: RequestSource, references: Partial<ModelReference>) => void;
 };
 
 // step-api-steps.ts ------------------------------------------------------------
@@ -126,7 +128,7 @@ export type StepApiMetaSteps<StepNames, ModelSchemas> = {
 export type StepApiStepsAPI<StepNames, ModelSchemas> = GenerateStepGoMethods<StepNames, ModelSchemas>;
 
 export type GenerateStepGoMethods<T, ModelSchemas> = {
-    [K in Extract<keyof T, string> as `go${SnakeToPascalCase<K>}`]: (request: RequestSource, references: Partial<ModelReference<ModelSchemas>>) => void;
+    go: (stepName: Extract<keyof T, string>, request: RequestSource, references: Partial<ModelReference<ModelSchemas>>) => void;
 };
 
 // step-api-models.ts ------------------------------------------------------------
@@ -135,18 +137,13 @@ export type StepApiMetaModels<ModelSchemas extends Record<string, unknown>> = {
 };
 
 // eslint-disable-next-line max-len
-export type StepApiModelsAPI<T extends Record<string, unknown>> = GenerateModelAddMethods<T> & GenerateModelAddPartialMethods<T> & GenerateModelGetReferencePartialMethods<T>;
-
-export type GenerateModelAddMethods<T extends Record<string, unknown>> = {
-    [K in Extract<keyof T, string> as `add${Capitalize<K>}`]: (value: T[K], ref?: Partial<ModelReference<T>>) => Partial<ModelReference<T>>;
-};
-
-export type GenerateModelAddPartialMethods<T extends Record<string, unknown>> = {
-    [K in Extract<keyof T, string> as `add${Capitalize<K>}Partial`]: (value: Partial<T[K]>, ref?: Partial<ModelReference<T>>) => Partial<ModelReference<T>>;
-};
-
-export type GenerateModelGetReferencePartialMethods<T extends Record<string, unknown>> = {
-    [K in Extract<keyof T, string> as `get${Capitalize<K>}Reference`]: () => Partial<ModelReference<T>>;
+export type StepApiModelsAPI<ModelSchemas extends Record<string, unknown>> = {
+    set: <ModelName extends keyof ModelSchemas>
+        (modelName: ModelName, value: ModelSchemas[ModelName], ref?: Partial<ModelReference<ModelSchemas>>) => Partial<ModelReference<ModelSchemas>>;
+    update: <ModelName extends keyof ModelSchemas>
+        (modelName: ModelName, value: Partial<ModelSchemas[ModelName]>, ref?: Partial<ModelReference<ModelSchemas>>) => Partial<ModelReference<ModelSchemas>>;
+    get: <ModelName extends keyof ModelSchemas>
+        (modelName: ModelName, ref?: Partial<ModelReference<ModelSchemas>>) => ModelSchemas[ModelName];
 };
 
 // step-api-meta.ts ------------------------------------------------------------
@@ -255,7 +252,7 @@ export type ModelOptions = {
 
 export type ModelReference<T = unknown> = {
     [K in Extract<keyof T, string> as `${K}Key`]: UniqueyKey;
-} & { requestKey: UniqueyKey };
+} & { requestKey: UniqueyKey, trailKey: UniqueyKey };
 
 // stores.ts ------------------------------------------------------------
 // eslint-disable-next-line max-len

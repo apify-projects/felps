@@ -23,16 +23,16 @@ type StepNames = typeof STEPS;
 type FlowNames = typeof FLOWS;
 
 type ModelSchemas = {
-    tvShow: {
+    TV_SHOW: {
         title: string,
-        seasons?: ModelSchemas['season'][]
+        seasons?: ModelSchemas['SEASON'][]
     },
-    season: {
+    SEASON: {
         title?: string,
         number: number,
-        episodes?: ModelSchemas['episode'][]
+        episodes?: ModelSchemas['EPISODE'][]
     },
-    episode: {
+    EPISODE: {
         number: number,
         title?: string,
     }
@@ -40,36 +40,42 @@ type ModelSchemas = {
 
 type GeneralStepApi = GenerateStepApi<FlowNames, StepNames, ModelSchemas>;
 
+type CustomStepApi = {
+    COLLECT_TV_SHOW_LISTING: {
+        isCool(): boolean
+    }
+};
+
 export const models = Models.create<ModelSchemas>({ names: Object.values(MODELS) });
 
-models.episode.schema = {
+models.EPISODE.schema = {
     type: 'object',
     properties: {
         title: { type: 'string' },
     },
 };
 
-models.season.schema = {
+models.SEASON.schema = {
     type: 'object',
     properties: {
         title: { type: 'string' },
-        episodes: { type: 'array', items: models.episode.schema },
+        episodes: { type: 'array', items: models.EPISODE.schema },
     },
 };
 
 
-models.tvShow.schema = {
+models.TV_SHOW.schema = {
     type: 'object',
     properties: {
         title: { type: 'string' },
         seasons: {
             type: 'array',
-            items: models.season.schema
+            items: models.SEASON.schema
         }
     },
 }
 
-export const steps = Steps.create<StepNames, GeneralStepApi>({ names: Object.values(STEPS) });
+export const steps = Steps.create<StepNames, GeneralStepApi, CustomStepApi>({ names: Object.values(STEPS) });
 
 
 export const flows = Flows.create<FlowNames>({ names: Object.values(FLOWS) });
