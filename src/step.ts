@@ -1,33 +1,45 @@
-import Base from './base';
-import { StepCustomApiExtend, StepOptions, StepOptionsHandler } from './common/types';
+import { curryN } from 'rambda';
+import { RequestContext, StepInstance, StepOptions } from './common/types';
+import base from './base';
 
-export default class Step<InitialMethods = unknown, Methods = unknown> extends Base {
-    handler: StepOptionsHandler<InitialMethods & Methods>;
-    controlHandler?: StepOptionsHandler<InitialMethods & Methods>;
-    failHandler?: StepOptionsHandler<InitialMethods & Methods>;
-    requestErrorHandler?: StepOptionsHandler<InitialMethods & Methods>;
-    extendStepApi: StepCustomApiExtend<InitialMethods, Methods>;
+export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepInstance<Methods> => {
+    const {
+        name,
+        handler = async () => undefined,
+        errorHandler = async () => undefined,
+        requestErrorHandler = async () => undefined,
+    } = options || {};
 
-    constructor(options: StepOptions<InitialMethods, Methods>) {
-        const { name } = options;
-        super({ key: 'step', name });
+    return {
+        ...base.create({ key: 'step', name }),
+        handler,
+        errorHandler,
+        requestErrorHandler,
+    };
+};
 
-        this.extend(options);
+export const on = curryN(2, (step: StepInstance, handler: () => void) => {
+    return {
+        ...step,
+        handler,
+    };
+});
+
+export const extend = curryN(2, <Methods = unknown>(step: StepInstance, options: StepOptions<Methods>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { name, ...otherOptions } = options || {};
+    return {
+        ...step,
+        ...otherOptions,
+    };
+});
+
+export const run = async <Api = unknown>(step: StepInstance, context: RequestContext, api: Api): Promise<void> => {
+    try {
+        await step.handler(context, api);
+    } catch (error) {
+        await step.errorHandler(context, api);
     }
+};
 
-    extend(options: Partial<StepOptions<InitialMethods, Methods>>) {
-        const {
-            handler = async () => undefined,
-            controlHandler = async () => undefined,
-            failHandler = async () => undefined,
-            requestErrorHandler = async () => undefined,
-            extendStepApi = () => ({} as Methods),
-        } = options;
-
-        this.handler = handler || this.handler;
-        this.controlHandler = controlHandler || this.controlHandler;
-        this.failHandler = failHandler || this.failHandler;
-        this.requestErrorHandler = requestErrorHandler || this.requestErrorHandler;
-        this.extendStepApi = extendStepApi || this.extendStepApi;
-    }
-}
+export default { create, on, extend, run };

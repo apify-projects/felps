@@ -1,27 +1,33 @@
 import Apify from 'apify';
-import { QueueOptions, RequestOptionalOptions, RequestSource } from './common/types';
+import { curry } from 'rambda';
+import { QueueInstance, QueueOptions, RequestOptionalOptions, RequestSource } from './common/types';
 import { craftUIDKey } from './common/utils';
-import Base from './base';
-import RequestMeta from './request-meta';
+import base from './base';
+import logger from './logger';
+import requestMeta from './request-meta';
 
-export default class Queue extends Base {
-  requestQueue: Apify.RequestQueue;
-
-  constructor(options?: QueueOptions) {
-      const { name = 'default' } = options || {};
-      super({ key: 'queue', name });
-      this.requestQueue = undefined;
-  }
-
-  async init() {
-      if (!this.requestQueue) {
-          this.requestQueue = await Apify.openRequestQueue(this.name !== 'default' ? this.name : undefined);
-      }
-  }
-
-  async addRequest(request: RequestSource, options?: RequestOptionalOptions): Promise<Apify.QueueOperationInfo> {
-      const meta = new RequestMeta().from(request);
-      this.log.info(`Queueing ${request.url} request for: ${meta.data.step}.`);
-      return this.requestQueue.addRequest({ uniqueKey: craftUIDKey('req', 6), ...request }, options);
-  }
+export const create = (options?: QueueOptions): QueueInstance => {
+    const { name } = options || {};
+    return {
+        ...base.create({ key: 'queue', name }),
+        resource: undefined,
+    };
 };
+
+export const load = async (queue: QueueInstance): Promise<QueueInstance> => {
+    if (queue.resource) return queue;
+
+    return {
+        ...queue,
+        resource: await Apify.openRequestQueue(queue.name),
+    };
+};
+
+export const add = curry(async (queue: QueueInstance, request: RequestSource, options?: RequestOptionalOptions) => {
+    const meta = requestMeta.create(request);
+    const loaded = await load(queue);
+    logger.info(logger.create(queue), `Queueing ${request.url} request for: ${meta.data.step}.`);
+    return loaded.resource.addRequest({ uniqueKey: craftUIDKey('req', 6), ...request, ...options });
+});
+
+export default { create, load, add };

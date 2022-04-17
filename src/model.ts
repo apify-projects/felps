@@ -1,47 +1,51 @@
 import { JSONSchema7 } from 'json-schema';
-import Base from './base';
-import { REFERENCE_KEY } from './common/consts';
-import { ModelOptions, References } from './common/types';
+import { REFERENCE_KEY } from '../common/consts';
+import { ModelInstance, ModelOptions, ModelReference } from './common/types';
 import { traverse } from './common/utils';
+import base from './base';
 
-export default class Model extends Base {
-    private _schema: JSONSchema7;
+export const create = (options: ModelOptions): ModelInstance => {
+    const { name, schema } = options || {};
 
-    constructor(options: ModelOptions) {
-        const { name } = options || {};
-        super({ key: 'model', name });
+    return {
+        ...base.create({ name, key: 'model' }),
+        schema,
+    };
+};
 
-        this.extend(options);
-    }
+export const extend = (model: ModelInstance, options: ModelOptions): ModelInstance => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { name, ...otherOptions } = options || {};
+    return {
+        ...model,
+        ...otherOptions,
+    };
+};
 
-    extend(options: Partial<ModelOptions>) {
-        const { schema } = options || {};
-        this._schema = schema;
-    }
+export const schema = (model: ModelInstance): JSONSchema7 => {
+    return {
+        ...model.schema,
+        '#schema-name': model.name,
+    } as JSONSchema7;
+};
 
-    get schema() {
-        return {
-            ...this._schema,
-            '#schema-name': this.name,
-        };
-    }
+export const dependencies = (model: ModelInstance): string[] => {
+    const deps = new Set<string>();
+    traverse(model.schema, (key, value) => {
+        if (key === '#schema-name') deps.add(value);
+    });
+    return [...deps];
+};
 
-    dependencies(): string[] {
-        const deps = new Set<string>();
-        traverse(this._schema, (key, value) => {
-            if (key === '#schema-name') deps.add(value);
-        });
-        return [...deps];
-    }
+export const referenceKeys = (model: ModelInstance): string[] => {
+    return dependencies(model).map((modelName) => REFERENCE_KEY(modelName));
+};
 
-    referenceKeys(): string[] {
-        return this.dependencies().map((modelName) => REFERENCE_KEY(modelName));
-    }
+export const references = (model: ModelInstance, ref: Partial<ModelReference>): Partial<ModelReference> => {
+    return referenceKeys(model).reduce((acc, key) => {
+        acc[key] = ref[key];
+        return acc;
+    }, {});
+};
 
-    filterReference(ref: Partial<References>) {
-        return this.referenceKeys().reduce((acc, key) => {
-            acc[key] = ref[key];
-            return acc;
-        }, {});
-    }
-}
+export default { create, schema, dependencies, referenceKeys, references };

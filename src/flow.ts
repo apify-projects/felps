@@ -1,33 +1,28 @@
-import type { JSONSchema7 } from 'json-schema';
-import Base from './base';
-import Step from './step';
-import { FlowOptions } from './common/types';
+import { curryN } from 'rambda';
+import { FlowInstance, FlowOptions, StepInstance } from './common/types';
+import base from './base';
 
-export default class Flow extends Base {
-    private _steps: Step[];
-    private _output: JSONSchema7;
+export const create = (options: FlowOptions): FlowInstance => {
+    const { name, steps = [], output } = options || {};
 
-    constructor(options: FlowOptions) {
-        const { name } = options || {};
-        super({ key: 'flow', name });
-        this.extend(options);
-    }
+    return {
+        ...base.create({ key: 'flow', name }),
+        steps,
+        output,
+    };
+};
 
-    extend(options: Partial<FlowOptions>) {
-        const { steps = [], output } = options || {};
-        this._steps = steps || this._steps;
-        this._output = output || this._output;
-    }
+export const has = curryN(2, (flow: FlowInstance, stepName: string): boolean => {
+    return flow.steps.some((step: StepInstance) => step.name === stepName);
+});
 
-    get steps() {
-        return this._steps;
-    }
+export const extend = curryN(2, (flow: FlowInstance, options: FlowOptions): FlowInstance => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { name, ...otherOptions } = options || {};
+    return {
+        ...flow,
+        ...otherOptions,
+    };
+});
 
-    get output() {
-        return this._output;
-    }
-
-    has(name: string) {
-        return this._steps.some((step: Step) => step.name === name);
-    }
-}
+export default { create, has };

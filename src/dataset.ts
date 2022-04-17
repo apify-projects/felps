@@ -1,24 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify from 'apify';
-import Base from './base';
-import { DatasetOptions } from './common/types';
+import { curryN } from 'rambda';
+import { DatasetInstance, DatasetOptions } from './common/types';
+import base from './base';
 
-export default class Dataset extends Base {
-    dataset: Apify.Dataset;
+export const create = (options?: DatasetOptions): DatasetInstance => {
+    const { name } = options || {};
 
-    constructor(options?: DatasetOptions) {
-        const { name = 'default' } = options || {};
-        super({ key: 'dataset', name });
-        this.dataset = undefined;
-    }
+    return {
+        ...base.create({ key: 'dataset', name }),
+        resource: undefined,
+    };
+};
 
-    async init() {
-        if (!this.dataset) {
-            this.dataset = await Apify.openDataset(this.name !== 'default' ? this.name : undefined);
-        }
-    }
+export const load = async (dataset: DatasetInstance): Promise<DatasetInstance> => {
+    if (dataset.resource) return dataset;
 
-    async push(data: any | any[]) {
-        return this.dataset.pushData(data);
-    }
-}
+    return {
+        ...dataset,
+        resource: await Apify.openDataset(dataset.name),
+    };
+};
+
+export const push = curryN(2, async (dataset: DatasetInstance, data: any | any[]) => {
+    const loaded = await load(dataset);
+    return loaded.resource.pushData(data);
+});
+
+export default { create, load, push };

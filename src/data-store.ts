@@ -4,97 +4,96 @@ import getByKey from 'lodash.get';
 import hasByPath from 'lodash.has';
 import mergeWith from 'lodash.mergewith';
 import setByKey from 'lodash.set';
-import Base from './base';
-import { DataStoreOptions } from './common/types';
+import { curry, curryN } from 'rambda';
+import base from './base';
+import logger from './logger';
+import { DataStoreInstance, DataStoreOptions } from './common/types';
 import { craftUIDKey } from './common/utils';
 
-export default class DataStore extends Base {
-  kvKey: string;
-  pathPrefix: string;
+export const create = (options?: DataStoreOptions): DataStoreInstance => {
+    const { name, kvKey, key = 'data-store', pathPrefix = '' } = options || {};
 
-  initialized: boolean;
-  store: Record<string, any>;
-  constructor(options: DataStoreOptions) {
-      const { name, kvKey, key = 'data-store', pathPrefix = '' } = options || {};
-      super({ key, name });
+    return {
+        ...base.create({ key, name, id: `${key}-${name}${kvKey ? `-${kvKey}` : ''}` }),
+        kvKey,
+        pathPrefix,
+        initialized: false,
+        store: {},
+    };
+};
 
-      this.id = `${key}-${name}${kvKey ? `-${kvKey}` : ''}`;
-      this.kvKey = kvKey || `${key}-${name}`;
-      this.pathPrefix = pathPrefix;
+export const getPath = curryN(2, (dataStore: DataStoreInstance, path: string): string => {
+    return [dataStore.pathPrefix, path].filter(Boolean).join('.');
+});
 
-      this.initialized = false;
-      this.store = {};
-  }
+export const get = curryN(2, (dataStore: DataStoreInstance, path: string): unknown => {
+    return cloneDeep(path ? getByKey(dataStore.store, getPath(dataStore, path)) : dataStore.store);
+});
 
-  getPath(key: string) {
-      return [this.pathPrefix, key].filter(Boolean).join('.');
-  }
+export const set = curryN(3, (dataStore: DataStoreInstance, path: string, data: unknown): void => {
+    setByKey(dataStore.store, getPath(dataStore, path), data);
+});
 
-  get(path?: string): any {
-      return cloneDeep(path ? getByKey(this.store, this.getPath(path)) : this.store) as any;
-  }
+export const has = curryN(2, (dataStore: DataStoreInstance, path: string): void => {
+    hasByPath(dataStore.store, getPath(dataStore, path));
+});
 
-  set(path: string, data: any) {
-      setByKey(this.store, this.getPath(path), data);
-  }
+export const increment = curryN(3, (dataStore: DataStoreInstance, path: string, stepNumber = 1): number => {
+    set(dataStore, getPath(dataStore, path), +(get(dataStore, getPath(dataStore, path)) || 0) + stepNumber);
+    return get(dataStore, getPath(dataStore, path));
+});
 
-  has(path: string) {
-      return hasByPath(this.store, this.getPath(path));
-  }
+export const decrement = curryN(3, (dataStore: DataStoreInstance, path: string, stepNumber = 1): number => {
+    return increment(dataStore, path, -stepNumber);
+});
 
-  add(path: string, nb: number) {
-      this.set(this.getPath(path), +(this.get(this.getPath(path)) || 0) + nb);
-  }
+export const pop = curryN(2, (dataStore: DataStoreInstance, path: string): unknown => {
+    const items = get(dataStore, getPath(dataStore, path)) || [];
+    const item = items.pop();
+    set(dataStore, getPath(dataStore, path), items);
+    return item;
+});
 
-  subtract(path: string, nb: number) {
-      this.set(this.getPath(path), +(this.get(this.getPath(path)) || 0) - nb);
-  }
+export const shift = curryN(2, (dataStore: DataStoreInstance, path: string): unknown => {
+    const items = get(dataStore, getPath(dataStore, path)) || [];
+    const item = items.shift();
+    set(dataStore, getPath(dataStore, path), items);
+    return item;
+});
 
-  pop(path: string) {
-      const items = this.get(this.getPath(path)) || [];
-      const item = items.pop();
-      this.set(this.getPath(path), items);
-      return item;
-  }
+export const push = curryN(3, (dataStore: DataStoreInstance, path: string, data: unknown): void => {
+    set(dataStore, getPath(dataStore, path), [...(get(dataStore, getPath(dataStore, path)) || []), data]);
+});
 
-  shift(path: string) {
-      const items = this.get(this.getPath(path)) || [];
-      const item = items.shift();
-      this.set(this.getPath(path), items);
-      return item;
-  }
+export const setAndGetKey = curryN(2, (dataStore: DataStoreInstance, data: unknown): string => {
+    const path = craftUIDKey();
+    set(dataStore, getPath(dataStore, path), data);
+    return path;
+});
 
-  push(path: string, data: any) {
-      this.set(this.getPath(path), [...(this.get(this.getPath(path)) || []), data]);
-  }
+export const update = curry((
+    dataStore: DataStoreInstance, path: string, data: unknown, merger: (oldData: unknown, newData: unknown) => unknown = () => undefined): void => {
+    set(dataStore, getPath(dataStore, path), mergeWith(
+        get(dataStore, getPath(dataStore, path)) || {},
+        data || {},
+        merger,
+    ));
+});
 
-  setAndGetKey(data: any) {
-      const path = craftUIDKey();
-      this.set(this.getPath(path), data);
-      return path;
-  }
+export const load = async (dataStore: DataStoreInstance): Promise<DataStoreInstance> => {
+    if (!dataStore.initialized) {
+        logger.info(logger.create(dataStore), 'Loading...');
+        return {
+            ...dataStore,
+            initialized: true,
+            store: (await Apify.getValue(dataStore.kvKey) || {}) as Record<string, unknown>,
+        };
+    }
+    return dataStore;
+};
 
-  update(path: string, data: any, merger: (oldData: any, newData: any) => any = () => undefined) {
-      this.set(this.getPath(path),
-          mergeWith(
-              this.get(this.getPath(path)) || {},
-              data || {},
-              merger,
-          ),
-      );
-  }
+export const persist = async (dataStore: DataStoreInstance): Promise<void> => {
+    await Apify.setValue(dataStore.kvKey, dataStore.store);
+};
 
-  async init() {
-      if (!this.initialized) {
-          this.log.info('Initializing...');
-          this.initialized = true;
-          const data = await Apify.getValue(this.kvKey) || {} as any;
-          this.store = data;
-      }
-  }
-
-  async persist() {
-      this.log.info('Persisting...');
-      await Apify.setValue(this.kvKey, this.store);
-  }
-}
+export default { create, get, set, has, increment, decrement, pop, shift, push, setAndGetKey, update, load, persist };

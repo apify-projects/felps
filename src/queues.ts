@@ -1,15 +1,17 @@
-import { DefaultQueueNames, GenerateObject, QueueOptions, ValueOf } from './common/types';
-import Store from './data-store';
-import Queue from './queue';
+import { QueuesInstance, QueuesOptions } from './common/types';
+import queue from './queue';
 
-export default class Queues<Names extends string[] = []> {
-  items: GenerateObject<Names & DefaultQueueNames, Store>;
-
-  constructor() {
-      this.add('default');
-  }
-
-  add(name: Extract<ValueOf<Names>, string> | DefaultQueueNames, options: Omit<QueueOptions, 'name'> = {}) {
-      this.items[name as string] = new Queue({ name, ...options });
-  }
+export const DefaultQueues = {
+    default: queue.create(),
 };
+
+export const create = <Names extends string[] = []>(options?: QueuesOptions<Names>): QueuesInstance<Names> => {
+    const { names = [] } = options || {};
+
+    return names.reduce((queues, name) => ({
+        ...queues,
+        [name]: queue.create({ name }),
+    }), DefaultQueues as unknown as QueuesInstance<Names>);
+};
+
+export default { create, DefaultQueues };

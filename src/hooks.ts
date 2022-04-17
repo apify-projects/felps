@@ -1,11 +1,17 @@
-import { DefaultHookNames, GenerateObject, MakeStepBaseApiContext, StepOptions } from './common/types';
+import type { HooksInstance } from './common/types';
+import step from './step';
 
-import Step from './step';
-
-export default class Hooks<InitialMethods = MakeStepBaseApiContext> {
-  items: GenerateObject<DefaultHookNames[], Step>;
-
-  add(name: DefaultHookNames, options: Omit<StepOptions<InitialMethods>, 'name'> = { handler: async () => undefined }) {
-      this.items[name as string] = new Step<InitialMethods>({ name, ...options });
-  }
+export const create = (): HooksInstance => {
+    return {
+        stepStarted: step.create({ name: 'stepStarted' }),
+        stepEnded: step.create({ name: 'stepEnded' }),
+        stepFailed: step.create({ name: 'stepFailed' }),
+        stepRequestFailed: step.create({ name: 'stepRequestFailed' }),
+        actorStarted: step.create({ name: 'actorStarted' }),
+        actorEnded: step.create({ name: 'actorEnded' }),
+        queueStarted: step.create({ name: 'queueStarted' }),
+        queueEnded: step.create({ name: 'queueEnded' }),
+    };
 };
+
+export default { create };

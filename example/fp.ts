@@ -63,6 +63,11 @@ steps.set.collectMovieListing({
     extendStepApi(context, api) {
         return {
             hi: () => {
+                const movieRef = api.addMovie({ name: 'The Matrix' });
+                api.goCollectMovie({ url: '' }, movieRef);
+
+                api.goCollectMovieListing({ url: '' }, movieRef);
+
                 console.log('test');
                 return 'doewj';
             }

@@ -1,15 +1,17 @@
-import { DefaultDatasetNames, GenerateObject, DatasetOptions, ValueOf } from './common/types';
-import Store from './data-store';
-import Dataset from './queue';
+import { DatasetsInstance, DatasetsOptions } from './common/types';
+import dataset from './dataset';
 
-export default class Datasets<Names extends string[] = []> {
-  items: GenerateObject<Names & DefaultDatasetNames, Store>;
-
-  constructor() {
-      this.add('default');
-  }
-
-  add(name: Extract<ValueOf<Names>, string> | DefaultDatasetNames, options: Omit<DatasetOptions, 'name'> = {}) {
-      this.items[name as string] = new Dataset({ name, ...options });
-  }
+export const DefaultDatasets = {
+    default: dataset.create(),
 };
+
+export const create = <Names extends string[] = []>(options?: DatasetsOptions<Names>): DatasetsInstance<Names> => {
+    const { names = [] } = options || {};
+
+    return (names as Names).reduce((datasets, name) => ({
+        ...datasets,
+        [name]: dataset.create({ name }),
+    }), DefaultDatasets as unknown as DatasetsInstance<Names>);
+};
+
+export default { create };

@@ -1,71 +1,59 @@
 import Apify from 'apify';
 import EventEmitter from 'events';
+import { curry } from 'rambda';
+import { LoggerInstance, LoggerOptions } from './common/types';
 
 const loggerEvents = new EventEmitter();
 loggerEvents.setMaxListeners(8000);
 
-export default class Logger {
-    resource: { id: string };
-    suffix: string;
-    level: string;
-    logger: typeof Apify.utils.log
+export const create = (element: { id: string }, options?: LoggerOptions): LoggerInstance => {
+    const { suffix, level = Apify.utils.log.LEVELS.INFO } = options || {};
 
-    constructor(resource: { id: string }) {
-        this.resource = resource;
-        this.logger = Apify.utils.log;
-        this.logger.setLevel(this.logger.LEVELS.INFO);
-        loggerEvents.on('debugMode', () => { this.logger.setLevel(this.logger.LEVELS.DEBUG); });
-        loggerEvents.on('infoMode', () => { this.logger.setLevel(this.logger.LEVELS.INFO); });
-    }
+    const logger = Apify.utils.log;
+    logger.setLevel(level);
+    loggerEvents.on('mode', (newLevel) => { logger.setLevel(newLevel); });
 
-    debugMode() {
-        loggerEvents.emit('debugMode');
-    }
-
-    infoMode() {
-        loggerEvents.emit('infoMode');
-    }
-
-    resourceId() {
-        return this.resource.id;
-    }
-
-    makeLogMessage(icon: string, id: string, message: string) {
-        return `${icon} (${id}${this.suffix ? `:${this.suffix}` : ''})  ${message}`;
+    return {
+        elementId: element.id,
+        suffix,
+        level,
+        apifyLogger: logger,
     };
+};
 
-    cloneWithSuffix(suffix: string) {
-        const logger = new Logger({ id: this.resource.id });
-        logger.resource = this.resource;
-        logger.suffix = suffix;
-        return logger;
-    }
+export const setDebug = () => {
+    loggerEvents.emit('mode', Apify.utils.log.LEVELS.DEBUG);
+};
 
-    debug(message: string, data?: Record<string, any>) {
-        this.logger.debug(this.makeLogMessage('[?!]', this.resourceId(), message), data);
-    }
+export const setInfo = () => {
+    loggerEvents.emit('mode', Apify.utils.log.LEVELS.INFO);
+};
 
-    start(message: string, data?: Record<string, any>) {
-        this.logger.info(this.makeLogMessage('[>]', this.resourceId(), message), data);
-    }
+export const createMessage = (logger: LoggerInstance, icon: string, id: string, message: string) => {
+    return `${icon} (${id}${logger.suffix ? `:${logger.suffix}` : ''})  ${message}`;
+};
 
-    end(message: string, data?: Record<string, any>) {
-        this.logger.info(this.makeLogMessage('[<]', this.resourceId(), message), data);
-    }
+export const createLog = (method: string, icon: string) => curry((logger: LoggerInstance, message: string, data?: Record<string, any>) => {
+    logger.apifyLogger[method](createMessage(logger, icon, logger.elementId, message), data);
+});
 
-    info(message: string, data?: Record<string, any>) {
-        this.logger.info(this.makeLogMessage('[i]', this.resourceId(), message), data);
-    }
+export const debug = createLog('debug', '[?!]');
 
-    db(message: string, data?: Record<string, any>) {
-        this.logger.info(this.makeLogMessage('[db]', this.resourceId(), message), data);
-    }
+export const start = createLog('info', '[>]');
 
-    warning(message: string, data?: Record<string, any>) {
-        this.logger.error(this.makeLogMessage('[?]', this.resourceId(), message), data);
-    }
+export const end = createLog('info', '[<]');
 
-    error(message: string, data?: Record<string, any>) {
-        this.logger.error(this.makeLogMessage('[!]', this.resourceId(), message), data);
-    }
+export const info = createLog('info', '[<]');
+
+export const error = createLog('error', '[!]');
+
+export default {
+    create,
+    setDebug,
+    setInfo,
+    debug,
+    start,
+    end,
+    info,
+    error,
 };

@@ -1,5 +1,5 @@
-import { StepApiUtilsInstance } from '../common/types';
-import { resolveUrl } from '../common/utils';
+import { StepApiUtilsInstance } from './common/types';
+import { resolveUrl } from './common/utils';
 import base from './base';
 
 export const create = (): StepApiUtilsInstance => {

@@ -1,5 +1,5 @@
-import { MakeStepBaseApiContext, StepBaseApiInstance, StepBaseApiOptions } from '../common/types';
-import { resolveUrl } from '../common/utils';
+import { MakeStepBaseApiContext, StepBaseApiInstance, StepBaseApiOptions } from './common/types';
+import { resolveUrl } from './common/utils';
 import base from './base';
 import requestMeta from './request-meta';
 
@@ -32,12 +32,12 @@ export const create = <ModelDefinitions = unknown, Context extends MakeStepBaseA
             //         [`get${model.name}Reference`]: () => {
             //             return model.filterReference(meta.data.references);
             //         },
-            //         [`add${model.name}`]: (value: any, ref?: References) => {
+            //         [`add${model.name}`]: (value: any, ref?: ModelReference) => {
             //             // validate ref
             //             // validate data
             //             return trail.ingested[model.name].add(value, ref);
             //         },
-            //         [`add${model.name}Partial`]: (value: Partial<any>, ref?: References) => {
+            //         [`add${model.name}Partial`]: (value: Partial<any>, ref?: ModelReference) => {
             //             // validate ref
             //             // validate partial data
             //             return trail.ingested[model.name].add(value, ref);

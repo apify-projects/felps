@@ -1,40 +1,19 @@
-import Base from './base';
-import { METADATA_KEY } from './common/consts';
-import { RequestMetaData, RequestContext, RequestSource } from './common/types';
+import { CrawlingContext } from 'apify';
+import { METADATA_KEY } from '../common/consts';
+import { RequestContext, RequestMetaInstance, RequestSource } from './common/types';
+import base from './base';
 
-export default class RequestMeta extends Base {
-  private _data: any;
-  private _userData: any;
+export const create = (requestOrCrawlingContext: RequestSource | RequestContext | CrawlingContext): RequestMetaInstance => {
+    const request = (requestOrCrawlingContext as RequestContext)?.request || (requestOrCrawlingContext as RequestSource);
+    const userData = request?.userData;
+    const data = userData?.[METADATA_KEY] || {};
 
-  constructor() {
-      super({ key: 'request-meta', name: 'request-meta' });
-  }
-
-  from(requestOrCrawlingContext: RequestSource | RequestContext) {
-      this._userData = ((requestOrCrawlingContext as RequestContext)?.request || (requestOrCrawlingContext as RequestSource))?.userData;
-      this._data = this._userData?.[METADATA_KEY];
-      return this;
-  }
-
-  addTo(request: RequestSource) {
-      return {
-          ...request,
-          userData: {
-              ...request.userData,
-              [METADATA_KEY]: this._data,
-          },
-      };
-  };
-
-  get data(): RequestMetaData {
-      return this._data;
-  }
-
-  set data(value: RequestMetaData) {
-      this._data = value;
-  }
-
-  get userData(): any {
-      return this._userData;
-  }
+    return {
+        ...base.create({ key: 'request-meta', name: 'request-meta' }),
+        request,
+        userData,
+        data,
+    };
 };
+
+export default { create };

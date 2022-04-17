@@ -1,6 +1,6 @@
 import requestMeta from './request-meta';
 import base from './base';
-import { StepApiMetaInstance } from '../common/types';
+import { StepApiMetaInstance } from './common/types';
 
 export const create = (): StepApiMetaInstance => {
     return {

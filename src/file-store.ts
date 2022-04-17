@@ -1,32 +1,34 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify from 'apify';
-import { FileStoreOptions } from './common/types';
-import Base from './base';
+import { curry, curryN } from 'rambda';
+import { FileStoreInstance, FileStoreOptions } from './common/types';
+import base from './base';
 
-export default class FileStore extends Base {
-    kv: Apify.KeyValueStore;
-    initialized: boolean;
+export const create = (options: FileStoreOptions): FileStoreInstance => {
+    const { name, key = 'file-store' } = options || {};
+    return {
+        ...base.create({ name, key }),
+        resource: undefined,
+        initialized: false,
+    };
+};
 
-    constructor(options: FileStoreOptions) {
-        const { name, key = 'file-store' } = options || {};
-        super({ key, name });
+export const load = async (fileStore: FileStoreInstance): Promise<FileStoreInstance> => {
+    if (fileStore.resource) return fileStore;
 
-        this.initialized = false;
-    }
+    return {
+        ...fileStore,
+        resource: await Apify.openKeyValueStore(fileStore.name),
+    };
+};
 
-    async get(key: string): Promise<any> {
-        return this.kv.getValue(key);
-    }
+export const get = curryN(2, async (fileStore: FileStoreInstance, key: string) => {
+    const loaded = await load(fileStore);
+    return loaded.resource.getValue(key);
+});
 
-    async set(key: string, value: Apify.KeyValueStoreValueTypes, options?: { contentType?: string; }) {
-        return this.kv.setValue(key, value, options);
-    }
+export const set = curry(async (fileStore: FileStoreInstance, key: string, value: unknown, options?: { contentType?: string; }) => {
+    const loaded = await load(fileStore);
+    return loaded.resource.setValue(key, value, options);
+});
 
-    async init() {
-        if (!this.initialized) {
-            this.log.info('Initializing...');
-            this.initialized = true;
-            this.kv = await Apify.openKeyValueStore(this.name !== 'default' ? this.name : undefined);
-        }
-    }
-}
+export default { create, load, get, set };

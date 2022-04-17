@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type Apify from 'apify';
-import { CrawlingContext } from 'apify';
+import { BasicCrawler, CrawlingContext } from 'apify';
 import { LogLevel } from 'apify/build/utils_log';
 import type { JSONSchema7 } from 'json-schema';
-import { DefaultCrawler } from '../functional/crawler';
+import { DefaultCrawler } from '../crawler';
 
+export type UniqueyKey = string;
 
 export type DeepPartial<T> = Partial<{ [P in keyof T]: DeepPartial<T[P]> }>;
 export type SnakeToCamelCase<S extends string> =
@@ -106,18 +107,18 @@ export type StepInstance<Methods = unknown> = {
 
 export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
 
-export type GenerateStepGotoMethods<T, ModelDefinitions extends Record<string, unknown> = Record<string, unknown>> = {
-    [K in Extract<T, string> as `goto${SnakeToPascalCase<K>}`]: (request: RequestSource, references: References<ModelDefinitions>) => void;
+export type GenerateStepGoMethods<T, ModelDefinitions extends Record<string, unknown> = Record<string, unknown>> = {
+    [K in Extract<T, string> as `go${SnakeToPascalCase<K>}`]: (request: RequestSource, references: ModelReference<ModelDefinitions>) => void;
 };
 
-export type GenerateStepMethods<T, ModelDefinitions extends Record<string, unknown> = Record<string, unknown>> = GenerateStepGotoMethods<T, ModelDefinitions>;
+export type GenerateStepMethods<T, ModelDefinitions extends Record<string, unknown> = Record<string, unknown>> = GenerateStepGoMethods<T, ModelDefinitions>;
 
 // step-api-meta.ts ------------------------------------------------------------
 export type StepApiMetaInstance = {
     handler: (context: CrawlingContext) => {
         getUserData: () => Record<string, unknown>,
         getMetaData: () => RequestMetaData,
-        getReferences: () => RequestMetaData['references'],
+        getModelReference: () => RequestMetaData['references'],
     },
 };
 
@@ -156,7 +157,7 @@ export type StepBaseApiMethodsDefinition<ModelDefinitions = unknown, Context ext
     getInput: () => Context['input'],
     getStep: () => string,
     getUserData: () => any,
-    getReferences: () => Partial<References<any>>,
+    getModelReference: () => Partial<ModelReference<any>>,
     // trail
     trail: Trail<ModelDefinitions>,
     // common
@@ -191,9 +192,9 @@ export type StepCustomApiExtend<
     Methods = unknown
     > = (crawlingContext: RequestContext, api: Without<InitialMethods, Methods>) => Methods
 
-export type References<T> = {
-    [K in Extract<keyof T, string> as `${K}Key`]: string;
-} & { requestKey: string };
+export type ModelReference<T> = {
+    [K in Extract<keyof T, string> as `${K}Key`]: UniqueyKey;
+} & { requestKey: UniqueyKey };
 
 // models.ts ------------------------------------------------------------
 export type ModelsInstance<ModelDefinitions = Record<string, never>> = GenerateObject<Extract<keyof ModelDefinitions, string>[], Model>
@@ -217,15 +218,15 @@ export type ModelOptions = {
 }
 
 export type GenerateModelAddMethods<T extends Record<string, unknown>> = {
-    [K in Extract<keyof T, string> as `add${Capitalize<K>}`]: (value: T[K], ref?: Partial<References<T>>) => Partial<References<T>>;
+    [K in Extract<keyof T, string> as `add${Capitalize<K>}`]: (value: T[K], ref?: Partial<ModelReference<T>>) => Partial<ModelReference<T>>;
 };
 
 export type GenerateModelAddPartialMethods<T extends Record<string, unknown>> = {
-    [K in Extract<keyof T, string> as `add${Capitalize<K>}Partial`]: (value: Partial<T[K]>, ref?: Partial<References<T>>) => Partial<References<T>>;
+    [K in Extract<keyof T, string> as `add${Capitalize<K>}Partial`]: (value: Partial<T[K]>, ref?: Partial<ModelReference<T>>) => Partial<ModelReference<T>>;
 };
 
 export type GenerateModelGetReferencePartialMethods<T extends Record<string, unknown>> = {
-    [K in Extract<keyof T, string> as `get${Capitalize<K>}Reference`]: () => Partial<References<T>>;
+    [K in Extract<keyof T, string> as `get${Capitalize<K>}Reference`]: () => Partial<ModelReference<T>>;
 };
 
 export type GenerateModelMethods<
@@ -310,21 +311,20 @@ export type TrailInOutMethodsOptions<ModelDefinitions> = {
 
 export type TrailDataPath = 'digested' | 'ingested';
 
-export type TrailStateInOutItem = {
-    reference: Partial<References<any>>,
-    data: any,
-    request: RequestSource,
+export type TrailDataModelItem<T = unknown> = {
+    reference: Partial<ModelReference<T>>,
+    data: Partial<T>,
 }
 
-export type TrailStateInOut = {
+export type TrailDataModels = {
     [modelName: string]: {
-        listingRequests: {
-            [key: string]: RequestSource,
-        },
-        items: {
-            [key: string]: TrailStateInOutItem,
-        }
+        [key: string]: TrailDataModelItem,
     },
+}
+
+export type TrailDataFunnel = {
+    items: TrailDataModels,
+    requests: Record<string, RequestSource>,
 }
 
 export type TrailState = {
@@ -341,40 +341,8 @@ export type TrailState = {
         aggregatedDurationInMs: number,
     },
     status: 'SUCCESS' | 'FAILURE' | 'PENDING',
-    ingested: TrailStateInOut,
-    digested: TrailStateInOut,
-}
-
-export type TrailInOutMethods<ModelType = unknown> = {
-    // paths
-    getPath(ref?: References): string;
-    getReferencePath(ref: References): string;
-    getRequestPath(ref?: References): string;
-    getListingRequestPath(ref: References): string;
-    // items
-    resolve(ref: References): ModelType;
-    get(ref?: References): TrailStateInOutItem;
-    getAsChildren(ref: References): TrailStateInOutItem[];
-    getReference(ref: References): References;
-    getItemsAsObject(): Record<string, TrailStateInOutItem>;
-    getItems(): TrailStateInOutItem[];
-    set(partialData: Partial<ModelType>, ref?: References): References;
-    update(partialData: Partial<ModelType>, ref: References): References;
-    // request
-    getRequest(ref: References): References;
-    setRequest(request: RequestSource, partialData: Partial<ModelType>, ref?: References): References;
-    getRequestItemsAsObject(): Record<string, References>;
-    getRequestItems(): References[];
-    // listing requests
-    setListingRequest(request: RequestSource, ref: References): References;
-    getListingRequest(ref: References): RequestSource;
-    getListingRequestItemsAsObject(ref: References): Record<string, RequestSource>;
-    getListingRequestItems(ref: References): RequestSource[];
-    // general
-    count(ref: References): number;
-    availableCount(ref: References): number;
-    acceptsMore(keys?: string[], ref?: References): boolean;
-    getNextKeys(keyedResults?: Record<string, unknown>, ref?: References): string[];
+    ingested: TrailDataFunnel,
+    digested: TrailDataFunnel,
 }
 
 export type TrailModelPathsOptions = {
@@ -382,12 +350,9 @@ export type TrailModelPathsOptions = {
     path: TrailDataPath;
 }
 
-export type TrailModelPathsMethods<ReferenceType extends Record<string, unknown> = Record<string, unknown>> = {
-    ITEMS: (reference: References<ReferenceType>) => string;
-    ITEM_REQUEST: (reference: References<ReferenceType>) => string;
-    ITEM_DATA: (reference: References<ReferenceType>) => string;
-    ITEM_REFERENCE: (reference: References<ReferenceType>) => string;
-    LISTING_REQUEST: (reference: References<ReferenceType>) => string;
+export type TrailModelPathsMethods<T> = {
+    ITEMS: (reference: ModelReference<T>) => string;
+    REQUESTS: (reference: ModelReference<T>) => string;
 }
 
 // queue.ts ------------------------------------------------------------
@@ -426,17 +391,28 @@ export type DatasetsOptions<Names extends string[] = []> = {
 };
 
 // actor.ts ------------------------------------------------------------
+export type ActorInstance = {
+    name?: string,
+    crawler?: CrawlerInstance,
+    steps?: StepsInstance;
+    flows?: FlowsInstance;
+    models?: ModelsInstance;
+    stores?: StoresInstance;
+    queues?: QueuesInstance;
+    datasets?: DatasetsInstance;
+    hooks?: HooksInstance;
+} & BaseInstance;
+
 export type ActorOptions = {
     name?: string,
-    steps?: Steps<any, any>;
-    stepBaseApi?: StepBaseApi<any>;
-    stepCustomApi?: StepCustomApi<any, any>;
-    flows?: Flows<any>;
-    models?: Models<any>;
-    stores?: Stores<any>;
-    queues?: Queues<any>;
-    // datasets?: Datasets<any>;
-    hooks?: Hooks<any>;
+    crawler?: CrawlerInstance,
+    steps?: StepsInstance;
+    flows?: FlowsInstance;
+    models?: ModelsInstance;
+    stores?: StoresInstance;
+    queues?: QueuesInstance;
+    datasets?: DatasetsInstance;
+    hooks?: HooksInstance;
 }
 
 // router.ts ------------------------------------------------------------
@@ -478,17 +454,17 @@ export type RequestMetaData = {
     step?: string,
     trailId?: string,
     crawlerMode: 'ajax' | 'cheerio' | 'browser',
-    references?: Partial<References<any>>,
+    reference?: Partial<ModelReference<any>>,
 }
 
 // crawler.ts ------------------------------------------------------------
-export type CrawlerOptions<CrawlerType extends Apify.BasicCrawler = DefaultCrawler> = {
+export type CrawlerOptions<CrawlerType extends typeof Apify.BasicCrawler> = {
     resource?: CrawlerType
 }
 
-export type CrawlerInstance<CrawlerType extends Apify.BasicCrawler = DefaultCrawler> = {
+export type CrawlerInstance<CrawlerType extends typeof Apify.BasicCrawler> = {
     resource: CrawlerType,
-}
+} & BaseInstance;
 
 // logger.ts ------------------------------------------------------------
 export type LoggerOptions = {

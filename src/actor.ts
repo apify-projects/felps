@@ -1,120 +1,93 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify, { PlaywrightHook } from 'apify';
-import Base from './base';
-import { HOOK } from './common/consts';
-import { ActorOptions } from './common/types';
-import Datasets from './datasets';
-import Flows from './flows';
-import Hooks from './hooks';
-import Models from './models';
-import Queues from './queues';
-import StepBaseApi from './step-base-api';
-import StepCustomApi from './step-custom-api';
-import Steps from './steps';
-import Stores from './stores';
-import useHandleFailedRequestFunction from './use-handle-failed-request-function';
-import useHandlePageFunction from './functional/crawler/use-handle-page-function';
-import usePostNavigationHooks from './functional/crawler/use-post-navigation-hooks';
-import usePreNavigationHooks from './functional/crawler/use-pre-navigation-hooks';
-import Crawler from './crawler';
+import { ActorInstance, ActorOptions } from './common/types';
+import base from './base';
+import crawler from './crawler';
+import useHandleFailedRequestFunction from './crawler/use-handle-failed-request-function';
+import useHandlePageFunction from './crawler/use-handle-page-function';
+import usePostNavigationHooks from './crawler/use-post-navigation-hooks';
+import usePreNavigationHooks from './crawler/use-pre-navigation-hooks';
+import datasets from './datasets';
+import flows from './flows';
+import hooks from './hooks';
+import models from './models';
+import queues from './queues';
+import step from './step';
+import steps from './steps';
+import stores from './stores';
 
-export default class Actor extends Base {
-  private _initialized = false;
+export const create = (options?: ActorOptions): ActorInstance => {
+    return {
+        ...base.create({ key: 'actor', name: options.name || 'default' }),
+        ...extend({} as ActorInstance, options),
+    };
+};
 
-  steps?: Steps<any, any, any>;
-  stepBaseApi?: StepBaseApi<any>;
-  stepCustomApi?: StepCustomApi<any, any>;
-  flows?: Flows<any>;
-  models?: Models<any>;
-  stores?: Stores<any>;
-  queues?: Queues<any>;
-  datasets?: Datasets<any>;
-  hooks?: Hooks<any>;
+export const extend = (actor: ActorInstance, options: ActorOptions = {}): ActorInstance => {
+    return {
+        ...actor,
+        crawler: options?.crawler || actor.crawler || crawler.create(),
+        steps: options?.steps || actor.steps || steps.create(),
+        flows: options?.flows || actor.flows || flows.create(),
+        models: options?.models || actor.models || models.create(),
+        stores: options?.stores || actor.stores || stores.create(),
+        queues: options?.queues || actor.queues || queues.create(),
+        datasets: options?.datasets || actor.datasets || datasets.create(),
+        hooks: options?.hooks || actor.hooks || hooks.create(),
+    };
+};
 
-  constructor(options: ActorOptions = {}) {
-      const { name = 'default' } = options;
-      super({ key: 'actor', name });
-      this.extend(options);
-  }
+export const run = async (actor: ActorInstance): Promise<void> => {
+    // Initialize actor
+    stores.listen(actor.stores);
 
-  extend(options: ActorOptions = {}) {
-      this.steps = options.steps || this.steps || new Steps();
-      this.stepBaseApi = options.stepBaseApi || this.stepBaseApi || new StepBaseApi();
-      this.stepCustomApi = options.stepCustomApi || this.stepCustomApi;
-      this.flows = options.flows || this.flows || new Flows();
-      this.models = options.models || this.models || new Models();
-      this.stores = options.stores || this.stores || new Stores();
-      this.queues = options.queues || this.queues || new Queues();
-      this.datasets = options.datasets || this.datasets || new Datasets();
-      this.hooks = options.hooks || this.hooks || new Hooks();
-  }
+    const input = await Apify.getInput();
 
-  init() {
-      if (!this._initialized) {
-          Apify.events.on('migrating', async () => {
-              this.log.info('Migrating: Persisting stores...');
-              await this.stores.persist();
-          });
+    const { proxy } = input as any;
+    const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
 
-          Apify.events.on('aborting', async () => {
-              this.log.info('Aborting: Persisting stores...');
-              await this.stores.persist();
-          });
+    const preNavigationHooksList = usePreNavigationHooks(actor);
+    const postNavigationHooksList = usePostNavigationHooks(actor);
 
-          this._initialized = true;
-      }
-  }
+    // VALIDATE INPUT
 
-  async run() {
-      this.init();
+    const preNavigationHooks = [
+        preNavigationHooksList.requestHook,
+        preNavigationHooksList.trailHook,
+    ] as unknown as PlaywrightHook[];
 
-      const input = await Apify.getInput();
+    const postNavigationHooks = [
+        postNavigationHooksList.trailHook,
+    ];
 
-      const { proxy } = input as any;
-      const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
+    const requestQueue = await Apify.openRequestQueue();
 
-      const preNavigationHooksList = usePreNavigationHooks(this);
-      const postNavigationHooksList = usePostNavigationHooks(this);
+    const runCrawler = () => crawler.run(actor.crawler, {
+        requestQueue,
+        handlePageFunction: useHandlePageFunction(actor) as any,
+        handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
+        proxyConfiguration,
+        preNavigationHooks,
+        postNavigationHooks,
+    });
 
-      // VALIDATE INPUT
+    // Hook to help with preparing the queue
+    // Given a polyfilled requestQueue and the input data
+    // User can add to the queue the starting requests to be crawled
+    await step.run(actor.hooks.actorStarted, undefined, undefined);
 
-      const preNavigationHooks = [
-          preNavigationHooksList.requestHook,
-          preNavigationHooksList.trailHook,
-      ] as unknown as PlaywrightHook[];
+    await step.run(actor.hooks.queueStarted, undefined, undefined);
 
-      const postNavigationHooks = [
-          postNavigationHooksList.trailHook,
-      ];
+    /**
+   * Run async requests
+   */
+    if (!await requestQueue.isEmpty()) {
+        await runCrawler();
+    }
 
-      const requestQueue = await Apify.openRequestQueue();
-
-      const getCrawler = () => new Crawler({
-          requestQueue,
-          handlePageFunction: useHandlePageFunction(this) as any,
-          handleFailedRequestFunction: useHandleFailedRequestFunction(this) as any,
-          proxyConfiguration,
-          preNavigationHooks,
-          postNavigationHooks,
-      });
-
-      // Hook to help with preparing the queue
-      // Given a polyfilled requestQueue and the input data
-      // User can add to the queue the starting requests to be crawled
-      await this.hooks?.[HOOK.ROUTER_STARTED]?.run?.(undefined);
-
-      await this.hooks?.[HOOK.QUEUE_STARTED]?.run?.(undefined);
-
-      /**
-     * Run async requests
-     */
-      if (!await requestQueue.isEmpty()) {
-          await getCrawler().run();
-      }
-
-      /**
-     * Run the serial requests
-     */
+    /**
+   * Run the serial requests
+   */
 
     //   while ((storesApi.get().state.get('serial-queue') || []).length) {
     //       const serialRequest = storesApi.get().state.shift('serial-queue');
@@ -123,12 +96,12 @@ export default class Actor extends Base {
     //       await getCrawler().then((crawler) => crawler.run());
     //   }
 
-      // TODO: Provider functionnalities to the end hook
-      await this.hooks?.[HOOK.QUEUE_ENDED]?.run?.(undefined);
+    // TODO: Provider functionnalities to the end hook
+    await step.run(actor.hooks.queueEnded, undefined, undefined);
 
-      // TODO: Provider functionnalities to the end hook
-      await this.hooks?.[HOOK.ROUTER_ENDED]?.run?.(undefined);
+    // TODO: Provider functionnalities to the end hook
+    await step.run(actor.hooks.actorEnded, undefined, undefined);
 
-      await this.stores.persist();
-  }
+    // Closing..
+    await stores.persist(actor.stores);
 };
