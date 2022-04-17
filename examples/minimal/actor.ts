@@ -1,97 +1,75 @@
-import felps from '../../src';
-import { GenerateModelMethods, GenerateStepMethods, StepBaseApiMethods } from '../../src/common/types';
+import { Flows, Models, Steps } from '../../src';
+import { GenerateStepApi } from '../../src/common/types';
 
-const STEPS = ['COLLECT_MOVIE_LISTING'] as const;
-const FLOWS = ['DISCOVER_MOVIE', 'DISCOVER_EPISODE'] as const;
-const MODELS = ['MOVIE', 'MOVIE_EPISODE'] as const;
+const STEPS = {
+    COLLECT_TV_SHOW_LISTING: 'COLLECT_TV_SHOW_LISTING',
+    COLLECT_TV_SHOW: 'COLLECT_TV_SHOW',
+    COLLECT_SEASON: 'COLLECT_SEASON',
+    COLLECT_EPISODE: 'COLLECT_EPISODE',
+};
+
+const FLOWS = {
+    DISCOVER_TV_SHOW: 'DISCOVER_TV_SHOW',
+    DISCOVER_EPISODE: 'DISCOVER_EPISODE',
+}
+
+const MODELS = {
+    TV_SHOW: 'TV_SHOW',
+    TV_SHOW_EPISODE: 'TV_SHOW_EPISODE',
+}
 
 // Types
-type StepNames = typeof STEPS[number];
-type FlowNames = typeof FLOWS[number];
+type StepNames = typeof STEPS;
+type FlowNames = typeof FLOWS;
 
 type ModelSchemas = {
-    movie: {
-        name: string,
-        episodes: ModelSchemas['movieEpisode'][]
+    tvShow: {
+        title: string,
+        seasons?: ModelSchemas['season'][]
     },
-    movieEpisode: {
-        name: string,
+    season: {
+        title?: string,
+        number: number,
+        episodes?: ModelSchemas['episode'][]
+    },
+    episode: {
+        number: number,
+        title?: string,
     }
 }
 
-type GlobalCustomStepApi = {
-    test: () => void;
-}
+type GeneralStepApi = GenerateStepApi<FlowNames, StepNames, ModelSchemas>;
 
-type ModelMethods = GenerateModelMethods<ModelSchemas>;
-type StepMethods = GenerateStepMethods<StepNames, ModelSchemas>
+export const models = Models.create<ModelSchemas>({ names: Object.values(MODELS) });
 
-type BaseStepApi = StepBaseApiMethods<ModelSchemas>;
-type GeneralStepApi = BaseStepApi & GlobalCustomStepApi & ModelMethods & StepMethods;
-type StepSpecificCustomApi = {
-    COLLECT_MOVIE_LISTING: { hi: () => string; };
-}
+models.episode.schema = {
+    type: 'object',
+    properties: {
+        title: { type: 'string' },
+    },
+};
 
-// Code
+models.season.schema = {
+    type: 'object',
+    properties: {
+        title: { type: 'string' },
+        episodes: { type: 'array', items: models.episode.schema },
+    },
+};
 
-const models = new felps.Models<ModelSchemas>({ names: [...MODELS] });
-models.set.movieEpisode({
-    schema: {
-        type: 'object',
-        properties: {
-            name: { type: 'string' },
-        },
-    }
-});
 
-models.set.movie({
-    schema: {
-        type: 'object',
-        properties: {
-            name: { type: 'string' },
-            episodes: {
-                type: 'array',
-                items: models.get.movieEpisode.schema
-            }
-        },
-    }
-});
-
-const steps = new felps.Steps<StepNames, GeneralStepApi, StepSpecificCustomApi>({ names: [...STEPS] });
-steps.set.collectMovieListing({
-    extendStepApi(context, api) {
-        return {
-            hi: () => {
-                console.log('test');
-                return 'doewj';
-            }
+models.tvShow.schema = {
+    type: 'object',
+    properties: {
+        title: { type: 'string' },
+        seasons: {
+            type: 'array',
+            items: models.season.schema
         }
-    }
-});
+    },
+}
 
-const flows = new felps.Flows<FlowNames>({ names: [...FLOWS] });
-flows.set.discoverEpisode({
-    steps: [
-        steps.get.COLLECT_MOVIE_LISTING
-    ],
-    output: models.get.movie.schema
-});
+export const steps = Steps.create<StepNames, GeneralStepApi>({ names: Object.values(STEPS) });
 
-const stepCustomApi = new felps.StepCustomApi<GlobalCustomStepApi, GeneralStepApi>({
-    extend(context, api) {
-        return {
-            test() {
-                console.log('test');
-            }
-        }
-    }
-});
 
-const actor = new felps.Actor({
-    steps: steps as any,
-    stepCustomApi,
-    flows,
-    models,
-});
-
-export default actor;
+export const flows = Flows.create<FlowNames>({ names: Object.values(FLOWS) });

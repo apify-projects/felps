@@ -18,6 +18,28 @@ import Trail from './trail';
 import TrailData from './trail-data';
 import Logger from './logger';
 
+export {
+    Actor,
+    Crawler,
+    Flows,
+    Flow,
+    Steps,
+    Step,
+    Models,
+    Model,
+    Stores,
+    DataStore,
+    FileStore,
+    Queues,
+    Queue,
+    Datasets,
+    Dataset,
+    Hooks,
+    Trail,
+    TrailData,
+    Logger,
+};
+
 export default {
     Actor,
     Crawler,
