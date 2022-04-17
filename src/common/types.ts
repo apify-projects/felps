@@ -117,7 +117,7 @@ export type StepApiMetaInstance = {
     handler: (context: CrawlingContext) => {
         getUserData: () => Record<string, unknown>,
         getMetaData: () => RequestMetaData,
-        getModelReference: () => RequestMetaData['reference'],
+        getRerence: () => RequestMetaData['reference'],
     },
 };
 

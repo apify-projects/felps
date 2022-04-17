@@ -1,5 +1,5 @@
 import { CrawlingContext } from 'apify';
-import { METADATA_KEY } from '../common/consts';
+import { METADATA_KEY } from './common/consts';
 import { RequestContext, RequestMetaInstance, RequestSource } from './common/types';
 import base from './base';
 
