@@ -1,8 +1,8 @@
 import { JSONSchema7 } from 'json-schema';
-import { REFERENCE_KEY } from '../common/consts';
+import base from './base';
+import { REFERENCE_KEY } from './common/consts';
 import { ModelInstance, ModelOptions, ModelReference } from './common/types';
 import { traverse } from './common/utils';
-import base from './base';
 
 export const create = (options: ModelOptions): ModelInstance => {
     const { name, schema } = options || {};

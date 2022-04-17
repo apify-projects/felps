@@ -1,24 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify, { PlaywrightHook } from 'apify';
 import { ActorInstance, ActorOptions } from './common/types';
-import base from './base';
+import Base from './base';
 import crawler from './crawler';
 import useHandleFailedRequestFunction from './crawler/use-handle-failed-request-function';
 import useHandlePageFunction from './crawler/use-handle-page-function';
 import usePostNavigationHooks from './crawler/use-post-navigation-hooks';
 import usePreNavigationHooks from './crawler/use-pre-navigation-hooks';
 import datasets from './datasets';
-import flows from './flows';
-import hooks from './hooks';
-import models from './models';
-import queues from './queues';
-import step from './step';
-import steps from './steps';
-import stores from './stores';
+import Flows from './flows';
+import Hooks from './hooks';
+import Models from './models';
+import Queues from './queues';
+import Step from './step';
+import Steps from './steps';
+import Stores from './stores';
 
 export const create = (options?: ActorOptions): ActorInstance => {
     return {
-        ...base.create({ key: 'actor', name: options.name || 'default' }),
+        ...Base.create({ key: 'actor', name: options.name || 'default' }),
         ...extend({} as ActorInstance, options),
     };
 };
@@ -27,19 +27,19 @@ export const extend = (actor: ActorInstance, options: ActorOptions = {}): ActorI
     return {
         ...actor,
         crawler: options?.crawler || actor.crawler || crawler.create(),
-        steps: options?.steps || actor.steps || steps.create(),
-        flows: options?.flows || actor.flows || flows.create(),
-        models: options?.models || actor.models || models.create(),
-        stores: options?.stores || actor.stores || stores.create(),
-        queues: options?.queues || actor.queues || queues.create(),
+        steps: options?.steps || actor.steps || Steps.create(),
+        flows: options?.flows || actor.flows || Flows.create(),
+        models: options?.models || actor.models || Models.create(),
+        stores: options?.stores || actor.stores || Stores.create(),
+        queues: options?.queues || actor.queues || Queues.create(),
         datasets: options?.datasets || actor.datasets || datasets.create(),
-        hooks: options?.hooks || actor.hooks || hooks.create(),
+        hooks: options?.hooks || actor.hooks || Hooks.create(),
     };
 };
 
 export const run = async (actor: ActorInstance): Promise<void> => {
     // Initialize actor
-    stores.listen(actor.stores);
+    Stores.listen(actor.stores);
 
     const input = await Apify.getInput();
 
@@ -47,7 +47,7 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
 
     const preNavigationHooksList = usePreNavigationHooks(actor);
-    const postNavigationHooksList = usePostNavigationHooks(actor);
+    const postNavigationHooksList = usePostNavigationHooks();
 
     // VALIDATE INPUT
 
@@ -74,9 +74,9 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     // Hook to help with preparing the queue
     // Given a polyfilled requestQueue and the input data
     // User can add to the queue the starting requests to be crawled
-    await step.run(actor.hooks.actorStarted, undefined, undefined);
+    await Step.run(actor.hooks.actorStarted, undefined, undefined);
 
-    await step.run(actor.hooks.queueStarted, undefined, undefined);
+    await Step.run(actor.hooks.queueStarted, undefined, undefined);
 
     /**
    * Run async requests
@@ -97,11 +97,13 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     //   }
 
     // TODO: Provider functionnalities to the end hook
-    await step.run(actor.hooks.queueEnded, undefined, undefined);
+    await Step.run(actor.hooks.queueEnded, undefined, undefined);
 
     // TODO: Provider functionnalities to the end hook
-    await step.run(actor.hooks.actorEnded, undefined, undefined);
+    await Step.run(actor.hooks.actorEnded, undefined, undefined);
 
     // Closing..
-    await stores.persist(actor.stores);
+    await Stores.persist(actor.stores);
 };
+
+export default { create, extend, run };

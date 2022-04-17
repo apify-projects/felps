@@ -40,3 +40,4 @@ export const create = (options) > => {
     };
 };
 
+export default { create };

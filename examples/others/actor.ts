@@ -1,5 +1,5 @@
-import felps from '../src';
-import { GenerateModelMethods, GenerateStepMethods, StepBaseApiMethods } from '../src/common/types';
+import felps from '../../src';
+import { GenerateModelMethods, GenerateStepMethods, StepBaseApiMethods } from '../../src/common/types';
 
 const STEPS = ['COLLECT_MOVIE_LISTING'] as const;
 const FLOWS = ['DISCOVER_MOVIE', 'DISCOVER_EPISODE'] as const;
@@ -63,11 +63,6 @@ steps.set.collectMovieListing({
     extendStepApi(context, api) {
         return {
             hi: () => {
-                const movieRef = api.addMovie({ name: 'The Matrix' });
-                api.goCollectMovie({ url: '' }, movieRef);
-
-                api.goCollectMovieListing({ url: '' }, movieRef);
-
                 console.log('test');
                 return 'doewj';
             }

@@ -1,12 +1,11 @@
-import felps from '../src';
-import { GenerateModelMethods, GenerateStepMethods, StepBaseApiMethods } from '../src/common/types';
+import felps from '../../src';
+import { GenerateModelMethods, GenerateStepMethods, StepBaseApiMethods } from '../../src/common/types';
 
 const STEPS = ['COLLECT_MOVIE_LISTING'] as const;
 const FLOWS = ['DISCOVER_MOVIE', 'DISCOVER_EPISODE'] as const;
 const MODELS = ['MOVIE', 'MOVIE_EPISODE'] as const;
 
 // Types
-
 type StepNames = typeof STEPS[number];
 type FlowNames = typeof FLOWS[number];
 
@@ -69,11 +68,6 @@ steps.set.collectMovieListing({
         }
     }
 });
-
-// Do later:
-// steps.on.collectMovieListing(async (context, api) => {
-
-// });
 
 const flows = new felps.Flows<FlowNames>({ names: [...FLOWS] });
 flows.set.discoverEpisode({

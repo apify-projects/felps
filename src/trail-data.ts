@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 import isMatch from 'lodash.ismatch';
-import { REFERENCE_KEY } from '../common/consts';
-import { ModelReference, RequestSource, TrailDataInstance, TrailDataModelItem, TrailDataOptions, TrailModelPathsMethods, TrailModelPathsOptions } from './common/types';
-import { concatAsUniqueArray, craftUIDKey, pathify } from './common/utils';
 import base from './base';
+import { REFERENCE_KEY } from './common/consts';
+import { ModelReference, RequestSource, TrailDataInstance, TrailDataModelItem, TrailDataModelPathsMethods, TrailDataOptions, TrailModelPathsOptions } from './common/types';
+import { concatAsUniqueArray, craftUIDKey, pathify } from './common/utils';
 import dataStore from './data-store';
 import requestMeta from './request-meta';
 
@@ -141,7 +141,7 @@ export const setRequest = <T>(trailData: TrailDataInstance<T>, request: RequestS
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-const getTrailDataFragments = <T>(options: TrailModelPathsOptions): TrailModelPathsMethods<T> => {
+const getTrailDataFragments = <T>(options: TrailModelPathsOptions): TrailDataModelPathsMethods<T> => {
     const { name, path } = options;
 
     const basePath = pathify(path, name);
@@ -153,4 +153,4 @@ const getTrailDataFragments = <T>(options: TrailModelPathsOptions): TrailModelPa
     };
 };
 
-export default { create };
+export default { create, get, getItems, getItemsList, getChildrenItemsList, update, set, count, countRequests, getRequest, getRequestItems, getRequestItemsList, getRequestReference, setRequest };

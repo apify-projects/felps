@@ -1,6 +1,5 @@
-import { MakeStepBaseApiContext, StepBaseApiInstance, StepBaseApiOptions } from './common/types';
-import { resolveUrl } from './common/utils';
 import base from './base';
+import { MakeStepBaseApiContext, StepBaseApiInstance, StepBaseApiOptions } from './common/types';
 import requestMeta from './request-meta';
 
 // eslint-disable-next-line max-len
@@ -65,3 +64,5 @@ export const create = <ModelDefinitions = unknown, Context extends MakeStepBaseA
         },
     };
 };
+
+export default { create };

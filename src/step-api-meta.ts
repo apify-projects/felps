@@ -11,7 +11,7 @@ export const create = (): StepApiMetaInstance => {
             return {
                 getUserData: () => meta.userData,
                 getMetaData: () => meta.data,
-                getReferences: () => meta.data.references,
+                getReferences: () => meta.data.reference,
             };
         },
     };
