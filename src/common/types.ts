@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type Apify from 'apify';
 import { CrawlingContext } from 'apify';
+import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
 import type { JSONSchema7 } from 'json-schema';
+import RequestQueue from '../queue/request-queue';
 
 export type UniqueyKey = string;
 
@@ -28,7 +30,7 @@ export type ValueOf<T> = T[keyof T];
 
 // apify --------------------------------------------------
 export type RequestSource = import('apify').Request | import('apify').RequestOptions
-export type RequestOptionalOptions = { forefront?: boolean | undefined } | undefined
+export type RequestOptionalOptions = { priority?: number, forefront?: boolean | undefined } | undefined
 export type RequestContext = Apify.CheerioHandlePageInputs & Apify.PlaywrightHandlePageFunctionParam & Apify.BrowserCrawlingContext & Apify.CrawlingContext
 
 // base.ts ------------------------------------------------------------
@@ -378,7 +380,7 @@ export type TrailModelPathsOptions = {
 
 // queue.ts ------------------------------------------------------------
 export type QueueInstance = {
-    resource: Apify.RequestQueue;
+    resource?: RequestQueue,
 } & BaseInstance;
 
 export type QueueOptions = {
@@ -491,3 +493,12 @@ export type LoggerInstance = {
     level?: LogLevel,
     apifyLogger: typeof Apify.utils.log,
 }
+
+// apify-client.ts ------------------------------------------------------------
+export type ApifyClientInstance = {
+    resource: ApifyClient,
+};
+
+export type ApifyClientOptions = {
+    token?: string,
+};
