@@ -1,13 +1,13 @@
 import { CrawlingContext } from 'apify';
 import { Trail } from '.';
-import { DispatcherInstance } from './common/types';
+import { ActorInstance, DispatcherInstance } from './common/types';
 import TrailDataRequests from './trail-data-requests';
 
 // actor: ActorInstance
-export const create = (): DispatcherInstance => {
+export const create = (actor: ActorInstance): DispatcherInstance => {
     return {
         async handler(context: CrawlingContext) {
-            const trail = Trail.createFrom(context?.request);
+            const trail = Trail.createFrom(context?.request, { actor });
             const ingest = Trail.ingested(trail);
             // const digest = Trail.digested(trail);
 

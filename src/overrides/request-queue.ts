@@ -3,7 +3,7 @@ import { RequestQueue as ApifyRequestQueue } from 'apify/build/storages/request_
 import { RequestOptionalOptions, RequestSource } from '../common/types';
 
 export default class RequestQueue extends ApifyRequestQueue {
-    private _stack: Map<string, number>;
+    private _stack: Map<string, number> = new Map();
 
     override async addRequest(request: RequestSource, options?: RequestOptionalOptions): Promise<QueueOperationInfo> {
         const { priority = Infinity, ...restOptions } = options || {};
@@ -21,10 +21,18 @@ export default class RequestQueue extends ApifyRequestQueue {
 
     override async fetchNextRequest(): Promise<Request> {
         const smallestPriority = Math.min(...Array.from(this._stack.values()));
-        const [requestId] = Array
-            .from(this._stack.entries())
-            .find(([, priority]) => priority === smallestPriority);
+        const [requestId] = Array.from(this._stack.entries())
+            .find(([, priority]) => priority === smallestPriority) || [];
 
-        return this.getRequest(requestId) || super.fetchNextRequest();
+        if (requestId) {
+            this._stack.delete(requestId);
+            const request = await this.getRequest(requestId);
+            if (request.handledAt) {
+                this.recentlyHandled.add(requestId, true);
+                return null;
+            }
+        }
+
+        return super.fetchNextRequest();
     }
 }

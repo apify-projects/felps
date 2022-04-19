@@ -7,7 +7,7 @@ import useHandleFailedRequestFunction from './crawler/use-handle-failed-request-
 import useHandlePageFunction from './crawler/use-handle-page-function';
 import usePostNavigationHooks from './crawler/use-post-navigation-hooks';
 import usePreNavigationHooks from './crawler/use-pre-navigation-hooks';
-import { Flows, Hooks, Models, Queues, Step, Steps, Stores, Datasets } from '.';
+import { StepApi, Flows, Hooks, Models, Queues, Step, Steps, Stores, Datasets, Queue } from '.';
 
 export const create = (options?: ActorOptions): ActorInstance => {
     return {
@@ -19,6 +19,7 @@ export const create = (options?: ActorOptions): ActorInstance => {
 export const extend = (actor: ActorInstance, options: ActorOptions = {}): ActorInstance => {
     return {
         ...actor,
+        input: undefined,
         crawler: options?.crawler || actor.crawler || crawler.create(),
         steps: options?.steps || actor.steps || Steps.create(),
         flows: options?.flows || actor.flows || Flows.create(),
@@ -35,6 +36,7 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     Stores.listen(actor.stores);
 
     const input = await Apify.getInput() || {};
+    actor.input = input;
 
     const { proxy } = input as any;
     const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
@@ -53,12 +55,12 @@ export const run = async (actor: ActorInstance): Promise<void> => {
         postNavigationHooksList.trailHook,
     ];
 
-    const requestQueue = await Apify.openRequestQueue();
+    const stepApi = StepApi.create(actor);
 
     // Hook to help with preparing the queue
     // Given a polyfilled requestQueue and the input data
     // User can add to the queue the starting requests to be crawled
-    await Step.run(actor.hooks.ACTOR_STARTED, undefined, undefined);
+    await Step.run(actor.hooks.ACTOR_STARTED, undefined, stepApi.handler(undefined));
 
     await Step.run(actor.hooks.QUEUE_STARTED, undefined, undefined);
 
@@ -66,9 +68,15 @@ export const run = async (actor: ActorInstance): Promise<void> => {
    * Run async requests
    */
     await crawler.run(actor.crawler, {
-        requestQueue,
+        requestQueue: (await Queue.load(actor.queues.default)).resource,
         handlePageFunction: useHandlePageFunction(actor) as any,
         handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
+        maxRequestRetries: 1,
+        launchContext: {
+            launchOptions: {
+                headless: false,
+            },
+        },
         proxyConfiguration,
         preNavigationHooks,
         postNavigationHooks,

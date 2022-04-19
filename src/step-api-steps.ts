@@ -1,14 +1,12 @@
 import base from './base';
+import { StepApiStepsAPI, StepApiStepsInstance } from './common/types';
 
-// eslint-disable-next-line max-len
-export const create = () => {
-    // const { } = options || {};
-
+export const create = <StepNames = unknown, ModelSchemas = unknown>(): StepApiStepsInstance<StepNames, ModelSchemas> => {
     return {
         ...base.create({ key: 'step-api-steps', name: 'step-api-steps' }),
-        // handler(crawlingContext) {
-
-        // }
+        handler() {
+            return {} as StepApiStepsAPI<StepNames, ModelSchemas>;
+        },
     };
 };
 

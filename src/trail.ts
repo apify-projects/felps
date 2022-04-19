@@ -1,15 +1,22 @@
 import { RequestMeta } from '.';
 import Base from './base';
-import { DeepPartial, RequestSource, TrailDataStage, TrailDataStages, TrailInstance, TrailOptions, TrailState } from './common/types';
+import {
+    DeepPartial, ModelsInstance, reallyAny,
+    RequestSource, TrailDataStage, TrailDataStages, TrailInstance,
+    TrailOptions, TrailState,
+} from './common/types';
 import { craftUIDKey } from './common/utils';
-import dataStore from './data-store';
+import DataStore from './data-store';
 import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
 
 export const create = (options: TrailOptions): TrailInstance => {
-    const { id = craftUIDKey('trail'), store, models } = options || {};
+    const { id = craftUIDKey('trail'), actor } = options || {};
 
-    if (!dataStore.has(store, id)) {
+    const store = (actor.stores as reallyAny)?.trails;
+    const models = actor.models as ModelsInstance<Record<string, never>>;
+
+    if (!DataStore.has(store, id)) {
         const initialState: DeepPartial<TrailState> = {
             id,
             query: {},
@@ -17,7 +24,7 @@ export const create = (options: TrailOptions): TrailInstance => {
             stats: { startedAt: new Date().toISOString() },
         };
 
-        dataStore.set(id, initialState);
+        DataStore.set(store, id, initialState);
     }
 
     return {
@@ -27,7 +34,7 @@ export const create = (options: TrailOptions): TrailInstance => {
     };
 };
 
-export const createFrom = (request: RequestSource, options?: TrailOptions): TrailInstance => {
+export const createFrom = (request: RequestSource, options: TrailOptions): TrailInstance => {
     const meta = RequestMeta.create(request);
     return create({
         ...options,

@@ -120,6 +120,10 @@ export type StepOptions<Methods = unknown> = {
 export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
 
 // step-api.ts -----------------------------------------------------------------
+export type StepApiInstance<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = {
+    handler: (context: CrawlingContext) => GenerateStepApi<FlowNames, StepNames, ModelSchemas>,
+}
+
 // eslint-disable-next-line max-len
 export type GenerateStepApi<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = StepApiMetaAPI & StepApiUtilsAPI & StepApiFlowsAPI<FlowNames> & StepApiModelsAPI<ModelSchemas> & StepApiStepsAPI<StepNames, ModelSchemas>
 
@@ -129,7 +133,7 @@ export type StepApiFlowsInstance<FlowNames> = {
 };
 
 export type StepApiFlowsAPI<FlowNames> = {
-    start: (flowName: Extract<keyof FlowNames, string>, request: RequestSource, references: Partial<ModelReference>) => ModelReference;
+    start: (flowName: Extract<keyof FlowNames, string>, request: RequestSource, reference?: Partial<ModelReference>) => ModelReference;
 };
 
 // step-api-steps.ts ------------------------------------------------------------
@@ -175,6 +179,7 @@ export type StepApiUtilsInstance = {
 };
 
 export type StepApiUtilsAPI = {
+    getInput: () => any,
     absoluteUrl: (url: string) => string | void,
 }
 
@@ -253,7 +258,7 @@ export type ModelsOptions<Names> = {
 // };
 
 // model.ts ------------------------------------------------------------
-export type ModelInstance= {
+export type ModelInstance = {
     schema: JSONSchema7, // JSONSchemaType<Schema> |
 } & BaseInstance;
 
@@ -315,8 +320,7 @@ export type TrailInstance = {
 
 export type TrailOptions = {
     id?: string;
-    store?: DataStoreInstance,
-    models?: ModelsInstance,
+    actor?: ActorInstance;
 }
 
 export type TrailState = {
@@ -441,6 +445,7 @@ export type DefaultDatasetNames = ['default'];
 // actor.ts ------------------------------------------------------------
 export type ActorInstance = {
     name?: string,
+    input?: any,
     crawler?: CrawlerInstance,
     steps?: StepsInstance<reallyAny, reallyAny>;
     flows?: FlowsInstance;
@@ -448,24 +453,24 @@ export type ActorInstance = {
     stores?: StoresInstance;
     queues?: QueuesInstance;
     datasets?: DatasetsInstance;
-    hooks?: HooksInstance;
+    hooks?: HooksInstance<reallyAny>;
 } & BaseInstance;
 
 export type ActorOptions = {
     name?: string,
     crawler?: CrawlerInstance,
-    steps?: StepsInstance<reallyAny, reallyAny> ;
+    steps?: StepsInstance<reallyAny, reallyAny>;
     flows?: FlowsInstance;
     models?: ModelsInstance;
     stores?: StoresInstance;
     queues?: QueuesInstance;
     datasets?: DatasetsInstance;
-    hooks?: HooksInstance;
+    hooks?: HooksInstance<reallyAny>;
 }
 
 // hooks.ts ------------------------------------------------------------
-export type HooksInstance = {
-    [K in DefaultHookNames[number]]: StepInstance;
+export type HooksInstance<Methods = unknown> = {
+    [K in DefaultHookNames[number]]: StepInstance<Methods>;
 };
 
 export type DefaultHookNames = ['STEP_STARTED', 'STEP_ENDED', 'STEP_FAILED', 'STEP_REQUEST_FAILED',

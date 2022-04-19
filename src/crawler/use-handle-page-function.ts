@@ -15,7 +15,7 @@ export default (actor: ActorInstance) => {
         // After each route Hook can be used for checking up data this would have been made ready to push to the dataset in KV.
         await Step.run(actor.hooks.STEP_ENDED, crawlingContext, {});
 
-        const dispatcher = Dispatcher.create();
+        const dispatcher = Dispatcher.create(actor);
         await Dispatcher.run(dispatcher, crawlingContext);
     };
 };

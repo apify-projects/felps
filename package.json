@@ -6,7 +6,7 @@
     "type": "git",
     "url": "git@github.com:gahabeen/felps.git"
   },
-  "types": "src/types",
+  "typings": "dist/index",
   "source": "src/index",
   "main": "dist/index",
   "dependencies": {
@@ -28,6 +28,7 @@
     "lodash.orderby": "^4.6.0",
     "lodash.set": "^4.3.2",
     "nanoid": "^3.2.0",
+    "node-fetch": "2",
     "rambda": "^7.0.3"
   },
   "devDependencies": {

@@ -45,7 +45,8 @@ export const getChildrenItemsList = <T>(trailData: TrailDataModelInstance, paren
 };
 
 export const update = <T>(trailData: TrailDataModelInstance, data: Partial<T>, ref?: ModelReference<T>): ModelReference<T> => {
-    return dataStore.update(trailData.store, getPath(trailData, ref), { data, reference: ref });
+    dataStore.update(trailData.store, getPath(trailData, ref), { data, reference: ref });
+    return ref;
 };
 
 export const set = <T>(trailData: TrailDataModelInstance, data: Partial<T>, ref?: ModelReference<T>): ModelReference<T> => {

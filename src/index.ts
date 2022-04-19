@@ -4,6 +4,13 @@ import Flows from './flows';
 import Flow from './flow';
 import Steps from './steps';
 import Step from './step';
+import StepApi from './step-api';
+import StepApiFlows from './step-api-flows';
+import StepApiMeta from './step-api-meta';
+import StepApiModels from './step-api-models';
+import StepApiSteps from './step-api-steps';
+import StepApiTrail from './step-api-trail';
+import StepApiUtils from './step-api-utils';
 import Models from './models';
 import Model from './model';
 import Stores from './stores';
@@ -27,6 +34,13 @@ export {
     Flow,
     Steps,
     Step,
+    StepApi,
+    StepApiFlows,
+    StepApiMeta,
+    StepApiModels,
+    StepApiSteps,
+    StepApiTrail,
+    StepApiUtils,
     Models,
     Model,
     Stores,
@@ -51,6 +65,13 @@ export default {
     Flow,
     Steps,
     Step,
+    StepApi,
+    StepApiFlows,
+    StepApiMeta,
+    StepApiModels,
+    StepApiSteps,
+    StepApiTrail,
+    StepApiUtils,
     Models,
     Model,
     Stores,

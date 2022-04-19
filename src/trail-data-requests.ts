@@ -24,7 +24,7 @@ export const create = (options?: TrailDataRequestsOptions): TrailDataRequestsIns
 };
 
 export const getRequest = (trailDataRequests: TrailDataRequestsInstance, ref?: ModelReference): RequestSource | Record<string, RequestSource> => {
-    return dataStore.get(getPath(trailDataRequests, ref));
+    return dataStore.get<RequestSource>(trailDataRequests.store, getPath(trailDataRequests, ref));
 };
 
 export const getRequestItems = (trailDataRequests: TrailDataRequestsInstance): Record<string, RequestSource> => {
@@ -32,7 +32,7 @@ export const getRequestItems = (trailDataRequests: TrailDataRequestsInstance): R
 };
 
 export const getRequestItemsList = (trailDataRequests: TrailDataRequestsInstance, ref?: ModelReference): RequestSource[] => {
-    const items = Object.values(getRequestItems(trailDataRequests));
+    const items = Object.values(getRequestItems(trailDataRequests) || {});
     return ref ? items.filter((item) => isMatch(requestMeta.create(item).data?.reference, ref)) : items;
 };
 
@@ -47,7 +47,8 @@ export const getRequestReference = (trailDataRequests: TrailDataRequestsInstance
 
 export const setRequest = (trailDataRequests: TrailDataRequestsInstance, request: RequestSource, ref?: Partial<ModelReference>): ModelReference => {
     const meta = RequestMeta.extend(RequestMeta.create(request), { reference: { requestKey: craftUIDKey(), ...ref } });
-    return dataStore.update(trailDataRequests.store, getPath(trailDataRequests, meta.data.reference), meta.request);
+    dataStore.update(trailDataRequests.store, getPath(trailDataRequests, meta.data.reference), meta.request);
+    return meta.data.reference;
 };
 
 // export const getNextRequestKeys = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): UniqueyKey[] => {
