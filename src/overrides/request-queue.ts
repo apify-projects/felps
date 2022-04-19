@@ -1,14 +1,16 @@
 import { QueueOperationInfo, Request } from 'apify';
 import { RequestQueue as ApifyRequestQueue } from 'apify/build/storages/request_queue';
+import { RequestMeta } from '..';
 import { RequestOptionalOptions, RequestSource } from '../common/types';
-
 export default class RequestQueue extends ApifyRequestQueue {
     private _stack: Map<string, number> = new Map();
 
     override async addRequest(request: RequestSource, options?: RequestOptionalOptions): Promise<QueueOperationInfo> {
-        const { priority = Infinity, ...restOptions } = options || {};
+        const { priority = Infinity, type = 'ajax', ...restOptions } = options || {};
 
-        const requestInfo = await super.addRequest(request, restOptions);
+        const meta = RequestMeta.extend(RequestMeta.create(request), { crawlerMode: type });
+
+        const requestInfo = await super.addRequest(meta.request, restOptions);
         this._stack.set(requestInfo.requestId, priority);
 
         return requestInfo;

@@ -33,7 +33,7 @@ export type ValueOf<T> = T[keyof T];
 
 // apify --------------------------------------------------
 export type RequestSource = import('apify').Request | import('apify').RequestOptions
-export type RequestOptionalOptions = { priority?: number, forefront?: boolean | undefined } | undefined
+export type RequestOptionalOptions = { priority?: number, type?: RequestCrawlerType, forefront?: boolean | undefined } | undefined
 export type RequestContext = Apify.CheerioHandlePageInputs & Apify.PlaywrightHandlePageFunctionParam & Apify.BrowserCrawlingContext & Apify.CrawlingContext
 
 // base.ts ------------------------------------------------------------
@@ -493,9 +493,11 @@ export type RequestMetaOptions = {
     nothing?: string,
 }
 
+export type RequestCrawlerType = 'ajax' | 'cheerio' | 'browser';
+
 export type RequestMetaData = {
     stepName?: string,
-    crawlerMode: 'ajax' | 'cheerio' | 'browser',
+    crawlerMode: RequestCrawlerType,
     reference?: Partial<ModelReference<any>>,
 }
 

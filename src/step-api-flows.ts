@@ -27,7 +27,7 @@ export const create = <
                         // TrailDataRequests.setRequest(ingest.requests, meta.request);
                         // return meta.data.reference;
                         // Run this in dispatcher instead
-                        return Queue.add(actor.queues.default, meta.request);
+                        return Queue.add(actor.queues.default, meta.request, { type: 'cheerio' });
                     } catch (error) {
                         console.error(error);
                     }

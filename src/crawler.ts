@@ -51,7 +51,7 @@ export class DefaultCrawler extends PlaywrightCrawler {
                 case 'cheerio':
                 default:
                     crawlingContext.response = await fetch();
-                    crawlingContext.$ = load(crawlingContext.response.body);
+                    crawlingContext.$ = load(await crawlingContext.response.text());
                     break;
             }
         } catch (error) {
