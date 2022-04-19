@@ -1,14 +1,35 @@
+import { RequestMeta, Trail } from '.';
 import base from './base';
+import { ActorInstance, FlowNamesSignature, StepApiFlowsInstance } from './common/types';
+import TrailDataRequests from './trail-data-requests';
 
-// eslint-disable-next-line max-len
-export const create = () => {
-    // const { } = options || {};
-
+export const create = <
+    FlowNames extends FlowNamesSignature = FlowNamesSignature
+>(actor: ActorInstance): StepApiFlowsInstance<FlowNames> => {
     return {
         ...base.create({ key: 'step-api-flows', name: 'step-api-flows' }),
-        // handler(crawlingContext) {
+        handler(context) {
+            return {
+                start(flowName, request, reference) {
+                    const trail = Trail.createFrom(context?.request);
+                    const ingest = Trail.ingested(trail);
 
-        // }
+                    const stepName = actor.flows?.[flowName]?.steps?.[0]?.name;
+
+                    const meta = RequestMeta.extend(
+                        RequestMeta.create(request),
+                        { stepName, reference },
+                    );
+
+                    TrailDataRequests.setRequest(ingest.requests, meta.request);
+
+                    return meta.data.reference;
+
+                    // Run this in dispatcher instead
+                    // return Queue.add(actor.queues.default, RequestMeta.blend(RequestMeta.create(request), { reference }));
+                },
+            };
+        },
     };
 };
 

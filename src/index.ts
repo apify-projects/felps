@@ -16,6 +16,8 @@ import Dataset from './dataset';
 import Hooks from './hooks';
 import Trail from './trail';
 import TrailData from './trail-data';
+import RequestMeta from './request-meta';
+import Dispatcher from './dispatcher';
 import Logger from './logger';
 
 export {
@@ -37,6 +39,8 @@ export {
     Hooks,
     Trail,
     TrailData,
+    RequestMeta,
+    Dispatcher,
     Logger,
 };
 
@@ -59,5 +63,7 @@ export default {
     Hooks,
     Trail,
     TrailData,
+    RequestMeta,
+    Dispatcher,
     Logger,
 };

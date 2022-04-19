@@ -1,6 +1,6 @@
 import { CrawlingContext } from 'apify';
 import { METADATA_KEY } from './common/consts';
-import { RequestContext, RequestMetaInstance, RequestSource } from './common/types';
+import { RequestContext, RequestMetaData, RequestMetaInstance, RequestSource } from './common/types';
 import base from './base';
 
 export const create = (requestOrCrawlingContext: RequestSource | RequestContext | CrawlingContext): RequestMetaInstance => {
@@ -16,4 +16,17 @@ export const create = (requestOrCrawlingContext: RequestSource | RequestContext 
     };
 };
 
-export default { create };
+export const extend = (requestMeta: RequestMetaInstance, metadata: Partial<RequestMetaData>): RequestMetaInstance => {
+    return create({
+        ...requestMeta.request,
+        userData: {
+            ...requestMeta.userData,
+            [METADATA_KEY]: {
+                ...requestMeta.data,
+                ...metadata,
+            },
+        },
+    });
+};
+
+export default { create, extend };

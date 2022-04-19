@@ -1,7 +1,10 @@
-import { DeepPartial, TrailInstance, TrailOptions, TrailState } from './common/types';
-import { craftUIDKey } from './common/utils';
+import { RequestMeta } from '.';
 import Base from './base';
+import { DeepPartial, RequestSource, TrailDataStage, TrailDataStages, TrailInstance, TrailOptions, TrailState } from './common/types';
+import { craftUIDKey } from './common/utils';
 import dataStore from './data-store';
+import TrailDataModel from './trail-data-model';
+import TrailDataRequests from './trail-data-requests';
 
 export const create = (options: TrailOptions): TrailInstance => {
     const { id = craftUIDKey('trail'), store, models } = options || {};
@@ -24,23 +27,37 @@ export const create = (options: TrailOptions): TrailInstance => {
     };
 };
 
-// export const ingested = (trail: TrailInstance): void => {
-//     const _ingested = Object.values(trail.models).reduce((acc, model) => {
-//         acc[model.name] = makeTrailInOutMethods<ModelDefinitions>({
-//             name: model.name, path: 'ingested',
-//             store: trail.store, model, methods: _ingested
-//         });
-//         return acc;
-//     }, {} as GenerateObject<keyof ModelDefinitions, TrailInOutMethods>);
-//     return _ingested;
-// };
+export const createFrom = (request: RequestSource, options?: TrailOptions): TrailInstance => {
+    const meta = RequestMeta.create(request);
+    return create({
+        ...options,
+        id: meta.data?.reference?.trailKey,
+    });
+};
 
-// export const digested = (trail: TrailInstance): void => {
-//     const _digested = Object.values(trail.models).reduce((acc, model) => {
-//         acc[model.name] = makeTrailInOutMethods<ModelDefinitions>({ name: model.name, path: 'ingested', store: trail.store, model, methods: _digested });
-//         return acc;
-//     }, {} as GenerateObject<keyof ModelDefinitions, TrailInOutMethods>);
-//     return _digested;
-// };
+export const stage = (trail: TrailInstance, type: TrailDataStages): TrailDataStage => {
+    return {
+        models: Object.values(trail.models).reduce((acc, model) => {
+            acc[model.name] = TrailDataModel.create({
+                type,
+                model,
+                store: trail.store,
+            });
+            return acc;
+        }, {}),
+        requests: TrailDataRequests.create({
+            type,
+            store: trail.store,
+        }),
+    };
+};
 
-export default { create };
+export const ingested = (trail: TrailInstance): TrailDataStage => {
+    return stage(trail, 'ingested');
+};
+
+export const digested = (trail: TrailInstance): TrailDataStage => {
+    return stage(trail, 'digested');
+};
+
+export default { create, createFrom, ingested, digested };

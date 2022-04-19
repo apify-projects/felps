@@ -7,14 +7,7 @@ import useHandleFailedRequestFunction from './crawler/use-handle-failed-request-
 import useHandlePageFunction from './crawler/use-handle-page-function';
 import usePostNavigationHooks from './crawler/use-post-navigation-hooks';
 import usePreNavigationHooks from './crawler/use-pre-navigation-hooks';
-import datasets from './datasets';
-import Flows from './flows';
-import Hooks from './hooks';
-import Models from './models';
-import Queues from './queues';
-import Step from './step';
-import Steps from './steps';
-import Stores from './stores';
+import { Flows, Hooks, Models, Queues, Step, Steps, Stores, Datasets } from '.';
 
 export const create = (options?: ActorOptions): ActorInstance => {
     return {
@@ -32,7 +25,7 @@ export const extend = (actor: ActorInstance, options: ActorOptions = {}): ActorI
         models: options?.models || actor.models || Models.create(),
         stores: options?.stores || actor.stores || Stores.create(),
         queues: options?.queues || actor.queues || Queues.create(),
-        datasets: options?.datasets || actor.datasets || datasets.create(),
+        datasets: options?.datasets || actor.datasets || Datasets.create(),
         hooks: options?.hooks || actor.hooks || Hooks.create(),
     };
 };
@@ -62,15 +55,6 @@ export const run = async (actor: ActorInstance): Promise<void> => {
 
     const requestQueue = await Apify.openRequestQueue();
 
-    const runCrawler = () => crawler.run(actor.crawler, {
-        requestQueue,
-        handlePageFunction: useHandlePageFunction(actor) as any,
-        handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
-        proxyConfiguration,
-        preNavigationHooks,
-        postNavigationHooks,
-    });
-
     // Hook to help with preparing the queue
     // Given a polyfilled requestQueue and the input data
     // User can add to the queue the starting requests to be crawled
@@ -81,9 +65,14 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     /**
    * Run async requests
    */
-    if (!await requestQueue.isEmpty()) {
-        await runCrawler();
-    }
+    await crawler.run(actor.crawler, {
+        requestQueue,
+        handlePageFunction: useHandlePageFunction(actor) as any,
+        handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
+        proxyConfiguration,
+        preNavigationHooks,
+        postNavigationHooks,
+    });
 
     /**
    * Run the serial requests

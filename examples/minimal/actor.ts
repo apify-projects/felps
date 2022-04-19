@@ -22,6 +22,10 @@ const MODELS = {
 type StepNames = typeof STEPS;
 type FlowNames = typeof FLOWS;
 
+// type FlowsDefinitions = {
+//     DISCOVER_TV_SHOW: ['COLLECT_TV_SHOW_LISTING', 'COLLECT_TV_SHOW'],
+// }
+
 type ModelSchemas = {
     TV_SHOW: {
         title: string,
@@ -79,3 +83,8 @@ export const steps = Steps.create<StepNames, GeneralStepApi, CustomStepApi>({ na
 
 
 export const flows = Flows.create<FlowNames>({ names: Object.values(FLOWS) });
+
+flows.discoverTvShow.steps = [
+    steps.collectTvShowListing,
+    steps.collectTvShow,
+];

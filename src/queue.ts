@@ -31,8 +31,8 @@ export const load = async (queue: QueueInstance, options?: { forceCloud?: boolea
 export const add = curry(async (queue: QueueInstance, request: RequestSource, options?: RequestOptionalOptions) => {
     const meta = requestMeta.create(request);
     const loaded = await load(queue);
-    logger.info(logger.create(queue), `Queueing ${request.url} request for: ${meta.data.step}.`);
-    return loaded.resource.addRequestWithPriority({ uniqueKey: craftUIDKey('req', 6), ...request }, options);
+    logger.info(logger.create(queue), `Queueing ${request.url} request for: ${meta.data.stepName}.`);
+    return loaded.resource.addRequest({ uniqueKey: craftUIDKey('req', 6), ...request }, options);
 });
 
 export default { create, load, add };

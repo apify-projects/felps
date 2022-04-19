@@ -10,7 +10,7 @@ export default (actor: ActorInstance) => {
         // Run a general hook
         await step.run(actor.hooks.stepFailed, crawlingContext, {});
 
-        const stepInstance = actor.steps?.[meta.data.step];
+        const stepInstance = actor.steps?.[meta.data.stepName];
         if (!stepInstance) {
             // context.log.error(`Step ${meta.data.step} not found.`, { crawlingContext });
             return;

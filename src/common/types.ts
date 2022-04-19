@@ -4,8 +4,9 @@ import { CrawlingContext } from 'apify';
 import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
 import type { JSONSchema7 } from 'json-schema';
-import RequestQueue from '../queue/request-queue';
+import RequestQueue from '../overrides/request-queue';
 
+export type reallyAny = any;
 export type UniqueyKey = string;
 
 export type DeepPartial<T> = Partial<{ [P in keyof T]: DeepPartial<T[P]> }>;
@@ -51,19 +52,26 @@ export type BaseOptions = {
 // flows.ts ------------------------------------------------------------
 export type FlowsInstance<Names extends Record<string, string> = Record<string, string>> = GeneralKeyedObject<Names, FlowInstance>;
 
+export type FlowNamesSignature = Record<string, string>
+
+// export type FlowsInstance<
+//     Names extends Record<string, string> = Record<string, string>,
+//     Definitions extends Record<keyof Names, string[]> = Record<keyof Names, string[]>
+//     > = { [K in Extract<keyof Names, string>]: FlowInstance<Definitions[K]> };
+
 export type FlowsOptions = {
     names?: string[],
 }
 
 // flow.ts ------------------------------------------------------------
 export type FlowInstance = {
-    steps: StepInstance[],
+    steps: StepInstance<reallyAny>[],
     output: JSONSchema7,
 } & BaseInstance;
 
 export type FlowOptions = {
     name: string,
-    steps?: StepInstance[],
+    steps?: StepInstance<reallyAny>[],
     output?: JSONSchema7,
 }
 
@@ -114,16 +122,16 @@ export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, ap
 export type GenerateStepApi<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = StepApiMetaAPI & StepApiUtilsAPI & StepApiFlowsAPI<FlowNames> & StepApiModelsAPI<ModelSchemas> & StepApiStepsAPI<StepNames, ModelSchemas>
 
 // step-api-flows.ts ------------------------------------------------------------
-export type StepApiMetaFlows<FlowNames> = {
+export type StepApiFlowsInstance<FlowNames> = {
     handler: (context: CrawlingContext) => StepApiFlowsAPI<FlowNames>,
 };
 
 export type StepApiFlowsAPI<FlowNames> = {
-    start: (flowName: Extract<keyof FlowNames, string>, request: RequestSource, references: Partial<ModelReference>) => void;
+    start: (flowName: Extract<keyof FlowNames, string>, request: RequestSource, references: Partial<ModelReference>) => ModelReference;
 };
 
 // step-api-steps.ts ------------------------------------------------------------
-export type StepApiMetaSteps<StepNames, ModelSchemas> = {
+export type StepApiStepsInstance<StepNames, ModelSchemas> = {
     handler: (context: CrawlingContext) => StepApiStepsAPI<StepNames, ModelSchemas>,
 };
 
@@ -134,7 +142,7 @@ export type GenerateStepGoMethods<T, ModelSchemas> = {
 };
 
 // step-api-models.ts ------------------------------------------------------------
-export type StepApiMetaModels<ModelSchemas extends Record<string, unknown>> = {
+export type StepApiModelsInstance<ModelSchemas extends Record<string, unknown>> = {
     handler: (context: CrawlingContext) => StepApiModelsAPI<ModelSchemas>,
 };
 
@@ -252,9 +260,9 @@ export type ModelOptions = {
     schema?: JSONSchema7,
 }
 
-export type ModelReference<T = unknown> = {
+export type ModelReference<T = unknown> = Partial<{
     [K in Extract<keyof T, string> as `${K}Key`]: UniqueyKey;
-} & { requestKey: UniqueyKey, trailKey: UniqueyKey };
+} & { requestKey: UniqueyKey, trailKey: UniqueyKey }>;
 
 // stores.ts ------------------------------------------------------------
 // eslint-disable-next-line max-len
@@ -323,34 +331,52 @@ export type TrailState = {
         aggregatedDurationInMs: number,
     },
     status: 'SUCCESS' | 'FAILURE' | 'PENDING',
-    ingested: TrailDataFunnel,
-    digested: TrailDataFunnel,
+    ingested: TrailDataStage,
+    digested: TrailDataStage,
 }
 
 // export type TrailInOutMethodsOptions<ModelSchemas> = {
 //     name: string;
-//     path: TrailDataPath;
+//     path: TrailDataStages;
 //     store: DataStore;
 //     methods: GenerateObject<keyof ModelSchemas, TrailInOutMethods>,
 //     model: Model,
 // }
 
-// trail-data.ts ------------------------------------------------------------
-export type TrailDataInstance<ReferenceType = unknown> = {
+// trail-data.ts
+export type TrailDataStages = 'digested' | 'ingested';
+
+export type TrailDataStage = {
+    models: Record<string, TrailDataModelInstance>,
+    requests: TrailDataRequestsInstance,
+}
+
+export type TrailDataInstance = TrailDataModelInstance | TrailDataRequestsInstance;
+
+// trail-data-requests.ts
+export type TrailDataRequestsInstance = {
+    store: DataStoreInstance;
+    path: string;
+} & BaseInstance;
+
+export type TrailDataRequestsOptions = {
+    type: TrailDataStages,
+    store: DataStoreInstance;
+}
+
+// trail-data-model.ts ------------------------------------------------------------
+export type TrailDataModelInstance = {
     referenceKey: string;
-    path: TrailDataPath;
-    fragments: TrailDataModelPathsMethods<ReferenceType>;
+    path: string;
     model: ModelInstance;
     store: DataStoreInstance;
 } & BaseInstance;
 
-export type TrailDataOptions = {
-    path: TrailDataPath,
+export type TrailDataModelOptions = {
+    type: TrailDataStages,
     model: ModelInstance,
     store: DataStoreInstance,
 }
-
-export type TrailDataPath = 'digested' | 'ingested';
 
 export type TrailDataModelItem<T = unknown> = {
     reference: Partial<ModelReference<T>>,
@@ -363,11 +389,6 @@ export type TrailDataModels = {
     },
 }
 
-export type TrailDataFunnel = {
-    items: TrailDataModels,
-    requests: Record<string, RequestSource>,
-}
-
 export type TrailDataModelPathsMethods<T> = {
     ITEMS: (reference: ModelReference<T>) => string;
     REQUESTS: (reference: ModelReference<T>) => string;
@@ -375,7 +396,7 @@ export type TrailDataModelPathsMethods<T> = {
 
 export type TrailModelPathsOptions = {
     name: string;
-    path: TrailDataPath;
+    path: TrailDataStages;
 }
 
 // queue.ts ------------------------------------------------------------
@@ -466,8 +487,7 @@ export type RequestMetaOptions = {
 }
 
 export type RequestMetaData = {
-    step?: string,
-    trailId?: string,
+    stepName?: string,
     crawlerMode: 'ajax' | 'cheerio' | 'browser',
     reference?: Partial<ModelReference<any>>,
 }
@@ -502,3 +522,8 @@ export type ApifyClientInstance = {
 export type ApifyClientOptions = {
     token?: string,
 };
+
+// dispatcher.ts ------------------------------------------------------------
+export type DispatcherInstance = {
+    handler: (context: CrawlingContext) => Promise<void>,
+}
