@@ -3,14 +3,14 @@ import step from './step';
 
 export const create = (): HooksInstance => {
     return {
-        stepStarted: step.create({ name: 'stepStarted' }),
-        stepEnded: step.create({ name: 'stepEnded' }),
-        stepFailed: step.create({ name: 'stepFailed' }),
-        stepRequestFailed: step.create({ name: 'stepRequestFailed' }),
-        actorStarted: step.create({ name: 'actorStarted' }),
-        actorEnded: step.create({ name: 'actorEnded' }),
-        queueStarted: step.create({ name: 'queueStarted' }),
-        queueEnded: step.create({ name: 'queueEnded' }),
+        STEP_STARTED: step.create({ name: 'STEP_STARTED' }),
+        STEP_ENDED: step.create({ name: 'STEP_ENDED' }),
+        STEP_FAILED: step.create({ name: 'STEP_FAILED' }),
+        STEP_REQUEST_FAILED: step.create({ name: 'STEP_REQUEST_FAILED' }),
+        ACTOR_STARTED: step.create({ name: 'ACTOR_STARTED' }),
+        ACTOR_ENDED: step.create({ name: 'ACTOR_ENDED' }),
+        QUEUE_STARTED: step.create({ name: 'QUEUE_STARTED' }),
+        QUEUE_ENDED: step.create({ name: 'QUEUE_ENDED' }),
     };
 };
 

@@ -6,6 +6,8 @@ import { LogLevel } from 'apify/build/utils_log';
 import type { JSONSchema7 } from 'json-schema';
 import RequestQueue from '../overrides/request-queue';
 
+export type { JSONSchemaType } from 'ajv';
+
 export type reallyAny = any;
 export type UniqueyKey = string;
 
@@ -19,7 +21,7 @@ export type SnakeToPascalCase<S extends string> =
     `${Capitalize<Lowercase<T>>}${SnakeToPascalCase<Capitalize<Lowercase<U>>>}` :
     Capitalize<Lowercase<S>>;
 export type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
-export type GeneralKeyedObject<N extends Record<string, string>, T> = { [K in Extract<keyof N, string> as `${SnakeToCamelCase<K>}`]: T };
+export type GeneralKeyedObject<N extends Record<string, string>, T> = { [K in Extract<keyof N, string>]: T };
 export type GenerateObject<N extends string[], T> = { [K in N[number]]: T };
 export type ValueOf<T> = T[keyof T];
 // export type GenerateMethods<
@@ -81,7 +83,7 @@ export type StepsInstance<
     Methods = unknown,
     CustomMethods extends Partial<Record<Extract<keyof Names, string>, unknown>> = Partial<Record<Extract<keyof Names, string>, unknown>>,
     > =
-    { [K in Extract<keyof Names, string> as `${SnakeToCamelCase<K>}`]: StepInstance<Methods & CustomMethods[K]> };
+    { [K in Extract<keyof Names, string>]: StepInstance<Methods & CustomMethods[K]> };
 
 export type StepsOptions = {
     names?: string[],
@@ -251,8 +253,8 @@ export type ModelsOptions<Names> = {
 // };
 
 // model.ts ------------------------------------------------------------
-export type ModelInstance = {
-    schema: JSONSchema7,
+export type ModelInstance= {
+    schema: JSONSchema7, // JSONSchemaType<Schema> |
 } & BaseInstance;
 
 export type ModelOptions = {
@@ -440,7 +442,7 @@ export type DefaultDatasetNames = ['default'];
 export type ActorInstance = {
     name?: string,
     crawler?: CrawlerInstance,
-    steps?: StepsInstance;
+    steps?: StepsInstance<reallyAny, reallyAny>;
     flows?: FlowsInstance;
     models?: ModelsInstance;
     stores?: StoresInstance;
@@ -452,7 +454,7 @@ export type ActorInstance = {
 export type ActorOptions = {
     name?: string,
     crawler?: CrawlerInstance,
-    steps?: StepsInstance;
+    steps?: StepsInstance<reallyAny, reallyAny> ;
     flows?: FlowsInstance;
     models?: ModelsInstance;
     stores?: StoresInstance;
@@ -463,7 +465,7 @@ export type ActorOptions = {
 
 // hooks.ts ------------------------------------------------------------
 export type HooksInstance = {
-    [K in DefaultHookNames[number]as `${SnakeToCamelCase<K>}`]: StepInstance;
+    [K in DefaultHookNames[number]]: StepInstance;
 };
 
 export type DefaultHookNames = ['STEP_STARTED', 'STEP_ENDED', 'STEP_FAILED', 'STEP_REQUEST_FAILED',

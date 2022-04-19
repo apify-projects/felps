@@ -8,7 +8,7 @@ export default (actor: ActorInstance) => {
         const meta = requestMeta.create(crawlingContext);
 
         // Run a general hook
-        await step.run(actor.hooks.stepRequestFailed, crawlingContext, {});
+        await step.run(actor.hooks.STEP_REQUEST_FAILED, crawlingContext, {});
 
         const stepInstance = actor.steps?.[meta.data.stepName];
         if (!stepInstance) {

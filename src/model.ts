@@ -25,7 +25,7 @@ export const extend = (model: ModelInstance, options: ModelOptions): ModelInstan
 export const schema = (model: ModelInstance): JSONSchema7 => {
     return {
         ...model.schema,
-        '#schema-name': model.name,
+        // '#schema-name': model.name,
     } as JSONSchema7;
 };
 

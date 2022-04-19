@@ -34,7 +34,7 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     // Initialize actor
     Stores.listen(actor.stores);
 
-    const input = await Apify.getInput();
+    const input = await Apify.getInput() || {};
 
     const { proxy } = input as any;
     const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
@@ -58,9 +58,9 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     // Hook to help with preparing the queue
     // Given a polyfilled requestQueue and the input data
     // User can add to the queue the starting requests to be crawled
-    await Step.run(actor.hooks.actorStarted, undefined, undefined);
+    await Step.run(actor.hooks.ACTOR_STARTED, undefined, undefined);
 
-    await Step.run(actor.hooks.queueStarted, undefined, undefined);
+    await Step.run(actor.hooks.QUEUE_STARTED, undefined, undefined);
 
     /**
    * Run async requests
@@ -86,10 +86,10 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     //   }
 
     // TODO: Provider functionnalities to the end hook
-    await Step.run(actor.hooks.queueEnded, undefined, undefined);
+    await Step.run(actor.hooks.QUEUE_ENDED, undefined, undefined);
 
     // TODO: Provider functionnalities to the end hook
-    await Step.run(actor.hooks.actorEnded, undefined, undefined);
+    await Step.run(actor.hooks.ACTOR_ENDED, undefined, undefined);
 
     // Closing..
     await Stores.persist(actor.stores);

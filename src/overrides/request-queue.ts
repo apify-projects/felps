@@ -1,4 +1,5 @@
-import { QueueOperationInfo, Request, RequestQueue as ApifyRequestQueue } from 'apify';
+import { QueueOperationInfo, Request } from 'apify';
+import { RequestQueue as ApifyRequestQueue } from 'apify/build/storages/request_queue';
 import { RequestOptionalOptions, RequestSource } from '../common/types';
 
 export default class RequestQueue extends ApifyRequestQueue {

@@ -1,15 +1,13 @@
-import { camelCase } from 'camel-case';
 import { ModelsInstance, ModelsOptions } from './common/types';
-import flow from './flow';
+import model from './model';
 
 export const create = <ModelDefinitions = Record<string, never>>
     (options?: ModelsOptions<Extract<keyof ModelDefinitions, string>>): ModelsInstance<ModelDefinitions> => {
     const { names = [] } = options || {};
     return names
-        .map((name) => camelCase(name))
         .reduce((steps, name) => ({
             ...steps,
-            [name]: flow.create({ name }),
+            [name]: model.create({ name }),
         }), {} as ModelsInstance<ModelDefinitions>);
 };
 
