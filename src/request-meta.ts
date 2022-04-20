@@ -1,9 +1,11 @@
+import mergeWith from 'lodash.mergewith';
 import { CrawlingContext } from 'apify';
 import { METADATA_KEY } from './common/consts';
 import { RequestContext, RequestMetaData, RequestMetaInstance, RequestSource } from './common/types';
 import base from './base';
+import { craftUIDKey } from './common/utils';
 
-export const create = (requestOrCrawlingContext: RequestSource | RequestContext | CrawlingContext): RequestMetaInstance => {
+export const create = (requestOrCrawlingContext?: RequestSource | RequestContext | CrawlingContext): RequestMetaInstance => {
     const request = (requestOrCrawlingContext as RequestContext)?.request || (requestOrCrawlingContext as RequestSource);
     const userData = request?.userData;
     const data = userData?.[METADATA_KEY] || {};
@@ -16,17 +18,28 @@ export const create = (requestOrCrawlingContext: RequestSource | RequestContext 
     };
 };
 
+export const contextDefaulted = (context?: RequestContext): RequestContext => {
+    return (context || {
+        request: {
+            userData: {
+                [METADATA_KEY]: {
+                    reference: {
+                        trailKey: craftUIDKey('trail'),
+                    },
+                },
+            },
+        },
+    }) as unknown as RequestContext;
+};
+
 export const extend = (requestMeta: RequestMetaInstance, metadata: Partial<RequestMetaData>): RequestMetaInstance => {
     return create({
         ...requestMeta.request,
         userData: {
             ...requestMeta.userData,
-            [METADATA_KEY]: {
-                ...requestMeta.data,
-                ...metadata,
-            },
+            [METADATA_KEY]: mergeWith(requestMeta.data, metadata),
         },
     });
 };
 
-export default { create, extend };
+export default { create, extend, contextDefaulted };

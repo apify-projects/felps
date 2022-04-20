@@ -9,15 +9,15 @@ import requestMeta from './request-meta';
 import { getPath } from './trail-data';
 
 export const create = (options?: TrailDataRequestsOptions): TrailDataRequestsInstance => {
-    const { type, store } = options;
+    const { id, type, store } = options;
 
     const key = `store-trail-data-requests`;
     const name = `trail-data-model-requests`;
 
-    const path = pathify(type, 'requests');
+    const path = pathify(id, type, 'requests');
 
     return {
-        ...base.create({ key, name }),
+        ...base.create({ key, name, id }),
         path,
         store,
     };

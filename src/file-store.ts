@@ -4,9 +4,11 @@ import { FileStoreInstance, FileStoreOptions } from './common/types';
 import base from './base';
 
 export const create = (options: FileStoreOptions): FileStoreInstance => {
-    const { name, key = 'file-store' } = options || {};
+    const { name, kvKey, key = 'file-store' } = options || {};
     return {
+        type: 'file-store',
         ...base.create({ name, key }),
+        kvKey: kvKey || name,
         resource: undefined,
         initialized: false,
     };
@@ -17,7 +19,8 @@ export const load = async (fileStore: FileStoreInstance): Promise<FileStoreInsta
 
     return {
         ...fileStore,
-        resource: await Apify.openKeyValueStore(fileStore.name),
+        initialized: true,
+        resource: await Apify.openKeyValueStore(fileStore.kvKey),
     };
 };
 

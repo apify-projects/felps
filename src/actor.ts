@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify, { PlaywrightHook } from 'apify';
-import { ActorInstance, ActorOptions } from './common/types';
+import { Datasets, Flows, Hooks, Models, Queue, Queues, Step, Steps, Stores } from '.';
 import Base from './base';
+import { ActorInstance, ActorOptions } from './common/types';
 import crawler from './crawler';
 import useHandleFailedRequestFunction from './crawler/use-handle-failed-request-function';
 import useHandlePageFunction from './crawler/use-handle-page-function';
 import usePostNavigationHooks from './crawler/use-post-navigation-hooks';
 import usePreNavigationHooks from './crawler/use-pre-navigation-hooks';
-import { StepApi, Flows, Hooks, Models, Queues, Step, Steps, Stores, Datasets, Queue } from '.';
 
 export const create = (options?: ActorOptions): ActorInstance => {
     return {
@@ -33,6 +33,7 @@ export const extend = (actor: ActorInstance, options: ActorOptions = {}): ActorI
 
 export const run = async (actor: ActorInstance): Promise<void> => {
     // Initialize actor
+    actor.stores = await Stores.load(actor.stores);
     Stores.listen(actor.stores);
 
     const input = await Apify.getInput() || {};
@@ -55,14 +56,12 @@ export const run = async (actor: ActorInstance): Promise<void> => {
         postNavigationHooksList.trailHook,
     ];
 
-    const stepApi = StepApi.create(actor);
-
     // Hook to help with preparing the queue
     // Given a polyfilled requestQueue and the input data
     // User can add to the queue the starting requests to be crawled
-    await Step.run(actor.hooks.ACTOR_STARTED, undefined, stepApi.handler(undefined));
+    await Step.run(actor.hooks.ACTOR_STARTED, actor, undefined);
 
-    await Step.run(actor.hooks.QUEUE_STARTED, undefined, undefined);
+    await Step.run(actor.hooks.QUEUE_STARTED, actor, undefined);
 
     /**
    * Run async requests
@@ -94,10 +93,10 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     //   }
 
     // TODO: Provider functionnalities to the end hook
-    await Step.run(actor.hooks.QUEUE_ENDED, undefined, undefined);
+    await Step.run(actor.hooks.QUEUE_ENDED, actor, undefined);
 
     // TODO: Provider functionnalities to the end hook
-    await Step.run(actor.hooks.ACTOR_ENDED, undefined, undefined);
+    await Step.run(actor.hooks.ACTOR_ENDED, actor, undefined);
 
     // Closing..
     await Stores.persist(actor.stores);

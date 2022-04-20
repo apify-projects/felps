@@ -1,22 +1,20 @@
-import Apify from 'apify';
 import {
     DataStoreInstance, DefaultDataStoreNames, DefaultFileStoreNames,
-    FileStoreInstance, GenerateObject, StoresInstance, StoresOptions,
+    FileStoreInstance, GenerateObject, StoreInstance, StoresInstance, StoresOptions,
 } from './common/types';
-import dataStore from './data-store';
-import fileStore from './file-store';
-import logger from './logger';
+import DataStore from './data-store';
+import FileStore from './file-store';
 
 export const DefaultDataStores: GenerateObject<DefaultDataStoreNames, DataStoreInstance> = {
-    state: dataStore.create({ name: 'state' }),
-    trails: dataStore.create({ name: 'trails' }),
-    incorrectDataset: dataStore.create({ name: 'incorrectDataset' }),
+    state: DataStore.create({ name: 'state', kvKey: 'STATE' }),
+    trails: DataStore.create({ name: 'trails', kvKey: 'TRAILS' }),
+    incorrectDataset: DataStore.create({ name: 'incorrectDataset', kvKey: 'INCORRECT_DATASET' }),
 };
 
 export const DefautFileStores: & GenerateObject<DefaultFileStoreNames, FileStoreInstance> = {
-    files: fileStore.create({ name: 'files' }),
-    responseBodies: fileStore.create({ name: 'responseBodies' }),
-    browserTraces: fileStore.create({ name: 'browserTraces' }),
+    files: FileStore.create({ name: 'files', kvKey: 'FILES' }),
+    responseBodies: FileStore.create({ name: 'responseBodies', kvKey: 'RESPONSE_BODIES' }),
+    browserTraces: FileStore.create({ name: 'browserTraces', kvKey: 'BROWSER_TRACES' }),
 };
 
 // eslint-disable-next-line max-len
@@ -26,14 +24,33 @@ export const create = <DataStoreNames extends string[] = [], FileStoreNames exte
     return {
         ...(dataStoreNames).reduce((stores, name) => ({
             ...stores,
-            [name]: dataStore.create({ name }),
+            [name]: DataStore.create({ name }),
         }), DefaultDataStores),
 
         ...(fileStoreNames).reduce((stores, name) => ({
             ...stores,
-            [name]: dataStore.create({ name }),
+            [name]: DataStore.create({ name }),
         }), DefautFileStores),
     };
+};
+
+export const load = async (stores: StoresInstance): Promise<StoresInstance> => {
+    const storesLoaded = await Promise.all(
+        Object.values(stores as Record<string, StoreInstance>).map(async (store) => {
+            if (store.type === 'data-store') {
+                return DataStore.load(store as DataStoreInstance);
+            }
+            if (store.type === 'file-store') {
+                return FileStore.load(store as FileStoreInstance);
+            }
+            return Promise.resolve(store);
+        }),
+    );
+
+    return storesLoaded.reduce((acc, store: StoreInstance) => {
+        acc[store.name] = store;
+        return acc;
+    }, {});
 };
 
 export const persist = async (stores: StoresInstance): Promise<void> => {
@@ -41,27 +58,16 @@ export const persist = async (stores: StoresInstance): Promise<void> => {
         (Object.values(stores) as (DataStoreInstance | FileStoreInstance)[])
             .map((store) => Promise.resolve(
                 store.key === 'data-store'
-                    ? dataStore.persist(store as DataStoreInstance)
+                    ? DataStore.persist(store as DataStoreInstance)
                     : undefined,
             )),
     );
 };
 
 export const listen = (stores: StoresInstance): void => {
-    async function persistOnMigrating() {
-        logger.info(logger.create({ id: 'stores' }), 'Migrating: Persisting stores...');
-        await persist(stores);
+    for (const store of Object.values(stores) as StoreInstance[]) {
+        if (store.key === 'data-store') DataStore.listen(store as DataStoreInstance);
     }
-
-    async function persistOnAborting() {
-        logger.info(logger.create({ id: 'stores' }), 'Aborting: Persisting stores...');
-        await persist(stores);
-    }
-
-    Apify.events.removeListener('migrating', persistOnMigrating);
-    Apify.events.on('migrating', persistOnMigrating);
-    Apify.events.removeListener('aborting', persistOnAborting);
-    Apify.events.on('aborting', persistOnAborting);
 };
 
-export default { create, persist, listen, DefaultDataStores, DefautFileStores };
+export default { create, load, persist, listen, DefaultDataStores, DefautFileStores };

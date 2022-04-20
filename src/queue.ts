@@ -1,3 +1,4 @@
+import { QueueOperationInfo } from 'apify';
 import { StorageManager } from 'apify/build/storages/storage_manager';
 import base from './base';
 import { QueueInstance, QueueOptions, RequestOptionalOptions, RequestSource } from './common/types';
@@ -27,7 +28,7 @@ export const load = async (queue: QueueInstance, options?: { forceCloud?: boolea
     };
 };
 
-export const add = async (queue: QueueInstance, request: RequestSource, options?: RequestOptionalOptions) => {
+export const add = async (queue: QueueInstance, request: RequestSource, options?: RequestOptionalOptions): Promise<QueueOperationInfo> => {
     const meta = requestMeta.create(request);
     const loaded = await load(queue);
     logger.info(logger.create(queue), `Queueing ${request.url} request for: ${meta.data.stepName}.`);

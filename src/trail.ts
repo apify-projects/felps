@@ -5,7 +5,7 @@ import {
     RequestSource, TrailDataStage, TrailDataStages, TrailInstance,
     TrailOptions, TrailState,
 } from './common/types';
-import { craftUIDKey } from './common/utils';
+import { craftUIDKey, pathify } from './common/utils';
 import DataStore from './data-store';
 import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
@@ -16,21 +16,30 @@ export const create = (options: TrailOptions): TrailInstance => {
     const store = (actor.stores as reallyAny)?.trails;
     const models = actor.models as ModelsInstance<Record<string, never>>;
 
-    if (!DataStore.has(store, id)) {
+    return {
+        ...Base.create({ key: 'store-trail', name: 'trail', id }),
+        store,
+        models,
+    };
+};
+
+export const load = async (trail: TrailInstance): Promise<TrailInstance> => {
+    const store = await DataStore.load(trail.store);
+
+    if (!DataStore.has(store, trail.id)) {
         const initialState: DeepPartial<TrailState> = {
-            id,
-            query: {},
+            id: trail.id,
+            input: {},
             requests: {},
             stats: { startedAt: new Date().toISOString() },
         };
 
-        DataStore.set(store, id, initialState);
+        DataStore.set(store, trail.id, initialState);
     }
 
     return {
-        ...Base.create({ key: 'store-trail', name: 'trail' }),
+        ...trail,
         store,
-        models,
     };
 };
 
@@ -42,10 +51,23 @@ export const createFrom = (request: RequestSource, options: TrailOptions): Trail
     });
 };
 
+export const update = (trail: TrailInstance, data: DeepPartial<Pick<TrailState, 'input' | 'status'>>): void => {
+    DataStore.update(trail.store, trail.id, data);
+};
+
+// export const setStep = (trail: TrailInstance, id: UniqueyKey, data: reallyAny): void => {
+//     DataStore.set(trail.store, pathify(trail.id, 'steps', id), data);
+// };
+
+export const setRequest = (trail: TrailInstance, request: any): void => {
+    DataStore.set(trail.store, pathify(trail.id, 'requests', request.id), request);
+};
+
 export const stage = (trail: TrailInstance, type: TrailDataStages): TrailDataStage => {
     return {
         models: Object.values(trail.models).reduce((acc, model) => {
             acc[model.name] = TrailDataModel.create({
+                id: trail.id,
                 type,
                 model,
                 store: trail.store,
@@ -53,6 +75,7 @@ export const stage = (trail: TrailInstance, type: TrailDataStages): TrailDataSta
             return acc;
         }, {}),
         requests: TrailDataRequests.create({
+            id: trail.id,
             type,
             store: trail.store,
         }),
@@ -67,4 +90,4 @@ export const digested = (trail: TrailInstance): TrailDataStage => {
     return stage(trail, 'digested');
 };
 
-export default { create, createFrom, ingested, digested };
+export default { create, createFrom, load, update, setRequest, ingested, digested };

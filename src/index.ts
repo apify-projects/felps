@@ -24,7 +24,7 @@ import Hooks from './hooks';
 import Trail from './trail';
 import TrailData from './trail-data';
 import RequestMeta from './request-meta';
-import Dispatcher from './dispatcher';
+import Orchestrator from './orchestrator';
 import Logger from './logger';
 
 export {
@@ -54,7 +54,7 @@ export {
     Trail,
     TrailData,
     RequestMeta,
-    Dispatcher,
+    Orchestrator,
     Logger,
 };
 
@@ -85,6 +85,6 @@ export default {
     Trail,
     TrailData,
     RequestMeta,
-    Dispatcher,
+    Orchestrator,
     Logger,
 };

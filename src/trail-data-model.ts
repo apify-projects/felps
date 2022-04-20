@@ -8,16 +8,16 @@ import dataStore from './data-store';
 import { getPath } from './trail-data';
 
 export const create = (options?: TrailDataModelOptions): TrailDataModelInstance => {
-    const { type, model, store } = options;
+    const { id, type, model, store } = options;
     const referenceKey = REFERENCE_KEY(model.name);
 
     const key = `store-trail-data-model-${model.name}`;
     const name = `trail-data-model-${model.name}`;
 
-    const path = pathify(type, model.name, 'models');
+    const path = pathify(id, type, model.name, 'models');
 
     return {
-        ...base.create({ key, name }),
+        ...base.create({ key, name, id }),
         referenceKey,
         path,
         model,

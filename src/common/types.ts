@@ -120,10 +120,8 @@ export type StepOptions<Methods = unknown> = {
 export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
 
 // step-api.ts -----------------------------------------------------------------
-export type StepApiInstance<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = {
-    handler: (context: CrawlingContext) => GenerateStepApi<FlowNames, StepNames, ModelSchemas>,
-}
-
+// eslint-disable-next-line max-len
+export type StepApiInstance<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = (context: CrawlingContext) => GenerateStepApi<FlowNames, StepNames, ModelSchemas>;
 // eslint-disable-next-line max-len
 export type GenerateStepApi<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = StepApiMetaAPI & StepApiUtilsAPI & StepApiFlowsAPI<FlowNames> & StepApiModelsAPI<ModelSchemas> & StepApiStepsAPI<StepNames, ModelSchemas>
 
@@ -133,7 +131,7 @@ export type StepApiFlowsInstance<FlowNames> = {
 };
 
 export type StepApiFlowsAPI<FlowNames> = {
-    start: (flowName: Extract<keyof FlowNames, string>, request: RequestSource, reference?: Partial<ModelReference>) => ModelReference;
+    start: (flowName: Extract<keyof FlowNames, string>, request: RequestSource, input?: any, reference?: Partial<ModelReference>) => ModelReference;
 };
 
 // step-api-steps.ts ------------------------------------------------------------
@@ -287,10 +285,11 @@ export type StoresOptions<DataStoreNames extends string[] = [], FileStoreNames e
 
 // data-store.ts ------------------------------------------------------------
 export type DataStoreInstance = {
+    type: 'data-store',
     kvKey: string;
     pathPrefix: string;
     initialized: boolean;
-    store: Record<string, unknown>;
+    state: Record<string, unknown>;
 } & BaseInstance;
 
 export type DataStoreOptions = {
@@ -302,12 +301,15 @@ export type DataStoreOptions = {
 
 // file-store.ts ------------------------------------------------------------
 export type FileStoreInstance = {
+    type: 'file-store',
+    kvKey: string,
     resource: Apify.KeyValueStore,
     initialized: boolean,
 } & BaseInstance;
 
 export type FileStoreOptions = {
     name: string,
+    kvKey?: string,
     key?: string,
 }
 
@@ -325,10 +327,13 @@ export type TrailOptions = {
 
 export type TrailState = {
     id: string,
-    query: any,
+    input: any,
     requests: {
         [key: string]: any
     },
+    // steps: {
+    //     [key: string]: any
+    // },
     stats: {
         startedAt: string,
         endedAt: string,
@@ -361,11 +366,13 @@ export type TrailDataInstance = TrailDataModelInstance | TrailDataRequestsInstan
 
 // trail-data-requests.ts
 export type TrailDataRequestsInstance = {
+    id: UniqueyKey,
     store: DataStoreInstance;
     path: string;
 } & BaseInstance;
 
 export type TrailDataRequestsOptions = {
+    id: UniqueyKey,
     type: TrailDataStages,
     store: DataStoreInstance;
 }
@@ -373,12 +380,14 @@ export type TrailDataRequestsOptions = {
 // trail-data-model.ts ------------------------------------------------------------
 export type TrailDataModelInstance = {
     referenceKey: string;
+    id: UniqueyKey,
     path: string;
     model: ModelInstance;
     store: DataStoreInstance;
 } & BaseInstance;
 
 export type TrailDataModelOptions = {
+    id: UniqueyKey,
     type: TrailDataStages,
     model: ModelInstance,
     store: DataStoreInstance,
@@ -533,6 +542,6 @@ export type ApifyClientOptions = {
 };
 
 // dispatcher.ts ------------------------------------------------------------
-export type DispatcherInstance = {
-    handler: (context: CrawlingContext) => Promise<void>,
+export type OrchestratorInstance = {
+    handler: (context: CrawlingContext, api: unknown) => Promise<void>,
 }

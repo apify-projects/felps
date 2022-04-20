@@ -1,13 +1,13 @@
-import { curryN } from 'rambda';
-import { RequestContext, StepInstance, StepOptions } from './common/types';
+import { Orchestrator, RequestMeta, StepApi } from '.';
 import base from './base';
+import { ActorInstance, RequestContext, StepInstance, StepOptions } from './common/types';
 
 export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepInstance<Methods> => {
     const {
         name,
-        handler = async () => undefined,
-        errorHandler = async () => undefined,
-        requestErrorHandler = async () => undefined,
+        handler,
+        errorHandler,
+        requestErrorHandler,
     } = options || {};
 
     return {
@@ -18,27 +18,35 @@ export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepI
     };
 };
 
-export const on = curryN(2, (step: StepInstance, handler: () => void) => {
+export const on = (step: StepInstance, handler: () => void) => {
     return {
         ...step,
         handler,
     };
-});
+};
 
-export const extend = curryN(2, <Methods = unknown>(step: StepInstance, options: StepOptions<Methods>) => {
+export const extend = <Methods = unknown>(step: StepInstance, options: StepOptions<Methods>) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { name, ...otherOptions } = options || {};
     return {
         ...step,
         ...otherOptions,
     };
-});
+};
 
-export const run = async <Api = unknown>(step: StepInstance, context: RequestContext, api: Api): Promise<void> => {
+export const run = async (step: StepInstance, actor: ActorInstance, context: RequestContext): Promise<void> => {
+    const ctx = RequestMeta.contextDefaulted(context);
+
+    const stepApi = StepApi.create(actor);
+
     try {
-        await step.handler(context, api);
+        await step?.handler?.(ctx, stepApi(ctx));
     } catch (error) {
-        await step.errorHandler(context, api);
+        await step?.errorHandler?.(ctx, stepApi(ctx));
+    } finally {
+        if (step?.handler) {
+            await Orchestrator.run(Orchestrator.create(actor), ctx, stepApi(ctx));
+        }
     }
 };
 

@@ -54,7 +54,7 @@ hooks.ACTOR_STARTED.handler = async (_, api) => {
     const { flow, url } = api.getInput();
     console.log(flow, url);
     console.log(api);
-    await Promise.resolve(api.start('COLLECT_NEW_ARRIVALS', { url }));
+    await Promise.resolve(api.start('COLLECT_NEW_ARRIVALS', { url }, { flow, url }));
 
 }
 
