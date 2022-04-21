@@ -4,8 +4,12 @@
 [x] auto-generate hook methods
 [x] crawler
 [-] orchestrator
-[-] add trail state methods
-[ ] add trail status management
+[-] orchestrate requests
+[ ] orchestrate models
 [ ] add data validation
 [ ] flow control methods
 [ ] data validation
+
+[ ] custom webhooks
+[ ] SSE on dataset push
+[ ] events (on dataset push for ex)

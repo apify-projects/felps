@@ -1,7 +1,6 @@
 import Apify from 'apify';
-import { curry, curryN } from 'rambda';
-import { FileStoreInstance, FileStoreOptions } from './common/types';
 import base from './base';
+import { FileStoreInstance, FileStoreOptions } from './common/types';
 
 export const create = (options: FileStoreOptions): FileStoreInstance => {
     const { name, kvKey, key = 'file-store' } = options || {};
@@ -24,14 +23,14 @@ export const load = async (fileStore: FileStoreInstance): Promise<FileStoreInsta
     };
 };
 
-export const get = curryN(2, async (fileStore: FileStoreInstance, key: string) => {
+export const get = async (fileStore: FileStoreInstance, key: string) => {
     const loaded = await load(fileStore);
     return loaded.resource.getValue(key);
-});
+};
 
-export const set = curry(async (fileStore: FileStoreInstance, key: string, value: unknown, options?: { contentType?: string; }) => {
+export const set = async (fileStore: FileStoreInstance, key: string, value: unknown, options?: { contentType?: string; }) => {
     const loaded = await load(fileStore);
     return loaded.resource.setValue(key, value, options);
-});
+};
 
 export default { create, load, get, set };

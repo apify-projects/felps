@@ -1,3 +1,4 @@
+import Base from './base';
 import Actor from './actor';
 import Crawler from './crawler';
 import Flows from './flows';
@@ -5,10 +6,9 @@ import Flow from './flow';
 import Steps from './steps';
 import Step from './step';
 import StepApi from './step-api';
-import StepApiFlows from './step-api-flows';
+import StepApiFlow from './step-api-flow';
 import StepApiMeta from './step-api-meta';
-import StepApiModels from './step-api-models';
-import StepApiSteps from './step-api-steps';
+import StepApiModel from './step-api-model';
 import StepApiTrail from './step-api-trail';
 import StepApiUtils from './step-api-utils';
 import Models from './models';
@@ -28,6 +28,7 @@ import Orchestrator from './orchestrator';
 import Logger from './logger';
 
 export {
+    Base,
     Actor,
     Crawler,
     Flows,
@@ -35,10 +36,9 @@ export {
     Steps,
     Step,
     StepApi,
-    StepApiFlows,
+    StepApiFlow,
     StepApiMeta,
-    StepApiModels,
-    StepApiSteps,
+    StepApiModel,
     StepApiTrail,
     StepApiUtils,
     Models,
@@ -59,6 +59,7 @@ export {
 };
 
 export default {
+    Base,
     Actor,
     Crawler,
     Flows,
@@ -66,10 +67,9 @@ export default {
     Steps,
     Step,
     StepApi,
-    StepApiFlows,
+    StepApiFlow,
     StepApiMeta,
-    StepApiModels,
-    StepApiSteps,
+    StepApiModel,
     StepApiTrail,
     StepApiUtils,
     Models,

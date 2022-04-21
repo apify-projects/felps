@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import isMatch from 'lodash.ismatch';
 import base from './base';
-import { REFERENCE_KEY } from './common/consts';
+import { MODEL_UID_KEY, REFERENCE_KEY } from './common/consts';
 import { ModelReference, TrailDataModelInstance, TrailDataModelItem, TrailDataModelOptions } from './common/types';
 import { craftUIDKey, pathify } from './common/utils';
 import dataStore from './data-store';
@@ -33,7 +33,7 @@ export const getItems = (trailData: TrailDataModelInstance): Record<string, Trai
     return get(trailData) as Record<string, TrailDataModelItem>;
 };
 
-export const getItemsList = <T>(trailData: TrailDataModelInstance, ref?: Partial<ModelReference<T>>): TrailDataModelItem[] => {
+export const getItemsList = <T>(trailData: TrailDataModelInstance, ref?: ModelReference<T>): TrailDataModelItem[] => {
     const items = Object.values(getItems(trailData));
     return ref ? items.filter((item) => isMatch(item.reference, ref)) : items;
 };
@@ -41,7 +41,7 @@ export const getItemsList = <T>(trailData: TrailDataModelInstance, ref?: Partial
 export const getChildrenItemsList = <T>(trailData: TrailDataModelInstance, parentRef: ModelReference<T>): TrailDataModelItem[] => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     const { [trailData.referenceKey as keyof ModelReference<T>]: _, ...reference } = parentRef;
-    return getItemsList(trailData, reference as Partial<ModelReference<T>>);
+    return getItemsList(trailData, reference as ModelReference<T>);
 };
 
 export const update = <T>(trailData: TrailDataModelInstance, data: Partial<T>, ref?: ModelReference<T>): ModelReference<T> => {
@@ -50,7 +50,7 @@ export const update = <T>(trailData: TrailDataModelInstance, data: Partial<T>, r
 };
 
 export const set = <T>(trailData: TrailDataModelInstance, data: Partial<T>, ref?: ModelReference<T>): ModelReference<T> => {
-    const reference = { [trailData.referenceKey]: craftUIDKey(), ...(ref || {}) } as ModelReference<T>;
+    const reference = { [trailData.referenceKey]: craftUIDKey(MODEL_UID_KEY(trailData.model?.name)), ...(ref || {}) } as ModelReference<T>;
     return update(trailData, data, reference);
 };
 

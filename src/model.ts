@@ -1,8 +1,10 @@
 import { JSONSchema7 } from 'json-schema';
+import { pickAll } from 'ramda';
 import base from './base';
 import { REFERENCE_KEY } from './common/consts';
-import { ModelInstance, ModelOptions, ModelReference } from './common/types';
+import { ModelInstance, ModelOptions, ModelReference, ValidatorValidateOptions } from './common/types';
 import { traverse } from './common/utils';
+import Validator from './validator';
 
 export const create = (options: ModelOptions): ModelInstance => {
     const { name, schema } = options || {};
@@ -25,7 +27,7 @@ export const extend = (model: ModelInstance, options: ModelOptions): ModelInstan
 export const schema = (model: ModelInstance): JSONSchema7 => {
     return {
         ...model.schema,
-        // '#schema-name': model.name,
+        '#schema-name': model.name,
     } as JSONSchema7;
 };
 
@@ -41,11 +43,32 @@ export const referenceKeys = (model: ModelInstance): string[] => {
     return dependencies(model).map((modelName) => REFERENCE_KEY(modelName));
 };
 
-export const references = (model: ModelInstance, ref: Partial<ModelReference>): Partial<ModelReference> => {
-    return referenceKeys(model).reduce((acc, key) => {
-        acc[key] = ref[key];
-        return acc;
-    }, {});
+export const referenceKeysSchema = (model: ModelInstance): JSONSchema7 => {
+    const keys = referenceKeys(model);
+    return {
+        type: 'object',
+        properties: keys.reduce((acc, key) => {
+            acc[key] = { type: 'string' };
+            return acc;
+        }, {}),
+        required: keys,
+    };
 };
 
-export default { create, schema, dependencies, referenceKeys, references };
+export const referenceFor = (model: ModelInstance, ref: ModelReference, withOwnReferenceKey?: boolean): ModelReference => {
+    const keys = referenceKeys(model);
+    if (withOwnReferenceKey) keys.unshift(REFERENCE_KEY(model.name));
+    return pickAll(keys, ref);
+};
+
+export const validate = <T = unknown>(model: ModelInstance, data: T, options: ValidatorValidateOptions = {}): boolean => {
+    const validator = Validator.create({ name: model.name, schema: model.schema });
+    return Validator.validate(validator, data, { partial: false, logError: true, throwError: false, ...options });
+};
+
+export const validateReference = <T = unknown>(model: ModelInstance, ref: ModelReference<T>, options: ValidatorValidateOptions = {}): boolean => {
+    const validator = Validator.create({ name: model.name, schema: referenceKeysSchema(model) });
+    return Validator.validate(validator, ref, { partial: false, logError: true, throwError: false, ...options });
+};
+
+export default { create, schema, dependencies, referenceKeys, referenceFor, validate, validateReference };

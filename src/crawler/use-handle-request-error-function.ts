@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { StepApi } from '..';
 import { ActorInstance, RequestContext } from '../common/types';
 import requestMeta from '../request-meta';
 import step from '../step';
@@ -8,7 +9,7 @@ export default (actor: ActorInstance) => {
         const meta = requestMeta.create(crawlingContext);
 
         // Run a general hook
-        await step.run(actor.hooks.STEP_REQUEST_FAILED, crawlingContext, {});
+        await step.run(actor.hooks.STEP_REQUEST_FAILED, actor, crawlingContext);
 
         const stepInstance = actor.steps?.[meta.data.stepName];
         if (!stepInstance) {
@@ -17,6 +18,6 @@ export default (actor: ActorInstance) => {
         }
 
         // const api = new StepApi({ step: stepInstance, context }).make(crawlingContext);
-        await stepInstance.requestErrorHandler(crawlingContext, {});
+        await stepInstance.requestErrorHandler(crawlingContext, StepApi.create(actor)(crawlingContext));
     };
 };

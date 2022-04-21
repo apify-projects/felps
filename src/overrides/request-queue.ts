@@ -14,7 +14,7 @@ export default class RequestQueue extends ApifyRequestQueue {
         client: ApifyClient; // | ApifyStorageLocal
     }) {
         super(options);
-        this._store = DataStore.create({ name: 'request-queue', key: 'request-queue' });
+        this._store = DataStore.create({ name: options?.name || 'default', key: 'request-queue' });
         DataStore.listen(this._store);
     }
 

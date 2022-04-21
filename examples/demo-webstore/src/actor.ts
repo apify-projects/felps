@@ -9,32 +9,29 @@ const SELECT = {
     PRODUCT_DESCRIPTION: '[class*=ProductView_sideba] [class*=Text_body]',
 };
 
-steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async ({ $ }) => {
-    console.log('COLLECT_NEW_PRODUCTS_LISTING');
+steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async ({ $ }, api) => {
 
-    for (const product of $(SELECT.PRODUCTS)) {
+    for (const product of $(SELECT.PRODUCTS).slice(0, 3)) {
         const data = {
             name: $(product).find(SELECT.PRODUCT_NAME).first().text(),
             priceInCents: +$(product).find(SELECT.PRODUCT_PRICE).first().text().replace(/[^0-9]/g, ''),
         };
-        console.log(data);
-        // const productRef = api.set('PRODUCT', data);
+        // console.log(data);
+        const productRef = api.set('PRODUCT', data);
 
-        // const url = api.absoluteUrl($(product).attr('href'));
-        // if (url) {
-        //     api.go('COLLECT_PRODUCT_DETAILS', { url }, productRef);
-        // }
+        const url = api.absoluteUrl($(product).attr('href'));
+        if (url) {
+            api.goto('COLLECT_PRODUCT_DETAILS', { url }, productRef);
+        }
     }
 };
 
-steps.COLLECT_PRODUCT_DETAILS.handler = async () => {
-    console.log('COLLECT_PRODUCT_DETAILS');
-
-    // api.update('PRODUCT', {
-    //     description: $(SELECT.PRODUCT_DESCRIPTION).first().text(),
-    // });
+steps.COLLECT_PRODUCT_DETAILS.handler = async ({ $ }, api) => {
+    api.update('PRODUCT', {
+        description: $(SELECT.PRODUCT_DESCRIPTION).first().text(),
+    });
 }
 
-const actor = Actor.create({ steps, models, flows, hooks })
+const actor = Actor.create({ crawlerMode: 'cheerio', steps, models, flows, hooks })
 
 Actor.run(actor);

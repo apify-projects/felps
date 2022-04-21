@@ -49,10 +49,12 @@ export class DefaultCrawler extends PlaywrightCrawler {
                     break;
 
                 case 'cheerio':
-                default:
+                default: {
                     crawlingContext.response = await fetch();
-                    crawlingContext.$ = load(await crawlingContext.response.text());
+                    const html = await crawlingContext.response.text();
+                    crawlingContext.$ = load(html);
                     break;
+                }
             }
         } catch (error) {
             this._handleNavigationTimeout(crawlingContext, error as any);

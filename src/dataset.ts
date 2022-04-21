@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify from 'apify';
-import { curryN } from 'rambda';
+import { curryN } from 'ramda';
 import { DatasetInstance, DatasetOptions } from './common/types';
 import base from './base';
 

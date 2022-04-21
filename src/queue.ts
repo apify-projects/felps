@@ -3,14 +3,14 @@ import { StorageManager } from 'apify/build/storages/storage_manager';
 import base from './base';
 import { QueueInstance, QueueOptions, RequestOptionalOptions, RequestSource } from './common/types';
 import { craftUIDKey } from './common/utils';
-import logger from './logger';
+import Logger from './logger';
 import RequestQueue from './overrides/request-queue';
 import requestMeta from './request-meta';
 
 export const create = (options?: QueueOptions): QueueInstance => {
     const { name } = options || {};
     return {
-        ...base.create({ key: 'queue', name, id: 'unknown' }),
+        ...base.create({ key: 'queue', name }),
         resource: undefined,
     };
 };
@@ -31,7 +31,7 @@ export const load = async (queue: QueueInstance, options?: { forceCloud?: boolea
 export const add = async (queue: QueueInstance, request: RequestSource, options?: RequestOptionalOptions): Promise<QueueOperationInfo> => {
     const meta = requestMeta.create(request);
     const loaded = await load(queue);
-    logger.info(logger.create(queue), `Queueing ${request.url} request for: ${meta.data.stepName}.`);
+    Logger.info(Logger.create(queue), `Queueing ${request.url} request for: ${meta.data.stepName}.`);
     return loaded.resource.addRequest({ uniqueKey: craftUIDKey('req', 6), ...request }, options);
 };
 

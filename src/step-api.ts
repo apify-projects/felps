@@ -1,8 +1,7 @@
 import { ActorInstance, GenerateStepApi, StepApiInstance } from './common/types';
-import StepApiFlows from './step-api-flows';
+import StepApiFlow from './step-api-flow';
 import StepApiMeta from './step-api-meta';
-import StepApiModels from './step-api-models';
-import StepApiSteps from './step-api-steps';
+import StepApiModel from './step-api-model';
 import StepApiTrail from './step-api-trail';
 import StepApiUtils from './step-api-utils';
 
@@ -12,11 +11,10 @@ export const create = <
     return (context) => {
         return {
             ...StepApiTrail.create().handler(),
-            ...StepApiSteps.create().handler(context),
-            ...StepApiFlows.create(actor).handler(context),
+            ...StepApiFlow.create(actor).handler(context),
             ...StepApiMeta.create().handler(context),
             ...StepApiUtils.create(actor).handler(context),
-            ...StepApiModels.create().handler(context),
+            ...StepApiModel.create(actor).handler(context),
         } as unknown as GenerateStepApi<FlowNames, StepNames, ModelSchemas>;
     };
 };

@@ -2,7 +2,7 @@ import { RequestMeta } from '.';
 import Base from './base';
 import {
     DeepPartial, ModelsInstance, reallyAny,
-    RequestSource, TrailDataStage, TrailDataStages, TrailInstance,
+    RequestSource, TrailDataModelInstance, TrailDataRequestItem, TrailDataStage, TrailDataStages, TrailInstance,
     TrailOptions, TrailState,
 } from './common/types';
 import { craftUIDKey, pathify } from './common/utils';
@@ -51,13 +51,9 @@ export const createFrom = (request: RequestSource, options: TrailOptions): Trail
     });
 };
 
-export const update = (trail: TrailInstance, data: DeepPartial<Pick<TrailState, 'input' | 'status'>>): void => {
+export const update = (trail: TrailInstance, data: DeepPartial<Pick<TrailState, 'input'>>): void => {
     DataStore.update(trail.store, trail.id, data);
 };
-
-// export const setStep = (trail: TrailInstance, id: UniqueyKey, data: reallyAny): void => {
-//     DataStore.set(trail.store, pathify(trail.id, 'steps', id), data);
-// };
 
 export const setRequest = (trail: TrailInstance, request: any): void => {
     DataStore.set(trail.store, pathify(trail.id, 'requests', request.id), request);
@@ -90,4 +86,14 @@ export const digested = (trail: TrailInstance): TrailDataStage => {
     return stage(trail, 'digested');
 };
 
-export default { create, createFrom, load, update, setRequest, ingested, digested };
+// export const promote = (trail: TrailInstance, stageKey: Extract<keyof TrailDataStage, string>, key: UniqueyKey): void => {
+export const promote = (trail: TrailInstance, item: TrailDataModelInstance | TrailDataRequestItem): void => {
+    const { id } = item || {};
+    const path = (stageName: TrailDataStages) => pathify(trail.id, stageName, 'source' in item ? 'requests' : 'models', id);
+    // Get current ingested item and move it to digested stage
+    DataStore.set(trail.store, path('digested'), DataStore.get(trail.store, path('ingested')));
+    // Remove it from ingested stage
+    DataStore.remove(trail.store, path('ingested'));
+};
+
+export default { create, createFrom, load, update, setRequest, ingested, digested, promote };

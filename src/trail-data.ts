@@ -10,8 +10,12 @@ export const defaultUpdateMerger = (existingValue, newValue) => {
     return undefined;
 };
 
-export const getPath = <T = unknown>(trailData: TrailDataInstance, ref: Partial<ModelReference<T>>): string => {
-    return pathify(trailData.path, ref?.requestKey);
+export const getPath = <T = unknown>(trailData: TrailDataInstance, ref: ModelReference<T>): string => {
+    const key = ref?.[trailData.referenceKey];
+    if (!key) {
+        throw new Error(`No reference key found for ${JSON.stringify(ref)}`);
+    }
+    return pathify(trailData.path, key);
 };
 
 export default { getPath, defaultUpdateMerger };

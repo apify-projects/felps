@@ -1,4 +1,4 @@
-import { Flows, Models, Steps, Hooks } from 'felps';
+import { Flows, Hooks, Models, Steps } from 'felps';
 import { GenerateStepApi } from 'felps/dist/common/types';
 
 const STEPS = {
@@ -50,12 +50,8 @@ flows.COLLECT_NEW_ARRIVALS.steps = [
 
 const hooks = Hooks.create<GeneralStepApi>();
 hooks.ACTOR_STARTED.handler = async (_, api) => {
-    console.log('ACTOR_STARTED');
     const { flow, url } = api.getInput();
-    console.log(flow, url);
-    console.log(api);
-    await Promise.resolve(api.start('COLLECT_NEW_ARRIVALS', { url }, { flow, url }));
-
+    api.start('COLLECT_NEW_ARRIVALS', { url }, { flow, url });
 }
 
 export { steps, flows, models, hooks };

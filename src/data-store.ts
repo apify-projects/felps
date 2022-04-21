@@ -3,13 +3,14 @@ import cloneDeep from 'lodash.clonedeep';
 import getByKey from 'lodash.get';
 import hasByPath from 'lodash.has';
 import mergeWith from 'lodash.mergewith';
-import omit from 'lodash.omit';
+// import omit from 'lodash.omit';
+import { dissocPath } from 'ramda';
 import setByKey from 'lodash.set';
 import ApifyEvents from './apify-events';
 import base from './base';
 import { DataStoreInstance, DataStoreOptions, reallyAny } from './common/types';
 import { craftUIDKey } from './common/utils';
-import logger from './logger';
+import Logger from './logger';
 
 const mustBeLoaded = (store: DataStoreInstance): void => {
     if (!store.initialized) {
@@ -47,7 +48,7 @@ export const set = <T = reallyAny>(dataStore: DataStoreInstance, path: string, d
 
 export const remove = (dataStore: DataStoreInstance, path: string): void => {
     mustBeLoaded(dataStore);
-    dataStore.state = omit(dataStore.state, getPath(dataStore, path));
+    dataStore.state = dissocPath(getPath(dataStore, path).split('.'), dataStore.state);
 };
 
 export const has = (dataStore: DataStoreInstance, path: string): boolean => {
@@ -124,7 +125,7 @@ export const update = <T = reallyAny>(
 
 export const load = async (dataStore: DataStoreInstance): Promise<DataStoreInstance> => {
     if (!dataStore.initialized) {
-        logger.info(logger.create(dataStore), 'Loading...');
+        Logger.start(Logger.create(dataStore), 'Loading...');
         return {
             ...dataStore,
             initialized: true,
@@ -142,7 +143,7 @@ export const persist = async (dataStore: DataStoreInstance): Promise<void> => {
 
 export const listen = (dataStore: DataStoreInstance): void => {
     ApifyEvents.onShutdown(async () => {
-        logger.info(dataStore, 'Persisting store...');
+        Logger.info(Logger.create(dataStore), 'Persisting store...');
         await persist(dataStore);
     });
 };

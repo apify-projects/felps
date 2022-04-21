@@ -1,12 +1,13 @@
-import { curryN } from 'rambda';
+import { curryN } from 'ramda';
 import { FlowInstance, FlowOptions, StepInstance } from './common/types';
 import base from './base';
 
 export const create = (options: FlowOptions): FlowInstance => {
-    const { name, steps = [], output } = options || {};
+    const { name, crawlerMode, steps = [], output } = options || {};
 
     return {
         ...base.create({ key: 'flow', name }),
+        crawlerMode,
         steps,
         output,
     };

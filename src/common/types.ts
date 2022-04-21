@@ -33,7 +33,7 @@ export type ValueOf<T> = T[keyof T];
 
 // apify --------------------------------------------------
 export type RequestSource = import('apify').Request | import('apify').RequestOptions
-export type RequestOptionalOptions = { priority?: number, type?: RequestCrawlerType, forefront?: boolean | undefined } | undefined
+export type RequestOptionalOptions = { priority?: number, type?: RequestCrawlerMode, forefront?: boolean | undefined } | undefined
 export type RequestContext = Apify.CheerioHandlePageInputs & Apify.PlaywrightHandlePageFunctionParam & Apify.BrowserCrawlingContext & Apify.CrawlingContext
 
 // base.ts ------------------------------------------------------------
@@ -67,12 +67,14 @@ export type FlowsOptions = {
 
 // flow.ts ------------------------------------------------------------
 export type FlowInstance = {
+    crawlerMode?: RequestCrawlerMode,
     steps: StepInstance<reallyAny>[],
     output: JSONSchema7,
 } & BaseInstance;
 
 export type FlowOptions = {
     name: string,
+    crawlerMode?: RequestCrawlerMode,
     steps?: StepInstance<reallyAny>[],
     output?: JSONSchema7,
 }
@@ -89,6 +91,8 @@ export type StepsOptions = {
     names?: string[],
 }
 
+export type StepNamesSignature = Record<string, string>
+
 // export type StepOnMethods<StepType extends string, MethodsByStep extends Record<string, unknown>> = MethodsByStep[StepType];
 
 // export type GenerateStepOnMethods<StepNames, Methods, MethodsByStep extends Record<string, unknown>> = {
@@ -102,6 +106,7 @@ export type StepsOptions = {
 // step.ts ------------------------------------------------------------
 export type StepInstance<Methods = unknown> = {
     name: string,
+    crawlerMode?: RequestCrawlerMode,
     handler?: StepOptionsHandler<Methods>,
     // controlHandler?: StepOptionsHandler<Methods>,
     errorHandler?: StepOptionsHandler<Methods>,
@@ -110,6 +115,7 @@ export type StepInstance<Methods = unknown> = {
 
 export type StepOptions<Methods = unknown> = {
     name: string,
+    crawlerMode?: RequestCrawlerMode,
     handler?: StepOptionsHandler<Methods>,
     errorHandler?: StepOptionsHandler<Methods>,
     requestErrorHandler?: StepOptionsHandler<Methods>,
@@ -123,41 +129,31 @@ export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, ap
 // eslint-disable-next-line max-len
 export type StepApiInstance<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = (context: CrawlingContext) => GenerateStepApi<FlowNames, StepNames, ModelSchemas>;
 // eslint-disable-next-line max-len
-export type GenerateStepApi<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = StepApiMetaAPI & StepApiUtilsAPI & StepApiFlowsAPI<FlowNames> & StepApiModelsAPI<ModelSchemas> & StepApiStepsAPI<StepNames, ModelSchemas>
+export type GenerateStepApi<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = StepApiMetaAPI & StepApiUtilsAPI & StepApiFlowsAPI<FlowNames, StepNames, ModelSchemas> & StepApiModelAPI<ModelSchemas>;
 
-// step-api-flows.ts ------------------------------------------------------------
-export type StepApiFlowsInstance<FlowNames> = {
-    handler: (context: CrawlingContext) => StepApiFlowsAPI<FlowNames>,
+// step-api-flow.ts ------------------------------------------------------------
+export type StepApiFlowsInstance<FlowNames, StepNames, ModelSchemas> = {
+    handler: (context: CrawlingContext) => StepApiFlowsAPI<FlowNames, StepNames, ModelSchemas>,
 };
 
-export type StepApiFlowsAPI<FlowNames> = {
-    start: (flowName: Extract<keyof FlowNames, string>, request: RequestSource, input?: any, reference?: Partial<ModelReference>) => ModelReference;
+export type StepApiFlowsAPI<FlowNames, StepNames, ModelSchemas> = {
+    start: (flowName: Extract<keyof FlowNames, string>, request: RequestSource, input?: any, reference?: ModelReference) => ModelReference;
+    goto: (stepName: Extract<keyof StepNames, string>, request: RequestSource, reference?: ModelReference<ModelSchemas>) => void;
 };
 
-// step-api-steps.ts ------------------------------------------------------------
-export type StepApiStepsInstance<StepNames, ModelSchemas> = {
-    handler: (context: CrawlingContext) => StepApiStepsAPI<StepNames, ModelSchemas>,
-};
-
-export type StepApiStepsAPI<StepNames, ModelSchemas> = GenerateStepGoMethods<StepNames, ModelSchemas>;
-
-export type GenerateStepGoMethods<T, ModelSchemas> = {
-    go: (stepName: Extract<keyof T, string>, request: RequestSource, references: Partial<ModelReference<ModelSchemas>>) => void;
-};
-
-// step-api-models.ts ------------------------------------------------------------
-export type StepApiModelsInstance<ModelSchemas extends Record<string, unknown>> = {
-    handler: (context: CrawlingContext) => StepApiModelsAPI<ModelSchemas>,
+// step-api-model.ts ------------------------------------------------------------
+export type StepApiModelInstance<ModelSchemas extends Record<string, unknown>> = {
+    handler: (context: CrawlingContext) => StepApiModelAPI<ModelSchemas>,
 };
 
 // eslint-disable-next-line max-len
-export type StepApiModelsAPI<ModelSchemas extends Record<string, unknown>> = {
+export type StepApiModelAPI<ModelSchemas extends Record<string, unknown>> = {
     set: <ModelName extends keyof ModelSchemas>
-        (modelName: ModelName, value: ModelSchemas[ModelName], ref?: Partial<ModelReference<ModelSchemas>>) => Partial<ModelReference<ModelSchemas>>;
-    update: <ModelName extends keyof ModelSchemas>
-        (modelName: ModelName, value: Partial<ModelSchemas[ModelName]>, ref?: Partial<ModelReference<ModelSchemas>>) => Partial<ModelReference<ModelSchemas>>;
+        (modelName: ModelName, value: ModelSchemas[ModelName], ref?: ModelReference<ModelSchemas>) => ModelReference<ModelSchemas>;
     get: <ModelName extends keyof ModelSchemas>
-        (modelName: ModelName, ref?: Partial<ModelReference<ModelSchemas>>) => ModelSchemas[ModelName];
+        (modelName: ModelName, ref?: ModelReference<ModelSchemas>) => ModelSchemas[ModelName];
+    update: <ModelName extends keyof ModelSchemas>
+        (modelName: ModelName, value: Partial<ModelSchemas[ModelName]>, ref?: ModelReference<ModelSchemas>) => ModelReference<ModelSchemas>;
 };
 
 // step-api-meta.ts ------------------------------------------------------------
@@ -269,6 +265,8 @@ export type ModelReference<T = unknown> = Partial<{
     [K in Extract<keyof T, string> as `${K}Key`]: UniqueyKey;
 } & { requestKey: UniqueyKey, trailKey: UniqueyKey }>;
 
+export type ModelSchemasSignature = Record<string, unknown>;
+
 // stores.ts ------------------------------------------------------------
 // eslint-disable-next-line max-len
 export type StoresInstance<DataStoreNames extends string[] = [], FileStoreNames extends string[] = []> = GenerateObject<FileStoreNames & DefaultFileStoreNames, FileStoreInstance> & GenerateObject<DataStoreNames & DefaultDataStoreNames, DataStoreInstance>;
@@ -331,9 +329,6 @@ export type TrailState = {
     requests: {
         [key: string]: any
     },
-    // steps: {
-    //     [key: string]: any
-    // },
     stats: {
         startedAt: string,
         endedAt: string,
@@ -341,7 +336,6 @@ export type TrailState = {
         sizeInKb: number,
         aggregatedDurationInMs: number,
     },
-    status: 'SUCCESS' | 'FAILURE' | 'PENDING',
     ingested: TrailDataStage,
     digested: TrailDataStage,
 }
@@ -367,6 +361,7 @@ export type TrailDataInstance = TrailDataModelInstance | TrailDataRequestsInstan
 // trail-data-requests.ts
 export type TrailDataRequestsInstance = {
     id: UniqueyKey,
+    referenceKey: string;
     store: DataStoreInstance;
     path: string;
 } & BaseInstance;
@@ -375,6 +370,14 @@ export type TrailDataRequestsOptions = {
     id: UniqueyKey,
     type: TrailDataStages,
     store: DataStoreInstance;
+}
+
+export type TrailDataRequestItemStatus = 'CREATED' | 'DISCARDED' | 'QUEUED' | 'STARTED' | 'SUCCEEDED' | 'FAILED';
+
+export type TrailDataRequestItem = {
+    id: UniqueyKey,
+    source: RequestSource,
+    status: TrailDataRequestItemStatus,
 }
 
 // trail-data-model.ts ------------------------------------------------------------
@@ -394,7 +397,7 @@ export type TrailDataModelOptions = {
 }
 
 export type TrailDataModelItem<T = unknown> = {
-    reference: Partial<ModelReference<T>>,
+    reference: ModelReference<T>,
     data: Partial<T>,
 }
 
@@ -455,6 +458,7 @@ export type DefaultDatasetNames = ['default'];
 export type ActorInstance = {
     name?: string,
     input?: any,
+    crawlerMode?: RequestCrawlerMode,
     crawler?: CrawlerInstance,
     steps?: StepsInstance<reallyAny, reallyAny>;
     flows?: FlowsInstance;
@@ -467,6 +471,7 @@ export type ActorInstance = {
 
 export type ActorOptions = {
     name?: string,
+    crawlerMode?: RequestCrawlerMode,
     crawler?: CrawlerInstance,
     steps?: StepsInstance<reallyAny, reallyAny>;
     flows?: FlowsInstance;
@@ -502,11 +507,11 @@ export type RequestMetaOptions = {
     nothing?: string,
 }
 
-export type RequestCrawlerType = 'ajax' | 'cheerio' | 'browser';
+export type RequestCrawlerMode = 'ajax' | 'cheerio' | 'browser';
 
 export type RequestMetaData = {
     stepName?: string,
-    crawlerMode: RequestCrawlerType,
+    crawlerMode: RequestCrawlerMode,
     reference?: Partial<ModelReference<any>>,
 }
 
@@ -545,3 +550,20 @@ export type ApifyClientOptions = {
 export type OrchestratorInstance = {
     handler: (context: CrawlingContext, api: unknown) => Promise<void>,
 }
+
+// validator.ts ------------------------------------------------------------
+export type ValidatorInstance = {
+    name: string,
+    schema: any,
+};
+
+export type ValidatorOptions = {
+    name: string,
+    schema: any,
+};
+
+export type ValidatorValidateOptions = {
+    logError?: boolean,
+    throwError?: boolean,
+    partial?: boolean,
+};
