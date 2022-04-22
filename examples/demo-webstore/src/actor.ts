@@ -1,5 +1,5 @@
 import { Actor } from 'felps';
-import { models, flows, steps, hooks } from './definition';
+import { models, flows, steps, hooks } from './define';
 
 const SELECT = {
     PRODUCTS: '[class*=ProductCard_root]',
@@ -10,16 +10,15 @@ const SELECT = {
 };
 
 steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async ({ $ }, api) => {
-
     for (const product of $(SELECT.PRODUCTS).slice(0, 3)) {
-        const data = {
+
+        const productRef = api.set('PRODUCT', {
             name: $(product).find(SELECT.PRODUCT_NAME).first().text(),
             priceInCents: +$(product).find(SELECT.PRODUCT_PRICE).first().text().replace(/[^0-9]/g, ''),
-        };
-        // console.log(data);
-        const productRef = api.set('PRODUCT', data);
+        });
 
         const url = api.absoluteUrl($(product).attr('href'));
+
         if (url) {
             api.goto('COLLECT_PRODUCT_DETAILS', { url }, productRef);
         }

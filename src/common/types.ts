@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type Apify from 'apify';
+import type { F as Toolbelt } from 'ts-toolbelt';
+import type { FromSchema } from 'json-schema-to-ts';
 import { CrawlingContext } from 'apify';
 import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
@@ -24,12 +26,7 @@ export type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
 export type GeneralKeyedObject<N extends Record<string, string>, T> = { [K in Extract<keyof N, string>]: T };
 export type GenerateObject<N extends string[], T> = { [K in N[number]]: T };
 export type ValueOf<T> = T[keyof T];
-// export type GenerateMethods<
-//     Prefix extends string,
-//     T extends string[],
-//     Signature = () => void,
-//     Suffix extends string = '',
-//     > = { [K in T[number]as `${Prefix}${Capitalize<K>}${Suffix}`]: Signature };
+export type FromKeyedSchema<T> = { [K in keyof T]: FromSchema<T[K]>; };
 
 // apify --------------------------------------------------
 export type RequestSource = import('apify').Request | import('apify').RequestOptions
@@ -52,73 +49,74 @@ export type BaseOptions = {
 }
 
 // flows.ts ------------------------------------------------------------
-export type FlowsInstance<Names extends Record<string, string> = Record<string, string>> = GeneralKeyedObject<Names, FlowInstance>;
+export type FlowsInstance<T> = T
 
 export type FlowNamesSignature = Record<string, string>
 
-// export type FlowsInstance<
-//     Names extends Record<string, string> = Record<string, string>,
-//     Definitions extends Record<keyof Names, string[]> = Record<keyof Names, string[]>
-//     > = { [K in Extract<keyof Names, string>]: FlowInstance<Definitions[K]> };
-
-export type FlowsOptions = {
-    names?: string[],
+export type FlowsOptions<T> = {
+    FLOWS?: T
 }
 
+export type FlowDefinitions<StepNames, T extends Record<string, FlowDefinition<StepNames>>> = {
+    [K in keyof T]: T[K] extends FlowDefinition<StepNames> ? {
+        crawlerMode: T[K]['crawlerMode'],
+        steps: T[K]['steps'],
+        output: T[K]['output'],
+    } : never
+};
+
+export type FlowDefinition<StepNames = unknown> = Partial<FlowInstance<StepNames>>
+
 // flow.ts ------------------------------------------------------------
-export type FlowInstance = {
+export type FlowInstance<StepNames> = {
     crawlerMode?: RequestCrawlerMode,
-    steps: StepInstance<reallyAny>[],
+    steps: StepNames[],
     output: JSONSchema7,
 } & BaseInstance;
 
 export type FlowOptions = {
     name: string,
     crawlerMode?: RequestCrawlerMode,
-    steps?: StepInstance<reallyAny>[],
+    steps?: StepInstance[],
     output?: JSONSchema7,
 }
 
 // steps.ts ------------------------------------------------------------
-export type StepsInstance<
-    Names extends Record<string, string> = Record<string, string>,
-    Methods = unknown,
-    CustomMethods extends Partial<Record<Extract<keyof Names, string>, unknown>> = Partial<Record<Extract<keyof Names, string>, unknown>>,
-    > =
-    { [K in Extract<keyof Names, string>]: StepInstance<Methods & CustomMethods[K]> };
+export type StepsInstance<M, F, S> = {
+    [K in keyof S]: S[K] extends StepDefinition ? StepInstance<GenerateStepApi<F, S, M> & S[K]> : never
+};
 
-export type StepsOptions = {
-    names?: string[],
+export type StepsOptions<T> = {
+    STEPS?: T
 }
+
+export type StepDefinitions<T extends Record<string, StepDefinition>> = {
+    [K in keyof T]: T[K] extends StepDefinition ? {
+        crawlerMode: T[K]['crawlerMode'],
+    } : never
+};
+
+export type StepDefinition<Methods = unknown> = Partial<Pick<StepInstance<Methods & GeneralStepApi>, 'crawlerMode'>>
 
 export type StepNamesSignature = Record<string, string>
 
-// export type StepOnMethods<StepType extends string, MethodsByStep extends Record<string, unknown>> = MethodsByStep[StepType];
-
-// export type GenerateStepOnMethods<StepNames, Methods, MethodsByStep extends Record<string, unknown>> = {
-//     [K in Extract<StepNames, string> as `${SnakeToCamelCase<K>}`]: (handler: StepOptionsHandler<StepOnMethods<K, MethodsByStep> & Methods>) => void;
-// };
-
-// export type GenerateStepSetMethods<StepNames, InitialMethods, MethodsByStep extends Record<string, unknown>> = {
-//     [K in Extract<StepNames, string> as `${SnakeToCamelCase<K>}`]: (options: Partial<StepOptions<InitialMethods, StepOnMethods<K, MethodsByStep>>>) => void;
-// };
-
 // step.ts ------------------------------------------------------------
-export type StepInstance<Methods = unknown> = {
+export type StepInstance<Methods = unknown, T = unknown> = T & {
     name: string,
     crawlerMode?: RequestCrawlerMode,
-    handler?: StepOptionsHandler<Methods>,
-    // controlHandler?: StepOptionsHandler<Methods>,
-    errorHandler?: StepOptionsHandler<Methods>,
-    requestErrorHandler?: StepOptionsHandler<Methods>,
+    handler?: StepOptionsHandler<Methods & GeneralStepApi>,
+    errorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
+    requestErrorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
+    extendApi?: <T>(context: RequestContext, api: Methods & GeneralStepApi) => T,
 } & BaseInstance;
 
 export type StepOptions<Methods = unknown> = {
     name: string,
     crawlerMode?: RequestCrawlerMode,
-    handler?: StepOptionsHandler<Methods>,
-    errorHandler?: StepOptionsHandler<Methods>,
-    requestErrorHandler?: StepOptionsHandler<Methods>,
+    handler?: StepOptionsHandler<Methods & GeneralStepApi>,
+    errorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
+    requestErrorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
+    extendApi?: <T>(context: RequestContext, api: Methods & GeneralStepApi) => T,
     // extendStepApi?: StepCustomApiExtend<InitialMethods, Methods>,
     // stepApi?: StepCustomApi<InitialMethods, Methods>,
 }
@@ -129,31 +127,33 @@ export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, ap
 // eslint-disable-next-line max-len
 export type StepApiInstance<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = (context: CrawlingContext) => GenerateStepApi<FlowNames, StepNames, ModelSchemas>;
 // eslint-disable-next-line max-len
-export type GenerateStepApi<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> = StepApiMetaAPI & StepApiUtilsAPI & StepApiFlowsAPI<FlowNames, StepNames, ModelSchemas> & StepApiModelAPI<ModelSchemas>;
+export type GeneralStepApi = StepApiMetaAPI & StepApiUtilsAPI;
+// eslint-disable-next-line max-len
+export type GenerateStepApi<F, S, M> = GeneralStepApi & StepApiFlowsAPI<F, S, M> & StepApiModelAPI<M extends Record<string, ModelDefinition> ? M : never>;
 
 // step-api-flow.ts ------------------------------------------------------------
 export type StepApiFlowsInstance<FlowNames, StepNames, ModelSchemas> = {
     handler: (context: CrawlingContext) => StepApiFlowsAPI<FlowNames, StepNames, ModelSchemas>,
 };
 
-export type StepApiFlowsAPI<FlowNames, StepNames, ModelSchemas> = {
-    start: (flowName: Extract<keyof FlowNames, string>, request: RequestSource, input?: any, reference?: ModelReference) => ModelReference;
-    goto: (stepName: Extract<keyof StepNames, string>, request: RequestSource, reference?: ModelReference<ModelSchemas>) => void;
+export type StepApiFlowsAPI<F, S, M> = {
+    start: (flowName: Extract<keyof F, string>, request: RequestSource, input?: any, reference?: ModelReference) => ModelReference;
+    goto: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>) => void;
 };
 
 // step-api-model.ts ------------------------------------------------------------
-export type StepApiModelInstance<ModelSchemas extends Record<string, unknown>> = {
-    handler: (context: CrawlingContext) => StepApiModelAPI<ModelSchemas>,
+export type StepApiModelInstance<ModelDefinitions extends Record<string, ModelDefinition>> = {
+    handler: (context: CrawlingContext) => StepApiModelAPI<ModelDefinitions>,
 };
 
 // eslint-disable-next-line max-len
-export type StepApiModelAPI<ModelSchemas extends Record<string, unknown>> = {
-    set: <ModelName extends keyof ModelSchemas>
-        (modelName: ModelName, value: ModelSchemas[ModelName], ref?: ModelReference<ModelSchemas>) => ModelReference<ModelSchemas>;
-    get: <ModelName extends keyof ModelSchemas>
-        (modelName: ModelName, ref?: ModelReference<ModelSchemas>) => ModelSchemas[ModelName];
-    update: <ModelName extends keyof ModelSchemas>
-        (modelName: ModelName, value: Partial<ModelSchemas[ModelName]>, ref?: ModelReference<ModelSchemas>) => ModelReference<ModelSchemas>;
+export type StepApiModelAPI<ModelDefinitions extends Record<string, ModelDefinition>> = {
+    set: <ModelName extends keyof ModelDefinitions>
+        (modelName: ModelName, value: ModelDefinitions[ModelName], ref?: ModelReference<ModelDefinitions>) => ModelReference<ModelDefinitions>;
+    get: <ModelName extends keyof ModelDefinitions>
+        (modelName: ModelName, ref?: ModelReference<ModelDefinitions>) => ModelDefinitions[ModelName];
+    update: <ModelName extends keyof ModelDefinitions>
+        (modelName: ModelName, value: Partial<ModelDefinitions[ModelName]>, ref?: ModelReference<ModelDefinitions>) => ModelReference<ModelDefinitions>;
 };
 
 // step-api-meta.ts ------------------------------------------------------------
@@ -177,84 +177,30 @@ export type StepApiUtilsAPI = {
     absoluteUrl: (url: string) => string | void,
 }
 
-// step-api.ts ------------------------------------------------------------
-// export type StepBaseApiInstance<ModelSchemas = unknown, Context extends MakeStepBaseApiContext = MakeStepBaseApiContext> = {
-//     handler: (context: CrawlingContext) => StepBaseApiMethodsDefinition<ModelSchemas, Context>
-// } & BaseInstance;
-
-// export type StepBaseApiOptions = {
-//     input: any,
-//     step: StepInstance,
-//     stores: StoresInstance,
-//     datasets: DatasetsInstance,
-//     queues: QueuesInstance,
-// }
-
-// export type StepBaseApiMethods<
-//     ModelSchemas = unknown,
-//     Context extends MakeStepBaseApiContext = MakeStepBaseApiContext
-//     > = StepBaseApiMethodsDefinition<ModelSchemas, Context> & HookMethods;
-
-// export type StepBaseApiMethodsDefinition<ModelSchemas = unknown, Context extends MakeStepBaseApiContext = MakeStepBaseApiContext> = {
-//     // main api
-//     step: Context['step'],
-//     stores: Context['stores'],
-//     datasets: Context['datasets'],
-//     queues: Context['queues'],
-//     // accessors
-//     getInput: () => Context['input'],
-//     getStep: () => string,
-//     getUserData: () => any,
-//     getModelReference: () => Partial<ModelReference<any>>,
-//     // trail
-//     trail: Trail<ModelSchemas>,
-//     // common
-//     log: Logger,
-//     // utils
-//     absoluteUrl(path: string): string | void,
-// }
-
-// export type MakeStepBaseApiContext<
-//     Input = unknown,
-//     StepType = StepInstance,
-//     StoreNames extends string[] = [],
-//     DatasetNames extends string[] = [],
-//     QueueNames extends string[] = [],
-//     ModelSchemas extends Record<string, unknown> = Record<string, unknown>,
-//     > = {
-//         input: Input,
-//         step: StepType,
-//         queues: GenerateObject<QueueNames & DefaultQueueNames, Queue>,
-//         stores: GenerateObject<StoreNames & DefaultStoreNames, AnyStore>;
-//         datasets: GenerateObject<DatasetNames & DefaultDatasetNames, Dataset>,
-//         models: Models<ModelSchemas>,
-//     };
-
-// step-custom-api.ts ------------------------------------------------------------
-// export type StepCustomApiOptions<InitialMethods = unknown, Methods = unknown> = {
-//     extend: StepCustomApiExtend<InitialMethods, Methods>,
-// }
-
-// export type StepCustomApiExtend<
-//     InitialMethods = unknown,
-//     Methods = unknown
-//     > = (crawlingContext: RequestContext, api: Without<InitialMethods, Methods>) => Methods
-
 // models.ts ------------------------------------------------------------
-export type ModelsInstance<ModelSchemas = Record<string, never>> = GenerateObject<Extract<keyof ModelSchemas, string>[], ModelInstance>
+export type ModelsInstance<T> = T;
 
-export type ModelsOptions<Names> = {
-    names?: Extract<ValueOf<Names>, string>[],
+export type ModelsOptions<T> = {
+    MODELS?: T,
 }
+
+export type ModelDefinitions<T extends Record<string, ModelDefinition>> = {
+    [K in keyof T]: T[K] extends ModelDefinition ? {
+        schema: FromSchema<T[K]['schema']>,
+    } : never
+};
 
 // export type GenerateModelSetMethods<ModelNames> = {
 //     [K in Extract<ModelNames, string> as `${SnakeToCamelCase<K>}`]: (options: Partial<ModelOptions>) => void;
 // };
 
 // model.ts ------------------------------------------------------------
-export type ModelInstance = {
-    schema: JSONSchema7, // JSONSchemaType<Schema> |
-} & BaseInstance;
+export type ModelInstance = ModelDefinition & BaseInstance;
+
+export type ModelDefinition = {
+    name?: string,
+    schema: any,
+}
 
 export type ModelOptions = {
     name: string,
@@ -484,7 +430,7 @@ export type ActorOptions = {
 
 // hooks.ts ------------------------------------------------------------
 export type HooksInstance<Methods = unknown> = {
-    [K in DefaultHookNames[number]]: StepInstance<Methods>;
+    [K in DefaultHookNames[number]]: StepInstance<Methods & GeneralStepApi>;
 };
 
 export type DefaultHookNames = ['STEP_STARTED', 'STEP_ENDED', 'STEP_FAILED', 'STEP_REQUEST_FAILED',
