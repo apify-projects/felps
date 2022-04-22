@@ -3,17 +3,18 @@ import { Flows, Models, Steps } from 'felps';
 const MODELS = Models.define({
     PRODUCT: {
         schema: <const>{
+            type: 'object',
             properties: {
                 name: { type: 'string' },
                 description: { type: 'string' },
                 priceInCents: { type: 'number' },
+                foo: { type: 'string'},
             },
             required: ['name'],
             additionalProperties: false,
         }
     }
 });
-
 
 const models = Models.create({ MODELS });
 
@@ -38,7 +39,7 @@ const FLOWS = Flows.use({ STEPS }).define(
 const steps = Steps.create({ MODELS, STEPS, FLOWS });
 
 steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async (context, api) => {
-    api.set('PRODUCT', )
+    api.set('PRODUCT', { name: 'hey', foo: false })
 }
 
 const flows = Flows.create({ FLOWS });

@@ -1,13 +1,11 @@
-import { ModelDefinition, ModelDefinitions, ModelsInstance, ModelsOptions } from './common/types';
+import { ModelDefinition, ModelDefinitions } from './common/types';
 import model from './model';
 
-export const create = <ModelDefinitions>(options?: ModelsOptions<ModelDefinitions>): ModelsInstance<ModelDefinitions> => {
-    const { MODELS } = options || {};
-
-    return Object.keys(MODELS || {}).reduce((acc, name) => ({
+export const create = <ModelDefinitions extends Record<string, ModelDefinition>>({ MODELS }: { MODELS: ModelDefinitions }): ModelDefinitions => {
+    return Object.keys(MODELS).reduce((acc, name) => ({
         ...acc,
         [name]: model.create({ name, ...(MODELS[name] || {}) }),
-    }), {} as ModelsInstance<ModelDefinitions>);
+    }), {} as ModelDefinitions);
 };
 
 export const define = <T extends Record<string, ModelDefinition>>(models: T): ModelDefinitions<T> => {

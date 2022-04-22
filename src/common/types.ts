@@ -121,10 +121,10 @@ export type StepOptions<Methods = unknown> = {
 export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
 
 // step-api.ts -----------------------------------------------------------------
-export type StepApiInstance<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> =
-    (context: CrawlingContext) => GenerateStepApi<FlowNames, StepNames, ModelSchemas>;
+// export type StepApiInstance<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> =
+//     (context: CrawlingContext) => GenerateStepApi<FlowNames, StepNames, ModelSchemas>;
 export type GeneralStepApi = StepApiMetaAPI & StepApiUtilsAPI;
-export type GenerateStepApi<F, S, M> = GeneralStepApi
+export type GenerateStepApi<F, S, M extends Record<string, ModelDefinition>> = GeneralStepApi
     & StepApiFlowsAPI<F, S, M>
     & StepApiModelAPI<M>;
 
@@ -144,21 +144,21 @@ export type StepApiModelInstance<M extends Record<string, ModelDefinition>> = {
 };
 
 // eslint-disable-next-line max-len
-export type StepApiModelAPI<M> = {
+export type StepApiModelAPI<M extends Record<string, ModelDefinition>> = {
     set: <ModelName extends keyof M>(
         modelName: ModelName,
-        value: FromSchema<M extends Record<string, ModelDefinition> ? M[ModelName]['schema'] : never>,
+        value: M[ModelName]['schema'],
         ref?: ModelReference<M>,
     ) => ModelReference<M>;
     get: <ModelName extends keyof M>(
         modelName: ModelName,
         ref?: ModelReference<M>,
-    ) => FromSchema<M extends Record<string, ModelDefinition> ? M[ModelName]['schema'] : never>;
+    ) => M[ModelName]['schema'];
     update: <ModelName extends keyof M>
         // eslint-disable-next-line max-len
         (
         modelName: ModelName,
-        value: Partial<FromSchema<M extends Record<string, ModelDefinition> ? M[ModelName]['schema'] : never>>,
+        value: Partial<M[ModelName]['schema']>,
         ref?: ModelReference<M>,
     ) => ModelReference<M>;
 };
@@ -192,9 +192,9 @@ export type ModelsOptions<T> = {
 }
 
 export type ModelDefinitions<T extends Record<string, ModelDefinition>> = {
-    [K in keyof T]: T[K] extends ModelDefinition ? {
+    [K in keyof T]: {
         schema: FromSchema<T[K]['schema']>,
-    } : never
+    }
 };
 
 // export type GenerateModelSetMethods<ModelNames> = {
