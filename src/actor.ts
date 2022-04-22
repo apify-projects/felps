@@ -2,7 +2,7 @@
 import Apify, { PlaywrightHook } from 'apify';
 import { Datasets, Flows, Hooks, Models, Queue, Queues, Step, Steps, Stores } from '.';
 import Base from './base';
-import { ActorInstance, ActorOptions } from './common/types';
+import { ActorInstance, ActorOptions, CrawlerInstance, QueueInstance, StepInstance, StoresInstance } from './common/types';
 import crawler from './crawler';
 import useHandleFailedRequestFunction from './crawler/use-handle-failed-request-function';
 import useHandlePageFunction from './crawler/use-handle-page-function';
@@ -11,7 +11,7 @@ import usePreNavigationHooks from './crawler/use-pre-navigation-hooks';
 
 export const create = (options?: ActorOptions): ActorInstance => {
     return {
-        ...Base.create({ key: 'actor', name: options.name || 'default' }),
+        ...Base.create({ key: 'actor', name: options?.name || 'default' }),
         ...extend({} as ActorInstance, options),
     };
 };
@@ -22,19 +22,19 @@ export const extend = (actor: ActorInstance, options: ActorOptions = {}): ActorI
         input: undefined,
         crawlerMode: options?.crawlerMode,
         crawler: options?.crawler || actor.crawler || crawler.create(),
-        steps: options?.steps || actor.steps || Steps.create(),
+        steps: options?.steps || actor.steps || Steps.create({ STEPS: {} }),
         flows: options?.flows || actor.flows || Flows.create(),
-        models: options?.models || actor.models || Models.create(),
+        models: options?.models || actor.models || Models.create({ MODELS: {} }),
         stores: options?.stores || actor.stores || Stores.create(),
         queues: options?.queues || actor.queues || Queues.create(),
         datasets: options?.datasets || actor.datasets || Datasets.create(),
-        hooks: options?.hooks || actor.hooks || Hooks.create(),
+        hooks: options?.hooks || actor.hooks || Hooks.create({ MODELS: {}, STEPS: {}, FLOWS: {} }),
     };
 };
 
 export const run = async (actor: ActorInstance): Promise<void> => {
     // Initialize actor
-    actor.stores = await Stores.load(actor.stores);
+    actor.stores = await Stores.load(actor?.stores as StoresInstance);
     Stores.listen(actor.stores);
 
     const input = await Apify.getInput() || {};
@@ -60,15 +60,15 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     // Hook to help with preparing the queue
     // Given a polyfilled requestQueue and the input data
     // User can add to the queue the starting requests to be crawled
-    await Step.run(actor.hooks.ACTOR_STARTED, actor, undefined);
+    await Step.run(actor?.hooks?.ACTOR_STARTED as StepInstance, actor, undefined);
 
-    await Step.run(actor.hooks.QUEUE_STARTED, actor, undefined);
+    await Step.run(actor?.hooks?.QUEUE_STARTED as StepInstance, actor, undefined);
 
     /**
    * Run async requests
    */
-    await crawler.run(actor.crawler, {
-        requestQueue: (await Queue.load(actor.queues.default)).resource,
+    await crawler.run(actor.crawler as CrawlerInstance, {
+        requestQueue: (await Queue.load(actor?.queues?.default as QueueInstance)).resource,
         handlePageFunction: useHandlePageFunction(actor) as any,
         handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
         maxRequestRetries: 1,
@@ -94,10 +94,10 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     //   }
 
     // TODO: Provider functionnalities to the end hook
-    await Step.run(actor.hooks.QUEUE_ENDED, actor, undefined);
+    await Step.run(actor?.hooks?.QUEUE_ENDED as StepInstance, actor, undefined);
 
     // TODO: Provider functionnalities to the end hook
-    await Step.run(actor.hooks.ACTOR_ENDED, actor, undefined);
+    await Step.run(actor?.hooks?.ACTOR_ENDED as StepInstance, actor, undefined);
 
     // Closing..
     await Stores.persist(actor.stores);

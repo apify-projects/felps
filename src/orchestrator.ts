@@ -1,7 +1,7 @@
 import { CrawlingContext } from 'apify';
 import { Queue, RequestMeta, Trail } from '.';
 import { REQUEST_STATUS } from './common/consts';
-import { ActorInstance, GenerateStepApi, OrchestratorInstance } from './common/types';
+import { ActorInstance, GenerateStepApi, OrchestratorInstance, QueueInstance, reallyAny } from './common/types';
 import TrailDataRequests from './trail-data-requests';
 
 export const create = (actor: ActorInstance): OrchestratorInstance => {
@@ -26,8 +26,10 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
             for (const newRequest of newRequests) {
                 // TODO: Add filtering here
                 const meta = RequestMeta.create(newRequest.source);
-                await Queue.add(actor.queues.default, meta.request, { type: meta.data.crawlerMode });
-                TrailDataRequests.setStatus(digest.requests, REQUEST_STATUS.QUEUED, { requestKey: meta.data.reference.requestKey });
+                if (meta.data.reference) {
+                    await Queue.add(actor?.queues?.default as QueueInstance, meta.request, { type: meta.data.crawlerMode });
+                    TrailDataRequests.setStatus(digest.requests, REQUEST_STATUS.QUEUED, { requestKey: meta.data.reference.requestKey });
+                }
             };
 
             // All about models from here on ------------------------------------------------------------
@@ -35,7 +37,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
     };
 };
 
-export const run = async (orchestrator: OrchestratorInstance, context: CrawlingContext, api: GenerateStepApi<unknown, unknown, Record<string, unknown>>) => {
+export const run = async (orchestrator: OrchestratorInstance, context: CrawlingContext, api: GenerateStepApi<reallyAny, reallyAny, reallyAny>) => {
     await orchestrator.handler(context, api);
 };
 

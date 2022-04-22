@@ -79,7 +79,7 @@ export type FlowOptions = {
 }
 
 // steps.ts ------------------------------------------------------------
-export type StepsInstance<M, F, S> = {
+export type StepsInstance<M extends Record<string, ModelDefinition>, F, S> = {
     [K in keyof S]: S[K] extends StepDefinition ? StepInstance<GenerateStepApi<F, S, M>> & S[K] : never
 };
 
@@ -268,7 +268,7 @@ export type FileStoreOptions = {
 export type TrailInstance = {
     id: string;
     store: DataStoreInstance;
-    models: ModelsInstance;
+    models: ModelsInstance<reallyAny>;
 };
 
 export type TrailOptions = {
@@ -413,31 +413,31 @@ export type ActorInstance = {
     input?: any,
     crawlerMode?: RequestCrawlerMode,
     crawler?: CrawlerInstance,
-    steps?: StepsInstance<reallyAny, reallyAny>;
-    flows?: FlowsInstance;
-    models?: ModelsInstance;
+    steps?: StepsInstance<reallyAny, reallyAny, reallyAny>;
+    flows?: FlowsInstance<reallyAny>;
+    models?: ModelsInstance<reallyAny>;
     stores?: StoresInstance;
     queues?: QueuesInstance;
     datasets?: DatasetsInstance;
-    hooks?: HooksInstance<reallyAny>;
+    hooks?: HooksInstance<reallyAny, reallyAny, reallyAny>;
 } & BaseInstance;
 
 export type ActorOptions = {
     name?: string,
     crawlerMode?: RequestCrawlerMode,
     crawler?: CrawlerInstance,
-    steps?: StepsInstance<reallyAny, reallyAny>;
-    flows?: FlowsInstance;
-    models?: ModelsInstance;
+    steps?: StepsInstance<reallyAny, reallyAny, reallyAny>;
+    flows?: FlowsInstance<reallyAny>;
+    models?: ModelsInstance<reallyAny>;
     stores?: StoresInstance;
     queues?: QueuesInstance;
     datasets?: DatasetsInstance;
-    hooks?: HooksInstance<reallyAny>;
+    hooks?: HooksInstance<reallyAny, reallyAny, reallyAny>;
 }
 
 // hooks.ts ------------------------------------------------------------
-export type HooksInstance<Methods = unknown> = {
-    [K in DefaultHookNames[number]]: StepInstance<Methods & GeneralStepApi>;
+export type HooksInstance<M extends Record<string, ModelDefinition>, F, S> = {
+    [K in DefaultHookNames[number]]: StepInstance<GenerateStepApi<F, S, M>>;
 };
 
 export type DefaultHookNames = ['STEP_STARTED', 'STEP_ENDED', 'STEP_FAILED', 'STEP_REQUEST_FAILED',

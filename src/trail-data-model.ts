@@ -7,7 +7,7 @@ import { craftUIDKey, pathify } from './common/utils';
 import dataStore from './data-store';
 import { getPath } from './trail-data';
 
-export const create = (options?: TrailDataModelOptions): TrailDataModelInstance => {
+export const create = (options: TrailDataModelOptions): TrailDataModelInstance => {
     const { id, type, model, store } = options;
     const referenceKey = REFERENCE_KEY(model.name);
 
@@ -25,12 +25,12 @@ export const create = (options?: TrailDataModelOptions): TrailDataModelInstance 
     };
 };
 
-export const get = <T>(trailData: TrailDataModelInstance, ref?: ModelReference<T>): TrailDataModelItem<T> | Record<string, TrailDataModelItem> => {
+export const get = <T>(trailData: TrailDataModelInstance, ref: ModelReference<T>): TrailDataModelItem<T> | Record<string, TrailDataModelItem> => {
     return dataStore.get(trailData.store, getPath(trailData, ref));
 };
 
 export const getItems = (trailData: TrailDataModelInstance): Record<string, TrailDataModelItem> => {
-    return get(trailData) as Record<string, TrailDataModelItem>;
+    return dataStore.get<Record<string, TrailDataModelItem>>(trailData.store, trailData.path);
 };
 
 export const getItemsList = <T>(trailData: TrailDataModelInstance, ref?: ModelReference<T>): TrailDataModelItem[] => {

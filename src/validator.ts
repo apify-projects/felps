@@ -12,7 +12,7 @@ function createAjv() {
 export const create = (options?: ValidatorOptions) => {
     const { name, schema = {} } = options || {};
     return {
-        ...Base.create({ key: 'validator', name }),
+        ...Base.create({ key: 'validator', name: name as string }),
         schema,
     };
 };

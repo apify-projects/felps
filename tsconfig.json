@@ -6,7 +6,7 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "strict": true,
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "strictNullChecks": true,
         "lib": [
              "DOM",

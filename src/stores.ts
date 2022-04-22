@@ -35,6 +35,10 @@ export const create = <DataStoreNames extends string[] = [], FileStoreNames exte
 };
 
 export const load = async (stores: StoresInstance): Promise<StoresInstance> => {
+    if (!stores) {
+        throw new Error('Stores are not defined');
+    }
+
     const storesLoaded = await Promise.all(
         Object.values(stores as Record<string, StoreInstance>).map(async (store) => {
             if (store.type === 'data-store') {
@@ -45,9 +49,9 @@ export const load = async (stores: StoresInstance): Promise<StoresInstance> => {
             }
             return Promise.resolve(store);
         }),
-    );
+    ) as StoreInstance[];
 
-    return storesLoaded.reduce((acc, store: StoreInstance) => {
+    return storesLoaded.reduce<Record<string, StoreInstance>>((acc, store: StoreInstance) => {
         acc[store.name] = store;
         return acc;
     }, {});

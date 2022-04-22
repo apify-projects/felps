@@ -9,7 +9,7 @@ import dataStore from './data-store';
 import requestMeta from './request-meta';
 import { getPath } from './trail-data';
 
-export const create = (options?: TrailDataRequestsOptions): TrailDataRequestsInstance => {
+export const create = (options: TrailDataRequestsOptions): TrailDataRequestsInstance => {
     const { id, type, store } = options;
 
     const key = `store-trail-data-requests`;
@@ -25,7 +25,7 @@ export const create = (options?: TrailDataRequestsOptions): TrailDataRequestsIns
     };
 };
 
-export const get = (trailDataRequests: TrailDataRequestsInstance, ref?: ModelReference): TrailDataRequestItem | Record<string, TrailDataRequestItem> => {
+export const get = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): TrailDataRequestItem | Record<string, TrailDataRequestItem> => {
     return dataStore.get<TrailDataRequestItem>(trailDataRequests.store, getPath(trailDataRequests, ref));
 };
 
@@ -35,7 +35,8 @@ export const getItems = (trailDataRequests: TrailDataRequestsInstance): Record<s
 
 export const getItemsList = (trailDataRequests: TrailDataRequestsInstance, ref?: ModelReference): TrailDataRequestItem[] => {
     const items = Object.values(getItems(trailDataRequests) || {});
-    return ref ? items.filter((item) => isMatch(requestMeta.create(item.source).data?.reference, ref)) : items;
+    const meta = requestMeta.create(item.source);
+    return ref ? items.filter((item) => isMatch(.data?.reference, ref)) : items;
 };
 
 export const getItemsListByStatus = (trailDataRequests: TrailDataRequestsInstance, status: TrailDataRequestItemStatus, ref?: ModelReference): TrailDataRequestItem[] => {
@@ -54,18 +55,22 @@ export const getReference = (trailDataRequests: TrailDataRequestsInstance, ref: 
 export const set = (trailDataRequests: TrailDataRequestsInstance, request: RequestSource, ref?: ModelReference): ModelReference => {
     const meta = RequestMeta.extend(RequestMeta.create(request), { reference: { requestKey: craftUIDKey(REQUEST_UID_KEY), ...ref } });
 
-    const item: TrailDataRequestItem = {
-        id: meta.data.reference.requestKey,
-        source: meta.request,
-        status: REQUEST_STATUS.CREATED,
-    };
+    if (meta.data.reference) {
+        const item: TrailDataRequestItem = {
+            id: meta.data.reference?.requestKey as string,
+            source: meta.request,
+            status: REQUEST_STATUS.CREATED,
+        };
 
-    dataStore.update(trailDataRequests.store, getPath(trailDataRequests, meta.data.reference), item);
-    return meta.data.reference;
+        dataStore.update(trailDataRequests.store, getPath(trailDataRequests, meta.data.reference), item);
+        return meta.data.reference;
+    }
+
+    return ref as ModelReference;
 };
 
 export const setStatus = (trailDataRequests: TrailDataRequestsInstance, status: TrailDataRequestItemStatus, ref: ModelReference): void => {
-    dataStore.set(trailDataRequests.store, pathify(trailDataRequests.path, ref.requestKey, 'status'), status);
+    dataStore.set(trailDataRequests.store, pathify(trailDataRequests.path, ref?.requestKey as string, 'status'), status);
 };
 
 // export const getNextKeys = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): UniqueyKey[] => {

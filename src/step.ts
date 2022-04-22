@@ -12,7 +12,7 @@ export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepI
     } = options || {};
 
     return {
-        ...base.create({ key: 'step', name }),
+        ...base.create({ key: 'step', name: name as string }),
         crawlerMode,
         handler,
         errorHandler,
@@ -36,8 +36,11 @@ export const extend = <Methods = unknown>(step: StepInstance, options: StepOptio
     };
 };
 
-export const run = async (step: StepInstance, actor: ActorInstance, context: RequestContext): Promise<void> => {
-    Logger.start(Logger.create(step), context?.request?.url ? `at ${context.request.url}` : null);
+export const run = async (step: StepInstance | undefined, actor: ActorInstance, context: RequestContext | undefined): Promise<void> => {
+    if (!step) {
+        return;
+    }
+    Logger.start(Logger.create(step), context?.request?.url ? `at ${context.request.url}` : '');
     const ctx = RequestMeta.contextDefaulted(context);
 
     const stepApi = StepApi.create(actor);
