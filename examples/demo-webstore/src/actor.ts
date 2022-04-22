@@ -1,5 +1,5 @@
 import { Actor } from 'felps';
-import { models, flows, steps, hooks } from './define';
+import { models, flows, steps } from './definition';
 
 const SELECT = {
     PRODUCTS: '[class*=ProductCard_root]',
@@ -31,6 +31,6 @@ steps.COLLECT_PRODUCT_DETAILS.handler = async ({ $ }, api) => {
     });
 }
 
-const actor = Actor.create({ crawlerMode: 'cheerio', steps, models, flows, hooks })
+const actor = Actor.create({ crawlerMode: 'cheerio', steps, models, flows })
 
 Actor.run(actor);

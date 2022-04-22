@@ -8,15 +8,13 @@ const MODELS = Models.define({
                 name: { type: 'string' },
                 description: { type: 'string' },
                 priceInCents: { type: 'number' },
-                foo: { type: 'string'},
+                foo: { type: 'string' },
             },
             required: ['name'],
             additionalProperties: false,
         }
     }
 });
-
-const models = Models.create({ MODELS });
 
 const STEPS = Steps.define({
     COLLECT_NEW_PRODUCTS_LISTING: null,
@@ -31,17 +29,13 @@ const FLOWS = Flows.use({ STEPS }).define(
                 'COLLECT_NEW_PRODUCTS_LISTING',
                 'COLLECT_PRODUCT_DETAILS',
             ],
-            output: models.PRODUCT.schema,
+            output: MODELS.PRODUCT.schema,
         }
     });
 
 
+const models = Models.create({ MODELS });
 const steps = Steps.create({ MODELS, STEPS, FLOWS });
-
-steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async (context, api) => {
-    api.set('PRODUCT', { name: 'hey', foo: false })
-}
-
 const flows = Flows.create({ FLOWS });
 
-export default { models, flows, steps };
+export default { models, steps, flows };
