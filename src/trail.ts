@@ -5,8 +5,8 @@ import {
     DeepPartial, ModelInstance, reallyAny, RequestSource, TrailDataModelInstance, TrailDataRequestItem,
     TrailDataStage, TrailDataStages, TrailInstance,
     TrailOptions, TrailState,
-} from './common/types';
-import { craftUIDKey, pathify } from './common/utils';
+} from './types';
+import { craftUIDKey, pathify } from './utils';
 import DataStore from './data-store';
 import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
@@ -62,7 +62,7 @@ export const setRequest = (trail: TrailInstance, request: any): void => {
 
 export const stage = (trail: TrailInstance, type: TrailDataStages): TrailDataStage => {
     return {
-        models: Object.values(trail.models as Record<string, ModelInstance>).reduce((acc, model) => {
+        models: Object.values(trail.models as Record<string, ModelInstance>).reduce<Record<string, TrailDataModelInstance>>((acc, model) => {
             acc[model.name] = TrailDataModel.create({
                 id: trail.id,
                 type,

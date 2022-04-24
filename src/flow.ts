@@ -1,7 +1,7 @@
 import base from './base';
-import { FlowInstance, FlowOptions, StepInstance } from './common/types';
+import { FlowInstance, FlowOptions } from './types';
 
-export const create = (options: FlowOptions): FlowInstance => {
+export const create = <StepNames = string>(options: FlowOptions<StepNames>): FlowInstance<StepNames> => {
     const { name, crawlerMode, steps = [], output } = options || {};
 
     return {
@@ -12,17 +12,8 @@ export const create = (options: FlowOptions): FlowInstance => {
     };
 };
 
-export const has = (flow: FlowInstance, stepName: string): boolean => {
-    return flow.steps.some((step: StepInstance) => step.name === stepName);
-};
-
-export const extend = (flow: FlowInstance, options: FlowOptions): FlowInstance => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { name, ...otherOptions } = options || {};
-    return {
-        ...flow,
-        ...otherOptions,
-    };
+export const has = <StepNames = unknown>(flow: FlowInstance<StepNames>, stepName: StepNames): boolean => {
+    return flow.steps.some((name) => name === stepName);
 };
 
 export default { create, has };

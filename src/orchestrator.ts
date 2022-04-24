@@ -1,7 +1,7 @@
 import { CrawlingContext } from 'apify';
 import { Queue, RequestMeta, Trail } from '.';
-import { REQUEST_STATUS } from './common/consts';
-import { ActorInstance, GenerateStepApi, OrchestratorInstance, QueueInstance, reallyAny } from './common/types';
+import { REQUEST_STATUS } from './consts';
+import { ActorInstance, StepApiInstance, OrchestratorInstance, QueueInstance, reallyAny } from './types';
 import TrailDataRequests from './trail-data-requests';
 
 export const create = (actor: ActorInstance): OrchestratorInstance => {
@@ -37,7 +37,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
     };
 };
 
-export const run = async (orchestrator: OrchestratorInstance, context: CrawlingContext, api: GenerateStepApi<reallyAny, reallyAny, reallyAny>) => {
+export const run = async (orchestrator: OrchestratorInstance, context: CrawlingContext, api: StepApiInstance<reallyAny, reallyAny, reallyAny>) => {
     await orchestrator.handler(context, api);
 };
 

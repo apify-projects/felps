@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import useHandleRequestErrorFunction from './use-handle-request-error-function';
-import { ActorInstance, RequestContext } from '../common/types';
+import { ActorInstance, RequestContext } from '../types';
 
 export default (actor: ActorInstance) => {
     // const logTrailHistory = (crawlingContext: RequestContext) => {

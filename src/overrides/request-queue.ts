@@ -2,12 +2,12 @@ import { QueueOperationInfo, Request } from 'apify';
 import { ApifyClient } from 'apify-client';
 import { RequestQueue as ApifyRequestQueue } from 'apify/build/storages/request_queue';
 import { DataStore, RequestMeta } from '..';
-import { DataStoreInstance, RequestOptionalOptions, RequestSource } from '../common/types';
+import { DataStoreInstance, RequestOptionalOptions, RequestSource } from '../types';
 
 export default class RequestQueue extends ApifyRequestQueue {
     private _store: DataStoreInstance;
 
-    constructor(options?: {
+    constructor(options: {
         id: string;
         name?: string | undefined;
         isLocal: boolean;
@@ -36,7 +36,7 @@ export default class RequestQueue extends ApifyRequestQueue {
         return super.markRequestHandled(request);
     }
 
-    override async fetchNextRequest(): Promise<Request> {
+    override async fetchNextRequest(): Promise<Request | null> {
         const store = await DataStore.load(this._store);
         const smallestPriority = Math.min(...DataStore.values(store));
         const [requestId] = DataStore.entries(store).find(([, priority]) => priority === smallestPriority) || [];
@@ -44,7 +44,7 @@ export default class RequestQueue extends ApifyRequestQueue {
         if (requestId) {
             DataStore.remove(store, requestId);
             const request = await this.getRequest(requestId);
-            if (request.handledAt) {
+            if (request?.handledAt) {
                 this.recentlyHandled.add(requestId, true);
                 return null;
             }

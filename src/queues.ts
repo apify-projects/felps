@@ -1,4 +1,4 @@
-import { QueuesInstance, QueuesOptions } from './common/types';
+import { QueuesInstance, QueuesOptions } from './types';
 import queue from './queue';
 
 export const DefaultQueues = {

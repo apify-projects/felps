@@ -8,8 +8,8 @@ import { dissocPath } from 'ramda';
 import setByKey from 'lodash.set';
 import ApifyEvents from './apify-events';
 import base from './base';
-import { DataStoreInstance, DataStoreOptions, reallyAny } from './common/types';
-import { craftUIDKey } from './common/utils';
+import { DataStoreInstance, DataStoreOptions, reallyAny } from './types';
+import { craftUIDKey } from './utils';
 import Logger from './logger';
 
 const mustBeLoaded = (store: DataStoreInstance): void => {
@@ -18,7 +18,7 @@ const mustBeLoaded = (store: DataStoreInstance): void => {
     }
 };
 
-export const create = (options?: DataStoreOptions): DataStoreInstance => {
+export const create = (options: DataStoreOptions): DataStoreInstance => {
     const { name, kvKey, key = 'data-store', pathPrefix = '' } = options || {};
 
     return {
@@ -38,7 +38,7 @@ export const getPath = (dataStore: DataStoreInstance, path: string): string => {
 
 export const get = <T = reallyAny>(dataStore: DataStoreInstance, path?: string): T => {
     mustBeLoaded(dataStore);
-    return cloneDeep(path ? getByKey(dataStore.state, getPath(dataStore, path)) : dataStore.state);
+    return cloneDeep<reallyAny>(path ? getByKey(dataStore.state, getPath(dataStore, path)) : dataStore.state);
 };
 
 export const set = <T = reallyAny>(dataStore: DataStoreInstance, path: string, data: T): void => {

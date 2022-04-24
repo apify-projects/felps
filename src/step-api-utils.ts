@@ -1,5 +1,5 @@
-import { ActorInstance, StepApiUtilsInstance } from './common/types';
-import { resolveUrl } from './common/utils';
+import { ActorInstance, StepApiUtilsInstance } from './types';
+import { resolveUrl } from './utils';
 import base from './base';
 
 export const create = (actor: ActorInstance): StepApiUtilsInstance => {

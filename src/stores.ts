@@ -1,7 +1,7 @@
 import {
     DataStoreInstance, DefaultDataStoreNames, DefaultFileStoreNames,
     FileStoreInstance, GenerateObject, StoreInstance, StoresInstance, StoresOptions,
-} from './common/types';
+} from './types';
 import DataStore from './data-store';
 import FileStore from './file-store';
 

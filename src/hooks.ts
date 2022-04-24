@@ -1,4 +1,4 @@
-import type { HooksInstance, ModelDefinition } from './common/types';
+import type { HooksInstance, ModelDefinition } from './types';
 import step from './step';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

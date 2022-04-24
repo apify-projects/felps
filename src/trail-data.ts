@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
-import { ModelReference, reallyAny, TrailDataInstance, UniqueyKey } from './common/types';
-import { concatAsUniqueArray, pathify } from './common/utils';
+import { ModelReference, reallyAny, TrailDataInstance, UniqueyKey } from './types';
+import { concatAsUniqueArray, pathify } from './utils';
 
 export const defaultUpdateMerger = (existingValue: reallyAny, newValue: reallyAny) => {
     if (!newValue && typeof existingValue !== 'number') return existingValue;

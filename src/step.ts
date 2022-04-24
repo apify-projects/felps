@@ -1,6 +1,6 @@
 import { Logger, Orchestrator, RequestMeta, StepApi } from '.';
 import base from './base';
-import { ActorInstance, RequestContext, StepInstance, StepOptions } from './common/types';
+import { ActorInstance, reallyAny, RequestContext, StepInstance, StepOptions } from './types';
 
 export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepInstance<Methods> => {
     const {
@@ -43,7 +43,7 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
     Logger.start(Logger.create(step), context?.request?.url ? `at ${context.request.url}` : '');
     const ctx = RequestMeta.contextDefaulted(context);
 
-    const stepApi = StepApi.create(actor);
+    const stepApi = StepApi.create<reallyAny, reallyAny, reallyAny>(actor);
 
     try {
         await step?.handler?.(ctx, stepApi(ctx));

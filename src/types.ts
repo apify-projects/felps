@@ -4,13 +4,14 @@ import { CrawlingContext } from 'apify';
 import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
 import type { FromSchema, JSONSchema7 } from 'json-schema-to-ts';
-import RequestQueue from '../overrides/request-queue';
+import RequestQueue from './overrides/request-queue';
 
 export type { JSONSchemaType } from 'ajv';
 
 export type reallyAny = any;
 export type UniqueyKey = string;
 
+export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export type DeepPartial<T> = Partial<{ [P in keyof T]: DeepPartial<T[P]> }>;
 export type SnakeToCamelCase<S extends string> =
     S extends `${infer T}_${infer U}` ?
@@ -46,23 +47,14 @@ export type BaseOptions = {
 }
 
 // flows.ts ------------------------------------------------------------
-export type FlowsInstance<T> = T
-
-export type FlowNamesSignature = Record<string, string>
-
-export type FlowsOptions<T> = {
-    FLOWS?: T
-}
+// export type FlowsInstance<StepNames = string> = Record<string, FlowInstance<StepNames>>
+export type FlowsInstance<StepNames = string> = FlowDefinitions<StepNames, reallyAny>;
 
 export type FlowDefinitions<StepNames, T extends Record<string, FlowDefinition<StepNames>>> = {
-    [K in keyof T]: T[K] extends FlowDefinition<StepNames> ? {
-        crawlerMode: T[K]['crawlerMode'],
-        steps: T[K]['steps'],
-        output: T[K]['output'],
-    } : never
+    [K in keyof T]: T[K] extends FlowDefinition<StepNames> ? T[K] : never
 };
 
-export type FlowDefinition<StepNames = unknown> = Partial<FlowInstance<StepNames>>
+export type FlowDefinition<StepNames = string> = PartialBy<FlowOptions<StepNames>, 'name'>
 
 // flow.ts ------------------------------------------------------------
 export type FlowInstance<StepNames> = {
@@ -71,16 +63,18 @@ export type FlowInstance<StepNames> = {
     output: JSONSchema7,
 } & BaseInstance;
 
-export type FlowOptions = {
+export type FlowOptions<StepNames = string> = {
     name: string,
     crawlerMode?: RequestCrawlerMode,
-    steps?: StepInstance[],
-    output?: JSONSchema7,
+    steps: StepNames[],
+    output: JSONSchema7,
 }
+
+export type FlowOptionsWithoutName<StepNames = string> = Omit<FlowOptions<StepNames>, 'name'>;
 
 // steps.ts ------------------------------------------------------------
 export type StepsInstance<M extends Record<string, ModelDefinition>, F, S> = {
-    [K in keyof S]: S[K] extends StepDefinition ? StepInstance<GenerateStepApi<F, S, M>> & S[K] : never
+    [K in keyof S]: S[K] extends StepDefinition ? StepInstance<StepApiInstance<F, S, M>> & S[K] : never
 };
 
 export type StepsOptions<T> = {
@@ -121,16 +115,15 @@ export type StepOptions<Methods = unknown> = {
 export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
 
 // step-api.ts -----------------------------------------------------------------
-// export type StepApiInstance<FlowNames, StepNames, ModelSchemas extends Record<string, unknown>> =
-//     (context: CrawlingContext) => GenerateStepApi<FlowNames, StepNames, ModelSchemas>;
-export type GeneralStepApi = StepApiMetaAPI & StepApiUtilsAPI;
-export type GenerateStepApi<F, S, M extends Record<string, ModelDefinition>> = GeneralStepApi
+export type StepApiInstance<F, S, M extends Record<string, ModelDefinition>> = GeneralStepApi
     & StepApiFlowsAPI<F, S, M>
     & StepApiModelAPI<M>;
 
+export type GeneralStepApi = StepApiMetaAPI & StepApiUtilsAPI;
+
 // step-api-flow.ts ------------------------------------------------------------
-export type StepApiFlowsInstance<FlowNames, StepNames, ModelSchemas> = {
-    handler: (context: CrawlingContext) => StepApiFlowsAPI<FlowNames, StepNames, ModelSchemas>,
+export type StepApiFlowsInstance<F, S, M extends Record<string, ModelDefinition>> = {
+    handler: (context: CrawlingContext) => StepApiFlowsAPI<F, S, M>,
 };
 
 export type StepApiFlowsAPI<F, S, M> = {
@@ -211,7 +204,7 @@ export type ModelDefinition = {
 
 export type ModelOptions = {
     name: string,
-    schema?: JSONSchema7,
+    schema: JSONSchema7,
 }
 
 export type ModelReference<T = unknown> = Partial<{
@@ -254,7 +247,7 @@ export type DataStoreOptions = {
 export type FileStoreInstance = {
     type: 'file-store',
     kvKey: string,
-    resource: Apify.KeyValueStore,
+    resource: Apify.KeyValueStore | undefined,
     initialized: boolean,
 } & BaseInstance;
 
@@ -391,11 +384,11 @@ export type DefaultQueueNames = ['default'];
 // dataset.ts ------------------------------------------------------------
 export type DatasetInstance = {
     name: string;
-    resource: Apify.Dataset;
+    resource: Apify.Dataset | undefined;
 } & BaseInstance;
 
 export type DatasetOptions = {
-    name: string,
+    name?: string,
 }
 
 // datasets.ts ------------------------------------------------------------
@@ -412,14 +405,14 @@ export type ActorInstance = {
     name?: string,
     input?: any,
     crawlerMode?: RequestCrawlerMode,
-    crawler?: CrawlerInstance,
-    steps?: StepsInstance<reallyAny, reallyAny, reallyAny>;
-    flows?: FlowsInstance<reallyAny>;
-    models?: ModelsInstance<reallyAny>;
-    stores?: StoresInstance;
-    queues?: QueuesInstance;
-    datasets?: DatasetsInstance;
-    hooks?: HooksInstance<reallyAny, reallyAny, reallyAny>;
+    crawler: CrawlerInstance,
+    steps: StepsInstance<reallyAny, reallyAny, reallyAny>;
+    flows: FlowsInstance<reallyAny>;
+    models: ModelsInstance<reallyAny>;
+    stores: StoresInstance;
+    queues: QueuesInstance;
+    datasets: DatasetsInstance;
+    hooks: HooksInstance<reallyAny, reallyAny, reallyAny>;
 } & BaseInstance;
 
 export type ActorOptions = {
@@ -437,7 +430,7 @@ export type ActorOptions = {
 
 // hooks.ts ------------------------------------------------------------
 export type HooksInstance<M extends Record<string, ModelDefinition>, F, S> = {
-    [K in DefaultHookNames[number]]: StepInstance<GenerateStepApi<F, S, M>>;
+    [K in DefaultHookNames[number]]: StepInstance<StepApiInstance<F, S, M>>;
 };
 
 export type DefaultHookNames = ['STEP_STARTED', 'STEP_ENDED', 'STEP_FAILED', 'STEP_REQUEST_FAILED',
@@ -483,11 +476,13 @@ export type LoggerOptions = {
     level?: LogLevel,
 }
 
+export type LogMethods = 'info' | 'warning' | 'error' | 'debug' | 'perf';
+
 export type LoggerInstance = {
     elementId: string,
     suffix?: string,
     level?: LogLevel,
-    apifyLogger: typeof Apify.utils.log,
+    apifyLogger: import('@apify/log/log').Log,
 }
 
 // apify-client.ts ------------------------------------------------------------

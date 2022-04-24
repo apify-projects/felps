@@ -1,7 +1,7 @@
-import { BaseInstance, BaseOptions } from './common/types';
-import { craftUIDKey } from './common/utils';
+import { BaseInstance, BaseOptions } from './types';
+import { craftUIDKey } from './utils';
 
-export const create = (options?: BaseOptions): BaseInstance => {
+export const create = (options: BaseOptions): BaseInstance => {
     const {
         key,
         name = 'default',

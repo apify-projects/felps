@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify from 'apify';
-import { curryN } from 'ramda';
-import { DatasetInstance, DatasetOptions } from './common/types';
 import base from './base';
+import { DatasetInstance, DatasetOptions, reallyAny } from './types';
 
-export const create = (options?: DatasetOptions): DatasetInstance => {
+export const create = (options: DatasetOptions): DatasetInstance => {
     const { name } = options || {};
 
     return {
-        ...base.create({ key: 'dataset', name }),
+        ...base.create({ key: 'dataset', name: name as string }),
         resource: undefined,
     };
 };
@@ -22,9 +21,9 @@ export const load = async (dataset: DatasetInstance): Promise<DatasetInstance> =
     };
 };
 
-export const push = curryN(2, async (dataset: DatasetInstance, data: any | any[]) => {
+export const push = async (dataset: DatasetInstance, data: reallyAny | reallyAny[]) => {
     const loaded = await load(dataset);
-    return loaded.resource.pushData(data);
-});
+    return loaded.resource?.pushData(data);
+};
 
 export default { create, load, push };

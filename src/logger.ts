@@ -1,6 +1,6 @@
 import Apify from 'apify';
 import EventEmitter from 'events';
-import { LoggerInstance, LoggerOptions } from './common/types';
+import { LoggerInstance, LoggerOptions, LogMethods } from './types';
 
 const loggerEvents = new EventEmitter();
 loggerEvents.setMaxListeners(8000);
@@ -35,7 +35,7 @@ export const createPrefix = (logger: LoggerInstance, icon: string, id: string) =
 export const createLog = (method: string, icon: string) => (logger: LoggerInstance, messages?: string | string[], data?: Record<string, any>) => {
     const prefix = createPrefix(logger, icon, logger.elementId);
     const text = (Array.isArray(messages) ? messages : [messages]).filter(Boolean).map((message) => `      -- ${message}`).join('\n');
-    logger.apifyLogger[method](`${prefix}${text ? `\n ${text}` : ''}`, data);
+    logger.apifyLogger[method as LogMethods](`${prefix}${text ? `\n ${text}` : ''}`, data);
 };
 
 export const debug = createLog('debug', '[?!]');

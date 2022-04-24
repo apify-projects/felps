@@ -62,20 +62,20 @@ export const concatAsUniqueArray = (...arrs: any[]) => [...new Set([].concat(...
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const orderByClosestLength = (text: string, list: any[], matcher: (item: any) => string = (item) => (item as string)) => {
     const { length } = text;
-    const distances: Record<number, string[]> = {};
+    const distances = new Map<number, string[]>();
     for (const item of list) {
         const distance = Math.abs(length - matcher(item).length);
-        if (distances[distance]) {
-            distances[distance].push(item);
+        if (distances.get(distance)) {
+            distances.set(distance, [...distances.get(distance) as string[], item]);
         } else {
-            distances[distance] = [item];
+            distances.set(distance, [item]);
         }
     }
-    const orderedDistances = Object.keys(distances).sort((a, b) => +a - +b);
+    const orderedDistances = Array.from(distances.keys()).sort((a, b) => +a - +b);
     const orderedItems = orderedDistances.reduce((acc, distance) => {
-        acc.push(...distances[distance]);
+        acc.push(...distances.get(distance) as string[]);
         return acc;
-    }, []);
+    }, [] as string[]);
     return orderedItems;
 };
 

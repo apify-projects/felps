@@ -8,7 +8,6 @@ const MODELS = Models.define({
                 name: { type: 'string' },
                 description: { type: 'string' },
                 priceInCents: { type: 'number' },
-                foo: { type: 'string' },
             },
             required: ['name'],
             additionalProperties: false,

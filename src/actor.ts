@@ -2,7 +2,7 @@
 import Apify, { PlaywrightHook } from 'apify';
 import { Datasets, Flows, Hooks, Models, Queue, Queues, Step, Steps, Stores } from '.';
 import Base from './base';
-import { ActorInstance, ActorOptions, CrawlerInstance, QueueInstance, StepInstance, StoresInstance } from './common/types';
+import { ActorInstance, ActorOptions, CrawlerInstance, QueueInstance, StepInstance, StoresInstance } from './types';
 import crawler from './crawler';
 import useHandleFailedRequestFunction from './crawler/use-handle-failed-request-function';
 import useHandlePageFunction from './crawler/use-handle-page-function';
@@ -23,7 +23,7 @@ export const extend = (actor: ActorInstance, options: ActorOptions = {}): ActorI
         crawlerMode: options?.crawlerMode,
         crawler: options?.crawler || actor.crawler || crawler.create(),
         steps: options?.steps || actor.steps || Steps.create({ STEPS: {} }),
-        flows: options?.flows || actor.flows || Flows.create(),
+        flows: options?.flows || actor.flows || Flows.create({ FLOWS: {} }),
         models: options?.models || actor.models || Models.create({ MODELS: {} }),
         stores: options?.stores || actor.stores || Stores.create(),
         queues: options?.queues || actor.queues || Queues.create(),

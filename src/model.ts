@@ -1,9 +1,9 @@
 import { JSONSchema7 } from 'json-schema';
 import { pickAll } from 'ramda';
 import base from './base';
-import { REFERENCE_KEY } from './common/consts';
-import { ModelInstance, ModelOptions, ModelReference, ValidatorValidateOptions } from './common/types';
-import { traverse } from './common/utils';
+import { REFERENCE_KEY } from './consts';
+import { ModelInstance, ModelOptions, ModelReference, reallyAny, ValidatorValidateOptions } from './types';
+import { traverse } from './utils';
 import Validator from './validator';
 
 export const create = (options: ModelOptions): ModelInstance => {
@@ -26,7 +26,7 @@ export const extend = (model: ModelInstance, options: ModelOptions): ModelInstan
 
 export const schema = (model: ModelInstance): JSONSchema7 => {
     return {
-        ...model.schema,
+        ...(model.schema as Record<string, reallyAny>),
         '#schema-name': model.name,
     } as JSONSchema7;
 };
@@ -50,7 +50,7 @@ export const referenceKeysSchema = (model: ModelInstance): JSONSchema7 => {
         properties: keys.reduce((acc, key) => {
             acc[key] = { type: 'string' };
             return acc;
-        }, {}),
+        }, {} as Record<string, JSONSchema7>),
         required: keys,
     };
 };

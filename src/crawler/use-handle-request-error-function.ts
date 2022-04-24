@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StepApi } from '..';
-import { ActorInstance, RequestContext } from '../common/types';
+import { ActorInstance, RequestContext, StepInstance } from '../types';
 import requestMeta from '../request-meta';
 import step from '../step';
 
@@ -9,9 +9,9 @@ export default (actor: ActorInstance) => {
         const meta = requestMeta.create(crawlingContext);
 
         // Run a general hook
-        await step.run(actor.hooks.STEP_REQUEST_FAILED, actor, crawlingContext);
+        await step.run(actor.hooks?.STEP_REQUEST_FAILED as StepInstance, actor, crawlingContext);
 
-        const stepInstance = actor.steps?.[meta.data.stepName];
+        const stepInstance = actor.steps?.[meta.data.stepName as string];
         if (!stepInstance) {
             // context.log.error(`Step ${meta.data.step} not found.`, { crawlingContext });
             return;

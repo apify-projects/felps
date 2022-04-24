@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 import isMatch from 'lodash.ismatch';
 import base from './base';
-import { MODEL_UID_KEY, REFERENCE_KEY } from './common/consts';
-import { ModelReference, TrailDataModelInstance, TrailDataModelItem, TrailDataModelOptions } from './common/types';
-import { craftUIDKey, pathify } from './common/utils';
+import { MODEL_UID_KEY, REFERENCE_KEY } from './consts';
+import { ModelReference, TrailDataModelInstance, TrailDataModelItem, TrailDataModelOptions } from './types';
+import { craftUIDKey, pathify } from './utils';
 import dataStore from './data-store';
 import { getPath } from './trail-data';
 
@@ -44,14 +44,14 @@ export const getChildrenItemsList = <T>(trailData: TrailDataModelInstance, paren
     return getItemsList(trailData, reference as ModelReference<T>);
 };
 
-export const update = <T>(trailData: TrailDataModelInstance, data: Partial<T>, ref?: ModelReference<T>): ModelReference<T> => {
-    dataStore.update(trailData.store, getPath(trailData, ref), { data, reference: ref });
-    return ref;
+export const update = <T>(trailData: TrailDataModelInstance, data: Partial<T>, ref?: ModelReference<T>) => {
+    dataStore.update(trailData.store, getPath(trailData, ref || {}), { data, reference: ref });
 };
 
 export const set = <T>(trailData: TrailDataModelInstance, data: Partial<T>, ref?: ModelReference<T>): ModelReference<T> => {
     const reference = { [trailData.referenceKey]: craftUIDKey(MODEL_UID_KEY(trailData.model?.name)), ...(ref || {}) } as ModelReference<T>;
-    return update(trailData, data, reference);
+    update(trailData, data, reference);
+    return reference;
 };
 
 export const count = <T>(trailData: TrailDataModelInstance, ref: ModelReference<T>): number => {

@@ -1,14 +1,19 @@
 import mergeWith from 'lodash.mergewith';
 import { CrawlingContext } from 'apify';
-import { METADATA_KEY } from './common/consts';
-import { RequestContext, RequestMetaData, RequestMetaInstance, RequestSource } from './common/types';
+import { METADATA_KEY } from './consts';
+import { RequestContext, RequestMetaData, RequestMetaInstance, RequestSource } from './types';
 import base from './base';
-import { craftUIDKey } from './common/utils';
+import { craftUIDKey } from './utils';
 
 export const create = (requestOrCrawlingContext?: RequestSource | RequestContext | CrawlingContext): RequestMetaInstance => {
     const request = (requestOrCrawlingContext as RequestContext)?.request || (requestOrCrawlingContext as RequestSource);
     const userData = request?.userData;
-    const data = userData?.[METADATA_KEY] || {};
+    const data = {
+        stepName: undefined,
+        crawlerMode: undefined,
+        reference: {},
+        ...(userData?.[METADATA_KEY] || {}),
+    };
 
     return {
         ...base.create({ key: 'request-meta', name: 'request-meta' }),

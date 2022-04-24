@@ -1,13 +1,9 @@
 import { RequestMeta, Trail } from '.';
 import base from './base';
-import { ActorInstance, FlowNamesSignature, ModelSchemasSignature, StepApiFlowsInstance, StepNamesSignature } from './common/types';
+import { ActorInstance, ModelDefinition, StepApiFlowsAPI, StepApiFlowsInstance } from './types';
 import TrailDataRequests from './trail-data-requests';
 
-export const create = <
-    FlowNames extends FlowNamesSignature = FlowNamesSignature,
-    StepNames extends StepNamesSignature = StepNamesSignature,
-    ModelSchemas extends ModelSchemasSignature = ModelSchemasSignature,
-    >(actor: ActorInstance): StepApiFlowsInstance<FlowNames, StepNames, ModelSchemas> => {
+export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: ActorInstance): StepApiFlowsInstance<F, S, M> => {
     return {
         ...base.create({ key: 'step-api-flows', name: 'step-api-flows' }),
         handler(context) {
@@ -57,7 +53,7 @@ export const create = <
                     TrailDataRequests.set(ingest.requests, meta.request);
                     return meta.data.reference;
                 },
-            };
+            } as StepApiFlowsAPI<F, S, M>;
         },
     };
 };

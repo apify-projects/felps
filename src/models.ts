@@ -1,11 +1,13 @@
-import { ModelDefinition, ModelDefinitions } from './common/types';
+import { ModelDefinition, ModelDefinitions } from './types';
 import model from './model';
 
-export const create = <ModelDefinitions extends Record<string, ModelDefinition>>({ MODELS }: { MODELS: ModelDefinitions }): ModelDefinitions => {
+export const create = <
+    M extends Record<string, ModelDefinition>
+>({ MODELS }: { MODELS: M }): M => {
     return Object.keys(MODELS).reduce((acc, name) => ({
         ...acc,
         [name]: model.create({ name, ...(MODELS[name] || {}) }),
-    }), {} as ModelDefinitions);
+    }), {} as M);
 };
 
 export const define = <T extends Record<string, ModelDefinition>>(models: T): ModelDefinitions<T> => {

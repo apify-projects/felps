@@ -1,12 +1,10 @@
 import { Model, RequestMeta, Trail } from '.';
 import base from './base';
-import { ActorInstance, ModelReference, reallyAny, StepApiModelAPI, StepApiModelInstance } from './common/types';
+import { ActorInstance, ModelDefinition, ModelReference, reallyAny, StepApiModelAPI, StepApiModelInstance } from './types';
 import TrailDataModel from './trail-data-model';
 
 // eslint-disable-next-line max-len
-export const create = <
-    ModelSchemas extends Record<string, unknown> = Record<string, unknown>
->(actor: ActorInstance): StepApiModelInstance<ModelSchemas> => {
+export const create = <M extends Record<string, ModelDefinition>>(actor: ActorInstance): StepApiModelInstance<M> => {
     return {
         ...base.create({ key: 'step-api-models', name: 'default' }),
         handler(context) {
@@ -27,7 +25,7 @@ export const create = <
                 set(modelName, value, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(modelName as string, ref);
                     Model.validate(modelInstance.model, value, { throwError: true });
-                    return TrailDataModel.set(modelInstance, value, modelRef);
+                    return TrailDataModel.set(modelInstance, value as reallyAny, modelRef) as ModelReference<reallyAny>;
                 },
                 get(modelName, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(modelName as string, ref, { withOwnReferenceKey: true });
@@ -36,10 +34,10 @@ export const create = <
                 update(modelName, value, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(modelName as string, ref, { withOwnReferenceKey: true });
                     Model.validate(modelInstance.model, value, { partial: true, throwError: true });
-                    console.log('update', value, modelRef, meta.data.reference);
-                    return TrailDataModel.update(modelInstance, value, modelRef as reallyAny);
+                    TrailDataModel.update(modelInstance, value, modelRef as reallyAny);
+                    return ref as ModelReference<reallyAny>;
                 },
-            } as StepApiModelAPI<ModelSchemas>;
+            } as StepApiModelAPI<M>;
         },
     };
 };

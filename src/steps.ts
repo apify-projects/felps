@@ -1,4 +1,4 @@
-import { FlowDefinition, ModelDefinition, reallyAny, StepDefinition, StepDefinitions, StepsInstance } from './common/types';
+import { FlowDefinition, ModelDefinition, reallyAny, StepDefinition, StepDefinitions, StepsInstance } from './types';
 import step from './step';
 
 export const create = <

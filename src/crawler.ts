@@ -3,7 +3,7 @@ import { load } from 'cheerio';
 // import { GotOptionsInit, gotScraping } from 'got-scraping';
 import nodeFetch from 'node-fetch';
 import base from './base';
-import { CrawlerInstance, CrawlerOptions, RequestContext } from './common/types';
+import { CrawlerInstance, CrawlerOptions, RequestContext } from './types';
 import requestMeta from './request-meta';
 
 // eslint-disable-next-line max-len

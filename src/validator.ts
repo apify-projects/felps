@@ -1,7 +1,7 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { Base, Logger } from '.';
-import { reallyAny, ValidatorInstance, ValidatorOptions, ValidatorValidateOptions } from './common/types';
+import { reallyAny, ValidatorInstance, ValidatorOptions, ValidatorValidateOptions } from './types';
 
 function createAjv() {
     const ajv = new Ajv({ allErrors: true });

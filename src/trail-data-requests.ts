@@ -2,9 +2,9 @@
 import isMatch from 'lodash.ismatch';
 import { RequestMeta } from '.';
 import base from './base';
-import { REQUEST_STATUS, REQUEST_UID_KEY } from './common/consts';
-import { ModelReference, RequestSource, TrailDataRequestItem, TrailDataRequestItemStatus, TrailDataRequestsInstance, TrailDataRequestsOptions } from './common/types';
-import { craftUIDKey, pathify } from './common/utils';
+import { REQUEST_STATUS, REQUEST_UID_KEY } from './consts';
+import { ModelReference, RequestSource, TrailDataRequestItem, TrailDataRequestItemStatus, TrailDataRequestsInstance, TrailDataRequestsOptions } from './types';
+import { craftUIDKey, pathify } from './utils';
 import dataStore from './data-store';
 import requestMeta from './request-meta';
 import { getPath } from './trail-data';
@@ -35,8 +35,7 @@ export const getItems = (trailDataRequests: TrailDataRequestsInstance): Record<s
 
 export const getItemsList = (trailDataRequests: TrailDataRequestsInstance, ref?: ModelReference): TrailDataRequestItem[] => {
     const items = Object.values(getItems(trailDataRequests) || {});
-    const meta = requestMeta.create(item.source);
-    return ref ? items.filter((item) => isMatch(.data?.reference, ref)) : items;
+    return ref ? items.filter((item) => isMatch(requestMeta.create(item.source).data?.reference as ModelReference, ref)) : items;
 };
 
 export const getItemsListByStatus = (trailDataRequests: TrailDataRequestsInstance, status: TrailDataRequestItemStatus, ref?: ModelReference): TrailDataRequestItem[] => {
