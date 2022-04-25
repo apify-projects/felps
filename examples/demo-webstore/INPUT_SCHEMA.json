@@ -1,0 +1,31 @@
+{
+  "title": "Input Schema",
+  "description": "",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "url": {
+      "title": "URL",
+      "type": "string",
+      "description": "The URL of the website to scrape",
+      "prefill": "https://demo-webstore.apify.org/search/new-arrivals"
+    },
+    "flow": {
+      "title": "Flow",
+      "type": "string",
+      "description": "The flow to scrape",
+      "editor": "select",
+      "default": "COLLECT_NEW_ARRIVALS",
+      "enum": ["COLLECT_NEW_ARRIVALS"]
+    },
+    "proxy": {
+      "title": "Proxy configuration",
+      "type": "object",
+      "description": "Select proxies to be used by your crawler.",
+      "prefill": {
+        "useApifyProxy": false
+      },
+      "editor": "proxy"
+    }
+  }
+}

@@ -39,7 +39,7 @@ const hooks = Hooks.create({ MODELS, STEPS, FLOWS });
 
 hooks.ACTOR_STARTED.handler = async (_, api) => {
     const { flow, url } = api.getInput();
-    api.start('COLLECT_NEW_ARRIVALS', { url }, { flow, url });
+    api.start(flow, { url }, { flow, url });
 }
 
 export { models, steps, flows, hooks };
