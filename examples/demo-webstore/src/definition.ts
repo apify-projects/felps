@@ -18,6 +18,7 @@ const MODELS = Models.define({
 const STEPS = Steps.define({
     COLLECT_NEW_PRODUCTS_LISTING: null,
     COLLECT_PRODUCT_DETAILS: null,
+    OTHER: null,
 });
 
 const FLOWS = Flows.use({ STEPS }).define({

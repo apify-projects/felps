@@ -10,6 +10,7 @@ const SELECT = {
 };
 
 steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async ({ $ }, api) => {
+
     for (const product of $(SELECT.PRODUCTS).slice(0, 3)) {
 
         const productRef = api.set('PRODUCT', {
@@ -26,10 +27,14 @@ steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async ({ $ }, api) => {
     }
 };
 
-steps.COLLECT_PRODUCT_DETAILS.handler = async ({ $ }, api) => {
+steps.COLLECT_PRODUCT_DETAILS.handler = async ({ $, request }, api) => {
+
     api.update('PRODUCT', {
         description: $(SELECT.PRODUCT_DESCRIPTION).first().text(),
     });
+
+    // should be ignored
+    api.goto('OTHER', { url: request.url });
 }
 
 const actor = Actor.create({ steps, models, flows, hooks });

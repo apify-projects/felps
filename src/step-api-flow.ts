@@ -7,6 +7,8 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
     return {
         ...base.create({ key: 'step-api-flows', name: 'step-api-flows' }),
         handler(context) {
+            const currentMeta = RequestMeta.create(context);
+
             return {
                 start(flowName, request, input, reference) {
                     const trail = Trail.createFrom(context?.request, { actor });
@@ -20,7 +22,9 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
 
                     const meta = RequestMeta.extend(
                         RequestMeta.create(request),
+                        currentMeta.data,
                         {
+                            flowName,
                             stepName,
                             crawlerMode: step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode,
                             reference: {
@@ -41,6 +45,7 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
 
                     const meta = RequestMeta.extend(
                         RequestMeta.create(request),
+                        currentMeta.data,
                         {
                             stepName,
                             crawlerMode: step?.crawlerMode || actor?.crawlerMode,

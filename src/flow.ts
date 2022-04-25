@@ -13,7 +13,7 @@ export const create = <StepNames = string>(options: FlowOptions<StepNames>): Flo
 };
 
 export const has = <StepNames = unknown>(flow: FlowInstance<StepNames>, stepName: StepNames): boolean => {
-    return flow.steps.some((name) => name === stepName);
+    return (flow.steps || []).some((name) => name === stepName);
 };
 
 export default { create, has };

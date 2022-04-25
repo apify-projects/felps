@@ -270,6 +270,7 @@ export type TrailOptions = {
 
 export type TrailState = {
     id: string,
+    flow: string,
     input: any,
     requests: {
         [key: string]: any
@@ -454,6 +455,7 @@ export type RequestMetaOptions = {
 export type RequestCrawlerMode = 'default' | 'browser';
 
 export type RequestMetaData = {
+    flowName: string,
     stepName: string,
     crawlerMode: RequestCrawlerMode,
     reference: Partial<ModelReference<any>>,

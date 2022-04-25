@@ -1,5 +1,5 @@
 import { CrawlingContext } from 'apify';
-import { Dataset, Queue, RequestMeta, Trail } from '.';
+import { Dataset, Flow, Queue, RequestMeta, Trail } from '.';
 import { MODEL_STATUS, REQUEST_STATUS } from './consts';
 import { ActorInstance, StepApiInstance, OrchestratorInstance, QueueInstance, reallyAny } from './types';
 import TrailDataRequests from './trail-data-requests';
@@ -19,7 +19,13 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
             for (const newRequest of newlyCreatedRequests) {
                 // TODO: Add filtering here
                 // ...
-                Trail.promote(trail, newRequest);
+                const meta = RequestMeta.create(newRequest.source);
+                const flow = actor.flows?.[meta.data.flowName];
+                if (flow && Flow.has(flow, meta.data.stepName)) {
+                    Trail.promote(trail, newRequest);
+                } else {
+                    TrailDataRequests.setStatus(ingest.requests, REQUEST_STATUS.DISCARDED, meta.data.reference);
+                }
             };
 
             // DIGESTED Stage

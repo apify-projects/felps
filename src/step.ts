@@ -45,21 +45,20 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
     const ctx = RequestMeta.contextDefaulted(context);
 
     const stepApi = StepApi.create<reallyAny, reallyAny, reallyAny>(actor);
-    const api = stepApi(ctx);
 
     const trail = Trail.createFrom(ctx.request, { actor });
     const digest = Trail.digested(trail);
     const meta = RequestMeta.create(ctx.request);
 
     try {
-        await step?.handler?.(ctx, api);
+        await step?.handler?.(ctx, stepApi(ctx));
         TrailDataRequests.setStatus(digest.requests, 'SUCCEEDED', meta.data.reference);
     } catch (error) {
-        await step?.errorHandler?.(ctx, api);
+        await step?.errorHandler?.(ctx, stepApi(ctx));
         TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
     } finally {
         if (step?.handler) {
-            await Orchestrator.run(Orchestrator.create(actor), ctx, api);
+            await Orchestrator.run(Orchestrator.create(actor), ctx, stepApi(ctx));
         }
     }
 };
