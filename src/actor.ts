@@ -20,7 +20,7 @@ export const extend = (actor: ActorInstance, options: ActorOptions = {}): ActorI
     return {
         ...actor,
         input: undefined,
-        crawlerMode: options?.crawlerMode,
+        crawlerMode: options?.crawlerMode || 'default',
         crawler: options?.crawler || actor.crawler || crawler.create(),
         steps: options?.steps || actor.steps || Steps.create({ STEPS: {} }),
         flows: options?.flows || actor.flows || Flows.create({ FLOWS: {} }),

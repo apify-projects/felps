@@ -47,7 +47,6 @@ export type BaseOptions = {
 }
 
 // flows.ts ------------------------------------------------------------
-// export type FlowsInstance<StepNames = string> = Record<string, FlowInstance<StepNames>>
 export type FlowsInstance<StepNames = string> = FlowDefinitions<StepNames, reallyAny>;
 
 export type FlowDefinitions<StepNames, T extends Record<string, FlowDefinition<StepNames>>> = {
@@ -319,6 +318,7 @@ export type TrailDataRequestsOptions = {
 }
 
 export type TrailDataRequestItemStatus = 'CREATED' | 'DISCARDED' | 'QUEUED' | 'STARTED' | 'SUCCEEDED' | 'FAILED';
+export type TrailDataModelItemStatus = 'CREATED' | 'UPDATED' | 'SELECTED' | 'PUSHED' | 'DISCARDED';
 
 export type TrailDataRequestItem = {
     id: UniqueyKey,
@@ -343,19 +343,17 @@ export type TrailDataModelOptions = {
 }
 
 export type TrailDataModelItem<T = unknown> = {
+    id: UniqueyKey,
+    model: string,
     reference: ModelReference<T>,
     data: Partial<T>,
+    status: TrailDataModelItemStatus,
 }
 
 export type TrailDataModels = {
     [modelName: string]: {
         [key: string]: TrailDataModelItem,
     },
-}
-
-export type TrailDataModelPathsMethods<T> = {
-    ITEMS: (reference: ModelReference<T>) => string;
-    REQUESTS: (reference: ModelReference<T>) => string;
 }
 
 export type TrailModelPathsOptions = {
@@ -453,12 +451,12 @@ export type RequestMetaOptions = {
     nothing?: string,
 }
 
-export type RequestCrawlerMode = 'ajax' | 'cheerio' | 'browser';
+export type RequestCrawlerMode = 'default' | 'browser';
 
 export type RequestMetaData = {
-    stepName?: string,
+    stepName: string,
     crawlerMode: RequestCrawlerMode,
-    reference?: Partial<ModelReference<any>>,
+    reference: Partial<ModelReference<any>>,
 }
 
 // crawler.ts ------------------------------------------------------------

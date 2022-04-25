@@ -25,7 +25,11 @@ export const create = (options: TrailDataRequestsOptions): TrailDataRequestsInst
     };
 };
 
-export const get = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): TrailDataRequestItem | Record<string, TrailDataRequestItem> => {
+export const has = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): boolean => {
+    return dataStore.has(trailDataRequests.store, getPath(trailDataRequests, ref));
+};
+
+export const get = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): TrailDataRequestItem => {
     return dataStore.get<TrailDataRequestItem>(trailDataRequests.store, getPath(trailDataRequests, ref));
 };
 
@@ -38,8 +42,9 @@ export const getItemsList = (trailDataRequests: TrailDataRequestsInstance, ref?:
     return ref ? items.filter((item) => isMatch(requestMeta.create(item.source).data?.reference as ModelReference, ref)) : items;
 };
 
-export const getItemsListByStatus = (trailDataRequests: TrailDataRequestsInstance, status: TrailDataRequestItemStatus, ref?: ModelReference): TrailDataRequestItem[] => {
-    return getItemsList(trailDataRequests, ref).filter((item) => item.status === status);
+export const getItemsListByStatus = (trailDataRequests: TrailDataRequestsInstance, status: TrailDataRequestItemStatus | TrailDataRequestItemStatus[], ref?: ModelReference): TrailDataRequestItem[] => {
+    const statuses = (Array.isArray(status) ? status : [status]).filter(Boolean);
+    return getItemsList(trailDataRequests, ref).filter((item) => statuses.includes(item.status));
 };
 
 export const count = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): number => {
@@ -69,7 +74,15 @@ export const set = (trailDataRequests: TrailDataRequestsInstance, request: Reque
 };
 
 export const setStatus = (trailDataRequests: TrailDataRequestsInstance, status: TrailDataRequestItemStatus, ref: ModelReference): void => {
-    dataStore.set(trailDataRequests.store, pathify(trailDataRequests.path, ref?.requestKey as string, 'status'), status);
+    try {
+        // If no appropriate reference is found, do same as testing if it exists
+        const exists = has(trailDataRequests, ref);
+        if (exists) {
+            dataStore.set(trailDataRequests.store, pathify(trailDataRequests.path, ref?.requestKey as string, 'status'), status);
+        }
+    } catch (error) {
+        // silent
+    }
 };
 
 // export const getNextKeys = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): UniqueyKey[] => {

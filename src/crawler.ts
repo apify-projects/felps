@@ -40,21 +40,19 @@ export class DefaultCrawler extends PlaywrightCrawler {
                 });
 
             switch (meta.data.crawlerMode) {
-                case 'ajax':
-                    crawlingContext.response = await fetch();
-                    break;
-
                 case 'browser':
                     crawlingContext.response = await this._navigationHandler(crawlingContext, gotoOptions);
                     break;
 
-                case 'cheerio':
-                default: {
+                case 'default':
+                default:
                     crawlingContext.response = await fetch();
-                    const html = await crawlingContext.response.text();
-                    crawlingContext.$ = load(html);
-                    break;
-                }
+                    try {
+                        const html = await crawlingContext.response.text();
+                        crawlingContext.$ = load(html);
+                    } catch (error) {
+                        // silent
+                    }
             }
         } catch (error) {
             this._handleNavigationTimeout(crawlingContext, error as any);

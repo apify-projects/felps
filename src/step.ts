@@ -1,6 +1,7 @@
-import { Logger, Orchestrator, RequestMeta, StepApi } from '.';
+import { Logger, Orchestrator, RequestMeta, StepApi, Trail } from '.';
 import base from './base';
 import { ActorInstance, reallyAny, RequestContext, StepInstance, StepOptions } from './types';
+import TrailDataRequests from './trail-data-requests';
 
 export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepInstance<Methods> => {
     const {
@@ -44,14 +45,21 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
     const ctx = RequestMeta.contextDefaulted(context);
 
     const stepApi = StepApi.create<reallyAny, reallyAny, reallyAny>(actor);
+    const api = stepApi(ctx);
+
+    const trail = Trail.createFrom(ctx.request, { actor });
+    const digest = Trail.digested(trail);
+    const meta = RequestMeta.create(ctx.request);
 
     try {
-        await step?.handler?.(ctx, stepApi(ctx));
+        await step?.handler?.(ctx, api);
+        TrailDataRequests.setStatus(digest.requests, 'SUCCEEDED', meta.data.reference);
     } catch (error) {
-        await step?.errorHandler?.(ctx, stepApi(ctx));
+        await step?.errorHandler?.(ctx, api);
+        TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
     } finally {
         if (step?.handler) {
-            await Orchestrator.run(Orchestrator.create(actor), ctx, stepApi(ctx));
+            await Orchestrator.run(Orchestrator.create(actor), ctx, api);
         }
     }
 };

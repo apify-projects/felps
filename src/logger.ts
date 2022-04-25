@@ -29,7 +29,7 @@ export const setInfo = () => {
 };
 
 export const createPrefix = (logger: LoggerInstance, icon: string, id: string) => {
-    return `${icon} (${id}${logger.suffix ? `:${logger.suffix}` : ''})`;
+    return `[${icon} ${id}${logger.suffix ? `:${logger.suffix}` : ''}]`;
 };
 
 export const createLog = (method: string, icon: string) => (logger: LoggerInstance, messages?: string | string[], data?: Record<string, any>) => {
@@ -38,15 +38,15 @@ export const createLog = (method: string, icon: string) => (logger: LoggerInstan
     logger.apifyLogger[method as LogMethods](`${prefix}${text ? `\n ${text}` : ''}`, data);
 };
 
-export const debug = createLog('debug', '[?!]');
+export const debug = createLog('debug', '?!');
 
-export const start = createLog('info', '[>]');
+export const start = createLog('info', '>');
 
-export const end = createLog('info', '[<]');
+export const end = createLog('info', '<');
 
-export const info = createLog('info', '[i]');
+export const info = createLog('info', 'i');
 
-export const error = createLog('error', '[!]');
+export const error = createLog('error', '!');
 
 export default {
     create,

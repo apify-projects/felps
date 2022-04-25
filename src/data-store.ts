@@ -2,9 +2,8 @@ import Apify from 'apify';
 import cloneDeep from 'lodash.clonedeep';
 import getByKey from 'lodash.get';
 import hasByPath from 'lodash.has';
-import mergeWith from 'lodash.mergewith';
 // import omit from 'lodash.omit';
-import { dissocPath } from 'ramda';
+import { dissocPath, mergeDeepLeft } from 'ramda';
 import setByKey from 'lodash.set';
 import ApifyEvents from './apify-events';
 import base from './base';
@@ -43,7 +42,8 @@ export const get = <T = reallyAny>(dataStore: DataStoreInstance, path?: string):
 
 export const set = <T = reallyAny>(dataStore: DataStoreInstance, path: string, data: T): void => {
     mustBeLoaded(dataStore);
-    setByKey(dataStore.state, getPath(dataStore, path), data);
+    const p = getPath(dataStore, path);
+    setByKey(dataStore.state, p, data);
 };
 
 export const remove = (dataStore: DataStoreInstance, path: string): void => {
@@ -110,15 +110,12 @@ export const setAndGetKey = <T = reallyAny>(dataStore: DataStoreInstance, data: 
     return path;
 };
 
-export const update = <T = reallyAny>(
-    dataStore: DataStoreInstance, path: string, data: T, merger: (oldData: T, newData: T) => unknown = () => undefined): void => {
+export const update = <T = reallyAny>(dataStore: DataStoreInstance, path: string, data: T): void => {
     mustBeLoaded(dataStore);
 
-    const merged = mergeWith(
-        get(dataStore, getPath(dataStore, path)) || {},
-        data || {},
-        merger,
-    );
+    const p = getPath(dataStore, path);
+    const original = get(dataStore, p) || {};
+    const merged = mergeDeepLeft<reallyAny, reallyAny>(original, data || {});
 
     set(dataStore, path, merged);
 };

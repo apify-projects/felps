@@ -2,7 +2,6 @@ import { ActorInstance, ModelDefinition, RequestContext, StepApiInstance } from 
 import StepApiFlow from './step-api-flow';
 import StepApiMeta from './step-api-meta';
 import StepApiModel from './step-api-model';
-import StepApiTrail from './step-api-trail';
 import StepApiUtils from './step-api-utils';
 
 export const create = <
@@ -10,7 +9,6 @@ export const create = <
 >(actor: ActorInstance) => {
     return (context: RequestContext) => {
         return {
-            ...StepApiTrail.create().handler(),
             ...StepApiFlow.create(actor).handler(context),
             ...StepApiMeta.create().handler(context),
             ...StepApiUtils.create(actor).handler(context),

@@ -7,13 +7,13 @@ import { craftUIDKey } from './utils';
 
 export const create = (requestOrCrawlingContext?: RequestSource | RequestContext | CrawlingContext): RequestMetaInstance => {
     const request = (requestOrCrawlingContext as RequestContext)?.request || (requestOrCrawlingContext as RequestSource);
-    const userData = request?.userData;
+    const userData = request?.userData || {};
     const data = {
         stepName: undefined,
         crawlerMode: undefined,
         reference: {},
         ...(userData?.[METADATA_KEY] || {}),
-    };
+    } as RequestMetaData;
 
     return {
         ...base.create({ key: 'request-meta', name: 'request-meta' }),

@@ -15,12 +15,13 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
                     Trail.update(trail, { input });
 
                     const flow = actor.flows?.[flowName];
-                    const step = flow?.steps?.[0];
+                    const stepName = flow?.steps?.[0];
+                    const step = actor.steps?.[stepName];
 
                     const meta = RequestMeta.extend(
                         RequestMeta.create(request),
                         {
-                            stepName: step?.name,
+                            stepName,
                             crawlerMode: step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode,
                             reference: {
                                 ...(reference || {}),
@@ -41,7 +42,7 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
                     const meta = RequestMeta.extend(
                         RequestMeta.create(request),
                         {
-                            stepName: step?.name,
+                            stepName,
                             crawlerMode: step?.crawlerMode || actor?.crawlerMode,
                             reference: {
                                 ...(reference || {}),

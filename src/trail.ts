@@ -2,7 +2,7 @@ import { RequestMeta } from '.';
 import Base from './base';
 import {
     DataStoreInstance,
-    DeepPartial, ModelInstance, reallyAny, RequestSource, TrailDataModelInstance, TrailDataRequestItem,
+    DeepPartial, ModelInstance, reallyAny, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem,
     TrailDataStage, TrailDataStages, TrailInstance,
     TrailOptions, TrailState,
 } from './types';
@@ -88,11 +88,11 @@ export const digested = (trail: TrailInstance): TrailDataStage => {
 };
 
 // export const promote = (trail: TrailInstance, stageKey: Extract<keyof TrailDataStage, string>, key: UniqueyKey): void => {
-export const promote = (trail: TrailInstance, item: TrailDataModelInstance | TrailDataRequestItem): void => {
+export const promote = (trail: TrailInstance, item: TrailDataModelItem | TrailDataRequestItem): void => {
     const { id } = item || {};
     const path = (stageName: TrailDataStages) => pathify(trail.id, stageName, 'source' in item ? 'requests' : 'models', id);
     // Get current ingested item and move it to digested stage
-    DataStore.set(trail.store, path('digested'), DataStore.get(trail.store, path('ingested')));
+    DataStore.update(trail.store, path('digested'), DataStore.get(trail.store, path('ingested')));
     // Remove it from ingested stage
     DataStore.remove(trail.store, path('ingested'));
 };

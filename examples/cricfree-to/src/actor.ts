@@ -17,7 +17,6 @@ steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async ({ $ }, api) => {
             priceInCents: +$(product).find(SELECT.PRODUCT_PRICE).first().text().replace(/[^0-9]/g, ''),
         });
 
-
         const url = api.absoluteUrl($(product).attr('href'));
 
         if (url) {

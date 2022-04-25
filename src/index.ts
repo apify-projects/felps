@@ -9,7 +9,6 @@ import StepApi from './step-api';
 import StepApiFlow from './step-api-flow';
 import StepApiMeta from './step-api-meta';
 import StepApiModel from './step-api-model';
-import StepApiTrail from './step-api-trail';
 import StepApiUtils from './step-api-utils';
 import Models from './models';
 import Model from './model';
@@ -23,6 +22,8 @@ import Dataset from './dataset';
 import Hooks from './hooks';
 import Trail from './trail';
 import TrailData from './trail-data';
+import TrailDataModel from './trail-data-model';
+import TrailDataRequests from './trail-data-requests';
 import RequestMeta from './request-meta';
 import Orchestrator from './orchestrator';
 import Logger from './logger';
@@ -39,7 +40,6 @@ export {
     StepApiFlow,
     StepApiMeta,
     StepApiModel,
-    StepApiTrail,
     StepApiUtils,
     Models,
     Model,
@@ -53,6 +53,8 @@ export {
     Hooks,
     Trail,
     TrailData,
+    TrailDataModel,
+    TrailDataRequests,
     RequestMeta,
     Orchestrator,
     Logger,
@@ -70,7 +72,6 @@ export default {
     StepApiFlow,
     StepApiMeta,
     StepApiModel,
-    StepApiTrail,
     StepApiUtils,
     Models,
     Model,
@@ -84,6 +85,8 @@ export default {
     Hooks,
     Trail,
     TrailData,
+    TrailDataModel,
+    TrailDataRequests,
     RequestMeta,
     Orchestrator,
     Logger,

@@ -1,5 +1,5 @@
 import { camelCase } from 'camel-case';
-import { TrailDataRequestItemStatus } from './types';
+import { TrailDataRequestItemStatus, TrailDataModelItemStatus } from './types';
 
 export const UID_KEY_PREFIX = 'uk';
 export const UID_KEY_LENGTH = 2;
@@ -11,6 +11,14 @@ export const REQUEST_STATUS: Record<TrailDataRequestItemStatus, TrailDataRequest
     STARTED: 'STARTED',
     SUCCEEDED: 'SUCCEEDED',
     FAILED: 'FAILED',
+};
+
+export const MODEL_STATUS: Record<TrailDataModelItemStatus, TrailDataModelItemStatus> = {
+    CREATED: 'CREATED',
+    UPDATED: 'UPDATED',
+    SELECTED: 'SELECTED',
+    PUSHED: 'PUSHED',
+    DISCARDED: 'DISCARDED',
 };
 
 // export const HOOK = {
