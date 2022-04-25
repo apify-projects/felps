@@ -40,10 +40,10 @@ const FLOWS = Flows.use({ STEPS }).define({
     }
 });
 
-// 4. Instantiate it all (and export)
-export const models = Models.create({ MODELS });
-export const steps = Steps.create({ MODELS, STEPS, FLOWS });
-export const flows = Flows.create({ FLOWS });
+// 4. Instantiate it all
+ const models = Models.create({ MODELS });
+ const steps = Steps.create({ MODELS, STEPS, FLOWS });
+ const flows = Flows.create({ FLOWS });
 
 // 5. Define your hooks
 const hooks = Hooks.create({ MODELS, STEPS, FLOWS });
