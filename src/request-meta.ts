@@ -1,19 +1,28 @@
-import mergeWith from 'lodash.mergewith';
 import { CrawlingContext } from 'apify';
+import cloneDeep from 'lodash.clonedeep';
+import { mergeDeepRight } from 'ramda';
+import base from './base';
 import { METADATA_KEY } from './consts';
 import { RequestContext, RequestMetaData, RequestMetaInstance, RequestSource } from './types';
-import base from './base';
 import { craftUIDKey } from './utils';
 
 export const create = (requestOrCrawlingContext?: RequestSource | RequestContext | CrawlingContext): RequestMetaInstance => {
-    const request = (requestOrCrawlingContext as RequestContext)?.request || (requestOrCrawlingContext as RequestSource);
-    const userData = request?.userData || {};
-    const data = {
-        stepName: undefined,
-        crawlerMode: undefined,
-        reference: {},
-        ...(userData?.[METADATA_KEY] || {}),
-    } as RequestMetaData;
+    const request = cloneDeep((requestOrCrawlingContext as RequestContext)?.request || (requestOrCrawlingContext as RequestSource));
+    const userData = {
+        ...(request?.userData || {}),
+        [METADATA_KEY]: mergeDeepRight(
+            {
+                flowName: undefined,
+                stepName: undefined,
+                crawlerMode: undefined,
+                reference: {},
+            },
+            request?.userData?.[METADATA_KEY] || {},
+        ),
+    };
+
+    request.userData = userData;
+    const data = request.userData[METADATA_KEY];
 
     return {
         ...base.create({ key: 'request-meta', name: 'request-meta' }),
@@ -37,12 +46,12 @@ export const contextDefaulted = (context?: RequestContext): RequestContext => {
     }) as unknown as RequestContext;
 };
 
-export const extend = (requestMeta: RequestMetaInstance, metadata: Partial<RequestMetaData>): RequestMetaInstance => {
+export const extend = (requestMeta: RequestMetaInstance, ...metadata: Partial<RequestMetaData>[]): RequestMetaInstance => {
     return create({
         ...requestMeta.request,
         userData: {
             ...requestMeta.userData,
-            [METADATA_KEY]: mergeWith(requestMeta.data, metadata),
+            [METADATA_KEY]: metadata.reduce((acc, data) => mergeDeepRight(acc, data), requestMeta.data),
         },
     });
 };
