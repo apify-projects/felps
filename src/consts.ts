@@ -15,8 +15,6 @@ export const REQUEST_STATUS: Record<TrailDataRequestItemStatus, TrailDataRequest
 
 export const MODEL_STATUS: Record<TrailDataModelItemStatus, TrailDataModelItemStatus> = {
     CREATED: 'CREATED',
-    UPDATED: 'UPDATED',
-    SELECTED: 'SELECTED',
     PUSHED: 'PUSHED',
     DISCARDED: 'DISCARDED',
 };
@@ -26,6 +24,7 @@ export const MODEL_UID_KEY = (modelName: string): string => `mod_${camelCase(mod
 export const REQUEST_UID_KEY = `req`;
 
 export const METADATA_KEY = 'FELPS_METADATA';
+export const SCHEMA_MODEL_NAME_KEY = 'modelName';
 
 export const REQUEST_KEY_PROP = 'requestKey';
 export const TRAIL_KEY_PROP = 'trailKey';

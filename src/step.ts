@@ -41,7 +41,9 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
     if (!step) {
         return;
     }
-    Logger.start(Logger.create(step), context?.request?.url ? `at ${context.request.url}` : '');
+    const logger = Logger.create(step);
+
+    Logger.start(logger, context?.request?.url ? `at ${context.request.url}` : '');
     const ctx = RequestMeta.contextDefaulted(context);
 
     const stepApi = StepApi.create<reallyAny, reallyAny, reallyAny>(actor);
@@ -54,6 +56,8 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
         await step?.handler?.(ctx, stepApi(ctx));
         TrailDataRequests.setStatus(digest.requests, 'SUCCEEDED', meta.data.reference);
     } catch (error) {
+        console.error(error);
+        // Logger.error(logger, error as string);
         await step?.errorHandler?.(ctx, stepApi(ctx));
         TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
     } finally {

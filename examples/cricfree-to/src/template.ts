@@ -1,5 +1,4 @@
 import { Flows, Models, Steps, Hooks } from 'felps';
-import { FromSchema } from 'json-schema-to-ts';
 import { DISCOVER_LIVE_EVENTS_URL } from './consts';
 
 const MODELS = Models.define({
@@ -46,8 +45,7 @@ const FLOWS = Flows.use({ STEPS }).define({
                         streams: {
                             type: 'array',
                             items: MODELS.STREAM.schema,
-                            async transform(items) {
-
+                            async organize(items) {
                                 return items.slice(0, 1);
                             },
                             async limit(items) {
@@ -56,8 +54,7 @@ const FLOWS = Flows.use({ STEPS }).define({
                         }
                     },
                 },
-                async transform(items) {
-
+                async organize(items) {
                     return items.slice(0, 1);
                 },
                 async limit(items) {

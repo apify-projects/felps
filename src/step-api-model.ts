@@ -16,7 +16,8 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
             const getModelDetails = (stage: TrailDataStage) => (modelName: string, ref: ModelReference = {}, options?: { withOwnReferenceKey?: boolean }) => {
                 const { withOwnReferenceKey = false } = options || {};
                 const modelInstance = stage.models?.[modelName];
-                const modelRef = Model.referenceFor(modelInstance.model, { ...meta.data.reference, ...ref }, withOwnReferenceKey);
+                const reference = { ...meta.data.reference, ...ref };
+                const modelRef = Model.referenceFor(modelInstance.model, reference, withOwnReferenceKey);
                 Model.validateReference(modelInstance.model, modelRef, { throwError: true });
                 return { modelInstance, modelRef };
             };
@@ -27,12 +28,20 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                     Model.validate(modelInstance.model, value, { throwError: true });
                     return TrailDataModel.set(modelInstance, value as reallyAny, modelRef) as ModelReference<reallyAny>;
                 },
+                addPartial(modelName, value, ref?) {
+                    const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref);
+                    Model.validate(modelInstance.model, value, { throwError: true });
+                    return TrailDataModel.setPartial(modelInstance, value as reallyAny, modelRef) as ModelReference<reallyAny>;
+                },
                 get(modelName, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref, { withOwnReferenceKey: true });
                     return TrailDataModel.get(modelInstance, modelRef);
                 },
-                update(modelName, value, ref?) {
+                update(modelName, valueOrReducer, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref, { withOwnReferenceKey: true });
+                    const value = typeof valueOrReducer === 'function'
+                        ? valueOrReducer(TrailDataModel.get(modelInstance, modelRef).data as reallyAny)
+                        : valueOrReducer;
                     Model.validate(modelInstance.model, value, { partial: true, throwError: true });
                     TrailDataModel.update<reallyAny>(modelInstance, value, modelRef as reallyAny);
                     return ref as ModelReference<reallyAny>;

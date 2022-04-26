@@ -22,7 +22,6 @@
     "@types/tough-cookie": "^4.0.2",
     "ajv": "^8.11.0",
     "ajv-formats": "^2.1.1",
-    "apify": "^2.3.0",
     "apify-client": "^2.2.0",
     "camel-case": "^4.1.2",
     "cheerio": "^1.0.0-rc.10",
@@ -43,6 +42,7 @@
     "ramda": "^0.28.0"
   },
   "devDependencies": {
+    "apify": "^2.3.0",
     "@apify/eslint-config-ts": "^0.2.3",
     "@apify/tsconfig": "^0.1.0",
     "@types/lodash.throttle": "^4.1.7",
@@ -62,6 +62,7 @@
     "typescript": "^4.6.3"
   },
   "peerDependencies": {
+    "apify": "^2.3.0",
     "playwright": "^1.19.2",
     "playwright-core": "^1.19.2",
     "puppeteer": "^10.4.0"

@@ -2,16 +2,53 @@
 import Apify from 'apify';
 import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
-import type { FromSchema, JSONSchema7 } from 'json-schema-to-ts';
+import type { FromSchema } from 'json-schema-to-ts';
+import { JSONSchema7 as $JSONSchema7 } from 'json-schema';
+import { Readonly } from 'json-schema-to-ts/lib/utils';
 import RequestQueue from './overrides/request-queue';
 
 export type { JSONSchemaType } from 'ajv';
 
-export type JSONSchema = JSONSchema7;
+export type MakeSchema<S> = S | Readonly<S>;
+export type JSONSchema = MakeSchema<_JSONSchema7>;
+export type JSONSchemaWithMethods = MakeSchema<_JSONSchema7<JSONSchemaMethods>>;
 export type JSONSchemaMethods = {
-    transform?: (items: TrailDataModelItem[], api: GeneralStepApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
+    organize?: (items: TrailDataModelItem[], api: GeneralStepApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
     limit?: (items: TrailDataModelItem[], api: GeneralStepApi) => boolean | Promise<boolean>,
-}
+};
+
+export declare type _JSONSchema7<T = unknown> = boolean |
+    (Omit<$JSONSchema7, 'const' | 'enum' | 'items' | 'additionalItems' | 'contains' |
+        'properties' | 'patternProperties' | 'additionalProperties' | 'dependencies' |
+        'propertyNames' | 'if' | 'then' | 'else' | 'allOf' | 'anyOf' | 'oneOf' | 'not' |
+        'definitions' | 'examples'> & {
+            const?: unknown;
+            enum?: unknown;
+            items?: _JSONSchema7<T> | _JSONSchema7<T>[];
+            additionalItems?: _JSONSchema7<T>;
+            contains?: _JSONSchema7<T>;
+            properties?: Record<string, _JSONSchema7<T>>;
+            patternProperties?: Record<string, _JSONSchema7<T>>;
+            additionalProperties?: _JSONSchema7<T>;
+            dependencies?: {
+                [key: string]: _JSONSchema7<T> | string[];
+            };
+            propertyNames?: _JSONSchema7<T>;
+            if?: _JSONSchema7<T>;
+            then?: _JSONSchema7<T>;
+            else?: _JSONSchema7<T>;
+            allOf?: _JSONSchema7<T>[];
+            anyOf?: _JSONSchema7<T>[];
+            oneOf?: _JSONSchema7<T>[];
+            not?: _JSONSchema7<T>;
+            nullable?: boolean;
+            definitions?: {
+                [key: string]: _JSONSchema7<T>;
+            };
+            examples?: unknown[];
+        } & {
+            modelName?: string;
+        } & T);
 
 export type reallyAny = any;
 export type UniqueyKey = string;
@@ -74,7 +111,7 @@ export type FlowOptions<StepNames = string> = {
     name: string,
     crawlerMode?: RequestCrawlerMode,
     steps: StepNames[],
-    output: ModelDefinition<JSONSchema | JSONSchemaMethods>,
+    output: ModelDefinition<JSONSchemaWithMethods>,
 }
 
 export type FlowOptionsWithoutName<StepNames = string> = Omit<FlowOptions<StepNames>, 'name'>;
@@ -160,6 +197,11 @@ export type StepApiModelAPI<
             value: N[ModelName]['schema'],
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
+        addPartial: <ModelName extends keyof N>(
+            modelName: ModelName,
+            value: Partial<N[ModelName]['schema']>,
+            ref?: ModelReference<M>,
+        ) => ModelReference<M>;
         get: <ModelName extends keyof N>(
             modelName: ModelName,
             ref?: ModelReference<M>,
@@ -168,7 +210,7 @@ export type StepApiModelAPI<
             // eslint-disable-next-line max-len
             (
             modelName: ModelName,
-            value: Partial<N[ModelName]['schema']>,
+            value: Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>) => Partial<N[ModelName]['schema']>),
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
     };
@@ -319,7 +361,7 @@ export type TrailDataRequestsOptions = {
 }
 
 export type TrailDataRequestItemStatus = 'CREATED' | 'DISCARDED' | 'QUEUED' | 'STARTED' | 'SUCCEEDED' | 'FAILED';
-export type TrailDataModelItemStatus = 'CREATED' | 'UPDATED' | 'SELECTED' | 'PUSHED' | 'DISCARDED';
+export type TrailDataModelItemStatus = 'CREATED' | 'PUSHED' | 'DISCARDED';
 
 export type TrailDataRequestItem = {
     id: UniqueyKey,
@@ -349,13 +391,14 @@ export type TrailDataModelItem<T = unknown> = {
     model: string,
     reference: ModelReference<T>,
     data: Partial<T>,
+    partial: boolean,
     operations: TrailDataModelOperation[],
     status: TrailDataModelItemStatus,
 }
 
 export type TrailDataModelOperation = {
     data: any,
-    op: 'SET' | 'UPDATE',
+    op: 'SET' | 'SET_PARTIAL' | 'UPDATE',
     at: string,
 }
 

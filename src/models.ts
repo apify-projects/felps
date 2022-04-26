@@ -1,4 +1,4 @@
-import { ModelDefinition, ModelDefinitions } from './types';
+import { ModelDefinition, ModelDefinitions, ModelInstance, ModelReference } from './types';
 import model from './model';
 
 export const create = <
@@ -14,4 +14,8 @@ export const define = <T extends Record<string, ModelDefinition>>(models: T): Mo
     return models as unknown as ModelDefinitions<T>;
 };
 
-export default { create, define };
+export const matches = <T extends Record<string, ModelInstance>>(models: T, ref: ModelReference): ModelInstance[] => {
+    return Object.values(models).filter((m) => model.match(m, ref));
+};
+
+export default { create, define, matches };

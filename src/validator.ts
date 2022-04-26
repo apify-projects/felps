@@ -5,6 +5,7 @@ import { reallyAny, ValidatorInstance, ValidatorOptions, ValidatorValidateOption
 
 function createAjv() {
     const ajv = new Ajv({ allErrors: true });
+    ajv.addKeyword('modelName');
     addFormats(ajv);
     return ajv;
 }

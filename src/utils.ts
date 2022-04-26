@@ -90,3 +90,10 @@ export const traverse = (obj: any, handler: (key: string, value: any) => void) =
         }
     }
 };
+
+export const everyAsync = async (arr: any[], predicate: (item: any) => Promise<boolean>) => {
+    for (const e of arr) {
+        if (!await predicate(e)) return false;
+    }
+    return true;
+};
