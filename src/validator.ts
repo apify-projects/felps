@@ -19,7 +19,7 @@ export const create = (options?: ValidatorOptions) => {
 
 export const validate = (validator: ValidatorInstance, data: reallyAny = {}, options: ValidatorValidateOptions = {}) => {
     const { partial = false, logError = true, throwError = true } = options;
-    const check = createAjv().compile({ ...validator?.schema, ...(partial ? { required: [] } : {}) });
+    const check = createAjv().compile({ ...validator?.schema as unknown as Record<string, reallyAny>, ...(partial ? { required: [] } : {}) });
     const valid = check(data);
     if (!valid) {
         if (logError) {

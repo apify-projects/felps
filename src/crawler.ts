@@ -22,13 +22,13 @@ export const run = async (crawler: CrawlerInstance<any>, options?: PlaywrightCra
 };
 
 export class DefaultCrawler extends PlaywrightCrawler {
-    override async _handleNavigation(crawlingContext: RequestContext) {
-        const meta = requestMeta.create(crawlingContext);
+    override async _handleNavigation(RequestContext: RequestContext) {
+        const meta = requestMeta.create(RequestContext);
         const gotoOptions = { ...this.defaultGotoOptions };
 
-        await this._executeHooks(this.preNavigationHooks, crawlingContext, gotoOptions);
+        await this._executeHooks(this.preNavigationHooks, RequestContext, gotoOptions);
 
-        const { request } = crawlingContext;
+        const { request } = RequestContext;
         const { url, payload } = request;
         try {
             const fetch = async () => nodeFetch(
@@ -41,25 +41,25 @@ export class DefaultCrawler extends PlaywrightCrawler {
 
             switch (meta.data.crawlerMode) {
                 case 'browser':
-                    crawlingContext.response = await this._navigationHandler(crawlingContext, gotoOptions);
+                    RequestContext.response = await this._navigationHandler(RequestContext, gotoOptions);
                     break;
 
                 case 'default':
                 default:
-                    crawlingContext.response = await fetch();
+                    RequestContext.response = await fetch();
                     try {
-                        const html = await crawlingContext.response.text();
-                        crawlingContext.$ = load(html);
+                        const html = await RequestContext.response.text();
+                        RequestContext.$ = load(html);
                     } catch (error) {
                         // silent
                     }
             }
         } catch (error) {
-            this._handleNavigationTimeout(crawlingContext, error as any);
+            this._handleNavigationTimeout(RequestContext, error as any);
             throw error;
         }
 
-        await this._executeHooks(this.postNavigationHooks, crawlingContext, gotoOptions);
+        await this._executeHooks(this.postNavigationHooks, RequestContext, gotoOptions);
     }
 };
 

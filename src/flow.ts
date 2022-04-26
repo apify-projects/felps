@@ -1,5 +1,6 @@
+import { Model } from '.';
 import base from './base';
-import { FlowInstance, FlowOptions } from './types';
+import { FlowInstance, FlowOptions, ModelDefinition, JSONSchema } from './types';
 
 export const create = <StepNames = string>(options: FlowOptions<StepNames>): FlowInstance<StepNames> => {
     const { name, crawlerMode, steps = [], output } = options || {};
@@ -8,7 +9,7 @@ export const create = <StepNames = string>(options: FlowOptions<StepNames>): Flo
         ...base.create({ key: 'flow', name }),
         crawlerMode,
         steps,
-        output,
+        output: Model.create(output as ModelDefinition<JSONSchema>),
     };
 };
 

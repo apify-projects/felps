@@ -8,12 +8,14 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
         ...base.create({ key: 'step-api-flows', name: 'step-api-flows' }),
         handler(context) {
             const currentMeta = RequestMeta.create(context);
+            const trail = Trail.createFrom(context?.request, { actor });
+            const ingest = Trail.ingested(trail);
 
             return {
+                getFlowInput() {
+                    return Trail.get(trail).input;
+                },
                 start(flowName, request, input, reference) {
-                    const trail = Trail.createFrom(context?.request, { actor });
-                    const ingest = Trail.ingested(trail);
-
                     Trail.update(trail, { input });
 
                     const flow = actor.flows?.[flowName];
@@ -38,9 +40,6 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
                     return meta.data.reference;
                 },
                 goto(stepName, request, reference) {
-                    const trail = Trail.createFrom(context?.request, { actor });
-                    const ingest = Trail.ingested(trail);
-
                     const step = actor.steps?.[stepName];
 
                     const meta = RequestMeta.extend(

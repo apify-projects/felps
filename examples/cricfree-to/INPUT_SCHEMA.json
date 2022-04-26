@@ -4,10 +4,10 @@
   "type": "object",
   "schemaVersion": 1,
   "properties": {
-    "query": {
-      "title": "Query",
+    "title": {
+      "title": "Title",
       "type": "string",
-      "description": "The text to search for"
+      "description": "The title to search for"
     },
     "flow": {
       "title": "Flow",

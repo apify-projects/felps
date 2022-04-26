@@ -31,7 +31,7 @@ export const load = async (trail: TrailInstance): Promise<TrailInstance> => {
         const initialState: DeepPartial<TrailState> = {
             id: trail.id,
             input: {},
-            requests: {},
+            output: undefined,
             stats: { startedAt: new Date().toISOString() },
         };
 
@@ -50,6 +50,10 @@ export const createFrom = (request: RequestSource, options: TrailOptions): Trail
         ...options,
         id: meta.data?.reference?.trailKey,
     });
+};
+
+export const get = (trail: TrailInstance): TrailState => {
+    return DataStore.get(trail.store, trail.id);
 };
 
 export const update = (trail: TrailInstance, data: DeepPartial<Pick<TrailState, 'input'>>): void => {
@@ -87,7 +91,6 @@ export const digested = (trail: TrailInstance): TrailDataStage => {
     return stage(trail, 'digested');
 };
 
-// export const promote = (trail: TrailInstance, stageKey: Extract<keyof TrailDataStage, string>, key: UniqueyKey): void => {
 export const promote = (trail: TrailInstance, item: TrailDataModelItem | TrailDataRequestItem): void => {
     const { id } = item || {};
     const path = (stageName: TrailDataStages) => pathify(trail.id, stageName, 'source' in item ? 'requests' : 'models', id);
@@ -97,4 +100,4 @@ export const promote = (trail: TrailInstance, item: TrailDataModelItem | TrailDa
     DataStore.remove(trail.store, path('ingested'));
 };
 
-export default { create, createFrom, load, update, setRequest, ingested, digested, promote };
+export default { create, createFrom, load, get, update, setRequest, ingested, digested, promote };

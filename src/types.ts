@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type Apify from 'apify';
-import { CrawlingContext } from 'apify';
+import Apify from 'apify';
 import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
 import type { FromSchema, JSONSchema7 } from 'json-schema-to-ts';
@@ -8,19 +7,28 @@ import RequestQueue from './overrides/request-queue';
 
 export type { JSONSchemaType } from 'ajv';
 
+export type JSONSchema = JSONSchema7;
+export type JSONSchemaMethods = {
+    transform?: (items: TrailDataModelItem[], api: GeneralStepApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
+    limit?: (items: TrailDataModelItem[], api: GeneralStepApi) => boolean | Promise<boolean>,
+}
+
 export type reallyAny = any;
 export type UniqueyKey = string;
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export type DeepPartial<T> = Partial<{ [P in keyof T]: DeepPartial<T[P]> }>;
+
 export type SnakeToCamelCase<S extends string> =
     S extends `${infer T}_${infer U}` ?
     `${Lowercase<T>}${Capitalize<SnakeToCamelCase<Lowercase<U>>>}` :
     Lowercase<S>;
+
 export type SnakeToPascalCase<S extends string> =
     S extends `${infer T}_${infer U}` ?
     `${Capitalize<Lowercase<T>>}${SnakeToPascalCase<Capitalize<Lowercase<U>>>}` :
     Capitalize<Lowercase<S>>;
+
 export type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
 export type GeneralKeyedObject<N extends Record<string, string>, T> = { [K in Extract<keyof N, string>]: T };
 export type GenerateObject<N extends string[], T> = { [K in N[number]]: T };
@@ -59,14 +67,14 @@ export type FlowDefinition<StepNames = string> = PartialBy<FlowOptions<StepNames
 export type FlowInstance<StepNames> = {
     crawlerMode?: RequestCrawlerMode,
     steps: StepNames[],
-    output: JSONSchema7,
+    output: ModelInstance<JSONSchema>,
 } & BaseInstance;
 
 export type FlowOptions<StepNames = string> = {
     name: string,
     crawlerMode?: RequestCrawlerMode,
     steps: StepNames[],
-    output: JSONSchema7,
+    output: ModelDefinition<JSONSchema | JSONSchemaMethods>,
 }
 
 export type FlowOptionsWithoutName<StepNames = string> = Omit<FlowOptions<StepNames>, 'name'>;
@@ -122,42 +130,52 @@ export type GeneralStepApi = StepApiMetaAPI & StepApiUtilsAPI;
 
 // step-api-flow.ts ------------------------------------------------------------
 export type StepApiFlowsInstance<F, S, M extends Record<string, ModelDefinition>> = {
-    handler: (context: CrawlingContext) => StepApiFlowsAPI<F, S, M>,
+    handler: (context: RequestContext) => StepApiFlowsAPI<F, S, M>,
 };
 
 export type StepApiFlowsAPI<F, S, M> = {
+    getFlowInput: () => TrailState['input'];
     start: (flowName: Extract<keyof F, string>, request: RequestSource, input?: any, reference?: ModelReference<M>) => ModelReference<M>;
     goto: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>) => void;
 };
 
 // step-api-model.ts ------------------------------------------------------------
 export type StepApiModelInstance<M extends Record<string, ModelDefinition>> = {
-    handler: (context: CrawlingContext) => StepApiModelAPI<M>,
+    handler: (context: RequestContext) => StepApiModelAPI<M>,
 };
 
+export type KeyedSchemaType<TModels extends Record<string, ModelDefinition>> = {
+    [TModelName in keyof TModels]: {
+        schema: FromSchema<TModels[TModelName]['schema']>
+    }
+}
+
 // eslint-disable-next-line max-len
-export type StepApiModelAPI<M extends Record<string, ModelDefinition>> = {
-    set: <ModelName extends keyof M>(
-        modelName: ModelName,
-        value: M[ModelName]['schema'],
-        ref?: ModelReference<M>,
-    ) => ModelReference<M>;
-    get: <ModelName extends keyof M>(
-        modelName: ModelName,
-        ref?: ModelReference<M>,
-    ) => M[ModelName]['schema'];
-    update: <ModelName extends keyof M>
-        // eslint-disable-next-line max-len
-        (
-        modelName: ModelName,
-        value: Partial<M[ModelName]['schema']>,
-        ref?: ModelReference<M>,
-    ) => ModelReference<M>;
-};
+export type StepApiModelAPI<
+    M extends Record<string, ModelDefinition>,
+    N extends Record<string, reallyAny> = KeyedSchemaType<M>
+    > = {
+        add: <ModelName extends keyof N>(
+            modelName: ModelName,
+            value: N[ModelName]['schema'],
+            ref?: ModelReference<M>,
+        ) => ModelReference<M>;
+        get: <ModelName extends keyof N>(
+            modelName: ModelName,
+            ref?: ModelReference<M>,
+        ) => N[ModelName]['schema'];
+        update: <ModelName extends keyof N>
+            // eslint-disable-next-line max-len
+            (
+            modelName: ModelName,
+            value: Partial<N[ModelName]['schema']>,
+            ref?: ModelReference<M>,
+        ) => ModelReference<M>;
+    };
 
 // step-api-meta.ts ------------------------------------------------------------
 export type StepApiMetaInstance = {
-    handler: (context: CrawlingContext) => StepApiMetaAPI,
+    handler: (context: RequestContext) => StepApiMetaAPI,
 };
 
 export type StepApiMetaAPI = {
@@ -168,43 +186,27 @@ export type StepApiMetaAPI = {
 
 // step-api-utils.ts ------------------------------------------------------------
 export type StepApiUtilsInstance = {
-    handler: (context: CrawlingContext) => StepApiUtilsAPI,
+    handler: (context: RequestContext) => StepApiUtilsAPI,
 };
 
 export type StepApiUtilsAPI = {
-    getInput: () => any,
+    getActorInput: () => any,
     absoluteUrl: (url: string) => string | void,
 }
 
 // models.ts ------------------------------------------------------------
 export type ModelsInstance<T> = T;
 
-export type ModelsOptions<T> = {
-    MODELS?: T,
-}
-
-export type ModelDefinitions<T extends Record<string, ModelDefinition>> = {
-    [K in keyof T]: {
-        schema: FromSchema<T[K]['schema']>,
-    }
-};
-
-// export type GenerateModelSetMethods<ModelNames> = {
-//     [K in Extract<ModelNames, string> as `${SnakeToCamelCase<K>}`]: (options: Partial<ModelOptions>) => void;
-// };
-
+export type ModelDefinitions<T extends Record<string, ModelDefinition>> = T
 // model.ts ------------------------------------------------------------
-export type ModelInstance = ModelDefinition & BaseInstance;
+export type ModelInstance<TSchema = JSONSchema> = ModelDefinition<TSchema> & BaseInstance;
 
-export type ModelDefinition = {
+export type ModelDefinition<TSchema = JSONSchema> = {
     name?: string,
-    schema: JSONSchema7,
+    schema: TSchema,
 }
 
-export type ModelOptions = {
-    name: string,
-    schema: JSONSchema7,
-}
+export type ModelOptions<TSchema = JSONSchema> = ModelDefinition<TSchema>;
 
 export type ModelReference<T = unknown> = Partial<{
     [K in Extract<keyof T, string> as `${SnakeToCamelCase<K>}Key`]: UniqueyKey;
@@ -272,9 +274,7 @@ export type TrailState = {
     id: string,
     flow: string,
     input: any,
-    requests: {
-        [key: string]: any
-    },
+    output: any,
     stats: {
         startedAt: string,
         endedAt: string,
@@ -324,6 +324,7 @@ export type TrailDataModelItemStatus = 'CREATED' | 'UPDATED' | 'SELECTED' | 'PUS
 export type TrailDataRequestItem = {
     id: UniqueyKey,
     source: RequestSource,
+    snapshot: RequestSource | undefined,
     status: TrailDataRequestItemStatus,
 }
 
@@ -348,7 +349,14 @@ export type TrailDataModelItem<T = unknown> = {
     model: string,
     reference: ModelReference<T>,
     data: Partial<T>,
+    operations: TrailDataModelOperation[],
     status: TrailDataModelItemStatus,
+}
+
+export type TrailDataModelOperation = {
+    data: any,
+    op: 'SET' | 'UPDATE',
+    at: string,
 }
 
 export type TrailDataModels = {
@@ -496,18 +504,18 @@ export type ApifyClientOptions = {
 
 // dispatcher.ts ------------------------------------------------------------
 export type OrchestratorInstance = {
-    handler: (context: CrawlingContext, api: unknown) => Promise<void>,
+    handler: (context: RequestContext, api: unknown) => Promise<void>,
 }
 
 // validator.ts ------------------------------------------------------------
 export type ValidatorInstance = {
     name: string,
-    schema: any,
+    schema: JSONSchema,
 };
 
 export type ValidatorOptions = {
     name: string,
-    schema: any,
+    schema: JSONSchema,
 };
 
 export type ValidatorValidateOptions = {

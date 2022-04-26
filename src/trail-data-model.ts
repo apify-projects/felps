@@ -4,7 +4,7 @@ import base from './base';
 import { MODEL_STATUS, MODEL_UID_KEY, REFERENCE_KEY } from './consts';
 import dataStore from './data-store';
 import { getPath } from './trail-data';
-import { ModelReference, TrailDataModelInstance, TrailDataModelItem, TrailDataModelItemStatus, TrailDataModelOptions } from './types';
+import { ModelReference, TrailDataModelInstance, TrailDataModelItem, TrailDataModelOperation, TrailDataModelItemStatus, TrailDataModelOptions } from './types';
 import { craftUIDKey, pathify } from './utils';
 
 export const create = (options: TrailDataModelOptions): TrailDataModelInstance => {
@@ -51,12 +51,20 @@ export const getChildrenItemsList = <T = unknown>(trailData: TrailDataModelInsta
 
 export const set = <T = unknown>(trailData: TrailDataModelInstance, data: Partial<T>, ref?: ModelReference<T>): ModelReference<T> => {
     const reference = { [trailData.referenceKey]: craftUIDKey(MODEL_UID_KEY(trailData.model?.name)), ...(ref || {}) } as ModelReference<T>;
-    const key = ref?.[trailData?.referenceKey as keyof ModelReference] as string;
+    const key = reference?.[trailData?.referenceKey as keyof ModelReference] as string;
+
+    const operation: TrailDataModelOperation = {
+        data,
+        op: 'SET',
+        at: new Date().toISOString(),
+    };
+
     const item: TrailDataModelItem<T> = {
         id: key,
         model: trailData.model?.name,
         reference,
         data,
+        operations: [operation],
         status: MODEL_STATUS.CREATED,
     };
 
@@ -70,16 +78,17 @@ export const setStatus = (trailData: TrailDataModelInstance, status: TrailDataMo
 };
 
 export const update = <T = unknown>(trailData: TrailDataModelInstance, data: Partial<T>, ref: ModelReference<T>) => {
-    const key = ref?.[trailData?.referenceKey as keyof ModelReference] as string;
-    const item: TrailDataModelItem<T> = {
-        id: key,
-        model: trailData.model?.name,
-        reference: ref,
-        data,
-        status: MODEL_STATUS.UPDATED,
-    };
+    dataStore.update(trailData.store, getPath(trailData, ref, 'data'), data);
 
-    dataStore.update(trailData.store, getPath(trailData, ref || {}), item);
+    const operation: TrailDataModelOperation = {
+        data,
+        op: 'UPDATE',
+        at: new Date().toISOString(),
+    };
+    dataStore.push(trailData.store, getPath(trailData, ref, 'operations'), operation);
+
+    setStatus(trailData, MODEL_STATUS.UPDATED, ref);
+
     return ref;
 };
 

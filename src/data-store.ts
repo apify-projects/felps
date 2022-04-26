@@ -3,7 +3,7 @@ import cloneDeep from 'lodash.clonedeep';
 import getByKey from 'lodash.get';
 import hasByPath from 'lodash.has';
 // import omit from 'lodash.omit';
-import { dissocPath, mergeDeepLeft } from 'ramda';
+import { dissocPath, mergeDeepRight } from 'ramda';
 import setByKey from 'lodash.set';
 import ApifyEvents from './apify-events';
 import base from './base';
@@ -98,9 +98,9 @@ export const shift = <T = reallyAny>(dataStore: DataStoreInstance, path: string)
     return item;
 };
 
-export const push = <T = reallyAny>(dataStore: DataStoreInstance, path: string, data: T): void => {
+export const push = <T = reallyAny>(dataStore: DataStoreInstance, path: string, ...data: T[]): void => {
     mustBeLoaded(dataStore);
-    set(dataStore, getPath(dataStore, path), [...(get(dataStore, getPath(dataStore, path)) as reallyAny[] || []), data]);
+    set(dataStore, getPath(dataStore, path), [...(get(dataStore, getPath(dataStore, path)) as reallyAny[] || []), ...data]);
 };
 
 export const setAndGetKey = <T = reallyAny>(dataStore: DataStoreInstance, data: T): string => {
@@ -115,7 +115,7 @@ export const update = <T = reallyAny>(dataStore: DataStoreInstance, path: string
 
     const p = getPath(dataStore, path);
     const original = get(dataStore, p) || {};
-    const merged = mergeDeepLeft<reallyAny, reallyAny>(original, data || {});
+    const merged = mergeDeepRight<reallyAny, reallyAny>(original, data || {});
 
     set(dataStore, path, merged);
 };

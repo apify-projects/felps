@@ -1,34 +1,29 @@
 import { Actor } from 'felps';
-import { models, flows, steps, hooks } from './definition';
+import { SELECT } from './consts';
+import { flows, hooks, models, steps } from './template';
+import { findVariable } from './utils';
 
-const SELECT = {
-    PRODUCTS: '[class*=ProductCard_root]',
-    PRODUCT_NAME: '[class*=ProductCard_name]',
-    PRODUCT_PRICE: '[class*=ProductCard_price]',
-    PRODUCT_URL: '[class*=ProductCard_price]',
-    PRODUCT_DESCRIPTION: '[class*=ProductView_sideba] [class*=Text_body]',
-};
+steps.COLLECT_LIVE_EVENTS_LISTING.handler = async ({ $, request }, api) => {
+    const script = $(SELECT.LIVE_EVENTS_SCRIPT).first().html();
+    const liveEvents: { match: string, date: string }[] = findVariable(script, 'ev_arr');
 
-steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async ({ $ }, api) => {
-    for (const product of $(SELECT.PRODUCTS).slice(0, 3)) {
-
-        const productRef = api.set('PRODUCT', {
-            name: $(product).find(SELECT.PRODUCT_NAME).first().text(),
-            priceInCents: +$(product).find(SELECT.PRODUCT_PRICE).first().text().replace(/[^0-9]/g, ''),
+    for (const liveEvent of liveEvents.slice(0, 20)) {
+        // if (liveEvent.match.toLowerCase().trim() === api.getFlowInput().title.toLowerCase().trim()) {
+        const liveEventRef = api.add('LIVE_EVENT', {
+            title: liveEvent.match,
+            date: liveEvent.date,
+            url: request.url,
         });
 
-        const url = api.absoluteUrl($(product).attr('href'));
-
-        if (url) {
-            api.goto('COLLECT_PRODUCT_DETAILS', { url }, productRef);
-        }
+        api.goto('COLLECT_LIVE_EVENT', { url: 'http://google.com' }, liveEventRef);
+        // }
     }
-};
+}
 
-steps.COLLECT_PRODUCT_DETAILS.handler = async ({ $ }, api) => {
-    api.update('PRODUCT', {
-        description: $(SELECT.PRODUCT_DESCRIPTION).first().text(),
-    });
+steps.COLLECT_LIVE_EVENT.handler = async (_, api) => {
+    api.update('LIVE_EVENT', {
+        title: 'changed title'
+    })
 }
 
 const actor = Actor.create({ steps, models, flows, hooks });

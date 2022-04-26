@@ -3,32 +3,32 @@ import useHandleRequestErrorFunction from './use-handle-request-error-function';
 import { ActorInstance, RequestContext } from '../types';
 
 export default (actor: ActorInstance) => {
-    // const logTrailHistory = (crawlingContext: RequestContext) => {
-    //     const trailId = crawlingContext.request?.userData?.trailId;
+    // const logTrailHistory = (RequestContext: RequestContext) => {
+    //     const trailId = RequestContext.request?.userData?.trailId;
     //     if (trailId) {
     //         const trail = new Trail({ id: trailId });
-    //         trail.update(`requests`, { [`${crawlingContext.request.id}`]: crawlingContext.request });
+    //         trail.update(`requests`, { [`${RequestContext.request.id}`]: RequestContext.request });
     //     }
     // };
 
     return {
-        async requestHook(crawlingContext: RequestContext) {
-            crawlingContext.page.on('requestfailed', async () => {
-                await useHandleRequestErrorFunction(actor)(crawlingContext);
+        async requestHook(RequestContext: RequestContext) {
+            RequestContext.page.on('requestfailed', async () => {
+                await useHandleRequestErrorFunction(actor)(RequestContext);
             });
         },
         async trailHook() {
-        // async trailHook(crawlingContext: RequestContext) {
-            // const trailId = crawlingContext.request?.userData?.trailId;
+        // async trailHook(RequestContext: RequestContext) {
+            // const trailId = RequestContext.request?.userData?.trailId;
 
-            // crawlingContext.request.userData.startedAt = new Date().toISOString();
-            // crawlingContext.request.userData.sizeInKb = 0;
-            // logTrailHistory(crawlingContext);
+            // RequestContext.request.userData.startedAt = new Date().toISOString();
+            // RequestContext.request.userData.sizeInKb = 0;
+            // logTrailHistory(RequestContext);
 
             // const handleResponseHtml = async (html: any) => {
             //     if (html) {
             //         const additionalSize = Math.floor(html.length / 1000);
-            //         crawlingContext.request.userData.sizeInKb += additionalSize;
+            //         RequestContext.request.userData.sizeInKb += additionalSize;
 
             //         if (trailId) {
             //             const trail = new Trail({ id: trailId });
@@ -37,13 +37,13 @@ export default (actor: ActorInstance) => {
             //     }
             // };
 
-            // if ('page' in crawlingContext) {
-            //     crawlingContext.page.on('response', async (response) => {
+            // if ('page' in RequestContext) {
+            //     RequestContext.page.on('response', async (response) => {
             //         try {
             //             if (response.status() < 300 && response.status() >= 399) {
             //                 handleResponseHtml(await response.body());
             //             } else {
-            //                 await useHandleRequestErrorFunction(actor)(crawlingContext);
+            //                 await useHandleRequestErrorFunction(actor)(RequestContext);
             //             }
             //         } catch (error) {
             //             // Fails on redirect, silently.
@@ -51,8 +51,8 @@ export default (actor: ActorInstance) => {
             //     });
             // }
 
-            // if ('$' in crawlingContext) {
-            //     handleResponseHtml(crawlingContext.$.html());
+            // if ('$' in RequestContext) {
+            //     handleResponseHtml(RequestContext.$.html());
             // }
         },
     };

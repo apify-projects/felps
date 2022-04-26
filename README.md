@@ -50,7 +50,7 @@ const hooks = Hooks.create({ MODELS, STEPS, FLOWS });
 
 // 5.a Set up how you want to start your actor (based on the input)
 hooks.ACTOR_STARTED.handler = async (_, api) => {
-    const { url } = api.getInput();
+    const { url } = api.getActorInput();
 
     api.start('COLLECT_NEW_PRODUCTS', { url }, { flow, url });
 }

@@ -63,6 +63,7 @@ export const set = (trailDataRequests: TrailDataRequestsInstance, request: Reque
         const item: TrailDataRequestItem = {
             id: meta.data.reference?.requestKey as string,
             source: meta.request,
+            snapshot: undefined,
             status: REQUEST_STATUS.CREATED,
         };
 

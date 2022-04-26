@@ -5,8 +5,8 @@ import { StepApiMetaInstance } from './types';
 export const create = (): StepApiMetaInstance => {
     return {
         ...base.create({ key: 'step-api-meta', name: 'step-api-meta' }),
-        handler(crawlingContext) {
-            const meta = requestMeta.create(crawlingContext);
+        handler(RequestContext) {
+            const meta = requestMeta.create(RequestContext);
 
             return {
                 getUserData: () => meta.userData,

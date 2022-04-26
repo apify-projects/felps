@@ -13,7 +13,7 @@ steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async ({ $ }, api) => {
 
     for (const product of $(SELECT.PRODUCTS).slice(0, 3)) {
 
-        const productRef = api.set('PRODUCT', {
+        const productRef = api.add('PRODUCT', {
             name: $(product).find(SELECT.PRODUCT_NAME).first().text(),
             priceInCents: +$(product).find(SELECT.PRODUCT_PRICE).first().text().replace(/[^0-9]/g, ''),
         });

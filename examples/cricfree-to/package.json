@@ -4,6 +4,7 @@
   "main": "index.js",
   "dependencies": {
     "@types/lodash.mergewith": "^4.6.7",
+    "abstract-syntax-tree": "^2.20.6",
     "felps": "file:./../.."
   },
   "devDependencies": {

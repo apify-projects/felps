@@ -27,7 +27,9 @@ const FLOWS = Flows.use({ STEPS }).define({
             'COLLECT_NEW_PRODUCTS_LISTING',
             'COLLECT_PRODUCT_DETAILS',
         ],
-        output: MODELS.PRODUCT.schema,
+        output: {
+            schema: MODELS.PRODUCT.schema,
+        },
     }
 });
 
@@ -39,7 +41,7 @@ const flows = Flows.create({ FLOWS });
 const hooks = Hooks.create({ MODELS, STEPS, FLOWS });
 
 hooks.ACTOR_STARTED.handler = async (_, api) => {
-    const { flow, url } = api.getInput();
+    const { flow, url } = api.getActorInput();
     api.start(flow, { url }, { flow, url });
 }
 
