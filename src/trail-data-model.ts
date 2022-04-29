@@ -1,10 +1,11 @@
 /* eslint-disable max-len */
 import isMatch from 'lodash.ismatch';
+import { Model } from '.';
 import base from './base';
 import { MODEL_STATUS, MODEL_UID_KEY, REFERENCE_KEY } from './consts';
 import dataStore from './data-store';
 import { getPath } from './trail-data';
-import { ModelReference, TrailDataModelInstance, TrailDataModelItem, TrailDataModelOperation, TrailDataModelItemStatus, TrailDataModelOptions, reallyAny } from './types';
+import { ModelReference, TrailDataModelInstance, TrailDataModelItem, TrailDataModelOperation, TrailDataModelItemStatus, TrailDataModelOptions, ReallyAny } from './types';
 import { craftUIDKey, pathify } from './utils';
 
 export const create = (options: TrailDataModelOptions): TrailDataModelInstance => {
@@ -25,44 +26,57 @@ export const create = (options: TrailDataModelOptions): TrailDataModelInstance =
     };
 };
 
-export const get = <T = unknown>(trailData: TrailDataModelInstance, ref: ModelReference<T>): TrailDataModelItem<T> => {
-    return dataStore.get<TrailDataModelItem<T>>(trailData.store, getPath(trailData, ref));
+export const get = <T = unknown>(trailDataModel: TrailDataModelInstance, ref: ModelReference<T>): TrailDataModelItem<T> => {
+    return dataStore.get<TrailDataModelItem<T>>(trailDataModel.store, getPath(trailDataModel, ref));
 };
 
-export const getItems = (trailData: TrailDataModelInstance): Record<string, TrailDataModelItem> => {
-    return dataStore.get<Record<string, TrailDataModelItem>>(trailData.store, trailData.path) || {};
-};
-
-export const getItemsList = <T = unknown>(trailData: TrailDataModelInstance, ref?: ModelReference<T>): TrailDataModelItem[] => {
-    const items = Object.values(getItems(trailData));
+export const getItemsList = <T = unknown>(trailDataModel: TrailDataModelInstance, ref?: ModelReference<T>): TrailDataModelItem[] => {
+    const allModels = dataStore.get<Record<string, TrailDataModelItem>>(trailDataModel.store, trailDataModel.path) || {};
+    const items = Object.keys(allModels).reduce((list, key) => {
+        if (allModels[key].model === trailDataModel.model.name) list.push(allModels[key]);
+        return list;
+    }, [] as TrailDataModelItem[]);
     return ref ? items.filter((item) => isMatch(item.reference, ref)) : items;
 };
 
-export const getItemsListByStatus = (trailData: TrailDataModelInstance, status: TrailDataModelItemStatus | TrailDataModelItemStatus[], ref?: ModelReference): TrailDataModelItem[] => {
-    const statuses = (Array.isArray(status) ? status : [status]).filter(Boolean);
-    return getItemsList(trailData, ref).filter((item) => statuses.includes(item.status));
+export const getItems = <T = unknown>(trailDataModel: TrailDataModelInstance, ref?: ModelReference<T>): Record<string, TrailDataModelItem> => {
+    return getItemsList(trailDataModel, ref).reduce((acc, item) => ({ ...acc, [item.id]: item }), {});
 };
 
-export const filterByStatus = (...statuses: TrailDataModelItemStatus[]) => (value: reallyAny) => {
+export const getItemsListByStatus = (trailDataModel: TrailDataModelInstance, status: TrailDataModelItemStatus | TrailDataModelItemStatus[], ref?: ModelReference): TrailDataModelItem[] => {
+    const statuses = (Array.isArray(status) ? status : [status]).filter(Boolean);
+    return getItemsList(trailDataModel, ref).filter((item) => statuses.includes(item.status));
+};
+
+export const filterByStatus = (...statuses: TrailDataModelItemStatus[]) => (value: ReallyAny) => {
     return statuses.includes(value.status);
 };
 
-export const filterByPartial = (partial?: boolean) => (value: reallyAny) => {
+export const filterByPartial = (partial?: boolean) => (value: ReallyAny) => {
     return value.partial === partial;
 };
 
-export const getChildrenItemsList = <T = unknown>(trailData: TrailDataModelInstance, parentRef: ModelReference<T>): TrailDataModelItem[] => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-    const { [trailData.referenceKey as keyof ModelReference<T>]: _, ...reference } = parentRef;
-    return getItemsList(trailData, reference as ModelReference<T>);
+export const groupByParent = (trailDataModel: TrailDataModelInstance, items: TrailDataModelItem[]) => {
+    const groups = new Map<ModelReference, TrailDataModelItem[]>();
+    for (const item of items) {
+        const parentReference = Model.referenceFor(trailDataModel.model, item.reference);
+        groups.set(parentReference, [...(groups.get(parentReference) || []), item]);
+    }
+    return groups;
 };
 
-export const boostrapItem = <T = unknown>(trailData: TrailDataModelInstance, data: T, ref?: ModelReference<T>): Partial<TrailDataModelItem<T>> => {
-    const key = ref?.[trailData?.referenceKey as keyof ModelReference] as string;
+export const getChildrenItemsList = <T = unknown>(trailDataModel: TrailDataModelInstance, parentRef: ModelReference<T>): TrailDataModelItem[] => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    const { [trailDataModel.referenceKey as keyof ModelReference<T>]: _, ...reference } = parentRef;
+    return getItemsList(trailDataModel, reference as ModelReference<T>);
+};
+
+export const boostrapItem = <T = unknown>(trailDataModel: TrailDataModelInstance, data: T, ref?: ModelReference<T>): Partial<TrailDataModelItem<T>> => {
+    const key = ref?.[trailDataModel?.referenceKey as keyof ModelReference] as string;
 
     const item = {
         id: key,
-        model: trailData.model?.name,
+        model: trailDataModel.model?.name,
         reference: ref as ModelReference<T>,
         data,
         partial: false,
@@ -72,9 +86,9 @@ export const boostrapItem = <T = unknown>(trailData: TrailDataModelInstance, dat
     return item;
 };
 
-export const set = <T = unknown>(trailData: TrailDataModelInstance, data: T, ref?: ModelReference<T>): ModelReference<T> => {
-    const reference = { [trailData.referenceKey]: craftUIDKey(MODEL_UID_KEY(trailData.model?.name)), ...(ref || {}) } as ModelReference<T>;
-    const item = boostrapItem(trailData, data, reference);
+export const set = <T = unknown>(trailDataModel: TrailDataModelInstance, data: T, ref?: ModelReference<T>): ModelReference<T> => {
+    const reference = { [trailDataModel.referenceKey]: craftUIDKey(MODEL_UID_KEY(trailDataModel.model?.name)), ...(ref || {}) } as ModelReference<T>;
+    const item = boostrapItem(trailDataModel, data, reference);
 
     const operation: TrailDataModelOperation = {
         data,
@@ -82,15 +96,15 @@ export const set = <T = unknown>(trailData: TrailDataModelInstance, data: T, ref
         at: new Date().toISOString(),
     };
 
-    dataStore.update(trailData.store, getPath(trailData, reference), item);
-    dataStore.push(trailData.store, getPath(trailData, reference, 'operations'), operation);
-    dataStore.set(trailData.store, getPath(trailData, reference, 'partial'), false);
+    dataStore.update(trailDataModel.store, getPath(trailDataModel, reference), item);
+    dataStore.push(trailDataModel.store, getPath(trailDataModel, reference, 'operations'), operation);
+    dataStore.set(trailDataModel.store, getPath(trailDataModel, reference, 'partial'), false);
     return reference;
 };
 
-export const setPartial = <T = unknown>(trailData: TrailDataModelInstance, data: Partial<T>, ref: ModelReference<T>): ModelReference<T> => {
-    const reference = { [trailData.referenceKey]: craftUIDKey(MODEL_UID_KEY(trailData.model?.name)), ...(ref || {}) } as ModelReference<T>;
-    const item = boostrapItem(trailData, data, reference);
+export const setPartial = <T = unknown>(trailDataModel: TrailDataModelInstance, data: Partial<T>, ref: ModelReference<T>): ModelReference<T> => {
+    const reference = { [trailDataModel.referenceKey]: craftUIDKey(MODEL_UID_KEY(trailDataModel.model?.name)), ...(ref || {}) } as ModelReference<T>;
+    const item = boostrapItem(trailDataModel, data, reference);
 
     const operation: TrailDataModelOperation = {
         data,
@@ -98,15 +112,15 @@ export const setPartial = <T = unknown>(trailData: TrailDataModelInstance, data:
         at: new Date().toISOString(),
     };
 
-    dataStore.update(trailData.store, getPath(trailData, reference), item);
-    dataStore.push(trailData.store, getPath(trailData, reference, 'operations'), operation);
-    dataStore.set(trailData.store, getPath(trailData, reference, 'partial'), true);
+    dataStore.update(trailDataModel.store, getPath(trailDataModel, reference), item);
+    dataStore.push(trailDataModel.store, getPath(trailDataModel, reference, 'operations'), operation);
+    dataStore.set(trailDataModel.store, getPath(trailDataModel, reference, 'partial'), true);
     return reference;
 };
 
-export const update = <T = unknown>(trailData: TrailDataModelInstance, data: Partial<T>, ref: ModelReference<T>): ModelReference<T> => {
-    const reference = { [trailData.referenceKey]: craftUIDKey(MODEL_UID_KEY(trailData.model?.name)), ...(ref || {}) } as ModelReference<T>;
-    const item = boostrapItem(trailData, data, reference);
+export const update = <T = unknown>(trailDataModel: TrailDataModelInstance, data: Partial<T>, ref: ModelReference<T>): ModelReference<T> => {
+    const reference = { [trailDataModel.referenceKey]: craftUIDKey(MODEL_UID_KEY(trailDataModel.model?.name)), ...(ref || {}) } as ModelReference<T>;
+    const item = boostrapItem(trailDataModel, data, reference);
 
     const operation: TrailDataModelOperation = {
         data,
@@ -114,22 +128,37 @@ export const update = <T = unknown>(trailData: TrailDataModelInstance, data: Par
         at: new Date().toISOString(),
     };
 
-    dataStore.update(trailData.store, getPath(trailData, reference), item);
-    dataStore.push(trailData.store, getPath(trailData, reference, 'operations'), operation);
-    dataStore.set(trailData.store, getPath(trailData, reference, 'partial'), false);
+    dataStore.update(trailDataModel.store, getPath(trailDataModel, reference), item);
+    dataStore.push(trailDataModel.store, getPath(trailDataModel, reference, 'operations'), operation);
+    dataStore.set(trailDataModel.store, getPath(trailDataModel, reference, 'partial'), false);
     return reference;
 };
 
-export const setStatus = (trailData: TrailDataModelInstance, status: TrailDataModelItemStatus, ref: ModelReference): void => {
-    const key = ref?.[trailData?.referenceKey as keyof ModelReference] as string;
-    dataStore.set(trailData.store, pathify(trailData.path, key, 'status'), status);
+export const updatePartial = <T = unknown>(trailDataModel: TrailDataModelInstance, data: Partial<T>, ref: ModelReference<T>): ModelReference<T> => {
+    const reference = { [trailDataModel.referenceKey]: craftUIDKey(MODEL_UID_KEY(trailDataModel.model?.name)), ...(ref || {}) } as ModelReference<T>;
+    const item = boostrapItem(trailDataModel, data, reference);
+
+    const operation: TrailDataModelOperation = {
+        data,
+        op: 'UPDATE_PARTIAL',
+        at: new Date().toISOString(),
+    };
+
+    dataStore.update(trailDataModel.store, getPath(trailDataModel, reference), item);
+    dataStore.push(trailDataModel.store, getPath(trailDataModel, reference, 'operations'), operation);
+    dataStore.set(trailDataModel.store, getPath(trailDataModel, reference, 'partial'), true);
+    return reference;
+};
+export const setStatus = (trailDataModel: TrailDataModelInstance, status: TrailDataModelItemStatus, ref: ModelReference): void => {
+    const key = ref?.[trailDataModel?.referenceKey as keyof ModelReference] as string;
+    dataStore.set(trailDataModel.store, pathify(trailDataModel.path, key, 'status'), status);
 };
 
-export const count = <T>(trailData: TrailDataModelInstance, ref: ModelReference<T>): number => {
-    return getItemsList(trailData, ref).length;
+export const count = <T>(trailDataModel: TrailDataModelInstance, ref: ModelReference<T>): number => {
+    return getItemsList(trailDataModel, ref).length;
 };
 
-// export const getNextItemKeys = <T>(trailData: TrailDataModelInstance, ref: ModelReference<T>): UniqueyKey[] => {
+// export const getNextItemKeys = <T>(trailDataModel: TrailDataModelInstance, ref: ModelReference<T>): UniqueyKey[] => {
 //     // const sortedKeys = sortBy(keyedResults, getSortingOrder());
 
 //     // const existingKeys = (sortedKeys || []).filter((key) => Object.keys(this.getAllAsObject(ref)).includes(key));
@@ -147,4 +176,4 @@ export const count = <T>(trailData: TrailDataModelInstance, ref: ModelReference<
 //     return [];
 // };
 
-export default { create, get, getItems, getItemsList, getItemsListByStatus, getChildrenItemsList, update, set, setStatus, count, setPartial, boostrapItem, filterByStatus, filterByPartial };
+export default { create, get, getItems, getItemsList, getItemsListByStatus, getChildrenItemsList, update, updatePartial, set, setStatus, count, setPartial, boostrapItem, filterByStatus, filterByPartial, groupByParent };

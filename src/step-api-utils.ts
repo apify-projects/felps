@@ -1,20 +1,26 @@
+import { Trail } from '.';
+import base from './base';
 import { ActorInstance, StepApiUtilsInstance } from './types';
 import { resolveUrl } from './utils';
-import base from './base';
 
 export const create = (actor: ActorInstance): StepApiUtilsInstance => {
     return {
         ...base.create({ key: 'step-api-utils', name: 'step-api-utils' }),
-        handler(RequestContext) {
+        handler(context) {
+            const trail = Trail.createFrom(context?.request, { actor });
+
             return {
+                getFlowInput() {
+                    return Trail.get(trail).input;
+                },
                 getActorInput() {
-                    return actor.input;
+                    return actor.input.data;
                 },
                 absoluteUrl: (path: string) => resolveUrl(
                     path,
-                    RequestContext?.request?.loadedUrl && RequestContext?.request?.loadedUrl !== 'about:blank'
-                        ? RequestContext.request?.loadedUrl
-                        : RequestContext.request?.url,
+                    context?.request?.loadedUrl && context?.request?.loadedUrl !== 'about:blank'
+                        ? context.request?.loadedUrl
+                        : context.request?.url,
                 ),
             };
         },

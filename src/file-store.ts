@@ -1,6 +1,6 @@
 import Apify from 'apify';
 import base from './base';
-import { FileStoreInstance, FileStoreOptions, reallyAny } from './types';
+import { FileStoreInstance, FileStoreOptions, ReallyAny } from './types';
 
 export const create = (options: FileStoreOptions): FileStoreInstance => {
     const { name, kvKey, key = 'file-store' } = options || {};
@@ -28,7 +28,7 @@ export const get = async (fileStore: FileStoreInstance, key: string) => {
     return loaded.resource?.getValue(key);
 };
 
-export const set = async <TValue extends object = reallyAny>(fileStore: FileStoreInstance, key: string, value: TValue, options?: { contentType?: string; }) => {
+export const set = async <TValue extends object = ReallyAny>(fileStore: FileStoreInstance, key: string, value: TValue, options?: { contentType?: string; }) => {
     const loaded = await load(fileStore);
     return loaded.resource?.setValue(key, value, options);
 };

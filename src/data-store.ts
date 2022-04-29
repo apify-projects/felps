@@ -7,7 +7,7 @@ import { dissocPath, mergeDeepRight } from 'ramda';
 import setByKey from 'lodash.set';
 import ApifyEvents from './apify-events';
 import base from './base';
-import { DataStoreInstance, DataStoreOptions, reallyAny } from './types';
+import { DataStoreInstance, DataStoreOptions, ReallyAny } from './types';
 import { craftUIDKey } from './utils';
 import Logger from './logger';
 
@@ -35,12 +35,12 @@ export const getPath = (dataStore: DataStoreInstance, path: string): string => {
     return [dataStore.pathPrefix, path].filter(Boolean).join('.');
 };
 
-export const get = <T = reallyAny>(dataStore: DataStoreInstance, path?: string): T => {
+export const get = <T = ReallyAny>(dataStore: DataStoreInstance, path?: string): T => {
     mustBeLoaded(dataStore);
-    return cloneDeep<reallyAny>(path ? getByKey(dataStore.state, getPath(dataStore, path)) : dataStore.state);
+    return cloneDeep<ReallyAny>(path ? getByKey(dataStore.state, getPath(dataStore, path)) : dataStore.state);
 };
 
-export const set = <T = reallyAny>(dataStore: DataStoreInstance, path: string, data: T): void => {
+export const set = <T = ReallyAny>(dataStore: DataStoreInstance, path: string, data: T): void => {
     mustBeLoaded(dataStore);
     const p = getPath(dataStore, path);
     setByKey(dataStore.state, p, data);
@@ -56,17 +56,17 @@ export const has = (dataStore: DataStoreInstance, path: string): boolean => {
     return hasByPath(dataStore.state, getPath(dataStore, path));
 };
 
-export const entries = <T = reallyAny>(dataStore: DataStoreInstance, path?: string): [string, T][] => {
+export const entries = <T = ReallyAny>(dataStore: DataStoreInstance, path?: string): [string, T][] => {
     mustBeLoaded(dataStore);
     return Object.entries(get(dataStore, path) as Record<string, T>);
 };
 
-export const values = <T = reallyAny>(dataStore: DataStoreInstance, path?: string): T[] => {
+export const values = <T = ReallyAny>(dataStore: DataStoreInstance, path?: string): T[] => {
     mustBeLoaded(dataStore);
     return Object.values(get(dataStore, path) as Record<string, T>);
 };
 
-export const keys = <T = reallyAny>(dataStore: DataStoreInstance, path?: string): string[] => {
+export const keys = <T = ReallyAny>(dataStore: DataStoreInstance, path?: string): string[] => {
     mustBeLoaded(dataStore);
     return Object.keys(get(dataStore, path) as Record<string, T>);
 };
@@ -82,40 +82,40 @@ export const decrement = (dataStore: DataStoreInstance, path: string, stepNumber
     return increment(dataStore, path, -stepNumber);
 };
 
-export const pop = <T = reallyAny>(dataStore: DataStoreInstance, path: string): T => {
+export const pop = <T = ReallyAny>(dataStore: DataStoreInstance, path: string): T => {
     mustBeLoaded(dataStore);
-    const items = get(dataStore, getPath(dataStore, path)) as reallyAny[] || [];
+    const items = get(dataStore, getPath(dataStore, path)) as ReallyAny[] || [];
     const item = items.pop();
     set(dataStore, getPath(dataStore, path), items);
     return item;
 };
 
-export const shift = <T = reallyAny>(dataStore: DataStoreInstance, path: string): T => {
+export const shift = <T = ReallyAny>(dataStore: DataStoreInstance, path: string): T => {
     mustBeLoaded(dataStore);
-    const items = get(dataStore, getPath(dataStore, path)) as reallyAny[] || [];
+    const items = get(dataStore, getPath(dataStore, path)) as ReallyAny[] || [];
     const item = items.shift();
     set(dataStore, getPath(dataStore, path), items);
     return item;
 };
 
-export const push = <T = reallyAny>(dataStore: DataStoreInstance, path: string, ...data: T[]): void => {
+export const push = <T = ReallyAny>(dataStore: DataStoreInstance, path: string, ...data: T[]): void => {
     mustBeLoaded(dataStore);
-    set(dataStore, getPath(dataStore, path), [...(get(dataStore, getPath(dataStore, path)) as reallyAny[] || []), ...data]);
+    set(dataStore, getPath(dataStore, path), [...(get(dataStore, getPath(dataStore, path)) as ReallyAny[] || []), ...data]);
 };
 
-export const setAndGetKey = <T = reallyAny>(dataStore: DataStoreInstance, data: T): string => {
+export const setAndGetKey = <T = ReallyAny>(dataStore: DataStoreInstance, data: T): string => {
     mustBeLoaded(dataStore);
     const path = craftUIDKey();
     set(dataStore, getPath(dataStore, path), data);
     return path;
 };
 
-export const update = <T = reallyAny>(dataStore: DataStoreInstance, path: string, data: T): void => {
+export const update = <T = ReallyAny>(dataStore: DataStoreInstance, path: string, data: T): void => {
     mustBeLoaded(dataStore);
 
     const p = getPath(dataStore, path);
     const original = get(dataStore, p) || {};
-    const merged = mergeDeepRight<reallyAny, reallyAny>(original, data || {});
+    const merged = mergeDeepRight<ReallyAny, ReallyAny>(original, data || {});
 
     set(dataStore, path, merged);
 };

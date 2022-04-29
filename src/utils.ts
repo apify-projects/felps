@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { customAlphabet } from 'nanoid';
+import cloneDeep from 'lodash.clonedeep';
 import { URL } from 'url';
 import { UID_KEY_PREFIX, UID_KEY_LENGTH } from './consts';
+import { ReallyAny } from './types';
 
 const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
 
@@ -91,9 +93,32 @@ export const traverse = (obj: any, handler: (key: string, value: any) => void) =
     }
 };
 
+export const traverseAndCarry = (obj: ReallyAny, context: ReallyAny, handler: (value: any, ctx: ReallyAny) => ReallyAny) => {
+    context = handler(obj, cloneDeep(context)) || context;
+
+    for (const k of Object.keys(obj)) {
+        if (obj.hasOwnProperty(k) && obj[k] && typeof obj[k] === 'object') {
+            traverseAndCarry(obj[k], cloneDeep(context), handler);
+        } else {
+            // Do something with obj[k]
+        }
+    }
+};
+
+export const someAsync = async (arr: any[], predicate: (item: any) => Promise<boolean>) => {
+    for (const e of arr) {
+        if (await predicate(e)) return true;
+    }
+    return false;
+};
+
 export const everyAsync = async (arr: any[], predicate: (item: any) => Promise<boolean>) => {
     for (const e of arr) {
         if (!await predicate(e)) return false;
     }
     return true;
+};
+
+export const merge = (...objs: any[]) => {
+    return Object.assign({}, ...objs);
 };

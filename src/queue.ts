@@ -4,7 +4,7 @@ import base from './base';
 import { QueueInstance, QueueOptions, RequestOptionalOptions, RequestSource } from './types';
 import { craftUIDKey } from './utils';
 import Logger from './logger';
-import RequestQueue from './overrides/request-queue';
+import RequestQueue from './sdk/request-queue';
 import requestMeta from './request-meta';
 
 export const create = (options?: QueueOptions): QueueInstance => {

@@ -2,7 +2,7 @@ import { RequestMeta } from '.';
 import Base from './base';
 import {
     DataStoreInstance,
-    DeepPartial, ModelInstance, reallyAny, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem,
+    DeepPartial, ModelInstance, ReallyAny, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem,
     TrailDataStage, TrailDataStages, TrailInstance,
     TrailOptions, TrailState,
 } from './types';
@@ -14,7 +14,7 @@ import TrailDataRequests from './trail-data-requests';
 export const create = (options: TrailOptions): TrailInstance => {
     const { id = craftUIDKey('trail'), actor } = options || {};
 
-    const store = (actor?.stores as reallyAny)?.trails as DataStoreInstance;
+    const store = (actor?.stores as ReallyAny)?.trails as DataStoreInstance;
     const models = actor?.models;
 
     return {

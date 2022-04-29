@@ -12,10 +12,11 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
             const ingest = Trail.ingested(trail);
 
             return {
-                getFlowInput() {
-                    return Trail.get(trail).input;
+                asFlowName(flowName) {
+                    return Object.keys(actor.flows).includes(flowName) ? flowName : undefined;
                 },
-                start(flowName, request, input, reference) {
+                start(flowName, request, input, reference, options) {
+                    const { crawlerMode } = options || {};
                     Trail.update(trail, { input });
 
                     const flow = actor.flows?.[flowName];
@@ -28,7 +29,7 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
                         {
                             flowName,
                             stepName,
-                            crawlerMode: step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode,
+                            crawlerMode: crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode,
                             reference: {
                                 ...(reference || {}),
                                 trailKey: trail.id,
@@ -39,7 +40,8 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
                     TrailDataRequests.set(ingest.requests, meta.request);
                     return meta.data.reference;
                 },
-                goto(stepName, request, reference) {
+                goto(stepName, request, reference, options) {
+                    const { crawlerMode } = options || {};
                     const step = actor.steps?.[stepName];
 
                     const meta = RequestMeta.extend(
@@ -47,7 +49,7 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
                         currentMeta.data,
                         {
                             stepName,
-                            crawlerMode: step?.crawlerMode || actor?.crawlerMode,
+                            crawlerMode: crawlerMode || step?.crawlerMode || actor?.crawlerMode,
                             reference: {
                                 ...(reference || {}),
                                 trailKey: trail.id,

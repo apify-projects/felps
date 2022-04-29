@@ -1,8 +1,0 @@
-.idea
-node_modules
-apify_storage
-dist/
-apify_storage
-package-lock.json
-yarn.lock
-.npmrc

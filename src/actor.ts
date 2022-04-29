@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify, { PlaywrightHook } from 'apify';
-import { Datasets, Flows, Hooks, Models, Queue, Queues, Step, Steps, Stores } from '.';
+import { Datasets, Flows, Hooks, Input, Models, Queue, Queues, Step, Steps, Stores } from '.';
 import Base from './base';
 import { ActorInstance, ActorOptions, CrawlerInstance, QueueInstance, StepInstance, StoresInstance } from './types';
 import crawler from './crawler';
@@ -19,16 +19,16 @@ export const create = (options?: ActorOptions): ActorInstance => {
 export const extend = (actor: ActorInstance, options: ActorOptions = {}): ActorInstance => {
     return {
         ...actor,
-        input: undefined,
-        crawlerMode: options?.crawlerMode || 'default',
+        input: options?.input || Input.create({ INPUT: { schema: { type: 'object' } } }),
+        crawlerMode: options?.crawlerMode || 'http',
         crawler: options?.crawler || actor.crawler || crawler.create(),
-        steps: options?.steps || actor.steps || Steps.create({ STEPS: {} }),
+        steps: options?.steps || actor.steps || Steps.create({ STEPS: {}, INPUT: { schema: { type: 'object' } } }),
         flows: options?.flows || actor.flows || Flows.create({ FLOWS: {} }),
         models: options?.models || actor.models || Models.create({ MODELS: {} }),
         stores: options?.stores || actor.stores || Stores.create(),
         queues: options?.queues || actor.queues || Queues.create(),
         datasets: options?.datasets || actor.datasets || Datasets.create(),
-        hooks: options?.hooks || actor.hooks || Hooks.create({ MODELS: {}, STEPS: {}, FLOWS: {} }),
+        hooks: options?.hooks || actor.hooks || Hooks.create({ MODELS: {}, STEPS: {}, FLOWS: {}, INPUT: { schema: { type: 'object' } } }),
     };
 };
 
@@ -38,7 +38,8 @@ export const run = async (actor: ActorInstance): Promise<void> => {
     Stores.listen(actor.stores);
 
     const input = await Apify.getInput() || {};
-    actor.input = input;
+    // TODO: Validate input against schema!
+    actor.input.data = input;
 
     const { proxy } = input as any;
     const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;

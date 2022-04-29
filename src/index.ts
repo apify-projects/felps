@@ -26,7 +26,11 @@ import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
 import RequestMeta from './request-meta';
 import Orchestrator from './orchestrator';
+import Input from './input';
+import Search from './search';
 import Logger from './logger';
+import RequestQueue from './sdk/request-queue';
+import MultiCrawler from './sdk/multi-crawler';
 
 export {
     Base,
@@ -57,7 +61,11 @@ export {
     TrailDataRequests,
     RequestMeta,
     Orchestrator,
+    Input,
+    Search,
     Logger,
+    RequestQueue,
+    MultiCrawler,
 };
 
 export default {
@@ -89,5 +97,9 @@ export default {
     TrailDataRequests,
     RequestMeta,
     Orchestrator,
+    Input,
+    Search,
     Logger,
+    RequestQueue,
+    MultiCrawler,
 };

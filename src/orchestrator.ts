@@ -1,9 +1,8 @@
-import { Dataset, Flow, Model, Models, Queue, RequestMeta, StepApi, Trail } from '.';
+import { Dataset, Flow, Model, Queue, RequestMeta, StepApi, Trail } from '.';
 import { MODEL_STATUS, REQUEST_STATUS } from './consts';
 import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
-import { ActorInstance, OrchestratorInstance, QueueInstance, reallyAny, RequestContext, StepApiInstance } from './types';
-import { everyAsync } from './utils';
+import { ActorInstance, FlowInstance, ModelReference, OrchestratorInstance, QueueInstance, ReallyAny, RequestContext, StepApiInstance } from './types';
 
 export const create = (actor: ActorInstance): OrchestratorInstance => {
     return {
@@ -12,13 +11,40 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
             const ingest = Trail.ingested(trail);
             const digest = Trail.digested(trail);
 
-            // const meta = RequestMeta.create(context);
-            // const flow = actor.flows?.[meta.data.flowName];
+
+            const meta = RequestMeta.create(context);
+            const flow = actor.flows?.[meta.data.flowName] as FlowInstance<ReallyAny>;
 
             const stepApi = StepApi.create(actor);
             const connectedModel = Model.connect({ api: stepApi(context) });
 
             // REQUESTS ------------------------------------------------------
+            const referencesLimited = new Set<ModelReference>();
+
+            // Data Analysis
+            // 1. Traverse the generated dataset
+            if (flow) {
+                const outputModels = Model.flatten(flow.output);
+                for (const model of outputModels) {
+                    const digestModel = digest.models[model.name];
+                    const entitiesAll = TrailDataModel.getItemsList(digestModel);
+                    const entitiesByParent = TrailDataModel.groupByParent(digestModel, entitiesAll);
+                    for (const parentRef of entitiesByParent.keys()) {
+                        const entitiesOrganised = await connectedModel.organize(model, entitiesByParent.get(parentRef) as []);
+                        const limit = await connectedModel.limit(model, entitiesOrganised.valid);
+                        if (limit) {
+                            referencesLimited.add(parentRef);
+                        }
+                    }
+                }
+            }
+
+            // const models = Models.matches(actor.models, meta.data.reference);
+
+            // // 2. Log all references and if limited or not
+            // for (const entity of models) {
+
+            // }
 
             // INGESTED Stage
             const newlyCreatedRequests = TrailDataRequests.getItemsListByStatus(ingest.requests, 'CREATED');
@@ -27,18 +53,19 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 // ...
                 const metaLocal = RequestMeta.create(newRequest.source);
                 const flowLocal = actor.flows?.[metaLocal.data.flowName];
-                const matchedModels = Models.matches(actor.models, metaLocal.data.reference);
+                // const matchedModels = Models.matches(actor.models, metaLocal.data.reference);
 
                 const stepIsPartofFlow = !!flowLocal && Flow.has(flowLocal, metaLocal.data.stepName);
-                const limitNotReachedByAnyModel = await everyAsync(matchedModels, async (model) => {
-                    const items = TrailDataModel.getItemsList(digest.models[model.name])
-                        .filter(TrailDataModel.filterByStatus('CREATED'))
-                        .filter(TrailDataModel.filterByPartial(false));
-                    const organizedItems = await connectedModel.organize(model, items).then(({ valid }) => valid);
-                    return connectedModel.limit(model, organizedItems);
-                });
+                // const limitReachedByAnyModel = await someAsync(matchedModels, async (model) => {
+                //     const items = TrailDataModel.getItemsList(digest.models[model.name])
+                //         .filter(TrailDataModel.filterByStatus('CREATED'))
+                //         .filter(TrailDataModel.filterByPartial(false));
+                //     const organizedItems = await connectedModel.organize(model, items).then(({ valid }) => valid);
+                //     const limitReached = !connectedModel.limit(model, organizedItems);
+                //     return limitReached;
+                // });
 
-                const requestShouldBeQueued = stepIsPartofFlow && (true || limitNotReachedByAnyModel);
+                const requestShouldBeQueued = stepIsPartofFlow && true;
 
                 if (requestShouldBeQueued) {
                     Trail.promote(trail, newRequest);
@@ -97,7 +124,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
     };
 };
 
-export const run = async (orchestrator: OrchestratorInstance, context: RequestContext, api: StepApiInstance<reallyAny, reallyAny, reallyAny>) => {
+export const run = async (orchestrator: OrchestratorInstance, context: RequestContext, api: StepApiInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>) => {
     await orchestrator.handler(context, api);
 };
 

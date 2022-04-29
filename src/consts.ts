@@ -23,7 +23,7 @@ export const REFERENCE_KEY = (modelName: string): string => `${camelCase(modelNa
 export const MODEL_UID_KEY = (modelName: string): string => `mod_${camelCase(modelName)}`;
 export const REQUEST_UID_KEY = `req`;
 
-export const METADATA_KEY = 'FELPS_METADATA';
+export const METADATA_KEY = '___felps';
 export const SCHEMA_MODEL_NAME_KEY = 'modelName';
 
 export const REQUEST_KEY_PROP = 'requestKey';

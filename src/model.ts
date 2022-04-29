@@ -2,11 +2,29 @@ import { pickAll } from 'ramda';
 import base from './base';
 import { REFERENCE_KEY, SCHEMA_MODEL_NAME_KEY, TRAIL_KEY_PROP } from './consts';
 import {
-    GeneralStepApi, JSONSchema, JSONSchemaMethods, ModelInstance,
-    ModelOptions, ModelReference, reallyAny, TrailDataModelItem, ValidatorValidateOptions,
+    GeneralStepApi, JSONSchema, JSONSchemaMethods, JSONSchemaObject, JSONSchemaWithMethods, ModelDefinition, ModelInstance,
+    ModelOptions, ModelReference, ReallyAny, ReferenceKey, TrailDataModelItem, ValidatorValidateOptions,
 } from './types';
-import { traverse } from './utils';
+import { traverse, traverseAndCarry } from './utils';
 import Validator from './validator';
+
+export const create = (options: ModelOptions): ModelInstance<JSONSchema> => {
+    const { parents = [] } = options;
+    let { schema, name } = options;
+
+    name = name || (schema as JSONSchemaObject)?.modelName;
+    schema = { modelName: name, ...schema as JSONSchemaObject };
+
+    return wrap({
+        ...base.create({ name, key: 'model' }),
+        schema,
+        parents,
+    });
+};
+
+export const define = <T extends ModelDefinition<JSONSchemaWithMethods>>(model: T): T => {
+    return model as T;
+};
 
 export const wrap = (model: ModelInstance<JSONSchema>): ModelInstance<JSONSchema> => {
     return new Proxy(
@@ -15,7 +33,7 @@ export const wrap = (model: ModelInstance<JSONSchema>): ModelInstance<JSONSchema
             get: (target, prop) => {
                 if (prop === 'schema') {
                     return {
-                        ...target.schema as unknown as Record<string, reallyAny>,
+                        ...target.schema as unknown as Record<string, ReallyAny>,
                         [SCHEMA_MODEL_NAME_KEY]: model.name,
                     };
                 }
@@ -25,42 +43,41 @@ export const wrap = (model: ModelInstance<JSONSchema>): ModelInstance<JSONSchema
         });
 };
 
-export const create = (options: ModelOptions): ModelInstance<JSONSchema> => {
-    const { name, schema } = options || {};
-
-    return wrap({
-        ...base.create({ name: name as string, key: 'model' }),
-        schema,
-    });
-};
-
-export const extend = (model: ModelInstance, options: ModelOptions): ModelInstance => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { name, ...otherOptions } = options || {};
-    return wrap({
-        ...model,
-        ...otherOptions,
-    });
-};
-
-export const walk = (model: ModelInstance, walker: (key: string, value: reallyAny) => void): void => {
+export const walk = (model: ModelInstance, walker: (key: string, value: ReallyAny) => void): void => {
     traverse(model.schema, walker);
 };
 
-export const dependencies = (model: ModelInstance, { unique }: { unique: boolean } = { unique: true }): string[] => {
-    const deps: string[] = [];
-    walk(model, (key, value) => {
-        if (key === SCHEMA_MODEL_NAME_KEY) deps.push(value[key]);
+export const flatten = (model: ModelInstance): ModelInstance[] => {
+    const models = new Set<ModelInstance>();
+    traverseAndCarry(model.schema, { parents: [] }, (value, ctx) => {
+        const modelName = value[SCHEMA_MODEL_NAME_KEY];
+
+        if (modelName) {
+            models.add(create({
+                name: modelName,
+                schema: value,
+                parents: ctx.parents,
+            }));
+
+            return {
+                parents: [...ctx.parents, modelName],
+            };
+        }
+
+        return ctx;
     });
-    return unique ? Array.from(new Set(deps)) : deps;
+
+    return [...models];
 };
 
-export const referenceKeys = (model: ModelInstance): string[] => {
+export const dependencies = (model: ModelInstance): ModelInstance[] => {
+    return flatten(model).filter((m) => m.name !== model.name);
+};
+
+export const referenceKeys = (model: ModelInstance): ReferenceKey[] => {
     return [
         TRAIL_KEY_PROP,
-        ...dependencies(model)
-            .filter((key) => key !== model.name)
-            .map((key) => REFERENCE_KEY(key)),
+        ...(model.parents || []).map((key) => REFERENCE_KEY(key)),
     ];
 };
 
@@ -98,7 +115,7 @@ export const validateReference = <T = unknown>(model: ModelInstance, ref: ModelR
 
 export const connect = ({ api }: { api: GeneralStepApi }) => ({
     async organize(model: ModelInstance, items: TrailDataModelItem[]): Promise<{ valid: TrailDataModelItem[], invalid: TrailDataModelItem[] }> {
-        const valid = await Promise.resolve((model.schema as JSONSchemaMethods).organize?.(items, api)) || items;
+        const valid = await Promise.resolve((model.schema as JSONSchemaMethods)?.organize?.(items, api)) || items;
         const invalid = items.filter((item) => !valid.includes(item));
         return { valid, invalid };
     },
@@ -107,4 +124,4 @@ export const connect = ({ api }: { api: GeneralStepApi }) => ({
     },
 });
 
-export default { create, dependencies, referenceKeys, referenceFor, match, validate, validateReference, connect, wrap, walk };
+export default { create, define, dependencies, referenceKeys, referenceFor, match, validate, validateReference, connect, wrap, walk, flatten };

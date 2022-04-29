@@ -5,11 +5,11 @@ import requestMeta from '../request-meta';
 import { StepApi } from '..';
 
 export default (actor: ActorInstance) => {
-    return async (RequestContext: RequestContext) => {
-        const meta = requestMeta.create(RequestContext);
+    return async (context: RequestContext) => {
+        const meta = requestMeta.create(context);
 
         // Run a general hook
-        await step.run(actor.hooks?.STEP_FAILED as StepInstance, actor, RequestContext);
+        await step.run(actor.hooks?.STEP_FAILED as StepInstance, actor, context);
 
         const stepInstance = actor.steps?.[meta.data.stepName as string];
         if (!stepInstance) {
@@ -18,6 +18,6 @@ export default (actor: ActorInstance) => {
         }
 
         // const api = new StepApi({ step: stepInstance, context }).make(RequestContext);
-        await stepInstance.errorHandler(RequestContext, StepApi.create(actor)(RequestContext));
+        await stepInstance?.errorHandler?.(context, StepApi.create(actor)(context));
     };
 };

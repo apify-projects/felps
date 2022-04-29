@@ -2,10 +2,12 @@
 import Apify from 'apify';
 import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
-import type { FromSchema } from 'json-schema-to-ts';
+import { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
 import { JSONSchema7 as $JSONSchema7 } from 'json-schema';
+import type { FromSchema } from 'json-schema-to-ts';
 import { Readonly } from 'json-schema-to-ts/lib/utils';
-import RequestQueue from './overrides/request-queue';
+import MultiCrawler, { MultiCrawlerOptions } from './sdk/multi-crawler';
+import RequestQueue from './sdk/request-queue';
 
 export type { JSONSchemaType } from 'ajv';
 
@@ -17,7 +19,7 @@ export type JSONSchemaMethods = {
     limit?: (items: TrailDataModelItem[], api: GeneralStepApi) => boolean | Promise<boolean>,
 };
 
-export declare type _JSONSchema7<T = unknown> = boolean |
+export type JSONSchemaObject<T = unknown> =
     (Omit<$JSONSchema7, 'const' | 'enum' | 'items' | 'additionalItems' | 'contains' |
         'properties' | 'patternProperties' | 'additionalProperties' | 'dependencies' |
         'propertyNames' | 'if' | 'then' | 'else' | 'allOf' | 'anyOf' | 'oneOf' | 'not' |
@@ -48,10 +50,14 @@ export declare type _JSONSchema7<T = unknown> = boolean |
             examples?: unknown[];
         } & {
             modelName?: string;
-        } & T);
+        } & T)
 
-export type reallyAny = any;
+export type _JSONSchema7<T = unknown> = boolean | JSONSchemaObject<T>;
+
+export type AnyObject = Record<string, ReallyAny>;
+export type ReallyAny = any;
 export type UniqueyKey = string;
+export type ReferenceKey = string;
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export type DeepPartial<T> = Partial<{ [P in keyof T]: DeepPartial<T[P]> }>;
@@ -85,17 +91,17 @@ export type BaseInstance = {
 };
 
 export type BaseOptions = {
-    name: string,
+    name?: string,
     key?: string,
     uid?: string,
     id?: string,
 }
 
 // flows.ts ------------------------------------------------------------
-export type FlowsInstance<StepNames = string> = FlowDefinitions<StepNames, reallyAny>;
+export type FlowsInstance<StepNames = string> = FlowDefinitions<StepNames, ReallyAny>;
 
 export type FlowDefinitions<StepNames, T extends Record<string, FlowDefinition<StepNames>>> = {
-    [K in keyof T]: T[K] extends FlowDefinition<StepNames> ? T[K] : never
+    [K in keyof T]: T[K] extends FlowDefinition<StepNames> ? T[K] & { name: string } : never
 };
 
 export type FlowDefinition<StepNames = string> = PartialBy<FlowOptions<StepNames>, 'name'>
@@ -117,8 +123,8 @@ export type FlowOptions<StepNames = string> = {
 export type FlowOptionsWithoutName<StepNames = string> = Omit<FlowOptions<StepNames>, 'name'>;
 
 // steps.ts ------------------------------------------------------------
-export type StepsInstance<M extends Record<string, ModelDefinition>, F, S> = {
-    [K in keyof S]: S[K] extends StepDefinition ? StepInstance<StepApiInstance<F, S, M>> & S[K] : never
+export type StepsInstance<M extends Record<string, ModelDefinition>, F, S, I extends InputDefinition> = {
+    [K in keyof S]: S[K] extends StepDefinition ? StepInstance<StepApiInstance<F, S, M, I>> & S[K] : never
 };
 
 export type StepsOptions<T> = {
@@ -159,11 +165,11 @@ export type StepOptions<Methods = unknown> = {
 export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
 
 // step-api.ts -----------------------------------------------------------------
-export type StepApiInstance<F, S, M extends Record<string, ModelDefinition>> = GeneralStepApi
+export type StepApiInstance<F, S, M extends Record<string, ModelDefinition>, I extends InputDefinition> = GeneralStepApi<I>
     & StepApiFlowsAPI<F, S, M>
     & StepApiModelAPI<M>;
 
-export type GeneralStepApi = StepApiMetaAPI & StepApiUtilsAPI;
+export type GeneralStepApi<I extends InputDefinition = InputDefinition> = StepApiMetaAPI & StepApiUtilsAPI<I>;
 
 // step-api-flow.ts ------------------------------------------------------------
 export type StepApiFlowsInstance<F, S, M extends Record<string, ModelDefinition>> = {
@@ -171,9 +177,15 @@ export type StepApiFlowsInstance<F, S, M extends Record<string, ModelDefinition>
 };
 
 export type StepApiFlowsAPI<F, S, M> = {
-    getFlowInput: () => TrailState['input'];
-    start: (flowName: Extract<keyof F, string>, request: RequestSource, input?: any, reference?: ModelReference<M>) => ModelReference<M>;
-    goto: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>) => void;
+    asFlowName: (flowName: string) => (Extract<keyof F, string> | undefined),
+    start: (
+        flowName: Extract<keyof F, string>,
+        request: RequestSource,
+        input?: any,
+        reference?: ModelReference<M>,
+        options?: { crawlerMode: RequestCrawlerMode }
+    ) => ModelReference<M>;
+    goto: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode }) => void;
 };
 
 // step-api-model.ts ------------------------------------------------------------
@@ -190,7 +202,7 @@ export type KeyedSchemaType<TModels extends Record<string, ModelDefinition>> = {
 // eslint-disable-next-line max-len
 export type StepApiModelAPI<
     M extends Record<string, ModelDefinition>,
-    N extends Record<string, reallyAny> = KeyedSchemaType<M>
+    N extends Record<string, ReallyAny> = KeyedSchemaType<M>
     > = {
         add: <ModelName extends keyof N>(
             modelName: ModelName,
@@ -207,6 +219,13 @@ export type StepApiModelAPI<
             ref?: ModelReference<M>,
         ) => N[ModelName]['schema'];
         update: <ModelName extends keyof N>
+            // eslint-disable-next-line max-len
+            (
+            modelName: ModelName,
+            value: Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>) => Partial<N[ModelName]['schema']>),
+            ref?: ModelReference<M>,
+        ) => ModelReference<M>;
+        updatePartial: <ModelName extends keyof N>
             // eslint-disable-next-line max-len
             (
             modelName: ModelName,
@@ -231,8 +250,9 @@ export type StepApiUtilsInstance = {
     handler: (context: RequestContext) => StepApiUtilsAPI,
 };
 
-export type StepApiUtilsAPI = {
-    getActorInput: () => any,
+export type StepApiUtilsAPI<I extends InputDefinition = InputDefinition> = {
+    getFlowInput: () => TrailState['input'];
+    getActorInput: () => ReallyAny | I['schema'];
     absoluteUrl: (url: string) => string | void,
 }
 
@@ -246,6 +266,7 @@ export type ModelInstance<TSchema = JSONSchema> = ModelDefinition<TSchema> & Bas
 export type ModelDefinition<TSchema = JSONSchema> = {
     name?: string,
     schema: TSchema,
+    parents?: string[],
 }
 
 export type ModelOptions<TSchema = JSONSchema> = ModelDefinition<TSchema>;
@@ -253,8 +274,6 @@ export type ModelOptions<TSchema = JSONSchema> = ModelDefinition<TSchema>;
 export type ModelReference<T = unknown> = Partial<{
     [K in Extract<keyof T, string> as `${SnakeToCamelCase<K>}Key`]: UniqueyKey;
 } & { requestKey: UniqueyKey, trailKey: UniqueyKey }>;
-
-export type ModelSchemasSignature = Record<string, unknown>;
 
 // stores.ts ------------------------------------------------------------
 // eslint-disable-next-line max-len
@@ -304,7 +323,7 @@ export type FileStoreOptions = {
 export type TrailInstance = {
     id: string;
     store: DataStoreInstance;
-    models: ModelsInstance<reallyAny>;
+    models: ModelsInstance<ReallyAny>;
 };
 
 export type TrailOptions = {
@@ -349,7 +368,7 @@ export type TrailDataInstance = TrailDataModelInstance | TrailDataRequestsInstan
 // trail-data-requests.ts
 export type TrailDataRequestsInstance = {
     id: UniqueyKey,
-    referenceKey: string;
+    referenceKey: ReferenceKey;
     store: DataStoreInstance;
     path: string;
 } & BaseInstance;
@@ -372,7 +391,7 @@ export type TrailDataRequestItem = {
 
 // trail-data-model.ts ------------------------------------------------------------
 export type TrailDataModelInstance = {
-    referenceKey: string;
+    referenceKey: ReferenceKey;
     id: UniqueyKey,
     path: string;
     model: ModelInstance;
@@ -398,7 +417,7 @@ export type TrailDataModelItem<T = unknown> = {
 
 export type TrailDataModelOperation = {
     data: any,
-    op: 'SET' | 'SET_PARTIAL' | 'UPDATE',
+    op: 'SET' | 'SET_PARTIAL' | 'UPDATE' | 'UPDATE_PARTIAL',
     at: string,
 }
 
@@ -453,34 +472,35 @@ export type DefaultDatasetNames = ['default'];
 // actor.ts ------------------------------------------------------------
 export type ActorInstance = {
     name?: string,
-    input?: any,
     crawlerMode?: RequestCrawlerMode,
+    input: InputInstance,
     crawler: CrawlerInstance,
-    steps: StepsInstance<reallyAny, reallyAny, reallyAny>;
-    flows: FlowsInstance<reallyAny>;
-    models: ModelsInstance<reallyAny>;
+    steps: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    flows: FlowsInstance<ReallyAny>;
+    models: ModelsInstance<ReallyAny>;
     stores: StoresInstance;
     queues: QueuesInstance;
     datasets: DatasetsInstance;
-    hooks: HooksInstance<reallyAny, reallyAny, reallyAny>;
+    hooks: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
 } & BaseInstance;
 
 export type ActorOptions = {
     name?: string,
+    input?: InputInstance,
     crawlerMode?: RequestCrawlerMode,
     crawler?: CrawlerInstance,
-    steps?: StepsInstance<reallyAny, reallyAny, reallyAny>;
-    flows?: FlowsInstance<reallyAny>;
-    models?: ModelsInstance<reallyAny>;
+    steps?: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    flows?: FlowsInstance<ReallyAny>;
+    models?: ModelsInstance<ReallyAny>;
     stores?: StoresInstance;
     queues?: QueuesInstance;
     datasets?: DatasetsInstance;
-    hooks?: HooksInstance<reallyAny, reallyAny, reallyAny>;
+    hooks?: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
 }
 
 // hooks.ts ------------------------------------------------------------
-export type HooksInstance<M extends Record<string, ModelDefinition>, F, S> = {
-    [K in DefaultHookNames[number]]: StepInstance<StepApiInstance<F, S, M>>;
+export type HooksInstance<M extends Record<string, ModelDefinition>, F, S, I extends InputDefinition> = {
+    [K in DefaultHookNames[number]]: StepInstance<StepApiInstance<F, S, M, I>>;
 };
 
 export type DefaultHookNames = ['STEP_STARTED', 'STEP_ENDED', 'STEP_FAILED', 'STEP_REQUEST_FAILED',
@@ -503,7 +523,7 @@ export type RequestMetaOptions = {
     nothing?: string,
 }
 
-export type RequestCrawlerMode = 'default' | 'browser';
+export type RequestCrawlerMode = 'http' | 'chromium' | 'firefox' | 'safari';
 
 export type RequestMetaData = {
     flowName: string,
@@ -513,12 +533,14 @@ export type RequestMetaData = {
 }
 
 // crawler.ts ------------------------------------------------------------
-export type CrawlerInstance<CrawlerType = unknown> = {
-    resource: CrawlerType,
+export type CrawlerInstance = {
+    launcher?: MultiCrawler | ReallyAny,
+    crawlerOptions?: Partial<MultiCrawlerOptions>,
 } & BaseInstance;
 
-export type CrawlerOptions<CrawlerType = unknown> = {
-    resource?: CrawlerType
+export type CrawlerOptions = {
+    launcher?: MultiCrawler | ReallyAny,
+    crawlerOptions?: Partial<MultiCrawlerOptions>,
 }
 
 // logger.ts ------------------------------------------------------------
@@ -566,3 +588,25 @@ export type ValidatorValidateOptions = {
     throwError?: boolean,
     partial?: boolean,
 };
+
+// input.ts ------------------------------------------------------------
+export type InputInstance<TSchema extends JSONSchema = { type: 'object' }> = {
+    data: ReallyAny | undefined, // FromSchema<TSchema>
+    schema: TSchema,
+};
+
+export type InputDefinition<TSchema extends JSONSchema = { type: 'object' }> = {
+    schema: TSchema,
+};
+
+// search.ts ------------------------------------------------------------
+export type SearchInstance = {
+    indexOptions: IndexOptions<string, false>,
+    documentOptions: IndexOptionsForDocumentSearch<unknown, false>,
+} & BaseInstance;
+
+export type SearchOptions = {
+    name?: string,
+    indexOptions?: IndexOptions<string, false>,
+    documentOptions?: IndexOptionsForDocumentSearch<unknown, false>,
+}

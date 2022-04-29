@@ -1,7 +1,7 @@
 import { Model, RequestMeta, Trail } from '.';
 import base from './base';
 import TrailDataModel from './trail-data-model';
-import { ActorInstance, ModelDefinition, ModelReference, reallyAny, StepApiModelAPI, StepApiModelInstance, TrailDataStage } from './types';
+import { ActorInstance, ModelDefinition, ModelReference, ReallyAny, StepApiModelAPI, StepApiModelInstance, TrailDataStage } from './types';
 
 // eslint-disable-next-line max-len
 export const create = <M extends Record<string, ModelDefinition>>(actor: ActorInstance): StepApiModelInstance<M> => {
@@ -26,12 +26,12 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                 add(modelName, value, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref);
                     Model.validate(modelInstance.model, value, { throwError: true });
-                    return TrailDataModel.set(modelInstance, value as reallyAny, modelRef) as ModelReference<reallyAny>;
+                    return TrailDataModel.set(modelInstance, value as ReallyAny, modelRef) as ModelReference<ReallyAny>;
                 },
                 addPartial(modelName, value, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref);
                     Model.validate(modelInstance.model, value, { throwError: true });
-                    return TrailDataModel.setPartial(modelInstance, value as reallyAny, modelRef) as ModelReference<reallyAny>;
+                    return TrailDataModel.setPartial(modelInstance, value as ReallyAny, modelRef) as ModelReference<ReallyAny>;
                 },
                 get(modelName, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref, { withOwnReferenceKey: true });
@@ -40,11 +40,20 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                 update(modelName, valueOrReducer, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref, { withOwnReferenceKey: true });
                     const value = typeof valueOrReducer === 'function'
-                        ? valueOrReducer(TrailDataModel.get(modelInstance, modelRef).data as reallyAny)
+                        ? valueOrReducer(TrailDataModel.get(modelInstance, modelRef).data as ReallyAny)
                         : valueOrReducer;
                     Model.validate(modelInstance.model, value, { partial: true, throwError: true });
-                    TrailDataModel.update<reallyAny>(modelInstance, value, modelRef as reallyAny);
-                    return ref as ModelReference<reallyAny>;
+                    TrailDataModel.update<ReallyAny>(modelInstance, value, modelRef as ReallyAny);
+                    return ref as ModelReference<ReallyAny>;
+                },
+                updatePartial(modelName, valueOrReducer, ref?) {
+                    const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref, { withOwnReferenceKey: true });
+                    const value = typeof valueOrReducer === 'function'
+                        ? valueOrReducer(TrailDataModel.get(modelInstance, modelRef).data as ReallyAny)
+                        : valueOrReducer;
+                    Model.validate(modelInstance.model, value, { partial: true, throwError: true });
+                    TrailDataModel.updatePartial<ReallyAny>(modelInstance, value, modelRef as ReallyAny);
+                    return ref as ModelReference<ReallyAny>;
                 },
             } as StepApiModelAPI<M>;
         },

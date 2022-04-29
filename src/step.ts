@@ -1,6 +1,6 @@
 import { Logger, Orchestrator, RequestMeta, StepApi, Trail } from '.';
 import base from './base';
-import { ActorInstance, reallyAny, RequestContext, StepInstance, StepOptions } from './types';
+import { ActorInstance, ReallyAny, RequestContext, StepInstance, StepOptions } from './types';
 import TrailDataRequests from './trail-data-requests';
 
 export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepInstance<Methods> => {
@@ -46,7 +46,7 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
     Logger.start(logger, context?.request?.url ? `at ${context.request.url}` : '');
     const ctx = RequestMeta.contextDefaulted(context);
 
-    const stepApi = StepApi.create<reallyAny, reallyAny, reallyAny>(actor);
+    const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
 
     const trail = Trail.createFrom(ctx.request, { actor });
     const digest = Trail.digested(trail);

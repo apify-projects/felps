@@ -1,11 +1,13 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { Base, Logger } from '.';
-import { reallyAny, ValidatorInstance, ValidatorOptions, ValidatorValidateOptions } from './types';
+import { ReallyAny, ValidatorInstance, ValidatorOptions, ValidatorValidateOptions } from './types';
 
 function createAjv() {
     const ajv = new Ajv({ allErrors: true });
     ajv.addKeyword('modelName');
+    ajv.addKeyword('organize');
+    ajv.addKeyword('limit');
     addFormats(ajv);
     return ajv;
 }
@@ -18,9 +20,9 @@ export const create = (options?: ValidatorOptions) => {
     };
 };
 
-export const validate = (validator: ValidatorInstance, data: reallyAny = {}, options: ValidatorValidateOptions = {}) => {
+export const validate = (validator: ValidatorInstance, data: ReallyAny = {}, options: ValidatorValidateOptions = {}) => {
     const { partial = false, logError = true, throwError = true } = options;
-    const check = createAjv().compile({ ...validator?.schema as unknown as Record<string, reallyAny>, ...(partial ? { required: [] } : {}) });
+    const check = createAjv().compile({ ...validator?.schema as unknown as Record<string, ReallyAny>, ...(partial ? { required: [] } : {}) });
     const valid = check(data);
     if (!valid) {
         if (logError) {
