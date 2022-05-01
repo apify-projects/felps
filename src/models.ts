@@ -1,5 +1,5 @@
-import { JSONSchemaWithMethods, ModelDefinition, ModelDefinitions, ModelInstance, ModelReference } from './types';
 import { Model } from '.';
+import { JSONSchemaWithMethods, ModelDefinition, ModelDefinitions } from './types';
 
 export const create = <
     M extends Record<string, ModelDefinition>
@@ -17,8 +17,4 @@ export const define = <T extends Record<string, ModelDefinition<JSONSchemaWithMe
     }), {} as ModelDefinitions<T>);
 };
 
-export const matches = <T extends Record<string, ModelInstance>>(models: T, ref: ModelReference): ModelInstance[] => {
-    return Object.values(models).filter((m) => Model.match(m, ref));
-};
-
-export default { create, define, matches };
+export default { create, define };

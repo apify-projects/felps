@@ -19,8 +19,8 @@ export const MODEL_STATUS: Record<TrailDataModelItemStatus, TrailDataModelItemSt
     DISCARDED: 'DISCARDED',
 };
 
-export const REFERENCE_KEY = (modelName: string): string => `${camelCase(modelName)}Key`;
-export const MODEL_UID_KEY = (modelName: string): string => `mod_${camelCase(modelName)}`;
+export const REFERENCE_KEY = (modelName: string): string => `${camelCase(modelName || '')}Key`;
+export const MODEL_UID_KEY = (modelName: string): string => `mod_${camelCase(modelName || '')}`;
 export const REQUEST_UID_KEY = `req`;
 
 export const METADATA_KEY = '___felps';

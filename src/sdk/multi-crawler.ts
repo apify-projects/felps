@@ -47,12 +47,12 @@ export default class MultiCrawler extends BrowserCrawler {
         this.launchContext = launchContext;
     }
 
-    override async _navigationHandler(context: ReallyAny, gotoOptions: ReallyAny) {
+    override async _navigationHandler(context: ReallyAny, nextOptions: ReallyAny) {
         if (this.gotoFunction) {
-            this.log.deprecated('PlaywrightCrawler.gotoFunction is deprecated. Use "preNavigationHooks" and "postNavigationHooks" instead.');
-            return this.gotoFunction(context, gotoOptions);
+            this.log.deprecated('PlaywrightCrawler.nextFunction is deprecated. Use "preNavigationHooks" and "postNavigationHooks" instead.');
+            return this.gotoFunction(context, nextOptions);
         }
-        return gotoExtended(context.page, context.request, gotoOptions);
+        return gotoExtended(context.page, context.request, nextOptions);
     }
 
     override async _handleRequestFunction(context: ReallyAny) {

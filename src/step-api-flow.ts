@@ -40,7 +40,7 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
                     TrailDataRequests.set(ingest.requests, meta.request);
                     return meta.data.reference;
                 },
-                goto(stepName, request, reference, options) {
+                next(stepName, request, reference, options) {
                     const { crawlerMode } = options || {};
                     const step = actor.steps?.[stepName];
 
@@ -59,6 +59,12 @@ export const create = <F, S, M extends Record<string, ModelDefinition>>(actor: A
 
                     TrailDataRequests.set(ingest.requests, meta.request);
                     return meta.data.reference;
+                },
+                stop() {
+                    // stop current flow
+                },
+                retry() {
+                    // retry current flow
                 },
             } as StepApiFlowsAPI<F, S, M>;
         },

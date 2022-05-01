@@ -44,7 +44,7 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                         : valueOrReducer;
                     Model.validate(modelInstance.model, value, { partial: true, throwError: true });
                     TrailDataModel.update<ReallyAny>(modelInstance, value, modelRef as ReallyAny);
-                    return ref as ModelReference<ReallyAny>;
+                    return modelRef as ModelReference<ReallyAny>;
                 },
                 updatePartial(modelName, valueOrReducer, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref, { withOwnReferenceKey: true });
@@ -53,7 +53,7 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                         : valueOrReducer;
                     Model.validate(modelInstance.model, value, { partial: true, throwError: true });
                     TrailDataModel.updatePartial<ReallyAny>(modelInstance, value, modelRef as ReallyAny);
-                    return ref as ModelReference<ReallyAny>;
+                    return modelRef as ModelReference<ReallyAny>;
                 },
             } as StepApiModelAPI<M>;
         },

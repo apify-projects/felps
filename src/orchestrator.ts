@@ -1,8 +1,12 @@
+import hash from 'object-hash';
 import { Dataset, Flow, Model, Queue, RequestMeta, StepApi, Trail } from '.';
 import { MODEL_STATUS, REQUEST_STATUS } from './consts';
 import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
-import { ActorInstance, FlowInstance, ModelReference, OrchestratorInstance, QueueInstance, ReallyAny, RequestContext, StepApiInstance } from './types';
+import {
+    ActorInstance, FlowInstance, OrchestratorInstance, QueueInstance,
+    ReallyAny, RequestContext, StepApiInstance,
+} from './types';
 
 export const create = (actor: ActorInstance): OrchestratorInstance => {
     return {
@@ -11,41 +15,36 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
             const ingest = Trail.ingested(trail);
             const digest = Trail.digested(trail);
 
-
             const meta = RequestMeta.create(context);
             const flow = actor.flows?.[meta.data.flowName] as FlowInstance<ReallyAny>;
 
             const stepApi = StepApi.create(actor);
             const connectedModel = Model.connect({ api: stepApi(context) });
 
-            // REQUESTS ------------------------------------------------------
-            const referencesLimited = new Set<ModelReference>();
+            const stopedReferencesHashes = new Set<string>();
 
-            // Data Analysis
-            // 1. Traverse the generated dataset
+            // Analyse the trail to determine which models are now stoped
             if (flow) {
                 const outputModels = Model.flatten(flow.output);
                 for (const model of outputModels) {
-                    const digestModel = digest.models[model.name];
-                    const entitiesAll = TrailDataModel.getItemsList(digestModel);
-                    const entitiesByParent = TrailDataModel.groupByParent(digestModel, entitiesAll);
-                    for (const parentRef of entitiesByParent.keys()) {
-                        const entitiesOrganised = await connectedModel.organize(model, entitiesByParent.get(parentRef) as []);
-                        const limit = await connectedModel.limit(model, entitiesOrganised.valid);
-                        if (limit) {
-                            referencesLimited.add(parentRef);
+                    const ingestModel = ingest.models[model.name];
+                    if (ingestModel) {
+                        const entities = TrailDataModel.getItemsList(ingestModel);
+                        const entitiesByParentHash = TrailDataModel.groupByParentHash(ingestModel, entities);
+                        for (const parentRefHash of entitiesByParentHash.keys()) {
+                            const entitiesOrganised = await connectedModel.organizeList(model, entitiesByParentHash.get(parentRefHash) as []);
+                            const listIsComplete = await connectedModel.isListComplete(model, entitiesOrganised.valid);
+                            // console.log({ model: model.name, stop})
+                            if (listIsComplete) {
+                                stopedReferencesHashes.add(parentRefHash);
+                                // console.log(parentRefHash, entitiesByParentHash.get(parentRefHash))
+                            }
                         }
                     }
                 }
             }
 
-            // const models = Models.matches(actor.models, meta.data.reference);
-
-            // // 2. Log all references and if limited or not
-            // for (const entity of models) {
-
-            // }
-
+            // REQUESTS ------------------------------------------------------
             // INGESTED Stage
             const newlyCreatedRequests = TrailDataRequests.getItemsListByStatus(ingest.requests, 'CREATED');
             for (const newRequest of newlyCreatedRequests) {
@@ -53,19 +52,11 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 // ...
                 const metaLocal = RequestMeta.create(newRequest.source);
                 const flowLocal = actor.flows?.[metaLocal.data.flowName];
-                // const matchedModels = Models.matches(actor.models, metaLocal.data.reference);
-
                 const stepIsPartofFlow = !!flowLocal && Flow.has(flowLocal, metaLocal.data.stepName);
-                // const limitReachedByAnyModel = await someAsync(matchedModels, async (model) => {
-                //     const items = TrailDataModel.getItemsList(digest.models[model.name])
-                //         .filter(TrailDataModel.filterByStatus('CREATED'))
-                //         .filter(TrailDataModel.filterByPartial(false));
-                //     const organizedItems = await connectedModel.organize(model, items).then(({ valid }) => valid);
-                //     const limitReached = !connectedModel.limit(model, organizedItems);
-                //     return limitReached;
-                // });
 
-                const requestShouldBeQueued = stepIsPartofFlow && true;
+                const requestIsLimited = stopedReferencesHashes.has(hash(metaLocal?.data?.reference));
+                const requestShouldBeQueued = stepIsPartofFlow && !requestIsLimited;
+                // console.log({ ref: metaLocal?.data?.reference, hash: hash(metaLocal?.data?.reference), requestIsLimited, requestShouldBeQueued });
 
                 if (requestShouldBeQueued) {
                     Trail.promote(trail, newRequest);
@@ -99,7 +90,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 for (const modelName of Object.keys(actor?.models)) {
                     const items = TrailDataModel.getItemsListByStatus(ingest.models[modelName], ['CREATED']);
 
-                    const filteredAs = await connectedModel.organize(ingest.models[modelName].model, items);
+                    const filteredAs = await connectedModel.organizeList(ingest.models[modelName].model, items);
 
                     for (const validItem of filteredAs.valid) {
                         Trail.promote(trail, validItem);

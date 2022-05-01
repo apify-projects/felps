@@ -50,7 +50,7 @@ export const walk = (model: ModelInstance, walker: (key: string, value: ReallyAn
 export const flatten = (model: ModelInstance): ModelInstance[] => {
     const models = new Set<ModelInstance>();
     traverseAndCarry(model.schema, { parents: [] }, (value, ctx) => {
-        const modelName = value[SCHEMA_MODEL_NAME_KEY];
+        const modelName: string = value[SCHEMA_MODEL_NAME_KEY];
 
         if (modelName) {
             models.add(create({
@@ -99,9 +99,9 @@ export const referenceFor = (model: ModelInstance, ref: ModelReference, withOwnR
     return pickAll(keys, ref);
 };
 
-export const match = (model: ModelInstance, ref: ModelReference): boolean => {
-    return Object.values(referenceFor(model, ref, true)).every((value) => value !== undefined);
-};
+// export const match = (model: ModelInstance, ref: ModelReference): boolean => {
+//     return Object.values(referenceFor(model, ref, true)).every((value) => value !== undefined);
+// };
 
 export const validate = <T = unknown>(model: ModelInstance<JSONSchema>, data: T, options: ValidatorValidateOptions = {}): boolean => {
     const validator = Validator.create({ name: model.name, schema: model.schema });
@@ -113,15 +113,23 @@ export const validateReference = <T = unknown>(model: ModelInstance, ref: ModelR
     return Validator.validate(validator, ref, { partial: false, logError: true, throwError: false, ...options });
 };
 
+export const find = (
+    model: ModelInstance, items: TrailDataModelItem<ReallyAny>[], newItem: TrailDataModelItem<ReallyAny>): TrailDataModelItem<ReallyAny> | undefined => {
+    for (const item of items) {
+        if ((model.schema as JSONSchemaMethods).isItemUnique?.(item, newItem)) return item;
+    }
+    return undefined;
+};
+
 export const connect = ({ api }: { api: GeneralStepApi }) => ({
-    async organize(model: ModelInstance, items: TrailDataModelItem[]): Promise<{ valid: TrailDataModelItem[], invalid: TrailDataModelItem[] }> {
-        const valid = await Promise.resolve((model.schema as JSONSchemaMethods)?.organize?.(items, api)) || items;
+    async organizeList(model: ModelInstance, items: TrailDataModelItem[]): Promise<{ valid: TrailDataModelItem[], invalid: TrailDataModelItem[] }> {
+        const valid = await Promise.resolve((model.schema as JSONSchemaMethods)?.organizeList?.(items, api)) || items;
         const invalid = items.filter((item) => !valid.includes(item));
         return { valid, invalid };
     },
-    async limit(model: ModelInstance, items: TrailDataModelItem[]): Promise<boolean> {
-        return (model.schema as JSONSchemaMethods).limit?.(items, api) || false;
+    async isListComplete(model: ModelInstance, items: TrailDataModelItem[]): Promise<boolean> {
+        return (model.schema as JSONSchemaMethods).isListComplete?.(items, api) || false;
     },
 });
 
-export default { create, define, dependencies, referenceKeys, referenceFor, match, validate, validateReference, connect, wrap, walk, flatten };
+export default { create, define, dependencies, referenceKeys, referenceFor, find, validate, validateReference, connect, wrap, walk, flatten };

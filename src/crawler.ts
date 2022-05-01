@@ -13,8 +13,8 @@ export const PRE_NAVIGATION_HOOKS: Record<string, PlaywrightHook> = {
                 : route.continue();
         });
     },
-    async domContentLoaded(_, gotoOptions) {
-        gotoOptions.waitUntil = 'domcontentloaded';
+    async domContentLoaded(_, nextOptions) {
+        nextOptions.waitUntil = 'domcontentloaded';
     },
 };
 

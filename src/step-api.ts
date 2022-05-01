@@ -8,12 +8,13 @@ export const create = <
     F, S, M extends Record<string, ModelDefinition>, I extends InputDefinition
 >(actor: ActorInstance) => {
     return (context: RequestContext) => {
-        return {
+        const api = {
             ...StepApiFlow.create(actor).handler(context),
             ...StepApiMeta.create().handler(context),
             ...StepApiUtils.create(actor).handler(context),
             ...StepApiModel.create(actor).handler(context),
         } as unknown as StepApiInstance<F, S, M, I>;
+        return api;
     };
 };
 

@@ -83,7 +83,7 @@ steps.COLLECT_NEW_PRODUCTS_LISTING.handler = async ({ $ }, api) => {
         const url = api.absoluteUrl($(product).attr('href'));
 
         if (url) {
-            api.goto('COLLECT_PRODUCT_DETAILS', { url }, productRef);
+            api.next('COLLECT_PRODUCT_DETAILS', { url }, productRef);
         }
     }
 };

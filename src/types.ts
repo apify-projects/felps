@@ -3,7 +3,7 @@ import Apify from 'apify';
 import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
 import { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
-import { JSONSchema7 as $JSONSchema7 } from 'json-schema';
+import type { JSONSchema7 as $JSONSchema7 } from 'json-schema';
 import type { FromSchema } from 'json-schema-to-ts';
 import { Readonly } from 'json-schema-to-ts/lib/utils';
 import MultiCrawler, { MultiCrawlerOptions } from './sdk/multi-crawler';
@@ -15,8 +15,9 @@ export type MakeSchema<S> = S | Readonly<S>;
 export type JSONSchema = MakeSchema<_JSONSchema7>;
 export type JSONSchemaWithMethods = MakeSchema<_JSONSchema7<JSONSchemaMethods>>;
 export type JSONSchemaMethods = {
-    organize?: (items: TrailDataModelItem[], api: GeneralStepApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
-    limit?: (items: TrailDataModelItem[], api: GeneralStepApi) => boolean | Promise<boolean>,
+    organizeList?: (items: TrailDataModelItem[], api: GeneralStepApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
+    isItemUnique?: (existingItem: TrailDataModelItem<ReallyAny>, newItem: TrailDataModelItem<ReallyAny>) => boolean,
+    isListComplete?: (items: TrailDataModelItem[], api: GeneralStepApi) => boolean | Promise<boolean>,
 };
 
 export type JSONSchemaObject<T = unknown> =
@@ -185,7 +186,9 @@ export type StepApiFlowsAPI<F, S, M> = {
         reference?: ModelReference<M>,
         options?: { crawlerMode: RequestCrawlerMode }
     ) => ModelReference<M>;
-    goto: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode }) => void;
+    next: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode }) => void;
+    stop: (reference?: ModelReference<M>) => void;
+    retry: (reference?: ModelReference<M>) => void;
 };
 
 // step-api-model.ts ------------------------------------------------------------
@@ -252,7 +255,7 @@ export type StepApiUtilsInstance = {
 
 export type StepApiUtilsAPI<I extends InputDefinition = InputDefinition> = {
     getFlowInput: () => TrailState['input'];
-    getActorInput: () => ReallyAny | I['schema'];
+    getActorInput: () => ReallyAny | FromSchema<I['schema']>;
     absoluteUrl: (url: string) => string | void,
 }
 

@@ -6,8 +6,9 @@ import { ReallyAny, ValidatorInstance, ValidatorOptions, ValidatorValidateOption
 function createAjv() {
     const ajv = new Ajv({ allErrors: true });
     ajv.addKeyword('modelName');
-    ajv.addKeyword('organize');
-    ajv.addKeyword('limit');
+    ajv.addKeyword('organizeList');
+    ajv.addKeyword('isListComplete');
+    ajv.addKeyword('isItemUnique');
     addFormats(ajv);
     return ajv;
 }
