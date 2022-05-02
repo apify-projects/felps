@@ -1,9 +1,9 @@
-import { FlowDefinition, InputDefinition, ModelDefinition, ReallyAny, StepDefinition, StepDefinitions, StepsInstance } from './types';
 import step from './step';
+import { FlowDefinition, InputDefinition, ModelDefinition, ReallyAny, StepDefinition, StepDefinitions, StepsInstance } from './types';
 
 export const create = <
     M extends Record<string, ModelDefinition>,
-    F extends Record<string, FlowDefinition>,
+    F extends Record<string, FlowDefinition<keyof StepDefinitions>>,
     StepDefinitions extends Record<string, StepDefinition>,
     I extends InputDefinition
 >({ STEPS }: { MODELS?: M, FLOWS?: F, STEPS: StepDefinitions, INPUT: I }): StepsInstance<M, F, StepDefinitions, I> => {

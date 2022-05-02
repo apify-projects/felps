@@ -1,7 +1,7 @@
 .idea
 node_modules
 apify_storage
-dist/
+lib/
 apify_storage
 package-lock.json
 yarn.lock

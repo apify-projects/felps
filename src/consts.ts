@@ -26,5 +26,6 @@ export const REQUEST_UID_KEY = `req`;
 export const METADATA_KEY = '___felps';
 export const SCHEMA_MODEL_NAME_KEY = 'modelName';
 
-export const REQUEST_KEY_PROP = 'requestKey';
-export const TRAIL_KEY_PROP = 'trailKey';
+export const REQUEST_KEY_PROP = <const>'fRequestKey';
+export const TRAIL_KEY_PROP = <const>'fTrailKey';
+export const FLOW_KEY_PROP = <const>'fFlowKey';

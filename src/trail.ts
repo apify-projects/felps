@@ -1,15 +1,16 @@
 import { RequestMeta } from '.';
 import Base from './base';
-import {
-    DataStoreInstance,
-    DeepPartial, ModelInstance, ReallyAny, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem,
-    TrailDataStage, TrailDataStages, TrailInstance,
-    TrailOptions, TrailState,
-} from './types';
-import { craftUIDKey, pathify } from './utils';
+import { TRAIL_KEY_PROP } from './consts';
 import DataStore from './data-store';
 import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
+import {
+    DataStoreInstance,
+    DeepPartial, ModelInstance, ReallyAny, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem,
+    TrailDataStage, TrailDataStages, TrailFlowState, TrailInstance,
+    TrailOptions, TrailState, UniqueyKey,
+} from './types';
+import { craftUIDKey, pathify } from './utils';
 
 export const create = (options: TrailOptions): TrailInstance => {
     const { id = craftUIDKey('trail'), actor } = options || {};
@@ -30,8 +31,7 @@ export const load = async (trail: TrailInstance): Promise<TrailInstance> => {
     if (!DataStore.has(store, trail.id)) {
         const initialState: DeepPartial<TrailState> = {
             id: trail.id,
-            input: {},
-            output: undefined,
+            flows: {},
             stats: { startedAt: new Date().toISOString() },
         };
 
@@ -48,7 +48,7 @@ export const createFrom = (request: RequestSource, options: TrailOptions): Trail
     const meta = RequestMeta.create(request);
     return create({
         ...options,
-        id: meta.data?.reference?.trailKey,
+        id: meta.data?.reference?.[TRAIL_KEY_PROP],
     });
 };
 
@@ -56,8 +56,19 @@ export const get = (trail: TrailInstance): TrailState => {
     return DataStore.get(trail.store, trail.id);
 };
 
-export const update = (trail: TrailInstance, data: DeepPartial<Pick<TrailState, 'input'>>): void => {
-    DataStore.update(trail.store, trail.id, data);
+// export const update = (trail: TrailInstance, data: DeepPartial<Pick<TrailState, 'flows'>>): void => {
+//     DataStore.update(trail.store, trail.id, data);
+// };
+
+export const getFlow = (trail: TrailInstance, flowKey: UniqueyKey | undefined): TrailFlowState | undefined => {
+    if (!flowKey) return;
+    return DataStore.get(trail.store, pathify(trail.id, 'flows', flowKey));
+};
+
+export const setFlow = (trail: TrailInstance, flowState: TrailFlowState): UniqueyKey => {
+    const flowKey = craftUIDKey('flow');
+    DataStore.set(trail.store, pathify(trail.id, 'flows', flowKey), flowState);
+    return flowKey;
 };
 
 export const setRequest = (trail: TrailInstance, request: any): void => {
@@ -100,4 +111,4 @@ export const promote = (trail: TrailInstance, item: TrailDataModelItem | TrailDa
     DataStore.remove(trail.store, path('ingested'));
 };
 
-export default { create, createFrom, load, get, update, setRequest, ingested, digested, promote };
+export default { create, createFrom, load, get, setRequest, setFlow, getFlow, ingested, digested, promote };

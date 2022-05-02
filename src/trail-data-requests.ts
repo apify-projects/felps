@@ -2,7 +2,7 @@
 import isMatch from 'lodash.ismatch';
 import { RequestMeta } from '.';
 import base from './base';
-import { REQUEST_STATUS, REQUEST_UID_KEY } from './consts';
+import { REQUEST_KEY_PROP, REQUEST_STATUS, REQUEST_UID_KEY } from './consts';
 import { ModelReference, RequestSource, TrailDataRequestItem, TrailDataRequestItemStatus, TrailDataRequestsInstance, TrailDataRequestsOptions } from './types';
 import { craftUIDKey, pathify } from './utils';
 import dataStore from './data-store';
@@ -19,7 +19,7 @@ export const create = (options: TrailDataRequestsOptions): TrailDataRequestsInst
 
     return {
         ...base.create({ key, name, id }),
-        referenceKey: 'requestKey',
+        referenceKey: REQUEST_KEY_PROP,
         path,
         store,
     };
@@ -57,11 +57,11 @@ export const getReference = (trailDataRequests: TrailDataRequestsInstance, ref: 
 };
 
 export const set = (trailDataRequests: TrailDataRequestsInstance, request: RequestSource, ref?: ModelReference): ModelReference => {
-    const meta = RequestMeta.extend(RequestMeta.create(request), { reference: { requestKey: craftUIDKey(REQUEST_UID_KEY), ...ref } });
+    const meta = RequestMeta.extend(RequestMeta.create(request), { reference: { [REQUEST_KEY_PROP]: craftUIDKey(REQUEST_UID_KEY), ...ref } });
 
     if (meta.data.reference) {
         const item: TrailDataRequestItem = {
-            id: meta.data.reference?.requestKey as string,
+            id: meta.data.reference?.[REQUEST_KEY_PROP] as string,
             source: meta.request,
             snapshot: undefined,
             status: REQUEST_STATUS.CREATED,
@@ -79,7 +79,7 @@ export const setStatus = (trailDataRequests: TrailDataRequestsInstance, status: 
         // If no appropriate reference is found, do same as testing if it exists
         const exists = has(trailDataRequests, ref);
         if (exists) {
-            dataStore.set(trailDataRequests.store, pathify(trailDataRequests.path, ref?.requestKey as string, 'status'), status);
+            dataStore.set(trailDataRequests.store, pathify(trailDataRequests.path, ref?.[REQUEST_KEY_PROP] as string, 'status'), status);
         }
     } catch (error) {
         // silent

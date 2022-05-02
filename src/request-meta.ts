@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash.clonedeep';
 import { mergeDeepRight } from 'ramda';
 import base from './base';
-import { METADATA_KEY } from './consts';
+import { METADATA_KEY, TRAIL_KEY_PROP } from './consts';
 import { RequestContext, RequestMetaData, RequestMetaInstance, RequestSource } from './types';
 import { craftUIDKey } from './utils';
 
@@ -37,7 +37,7 @@ export const contextDefaulted = (context?: RequestContext): RequestContext => {
             userData: {
                 [METADATA_KEY]: {
                     reference: {
-                        trailKey: craftUIDKey('trail'),
+                        [TRAIL_KEY_PROP]: craftUIDKey('trail'),
                     },
                 },
             },

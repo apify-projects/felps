@@ -1,5 +1,5 @@
 import Flow from './flow';
-import { FlowDefinition, FlowDefinitions, ModelDefinition, StepDefinition } from './types';
+import { FlowDefinition, FlowDefinitions, FlowNamesObject, ModelDefinition, StepDefinition } from './types';
 
 export const create = <
     F extends Record<string, FlowDefinition<string>>
@@ -26,6 +26,11 @@ export const use = <
     };
 };
 
-export default { create, use };
+export const names = <F extends Record<string, FlowDefinition<string>>>(FLOWS: F): FlowNamesObject<F> => {
+    return Object.keys(FLOWS).reduce((acc, name) => ({
+        ...acc,
+        [name]: name,
+    }), {} as FlowNamesObject<F>);
+};
 
-//     Definitions extends Record<keyof FlowNames, string[]> = Record<keyof FlowNames, string[]>
+export default { create, use, names };

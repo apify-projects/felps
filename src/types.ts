@@ -105,26 +105,33 @@ export type FlowDefinitions<StepNames, T extends Record<string, FlowDefinition<S
     [K in keyof T]: T[K] extends FlowDefinition<StepNames> ? T[K] & { name: string } : never
 };
 
-export type FlowDefinition<StepNames = string> = PartialBy<FlowOptions<StepNames>, 'name'>
-
 // flow.ts ------------------------------------------------------------
 export type FlowInstance<StepNames> = {
     crawlerMode?: RequestCrawlerMode,
     steps: StepNames[],
+    input: ModelInstance<JSONSchema>,
     output: ModelInstance<JSONSchema>,
 } & BaseInstance;
 
-export type FlowOptions<StepNames = string> = {
-    name: string,
+export type FlowDefinition<StepNames = string> = {
     crawlerMode?: RequestCrawlerMode,
     steps: StepNames[],
+    input: ModelDefinition<JSONSchemaWithMethods>,
     output: ModelDefinition<JSONSchemaWithMethods>,
+}
+
+export type FlowNamesObject<F extends Record<string, ReallyAny>> = {
+    [K in keyof F]: Extract<K, string>
+}
+
+export type FlowOptions<StepNames = string> = FlowDefinition<StepNames> & {
+    name: string,
 }
 
 export type FlowOptionsWithoutName<StepNames = string> = Omit<FlowOptions<StepNames>, 'name'>;
 
 // steps.ts ------------------------------------------------------------
-export type StepsInstance<M extends Record<string, ModelDefinition>, F, S, I extends InputDefinition> = {
+export type StepsInstance<M extends Record<string, ModelDefinition>, F extends Record<string, FlowDefinition<keyof S>>, S, I extends InputDefinition> = {
     [K in keyof S]: S[K] extends StepDefinition ? StepInstance<StepApiInstance<F, S, M, I>> & S[K] : never
 };
 
@@ -166,25 +173,42 @@ export type StepOptions<Methods = unknown> = {
 export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
 
 // step-api.ts -----------------------------------------------------------------
-export type StepApiInstance<F, S, M extends Record<string, ModelDefinition>, I extends InputDefinition> = GeneralStepApi<I>
+export type StepApiInstance<
+    F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>, I extends InputDefinition> = GeneralStepApi<I>
     & StepApiFlowsAPI<F, S, M>
     & StepApiModelAPI<M>;
 
-export type GeneralStepApi<I extends InputDefinition = InputDefinition> = StepApiMetaAPI & StepApiUtilsAPI<I>;
+export type GeneralStepApi<I extends InputDefinition = InputDefinition> = StepApiMetaAPI<I> & StepApiUtilsAPI;
 
 // step-api-flow.ts ------------------------------------------------------------
-export type StepApiFlowsInstance<F, S, M extends Record<string, ModelDefinition>> = {
+export type StepApiFlowsInstance<F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>> = {
     handler: (context: RequestContext) => StepApiFlowsAPI<F, S, M>,
 };
 
-export type StepApiFlowsAPI<F, S, M> = {
+export type StepApiFlowsAPI<F extends Record<string, FlowDefinition<keyof S>>, S, M> = {
+    isStep: (stepName: string) => boolean,
+    isFlow: (flowName: string) => boolean,
     asFlowName: (flowName: string) => (Extract<keyof F, string> | undefined),
-    start: (
-        flowName: Extract<keyof F, string>,
+    asStepName: (stepName: string) => (Extract<keyof S, string> | undefined),
+    start: <FlowName extends keyof F>(
+        flowName: Extract<FlowName, string>,
         request: RequestSource,
-        input?: any,
-        reference?: ModelReference<M>,
-        options?: { crawlerMode: RequestCrawlerMode }
+        input?: ReallyAny, // FromSchema<F[FlowName]['input']>
+        options?: {
+            reference?: ModelReference<M>,
+            crawlerMode: RequestCrawlerMode | undefined,
+            useNewTrail: boolean
+        }
+    ) => ModelReference<M>;
+    pipe: <FlowName extends keyof F>(
+        flowName: Extract<FlowName, string>,
+        request: RequestSource,
+        input?: ReallyAny, // FromSchema<F[FlowName]['input']>
+        options?: {
+            reference?: ModelReference<M>,
+            crawlerMode: RequestCrawlerMode | undefined,
+            useNewTrail: boolean
+        }
     ) => ModelReference<M>;
     next: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode }) => void;
     stop: (reference?: ModelReference<M>) => void;
@@ -242,10 +266,12 @@ export type StepApiMetaInstance = {
     handler: (context: RequestContext) => StepApiMetaAPI,
 };
 
-export type StepApiMetaAPI = {
+export type StepApiMetaAPI<I extends InputDefinition = InputDefinition> = {
+    getActorInput: () => ReallyAny | FromSchema<I['schema']>;
     getUserData: () => Record<string, unknown>,
     getMetaData: () => RequestMetaData,
     getRerence: () => RequestMetaData['reference'],
+    getFlowInput: () => TrailFlowState['input'];
 }
 
 // step-api-utils.ts ------------------------------------------------------------
@@ -253,9 +279,7 @@ export type StepApiUtilsInstance = {
     handler: (context: RequestContext) => StepApiUtilsAPI,
 };
 
-export type StepApiUtilsAPI<I extends InputDefinition = InputDefinition> = {
-    getFlowInput: () => TrailState['input'];
-    getActorInput: () => ReallyAny | FromSchema<I['schema']>;
+export type StepApiUtilsAPI = {
     absoluteUrl: (url: string) => string | void,
 }
 
@@ -276,7 +300,7 @@ export type ModelOptions<TSchema = JSONSchema> = ModelDefinition<TSchema>;
 
 export type ModelReference<T = unknown> = Partial<{
     [K in Extract<keyof T, string> as `${SnakeToCamelCase<K>}Key`]: UniqueyKey;
-} & { requestKey: UniqueyKey, trailKey: UniqueyKey }>;
+} & { fRequestKey: UniqueyKey, fTrailKey: UniqueyKey, fFlowKey: UniqueyKey }>;
 
 // stores.ts ------------------------------------------------------------
 // eslint-disable-next-line max-len
@@ -334,11 +358,19 @@ export type TrailOptions = {
     actor?: ActorInstance;
 }
 
+export type TrailFlowState = {
+    name: string,
+    input: any,
+    reference: ModelReference<ReallyAny> | undefined,
+    crawlerMode?: RequestCrawlerMode,
+    output?: any,
+}
+
 export type TrailState = {
     id: string,
-    flow: string,
-    input: any,
-    output: any,
+    flows: {
+        [flowKey: string]: TrailFlowState,
+    },
     stats: {
         startedAt: string,
         endedAt: string,
@@ -348,6 +380,7 @@ export type TrailState = {
     },
     ingested: TrailDataStage,
     digested: TrailDataStage,
+    output: any,
 }
 
 // export type TrailInOutMethodsOptions<ModelSchemas> = {
@@ -502,7 +535,7 @@ export type ActorOptions = {
 }
 
 // hooks.ts ------------------------------------------------------------
-export type HooksInstance<M extends Record<string, ModelDefinition>, F, S, I extends InputDefinition> = {
+export type HooksInstance<M extends Record<string, ModelDefinition>, F extends Record<string, FlowDefinition<keyof S>>, S, I extends InputDefinition> = {
     [K in DefaultHookNames[number]]: StepInstance<StepApiInstance<F, S, M, I>>;
 };
 
