@@ -6,7 +6,7 @@ const data_store_1 = tslib_1.__importDefault(require("./data-store"));
 const file_store_1 = tslib_1.__importDefault(require("./file-store"));
 exports.DefaultDataStores = {
     state: data_store_1.default.create({ name: 'state', kvKey: 'STATE' }),
-    trails: data_store_1.default.create({ name: 'trails', kvKey: 'TRAILS' }),
+    trails: data_store_1.default.create({ name: 'trails', kvKey: 'TRAILS', splitByKey: true }),
     incorrectDataset: data_store_1.default.create({ name: 'incorrectDataset', kvKey: 'INCORRECT_DATASET' }),
 };
 exports.DefautFileStores = {

@@ -3,15 +3,41 @@ import { BrowserCrawler, BrowserPlugin, PlaywrightCrawler, PlaywrightCrawlerOpti
 import { PlaywrightLauncher } from 'apify/build/browser_launchers/playwright_launcher';
 import { gotoExtended } from 'apify/build/puppeteer_utils';
 import * as cheerio from 'cheerio';
+import HttpsProxyAgent from 'https-proxy-agent';
+import getPath from 'lodash.get';
 import nodeFetch from 'node-fetch';
 import ow from 'ow';
-import { chromium, firefox } from 'playwright';
-import { METADATA_KEY } from '../consts';
-import { ReallyAny, RequestMetaData } from '../types';
+import { chromium, firefox, webkit } from 'playwright';
 
-export type MultiCrawlerOptions = PlaywrightCrawlerOptions & { launchContext: PlaywrightLaunchContext };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ReallyAny = any;
+
+const getBrowserPlugin = (browser: string, launchContext: PlaywrightLaunchContext): BrowserPlugin => {
+    let launcher;
+    switch (browser) {
+        case 'firefox':
+            launcher = firefox;
+            break;
+
+        case 'webkit':
+            launcher = webkit;
+            break;
+
+        case 'http':
+        case 'chromium':
+        default:
+            launcher = chromium;
+            break;
+    }
+
+    return new PlaywrightLauncher({ ...launchContext, launcher }).createBrowserPlugin();
+};
 
 export default class MultiCrawler extends BrowserCrawler {
+    browserPlugins: { [browser: string]: BrowserPlugin } = {};
+
+    crawlerModePath: string;
+
     static override optionsShape = {
         ...BrowserCrawler.optionsShape,
         browserPoolOptions: ow.optional.object,
@@ -21,45 +47,37 @@ export default class MultiCrawler extends BrowserCrawler {
 
     launchContext: PlaywrightLaunchContext;
 
-    constructor(options: MultiCrawlerOptions) {
+    constructor(options: PlaywrightCrawlerOptions) {
         ow(options, 'PlaywrightCrawlerOptions', ow.object.exactShape(PlaywrightCrawler.optionsShape));
 
-        const {
-            launchContext = {},
-            browserPoolOptions = {},
-            ...browserCrawlerOptions
-        } = options as ReallyAny;
+        const { launchContext = {}, browserPoolOptions = {}, ...browserCrawlerOptions } = options as ReallyAny;
 
-        if (launchContext.proxyUrl) {
-            throw new Error('PlaywrightCrawlerOptions.launchContext.proxyUrl is not allowed in PlaywrightCrawler.'
-                + 'Use PlaywrightCrawlerOptions.proxyConfiguration');
-        }
+        const browserPlugins = {
+            http: getBrowserPlugin('http', launchContext),
+            chromium: getBrowserPlugin('chromium', launchContext),
+            firefox: getBrowserPlugin('firefox', launchContext),
+            webkit: getBrowserPlugin('webkit', launchContext),
+        };
 
-        browserPoolOptions.browserPlugins = [chromium, firefox].map(
-            (launcher) => new PlaywrightLauncher({ ...launchContext, launcher }).createBrowserPlugin(),
-        );
+        browserPoolOptions.browserPlugins = Object.values(browserPlugins);
 
-        super({
-            ...browserCrawlerOptions,
-            browserPoolOptions,
-        });
+        super({ ...browserCrawlerOptions, browserPoolOptions });
 
+        this.crawlerModePath = `crawlerMode`;
+        this.browserPlugins = browserPlugins;
         this.launchContext = launchContext;
     }
 
-    override async _navigationHandler(context: ReallyAny, nextOptions: ReallyAny) {
-        if (this.gotoFunction) {
-            this.log.deprecated('PlaywrightCrawler.nextFunction is deprecated. Use "preNavigationHooks" and "postNavigationHooks" instead.');
-            return this.gotoFunction(context, nextOptions);
-        }
+    override async _navigationHandler(context: ReallyAny, nextOptions: ReallyAny): Promise<ReallyAny> {
         return gotoExtended(context.page, context.request, nextOptions);
     }
 
-    override async _handleRequestFunction(context: ReallyAny) {
-        const { crawlerMode = 'http' } = context?.request?.userData?.[METADATA_KEY] as RequestMetaData;
+    override async _handleRequestFunction(context: ReallyAny): Promise<ReallyAny> {
+        const crawlerMode = getPath(context?.request?.userData || {}, this.crawlerModePath) || 'http';
 
         const newPageOptions = {
             id: context.id,
+            browserPlugin: this.browserPlugins[crawlerMode] || this.browserPlugins.http,
         } as ReallyAny;
 
         const useIncognitoPages = this.launchContext && this.launchContext.useIncognitoPages as boolean;
@@ -69,8 +87,6 @@ export default class MultiCrawler extends BrowserCrawler {
             const proxyInfo = this.proxyConfiguration.newProxyInfo(session && session.id);
             context.session = session;
             context.proxyInfo = proxyInfo;
-
-            newPageOptions.browserPlugin = this.browserPool.browserPlugins.find((plugin: BrowserPlugin) => plugin.launcher.name === crawlerMode);
 
             newPageOptions.proxyUrl = proxyInfo.url;
 
@@ -82,26 +98,54 @@ export default class MultiCrawler extends BrowserCrawler {
             }
         }
 
-        const { url, payload } = context.request;
+        const { url, payload, headers, method = 'GET' } = context.request;
         let page;
         let session;
 
         if (crawlerMode === 'http') {
             // Handle HTTP requests
+            // LOTS TO BE DONE HERE
+            const proxyUrl = this.proxyConfiguration?.newUrl?.();
+            const agent = proxyUrl ? HttpsProxyAgent(proxyUrl) : undefined;
             try {
+                const gotoOptions = { ...this.defaultGotoOptions };
+
                 context.response = await nodeFetch(
                     url,
                     {
-                        // ...restRequest as ReallyAny,
+                        method,
+                        headers: {
+                            // ...new HeaderGenerator(),
+                            ...headers,
+                        },
                         body: payload,
-                        // proxyUrl: this.proxyConfiguration?.newUrl?.(),
-                    });
-                try {
-                    const html = await context.response.text();
-                    context.$ = cheerio.load(html);
-                } catch (error) {
-                    // silent
-                }
+                        agent,
+                    },
+                );
+
+                await this._executeHooks(this.preNavigationHooks, context, gotoOptions);
+                tryCancel();
+
+                const contentType = Object.fromEntries(context.response.headers.entries())['content-type'] || '';
+
+                if (contentType.includes('application/json')) {
+                    try {
+                        context.json = await context.response.json();
+                    } catch (error) {
+                        // silent
+                    };
+                } else if (contentType.includes('text/html')) {
+                    try {
+                        const html = await context.response.text();
+                        context.body = html;
+                        context.$ = cheerio.load(html);
+                    } catch (error) {
+                        // silent
+                    };
+                };
+
+                tryCancel();
+                await this._executeHooks(this.postNavigationHooks, context, gotoOptions);
             } catch (error) {
                 this._handleNavigationTimeout(context, error as ReallyAny);
                 throw error;

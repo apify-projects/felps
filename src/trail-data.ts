@@ -14,7 +14,7 @@ export const getPath = <T = unknown>(trailData: TrailDataInstance, ref: ModelRef
     const referenceKey = trailData?.referenceKey as string;
     const key = (ref as ReallyAny)?.[referenceKey] as UniqueyKey;
     if (!key) {
-        throw new Error(`No reference key found for ${JSON.stringify(ref)}`);
+        throw new Error(`No reference key ${referenceKey} found for ${JSON.stringify(ref)}`);
     }
     return pathify(trailData.path, key, ...segments);
 };

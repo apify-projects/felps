@@ -5,8 +5,11 @@ import StepApiUtils from './step-api-utils';
 import { ActorInstance, FlowDefinition, InputDefinition, ModelDefinition, RequestContext, StepApiInstance } from './types';
 
 export const create = <
-    F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>, I extends InputDefinition
->(actor: ActorInstance) => {
+    F extends Record<string, FlowDefinition<keyof S>>,
+    S,
+    M extends Record<string, ModelDefinition>,
+    I extends InputDefinition,
+    >(actor: ActorInstance) => {
     return (context: RequestContext) => {
         const api = {
             ...StepApiFlow.create(actor).handler(context),

@@ -1,12 +1,12 @@
 /* eslint-disable max-len */
-import hash from 'object-hash';
 import isMatch from 'lodash.ismatch';
+import hash from 'object-hash';
 import { Model } from '.';
 import base from './base';
 import { MODEL_STATUS, MODEL_UID_KEY, REFERENCE_KEY } from './consts';
 import dataStore from './data-store';
 import { getPath } from './trail-data';
-import { ModelReference, TrailDataModelInstance, TrailDataModelItem, TrailDataModelOperation, TrailDataModelItemStatus, TrailDataModelOptions, ReallyAny } from './types';
+import { ModelReference, ReallyAny, TrailDataModelInstance, TrailDataModelItem, TrailDataModelItemStatus, TrailDataModelOperation, TrailDataModelOptions } from './types';
 import { craftUIDKey, pathify } from './utils';
 
 export const create = (options: TrailDataModelOptions): TrailDataModelInstance => {
@@ -147,7 +147,7 @@ export const setStatus = (trailDataModel: TrailDataModelInstance, status: TrailD
     dataStore.set(trailDataModel.store, pathify(trailDataModel.path, key, 'status'), status);
 };
 
-export const count = <T>(trailDataModel: TrailDataModelInstance, ref: ModelReference<T>): number => {
+export const count = <T = unknown>(trailDataModel: TrailDataModelInstance, ref: ModelReference<T>): number => {
     return getItemsList(trailDataModel, ref).length;
 };
 

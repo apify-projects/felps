@@ -34,4 +34,9 @@ export const onIntervals = (handler: () => void): void => {
     onPersistState(handler);
 };
 
-export default { onMigrating, onAborting, onPersistState, onShutdown, onIntervals };
+export const onAll = (handler: () => void): void => {
+    onShutdown(handler);
+    onIntervals(handler);
+};
+
+export default { onMigrating, onAborting, onPersistState, onShutdown, onIntervals, onAll };

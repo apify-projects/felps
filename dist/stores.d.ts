@@ -7,9 +7,9 @@ export declare const persist: (stores: StoresInstance) => Promise<void>;
 export declare const listen: (stores: StoresInstance) => void;
 declare const _default: {
     create: <DataStoreNames extends string[] = [], FileStoreNames extends string[] = []>(options?: StoresOptions<DataStoreNames, FileStoreNames> | undefined) => StoresInstance<DataStoreNames, FileStoreNames>;
-    load: (stores: StoresInstance<[], []>) => Promise<StoresInstance<[], []>>;
-    persist: (stores: StoresInstance<[], []>) => Promise<void>;
-    listen: (stores: StoresInstance<[], []>) => void;
+    load: (stores: StoresInstance<DefaultDataStoreNames, DefaultFileStoreNames>) => Promise<StoresInstance<DefaultDataStoreNames, DefaultFileStoreNames>>;
+    persist: (stores: StoresInstance<DefaultDataStoreNames, DefaultFileStoreNames>) => Promise<void>;
+    listen: (stores: StoresInstance<DefaultDataStoreNames, DefaultFileStoreNames>) => void;
     DefaultDataStores: GenerateObject<DefaultDataStoreNames, DataStoreInstance>;
     DefautFileStores: GenerateObject<DefaultFileStoreNames, FileStoreInstance>;
 };

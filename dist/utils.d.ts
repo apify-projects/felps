@@ -16,7 +16,7 @@ export declare const isNumberPredicate: (nb: number) => boolean;
 export declare const concatAsUniqueArray: (...arrs: any[]) => never[];
 export declare const orderByClosestLength: (text: string, list: any[], matcher?: (item: any) => string) => string[];
 export declare const traverse: (obj: any, handler: (key: string, value: any) => void) => void;
-export declare const traverseAndCarry: (obj: ReallyAny, context: ReallyAny, handler: (value: any, ctx: ReallyAny) => ReallyAny) => void;
+export declare const traverseAndCarry: (obj: ReallyAny, context: ReallyAny, handler: (value: any, key: string | undefined, ctx: ReallyAny) => ReallyAny, key?: string | undefined) => void;
 export declare const someAsync: (arr: any[], predicate: (item: any) => Promise<boolean>) => Promise<boolean>;
 export declare const everyAsync: (arr: any[], predicate: (item: any) => Promise<boolean>) => Promise<boolean>;
 export declare const merge: (...objs: any[]) => any;

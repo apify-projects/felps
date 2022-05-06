@@ -99,11 +99,11 @@ const traverse = (obj, handler) => {
     }
 };
 exports.traverse = traverse;
-const traverseAndCarry = (obj, context, handler) => {
-    context = handler(obj, (0, lodash_clonedeep_1.default)(context)) || context;
+const traverseAndCarry = (obj, context, handler, key) => {
+    context = handler(obj, key, (0, lodash_clonedeep_1.default)(context)) || context;
     for (const k of Object.keys(obj)) {
         if (obj.hasOwnProperty(k) && obj[k] && typeof obj[k] === 'object') {
-            (0, exports.traverseAndCarry)(obj[k], (0, lodash_clonedeep_1.default)(context), handler);
+            (0, exports.traverseAndCarry)(obj[k], (0, lodash_clonedeep_1.default)(context), handler, k);
         }
         else {
             // Do something with obj[k]

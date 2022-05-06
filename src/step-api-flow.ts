@@ -1,6 +1,6 @@
 import { Model, RequestMeta, Trail } from '.';
 import base from './base';
-import { FLOW_KEY_PROP, TRAIL_KEY_PROP } from './consts';
+import { FLOW_KEY_PROP, PREFIXED_NAME_BY_ACTOR, TRAIL_KEY_PROP } from './consts';
 import TrailDataRequests from './trail-data-requests';
 import { ActorInstance, FlowDefinition, FlowInstance, ModelDefinition, ModelReference, ReallyAny, StepApiFlowsAPI, StepApiFlowsInstance } from './types';
 
@@ -13,28 +13,50 @@ export const create = <
             const currentTrail = Trail.createFrom(context?.request, { actor });
             const ingest = Trail.ingested(currentTrail);
 
+            const actorKey = currentMeta.data.reference.fActorKey as string;
+
+            const actorKeyMustExists = () => {
+                if (!actorKey) throw new Error('Actor key not found');
+            };
+
             return {
-                isStep(stepName) {
+                actor: () => actor,
+                steps: () => actor.steps,
+                flows: () => actor.flows,
+                hooks: () => actor.hooks,
+                isStep(stepNameToTest, stepNameExpected) {
+                    actorKeyMustExists();
+                    return PREFIXED_NAME_BY_ACTOR(actorKey, stepNameToTest) === PREFIXED_NAME_BY_ACTOR(actorKey, stepNameExpected);
+                },
+                isFlow(flowNameToTest, flowNameExpected) {
+                    actorKeyMustExists();
+                    return PREFIXED_NAME_BY_ACTOR(actorKey, flowNameToTest) === PREFIXED_NAME_BY_ACTOR(actorKey, flowNameExpected);
+                },
+                isCurrentStep(stepName) {
                     return currentMeta.data.stepName === stepName;
                 },
-                isFlow(flowName) {
+                isCurrentFlow(flowName) {
                     return currentMeta.data.flowName === flowName;
                 },
                 asFlowName(flowName) {
-                    return Object.keys(actor.flows).includes(flowName) ? flowName : undefined;
+                    actorKeyMustExists();
+                    const prefixedFlowName = PREFIXED_NAME_BY_ACTOR(actorKey, flowName);
+                    return Object.keys(actor.flows).includes(prefixedFlowName) ? prefixedFlowName : undefined;
                 },
                 asStepName(stepName) {
-                    return Object.keys(actor.steps).includes(stepName) ? stepName : undefined;
+                    actorKeyMustExists();
+                    const prefixedStepName = PREFIXED_NAME_BY_ACTOR(actorKey, stepName);
+                    return Object.keys(actor.steps).includes(prefixedStepName) ? prefixedStepName : undefined;
                 },
                 start(flowName, request, input, options) {
-                    const { useNewTrail = true } = options || {};
                     let { crawlerMode, reference } = options || {};
+                    actorKeyMustExists();
 
-                    const localTrail = useNewTrail ? Trail.create({ actor }) : currentTrail;
+                    const localTrail = Trail.create({ actor });
 
-                    const flow = actor.flows?.[flowName] as FlowInstance<Extract<keyof S, string>>;
+                    const flow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, flowName)] as FlowInstance<Extract<keyof S, string>>;
                     const stepName = flow?.steps?.[0];
-                    const step = actor.steps?.[stepName];
+                    const step = actor.steps?.[PREFIXED_NAME_BY_ACTOR(actorKey, stepName)];
 
                     Model.validate(flow.input, input, { throwError: true });
 
@@ -56,6 +78,7 @@ export const create = <
                         RequestMeta.create(request),
                         currentMeta.data,
                         {
+                            flowStart: true,
                             flowName,
                             stepName,
                             crawlerMode,
@@ -66,7 +89,8 @@ export const create = <
                         },
                     );
 
-                    TrailDataRequests.set(ingest.requests, meta.request);
+                    const localIngested = Trail.ingested(localTrail);
+                    TrailDataRequests.set(localIngested.requests, meta.request);
                     return meta.data.reference;
                 },
                 pipe(flowName, request, input, options) {
@@ -75,12 +99,15 @@ export const create = <
                 },
                 next(stepName, request, reference, options) {
                     const { crawlerMode } = options || {};
-                    const step = actor.steps?.[stepName];
+                    actorKeyMustExists();
+
+                    const step = actor.steps?.[PREFIXED_NAME_BY_ACTOR(actorKey, stepName)];
 
                     const meta = RequestMeta.extend(
                         RequestMeta.create(request),
                         currentMeta.data,
                         {
+                            flowStart: false,
                             stepName,
                             crawlerMode: crawlerMode || step?.crawlerMode || actor?.crawlerMode,
                             reference: {
@@ -94,7 +121,7 @@ export const create = <
                     return meta.data.reference;
                 },
                 stop() {
-                    // stop current flow
+                    context.request.userData = RequestMeta.extend(currentMeta, { stepStop: true }).userData;
                 },
                 retry() {
                     // retry current flow

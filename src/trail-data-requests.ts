@@ -3,11 +3,11 @@ import isMatch from 'lodash.ismatch';
 import { RequestMeta } from '.';
 import base from './base';
 import { REQUEST_KEY_PROP, REQUEST_STATUS, REQUEST_UID_KEY } from './consts';
-import { ModelReference, RequestSource, TrailDataRequestItem, TrailDataRequestItemStatus, TrailDataRequestsInstance, TrailDataRequestsOptions } from './types';
-import { craftUIDKey, pathify } from './utils';
-import dataStore from './data-store';
+import DataStore from './data-store';
 import requestMeta from './request-meta';
 import { getPath } from './trail-data';
+import { ModelReference, RequestSource, TrailDataRequestItem, TrailDataRequestItemStatus, TrailDataRequestsInstance, TrailDataRequestsOptions } from './types';
+import { craftUIDKey, pathify } from './utils';
 
 export const create = (options: TrailDataRequestsOptions): TrailDataRequestsInstance => {
     const { id, type, store } = options;
@@ -26,15 +26,15 @@ export const create = (options: TrailDataRequestsOptions): TrailDataRequestsInst
 };
 
 export const has = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): boolean => {
-    return dataStore.has(trailDataRequests.store, getPath(trailDataRequests, ref));
+    return DataStore.has(trailDataRequests.store, getPath(trailDataRequests, ref));
 };
 
 export const get = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): TrailDataRequestItem => {
-    return dataStore.get<TrailDataRequestItem>(trailDataRequests.store, getPath(trailDataRequests, ref));
+    return DataStore.get<TrailDataRequestItem>(trailDataRequests.store, getPath(trailDataRequests, ref));
 };
 
 export const getItems = (trailDataRequests: TrailDataRequestsInstance): Record<string, TrailDataRequestItem> => {
-    return dataStore.get<Record<string, TrailDataRequestItem>>(trailDataRequests.store, trailDataRequests.path);
+    return DataStore.get<Record<string, TrailDataRequestItem>>(trailDataRequests.store, trailDataRequests.path);
 };
 
 export const getItemsList = (trailDataRequests: TrailDataRequestsInstance, ref?: ModelReference): TrailDataRequestItem[] => {
@@ -45,6 +45,11 @@ export const getItemsList = (trailDataRequests: TrailDataRequestsInstance, ref?:
 export const getItemsListByStatus = (trailDataRequests: TrailDataRequestsInstance, status: TrailDataRequestItemStatus | TrailDataRequestItemStatus[], ref?: ModelReference): TrailDataRequestItem[] => {
     const statuses = (Array.isArray(status) ? status : [status]).filter(Boolean);
     return getItemsList(trailDataRequests, ref).filter((item) => statuses.includes(item.status));
+};
+
+export const filterByFlowStart = (item: TrailDataRequestItem) => {
+    const meta = RequestMeta.create(item.source);
+    return meta.data.flowStart;
 };
 
 export const count = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): number => {
@@ -67,7 +72,7 @@ export const set = (trailDataRequests: TrailDataRequestsInstance, request: Reque
             status: REQUEST_STATUS.CREATED,
         };
 
-        dataStore.update(trailDataRequests.store, getPath(trailDataRequests, meta.data.reference), item);
+        DataStore.update(trailDataRequests.store, getPath(trailDataRequests, meta.data.reference), item);
         return meta.data.reference;
     }
 
@@ -79,7 +84,7 @@ export const setStatus = (trailDataRequests: TrailDataRequestsInstance, status: 
         // If no appropriate reference is found, do same as testing if it exists
         const exists = has(trailDataRequests, ref);
         if (exists) {
-            dataStore.set(trailDataRequests.store, pathify(trailDataRequests.path, ref?.[REQUEST_KEY_PROP] as string, 'status'), status);
+            DataStore.set(trailDataRequests.store, pathify(trailDataRequests.path, ref?.[REQUEST_KEY_PROP] as string, 'status'), status);
         }
     } catch (error) {
         // silent
@@ -104,4 +109,4 @@ export const setStatus = (trailDataRequests: TrailDataRequestsInstance, status: 
 //     return [];
 // };
 
-export default { create, count, get, getItems, getItemsList, getReference, set, setStatus, getItemsListByStatus };
+export default { create, count, get, getItems, getItemsList, getReference, set, setStatus, getItemsListByStatus, filterByFlowStart };

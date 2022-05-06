@@ -1,13 +1,13 @@
-import { PlaywrightHook } from 'apify';
-import { mergeDeepRight } from 'ramda';
+import { PlaywrightCrawlerOptions, PlaywrightHook } from 'apify';
 import base from './base';
-import MultiCrawler, { MultiCrawlerOptions } from './sdk/multi-crawler';
+import { METADATA_KEY } from './consts';
+import MultiCrawler from './sdk/multi-crawler';
 import { CrawlerInstance, CrawlerOptions, ReallyAny } from './types';
 
 export const PRE_NAVIGATION_HOOKS: Record<string, PlaywrightHook> = {
     async excludeResources({ page }) {
         const RESOURCE_EXCLUSTIONS = ['image', 'stylesheet', 'media', 'font', 'other'];
-        await page.route('**/*', (route) => {
+        await page?.route?.('**/*', (route) => {
             return RESOURCE_EXCLUSTIONS.includes(route.request().resourceType())
                 ? route.abort()
                 : route.continue();
@@ -18,7 +18,7 @@ export const PRE_NAVIGATION_HOOKS: Record<string, PlaywrightHook> = {
     },
 };
 
-export const PRESETS: Record<string, Partial<MultiCrawlerOptions>> = {
+export const PRESETS: Record<string, Partial<PlaywrightCrawlerOptions>> = {
     DEFAULT: {
         handlePageTimeoutSecs: 120,
         navigationTimeoutSecs: 60,
@@ -49,9 +49,14 @@ export const create = (options?: CrawlerOptions): CrawlerInstance => {
     };
 };
 
-export const run = async (crawler: CrawlerInstance, crawlerOptions?: MultiCrawlerOptions): Promise<void> => {
+export const run = async (crawler: CrawlerInstance, crawlerOptions?: PlaywrightCrawlerOptions): Promise<void> => {
     // eslint-disable-next-line new-cap
-    await new crawler.launcher(mergeDeepRight(crawlerOptions || {}, crawler.crawlerOptions || {})).run();
+    const resource = new crawler.launcher(crawlerOptions || {});
+    // const resource = new crawler.launcher(mergeDeepRight(crawlerOptions || {}, crawler.crawlerOptions || {}));
+    if ('crawlerModePath' in resource) {
+        resource.crawlerModePath = `${METADATA_KEY}.crawlerMode`;
+    }
+    await resource.run();
 };
 
 export default { create, run };

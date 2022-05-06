@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onIntervals = exports.onShutdown = exports.onPersistState = exports.onAborting = exports.onMigrating = void 0;
+exports.onAll = exports.onIntervals = exports.onShutdown = exports.onPersistState = exports.onAborting = exports.onMigrating = void 0;
 const tslib_1 = require("tslib");
 const apify_1 = tslib_1.__importDefault(require("apify"));
 const lodash_throttle_1 = tslib_1.__importDefault(require("lodash.throttle"));
@@ -36,5 +36,10 @@ const onIntervals = (handler) => {
     (0, exports.onPersistState)(handler);
 };
 exports.onIntervals = onIntervals;
-exports.default = { onMigrating: exports.onMigrating, onAborting: exports.onAborting, onPersistState: exports.onPersistState, onShutdown: exports.onShutdown, onIntervals: exports.onIntervals };
+const onAll = (handler) => {
+    (0, exports.onShutdown)(handler);
+    (0, exports.onIntervals)(handler);
+};
+exports.onAll = onAll;
+exports.default = { onMigrating: exports.onMigrating, onAborting: exports.onAborting, onPersistState: exports.onPersistState, onShutdown: exports.onShutdown, onIntervals: exports.onIntervals, onAll: exports.onAll };
 //# sourceMappingURL=apify-events.js.map

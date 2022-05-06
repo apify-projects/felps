@@ -1,16 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setStatus = exports.set = exports.getReference = exports.count = exports.getItemsListByStatus = exports.getItemsList = exports.getItems = exports.get = exports.has = exports.create = void 0;
+exports.setStatus = exports.set = exports.getReference = exports.count = exports.filterByFlowStart = exports.getItemsListByStatus = exports.getItemsList = exports.getItems = exports.get = exports.has = exports.create = void 0;
 const tslib_1 = require("tslib");
 /* eslint-disable max-len */
 const lodash_ismatch_1 = tslib_1.__importDefault(require("lodash.ismatch"));
 const _1 = require(".");
 const base_1 = tslib_1.__importDefault(require("./base"));
 const consts_1 = require("./consts");
-const utils_1 = require("./utils");
 const data_store_1 = tslib_1.__importDefault(require("./data-store"));
 const request_meta_1 = tslib_1.__importDefault(require("./request-meta"));
 const trail_data_1 = require("./trail-data");
+const utils_1 = require("./utils");
 const create = (options) => {
     const { id, type, store } = options;
     const key = `store-trail-data-requests`;
@@ -46,6 +46,11 @@ const getItemsListByStatus = (trailDataRequests, status, ref) => {
     return (0, exports.getItemsList)(trailDataRequests, ref).filter((item) => statuses.includes(item.status));
 };
 exports.getItemsListByStatus = getItemsListByStatus;
+const filterByFlowStart = (item) => {
+    const meta = _1.RequestMeta.create(item.source);
+    return meta.data.flowStart;
+};
+exports.filterByFlowStart = filterByFlowStart;
 const count = (trailDataRequests, ref) => {
     return (0, exports.getItemsList)(trailDataRequests, ref).length;
 };
@@ -96,5 +101,5 @@ exports.setStatus = setStatus;
 //     // return acceptedKeys;
 //     return [];
 // };
-exports.default = { create: exports.create, count: exports.count, get: exports.get, getItems: exports.getItems, getItemsList: exports.getItemsList, getReference: exports.getReference, set: exports.set, setStatus: exports.setStatus, getItemsListByStatus: exports.getItemsListByStatus };
+exports.default = { create: exports.create, count: exports.count, get: exports.get, getItems: exports.getItems, getItemsList: exports.getItemsList, getReference: exports.getReference, set: exports.set, setStatus: exports.setStatus, getItemsListByStatus: exports.getItemsListByStatus, filterByFlowStart: exports.filterByFlowStart };
 //# sourceMappingURL=trail-data-requests.js.map

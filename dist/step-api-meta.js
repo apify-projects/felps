@@ -17,6 +17,8 @@ const create = (actor) => {
                 getUserData: () => meta.userData,
                 getMetaData: () => meta.data,
                 getRerence: () => meta.data.reference,
+                getFlowName: () => meta.data.flowName,
+                getStepName: () => meta.data.stepName,
                 getFlowInput: () => {
                     return _1.Trail.getFlow(trail, meta.data?.reference?.[consts_1.FLOW_KEY_PROP])?.input || {};
                 },

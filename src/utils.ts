@@ -93,12 +93,17 @@ export const traverse = (obj: any, handler: (key: string, value: any) => void) =
     }
 };
 
-export const traverseAndCarry = (obj: ReallyAny, context: ReallyAny, handler: (value: any, ctx: ReallyAny) => ReallyAny) => {
-    context = handler(obj, cloneDeep(context)) || context;
+export const traverseAndCarry = (
+    obj: ReallyAny,
+    context: ReallyAny,
+    handler: (value: any, key: string | undefined, ctx: ReallyAny) => ReallyAny,
+    key?: string,
+) => {
+    context = handler(obj, key, cloneDeep(context)) || context;
 
     for (const k of Object.keys(obj)) {
         if (obj.hasOwnProperty(k) && obj[k] && typeof obj[k] === 'object') {
-            traverseAndCarry(obj[k], cloneDeep(context), handler);
+            traverseAndCarry(obj[k], cloneDeep(context), handler, k);
         } else {
             // Do something with obj[k]
         }

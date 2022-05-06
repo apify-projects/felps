@@ -21,6 +21,7 @@ import Datasets from './datasets';
 import Dataset from './dataset';
 import Hooks from './hooks';
 import Trail from './trail';
+import Trails from './trails';
 import TrailData from './trail-data';
 import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
@@ -28,22 +29,25 @@ import RequestMeta from './request-meta';
 import Orchestrator from './orchestrator';
 import Input from './input';
 import Search from './search';
+import UrlPattern from './url-pattern';
 import Logger from './logger';
 import RequestQueue from './sdk/request-queue';
 import MultiCrawler from './sdk/multi-crawler';
-export { Base, Actor, Crawler, Flows, Flow, Steps, Step, StepApi, StepApiFlow, StepApiMeta, StepApiModel, StepApiUtils, Models, Model, Stores, DataStore, FileStore, Queues, Queue, Datasets, Dataset, Hooks, Trail, TrailData, TrailDataModel, TrailDataRequests, RequestMeta, Orchestrator, Input, Search, Logger, RequestQueue, MultiCrawler, };
+export { Base, Actor, Crawler, Flows, Flow, Steps, Step, StepApi, StepApiFlow, StepApiMeta, StepApiModel, StepApiUtils, Models, Model, Stores, DataStore, FileStore, Queues, Queue, Datasets, Dataset, Hooks, Trail, Trails, TrailData, TrailDataModel, TrailDataRequests, RequestMeta, Orchestrator, Input, Search, UrlPattern, Logger, RequestQueue, MultiCrawler, };
 declare const _default: {
     Base: {
         create: (options: import("./types").BaseOptions) => import("./types").BaseInstance;
     };
     Actor: {
-        create: (options?: import("./types").ActorOptions | undefined) => import("./types").ActorInstance;
-        extend: (actor: import("./types").ActorInstance, options?: import("./types").ActorOptions) => import("./types").ActorInstance;
-        run: (actor: import("./types").ActorInstance) => Promise<void>;
+        create: (options: import("./types").ActorOptions) => import("./types").ActorInstance;
+        extend: (actor: import("./types").ActorInstance, options?: Partial<import("./types").ActorOptions>) => import("./types").ActorInstance;
+        run: (actor: import("./types").ActorInstance, input: import("./types").ActorInput, crawlerOptions?: import("apify").PlaywrightCrawlerOptions | undefined) => Promise<void>;
+        prefix: (actor: import("./types").ActorInstance, text: string) => string;
+        combine: (actor: import("./types").ActorInstance, ...actors: import("./types").ActorInstance[]) => import("./types").ActorInstance;
     };
     Crawler: {
         create: (options?: import("./types").CrawlerOptions | undefined) => import("./types").CrawlerInstance;
-        run: (crawler: import("./types").CrawlerInstance, crawlerOptions?: import("./sdk/multi-crawler").MultiCrawlerOptions | undefined) => Promise<void>;
+        run: (crawler: import("./types").CrawlerInstance, crawlerOptions?: import("apify").PlaywrightCrawlerOptions | undefined) => Promise<void>;
     };
     Flows: {
         create: <F extends Record<string, import("./types").FlowDefinition<string>>>({ FLOWS }: {
@@ -90,6 +94,13 @@ declare const _default: {
             requestErrorHandler?: import("./types").StepOptionsHandler<import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
                 type: "object";
             }>> & import("./types").StepApiUtilsAPI> | undefined;
+            afterHandler?: import("./types").StepOptionsHandler<import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+                type: "object";
+            }>> & import("./types").StepApiUtilsAPI> | undefined;
+            beforeHandler?: import("./types").StepOptionsHandler<import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+                type: "object";
+            }>> & import("./types").StepApiUtilsAPI> | undefined;
+            actorKey?: string | undefined;
             uid?: string | undefined;
             key?: string | undefined;
             id: string;
@@ -105,6 +116,13 @@ declare const _default: {
             requestErrorHandler?: import("./types").StepOptionsHandler<Methods_1 & import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
                 type: "object";
             }>> & import("./types").StepApiUtilsAPI> | undefined;
+            afterHandler?: import("./types").StepOptionsHandler<Methods_1 & import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+                type: "object";
+            }>> & import("./types").StepApiUtilsAPI> | undefined;
+            beforeHandler?: import("./types").StepOptionsHandler<Methods_1 & import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+                type: "object";
+            }>> & import("./types").StepApiUtilsAPI> | undefined;
+            actorKey?: string | undefined;
             name: string;
             uid?: string | undefined;
             key?: string | undefined;
@@ -144,18 +162,27 @@ declare const _default: {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>, withOwnReferenceKey?: boolean | undefined) => Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>;
         find: (model: import("./types").ModelInstance<import("./types").JSONSchema>, items: import("./types").TrailDataModelItem<any>[], newItem: import("./types").TrailDataModelItem<any>) => import("./types").TrailDataModelItem<any> | undefined;
-        validate: <T_4 = unknown>(model: import("./types").ModelInstance<import("./types").JSONSchema>, data: T_4, options?: import("./types").ValidatorValidateOptions) => boolean;
+        validate: <T_4 = unknown>(model: import("./types").ModelInstance<import("./types").JSONSchema>, data: T_4, options?: import("./types").ValidatorValidateOptions) => {
+            valid: boolean;
+            errors: import("ajv").ErrorObject<string, Record<string, any>, unknown>[] | null | undefined;
+        };
         validateReference: <T_5 = unknown>(model: import("./types").ModelInstance<import("./types").JSONSchema>, ref: Partial<{ [K in Extract<keyof T_5, string> as `${import("./types").SnakeToCamelCase<K>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
-        }>, options?: import("./types").ValidatorValidateOptions) => boolean;
+            fActorKey: string;
+        }>, options?: import("./types").ValidatorValidateOptions) => {
+            valid: boolean;
+            errors: import("ajv").ErrorObject<string, Record<string, any>, unknown>[] | null | undefined;
+        };
         connect: ({ api }: {
             api: import("./types").GeneralStepApi<import("./types").InputDefinition<{
                 type: "object";
@@ -173,9 +200,9 @@ declare const _default: {
     };
     Stores: {
         create: <DataStoreNames extends string[] = [], FileStoreNames extends string[] = []>(options?: import("./types").StoresOptions<DataStoreNames, FileStoreNames> | undefined) => import("./types").StoresInstance<DataStoreNames, FileStoreNames>;
-        load: (stores: import("./types").StoresInstance<[], []>) => Promise<import("./types").StoresInstance<[], []>>;
-        persist: (stores: import("./types").StoresInstance<[], []>) => Promise<void>;
-        listen: (stores: import("./types").StoresInstance<[], []>) => void;
+        load: (stores: import("./types").StoresInstance<import("./types").DefaultDataStoreNames, import("./types").DefaultFileStoreNames>) => Promise<import("./types").StoresInstance<import("./types").DefaultDataStoreNames, import("./types").DefaultFileStoreNames>>;
+        persist: (stores: import("./types").StoresInstance<import("./types").DefaultDataStoreNames, import("./types").DefaultFileStoreNames>) => Promise<void>;
+        listen: (stores: import("./types").StoresInstance<import("./types").DefaultDataStoreNames, import("./types").DefaultFileStoreNames>) => void;
         DefaultDataStores: import("./types").GenerateObject<import("./types").DefaultDataStoreNames, import("./types").DataStoreInstance>;
         DefautFileStores: import("./types").GenerateObject<import("./types").DefaultFileStoreNames, import("./types").FileStoreInstance>;
     };
@@ -237,6 +264,7 @@ declare const _default: {
             STEPS: S_3;
             INPUT: I_2;
         }) => import("./types").HooksInstance<M_6, F_5, S_3, I_2>;
+        globalHookNames: string[];
     };
     Trail: {
         create: (options: import("./types").TrailOptions) => import("./types").TrailInstance;
@@ -249,100 +277,124 @@ declare const _default: {
         ingested: (trail: import("./types").TrailInstance) => import("./types").TrailDataStage;
         digested: (trail: import("./types").TrailInstance) => import("./types").TrailDataStage;
         promote: (trail: import("./types").TrailInstance, item: import("./types").TrailDataModelItem<unknown> | import("./types").TrailDataRequestItem) => void;
+        resolve: <T_16 = unknown>(trail: import("./types").TrailInstance, model: import("./types").ModelInstance<import("./types").JSONSchema>) => T_16 | undefined;
+    };
+    Trails: {
+        create: (options: import("./types").TrailsOptions) => import("./types").TrailsInstance;
+        getItems: (trails: import("./types").TrailsInstance) => Record<string, import("./types").TrailInstance>;
+        getItemsList: (trails: import("./types").TrailsInstance) => import("./types").TrailInstance[];
     };
     TrailData: {
-        getPath: <T_16 = unknown>(trailData: import("./types").TrailDataInstance, ref: Partial<{ [K_1 in Extract<keyof T_16, string> as `${import("./types").SnakeToCamelCase<K_1>}Key`]: string; } & {
+        getPath: <T_17 = unknown>(trailData: import("./types").TrailDataInstance, ref: Partial<{ [K_1 in Extract<keyof T_17, string> as `${import("./types").SnakeToCamelCase<K_1>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>, ...segments: string[]) => string;
         defaultUpdateMerger: (existingValue: any, newValue: any) => any;
     };
     TrailDataModel: {
         create: (options: import("./types").TrailDataModelOptions) => import("./types").TrailDataModelInstance;
-        get: <T_17 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref: Partial<{ [K_2 in Extract<keyof T_17, string> as `${import("./types").SnakeToCamelCase<K_2>}Key`]: string; } & {
+        get: <T_18 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref: Partial<{ [K_2 in Extract<keyof T_18, string> as `${import("./types").SnakeToCamelCase<K_2>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
-        }>) => import("./types").TrailDataModelItem<T_17>;
-        getItems: <T_18 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref?: Partial<{ [K_3 in Extract<keyof T_18, string> as `${import("./types").SnakeToCamelCase<K_3>}Key`]: string; } & {
+            fActorKey: string;
+        }>) => import("./types").TrailDataModelItem<T_18>;
+        getItems: <T_19 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref?: Partial<{ [K_3 in Extract<keyof T_19, string> as `${import("./types").SnakeToCamelCase<K_3>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }> | undefined) => Record<string, import("./types").TrailDataModelItem<unknown>>;
-        getItemsList: <T_19 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref?: Partial<{ [K_4 in Extract<keyof T_19, string> as `${import("./types").SnakeToCamelCase<K_4>}Key`]: string; } & {
+        getItemsList: <T_20 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref?: Partial<{ [K_4 in Extract<keyof T_20, string> as `${import("./types").SnakeToCamelCase<K_4>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }> | undefined) => import("./types").TrailDataModelItem<unknown>[];
         getItemsListByStatus: (trailDataModel: import("./types").TrailDataModelInstance, status: import("./types").TrailDataModelItemStatus | import("./types").TrailDataModelItemStatus[], ref?: Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }> | undefined) => import("./types").TrailDataModelItem<unknown>[];
-        getChildrenItemsList: <T_20 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, parentRef: Partial<{ [K_5 in Extract<keyof T_20, string> as `${import("./types").SnakeToCamelCase<K_5>}Key`]: string; } & {
+        getChildrenItemsList: <T_21 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, parentRef: Partial<{ [K_5 in Extract<keyof T_21, string> as `${import("./types").SnakeToCamelCase<K_5>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>) => import("./types").TrailDataModelItem<unknown>[];
-        update: <T_21 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_21>, ref: Partial<{ [K_6 in Extract<keyof T_21, string> as `${import("./types").SnakeToCamelCase<K_6>}Key`]: string; } & {
+        update: <T_22 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_22>, ref: Partial<{ [K_6 in Extract<keyof T_22, string> as `${import("./types").SnakeToCamelCase<K_6>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
-        }>) => Partial<{ [K_6 in Extract<keyof T_21, string> as `${import("./types").SnakeToCamelCase<K_6>}Key`]: string; } & {
+            fActorKey: string;
+        }>) => Partial<{ [K_6 in Extract<keyof T_22, string> as `${import("./types").SnakeToCamelCase<K_6>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>;
-        updatePartial: <T_22 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_22>, ref: Partial<{ [K_7 in Extract<keyof T_22, string> as `${import("./types").SnakeToCamelCase<K_7>}Key`]: string; } & {
+        updatePartial: <T_23 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_23>, ref: Partial<{ [K_7 in Extract<keyof T_23, string> as `${import("./types").SnakeToCamelCase<K_7>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
-        }>) => Partial<{ [K_7 in Extract<keyof T_22, string> as `${import("./types").SnakeToCamelCase<K_7>}Key`]: string; } & {
+            fActorKey: string;
+        }>) => Partial<{ [K_7 in Extract<keyof T_23, string> as `${import("./types").SnakeToCamelCase<K_7>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>;
-        set: <T_23 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_23, ref?: Partial<{ [K_8 in Extract<keyof T_23, string> as `${import("./types").SnakeToCamelCase<K_8>}Key`]: string; } & {
+        set: <T_24 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_24, ref?: Partial<{ [K_8 in Extract<keyof T_24, string> as `${import("./types").SnakeToCamelCase<K_8>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
-        }> | undefined) => Partial<{ [K_8 in Extract<keyof T_23, string> as `${import("./types").SnakeToCamelCase<K_8>}Key`]: string; } & {
+            fActorKey: string;
+        }> | undefined) => Partial<{ [K_8 in Extract<keyof T_24, string> as `${import("./types").SnakeToCamelCase<K_8>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>;
         setStatus: (trailDataModel: import("./types").TrailDataModelInstance, status: import("./types").TrailDataModelItemStatus, ref: Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>) => void;
-        count: <T_24>(trailDataModel: import("./types").TrailDataModelInstance, ref: Partial<{ [K_9 in Extract<keyof T_24, string> as `${import("./types").SnakeToCamelCase<K_9>}Key`]: string; } & {
+        count: <T_25 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref: Partial<{ [K_9 in Extract<keyof T_25, string> as `${import("./types").SnakeToCamelCase<K_9>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>) => number;
-        setPartial: <T_25 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_25>, ref: Partial<{ [K_10 in Extract<keyof T_25, string> as `${import("./types").SnakeToCamelCase<K_10>}Key`]: string; } & {
+        setPartial: <T_26 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_26>, ref: Partial<{ [K_10 in Extract<keyof T_26, string> as `${import("./types").SnakeToCamelCase<K_10>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
-        }>) => Partial<{ [K_10 in Extract<keyof T_25, string> as `${import("./types").SnakeToCamelCase<K_10>}Key`]: string; } & {
+            fActorKey: string;
+        }>) => Partial<{ [K_10 in Extract<keyof T_26, string> as `${import("./types").SnakeToCamelCase<K_10>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>;
-        boostrapItem: <T_26 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_26, ref?: Partial<{ [K_11 in Extract<keyof T_26, string> as `${import("./types").SnakeToCamelCase<K_11>}Key`]: string; } & {
+        boostrapItem: <T_27 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_27, ref?: Partial<{ [K_11 in Extract<keyof T_27, string> as `${import("./types").SnakeToCamelCase<K_11>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
-        }> | undefined) => Partial<import("./types").TrailDataModelItem<T_26>>;
+            fActorKey: string;
+        }> | undefined) => Partial<import("./types").TrailDataModelItem<T_27>>;
         filterByStatus: (...statuses: import("./types").TrailDataModelItemStatus[]) => (value: any) => boolean;
         filterByPartial: (partial?: boolean | undefined) => (value: any) => boolean;
         groupByParentHash: (trailDataModel: import("./types").TrailDataModelInstance, items: import("./types").TrailDataModelItem<unknown>[]) => Map<string, import("./types").TrailDataModelItem<unknown>[]>;
-        getExistingReference: <T_27 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_27) => Partial<{ [K_12 in Extract<keyof T_27, string> as `${import("./types").SnakeToCamelCase<K_12>}Key`]: string; } & {
+        getExistingReference: <T_28 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_28) => Partial<{ [K_12 in Extract<keyof T_28, string> as `${import("./types").SnakeToCamelCase<K_12>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }> | undefined;
     };
     TrailDataRequests: {
@@ -351,46 +403,56 @@ declare const _default: {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>) => number;
         get: (trailDataRequests: import("./types").TrailDataRequestsInstance, ref: Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>) => import("./types").TrailDataRequestItem;
         getItems: (trailDataRequests: import("./types").TrailDataRequestsInstance) => Record<string, import("./types").TrailDataRequestItem>;
         getItemsList: (trailDataRequests: import("./types").TrailDataRequestsInstance, ref?: Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }> | undefined) => import("./types").TrailDataRequestItem[];
         getReference: (trailDataRequests: import("./types").TrailDataRequestsInstance, ref: Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>) => Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>;
         set: (trailDataRequests: import("./types").TrailDataRequestsInstance, request: import("./types").RequestSource, ref?: Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }> | undefined) => Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>;
         setStatus: (trailDataRequests: import("./types").TrailDataRequestsInstance, status: import("./types").TrailDataRequestItemStatus, ref: Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }>) => void;
         getItemsListByStatus: (trailDataRequests: import("./types").TrailDataRequestsInstance, status: import("./types").TrailDataRequestItemStatus | import("./types").TrailDataRequestItemStatus[], ref?: Partial<{} & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
+            fActorKey: string;
         }> | undefined) => import("./types").TrailDataRequestItem[];
+        filterByFlowStart: (item: import("./types").TrailDataRequestItem) => boolean;
     };
     RequestMeta: {
         create: (requestOrRequestContext?: import("./types").RequestSource | import("./types").RequestContext | undefined) => import("./types").RequestMetaInstance;
@@ -420,9 +482,16 @@ declare const _default: {
             name: string;
             id: string;
         };
-        withinObjects: <T_28 extends Record<string, any>>(search: import("./types").SearchInstance, path: string, items: T_28[], query: string) => T_28[];
+        withinObjects: <T_29 extends Record<string, any>>(search: import("./types").SearchInstance, path: string, items: T_29[], query: string) => T_29[];
         withinTexts: (search: import("./types").SearchInstance, items: string[], query: string) => string[];
         withinTextsAsIndexes: (search: import("./types").SearchInstance, items: string[], query: string) => (string | number)[];
+    };
+    UrlPattern: {
+        create: (options: import("./types").UrlPatternOptions) => import("./types").UrlPatternInstance;
+        parse: (urlPattern: import("./types").UrlPatternInstance, url: string) => import("./types").UrlPatternParsed | undefined;
+        parseAny: (urlPatterns: import("./types").UrlPatternInstance[], url: string) => import("./types").UrlPatternParsed | undefined;
+        stringify: (urlPattern: import("./types").UrlPatternInstance, data: Record<string, string>) => string | false;
+        find: (urlPatterns: import("./types").UrlPatternInstance[], url: string) => void | import("./types").UrlPatternInstance;
     };
     Logger: {
         create: (element: {

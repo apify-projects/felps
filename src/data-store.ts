@@ -18,13 +18,14 @@ const mustBeLoaded = (store: DataStoreInstance): void => {
 };
 
 export const create = (options: DataStoreOptions): DataStoreInstance => {
-    const { name, kvKey, key = 'data-store', pathPrefix = '' } = options || {};
+    const { name, kvKey, key = 'data-store', splitByKey = false, pathPrefix = '' } = options || {};
 
     return {
         type: 'data-store',
         ...base.create({ key, name, id: `${key}-${name}${kvKey ? `-${kvKey}` : ''}` }),
         kvKey: kvKey || name,
         pathPrefix,
+        splitByKey,
         initialized: false,
         state: {},
     };
@@ -123,10 +124,21 @@ export const update = <T = ReallyAny>(dataStore: DataStoreInstance, path: string
 export const load = async (dataStore: DataStoreInstance): Promise<DataStoreInstance> => {
     if (!dataStore.initialized) {
         Logger.start(Logger.create(dataStore), 'Loading...');
+        let state: Record<string, ReallyAny> = {};
+        const keyValueStore = await Apify.openKeyValueStore();
+
+        if (dataStore.splitByKey) {
+            await keyValueStore.forEachKey(async (key) => {
+                state[key] = await keyValueStore.getValue(key);
+            }, { exclusiveStartKey: dataStore.kvKey });
+        } else {
+            state = (await Apify.getValue(dataStore.kvKey) || {}) as Record<string, ReallyAny>;
+        }
+
         return {
             ...dataStore,
             initialized: true,
-            state: (await Apify.getValue(dataStore.kvKey) || {}) as Record<string, unknown>,
+            state,
         };
     }
     return dataStore;
@@ -135,11 +147,17 @@ export const load = async (dataStore: DataStoreInstance): Promise<DataStoreInsta
 export const persist = async (dataStore: DataStoreInstance): Promise<void> => {
     mustBeLoaded(dataStore);
 
-    await Apify.setValue(dataStore.kvKey, dataStore.state);
+    if (dataStore.splitByKey) {
+        await Promise.allSettled(entries(dataStore).map(([key, value]) => {
+            return Apify.setValue(`${dataStore.kvKey}-${key}`, value);
+        }));
+    } else {
+        await Apify.setValue(dataStore.kvKey, dataStore.state);
+    };
 };
 
 export const listen = (dataStore: DataStoreInstance): void => {
-    ApifyEvents.onShutdown(async () => {
+    ApifyEvents.onAll(async () => {
         Logger.info(Logger.create(dataStore), 'Persisting store...');
         await persist(dataStore);
     });

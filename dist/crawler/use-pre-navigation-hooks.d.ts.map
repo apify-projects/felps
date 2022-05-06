@@ -1,1 +1,1 @@
-{"version":3,"file":"use-pre-navigation-hooks.d.ts","sourceRoot":"","sources":["../../src/crawler/use-pre-navigation-hooks.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,aAAa,EAAE,cAAc,EAAE,MAAM,UAAU,CAAC;gCAElC,aAAa;;;;AAApC,wBAsDE"}
+{"version":3,"file":"use-pre-navigation-hooks.d.ts","sourceRoot":"","sources":["../../src/crawler/use-pre-navigation-hooks.ts"],"names":[],"mappings":"AAGA,OAAO,EAAE,aAAa,EAAE,cAAc,EAAgB,MAAM,UAAU,CAAC;gCAGhD,aAAa;sBAUJ,cAAc;yBAUX,cAAc;;;AApBjD,wBAoEE"}

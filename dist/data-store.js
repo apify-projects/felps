@@ -19,12 +19,13 @@ const mustBeLoaded = (store) => {
     }
 };
 const create = (options) => {
-    const { name, kvKey, key = 'data-store', pathPrefix = '' } = options || {};
+    const { name, kvKey, key = 'data-store', splitByKey = false, pathPrefix = '' } = options || {};
     return {
         type: 'data-store',
         ...base_1.default.create({ key, name, id: `${key}-${name}${kvKey ? `-${kvKey}` : ''}` }),
         kvKey: kvKey || name,
         pathPrefix,
+        splitByKey,
         initialized: false,
         state: {},
     };
@@ -121,10 +122,20 @@ exports.update = update;
 const load = async (dataStore) => {
     if (!dataStore.initialized) {
         logger_1.default.start(logger_1.default.create(dataStore), 'Loading...');
+        let state = {};
+        const keyValueStore = await apify_1.default.openKeyValueStore();
+        if (dataStore.splitByKey) {
+            await keyValueStore.forEachKey(async (key) => {
+                state[key] = await keyValueStore.getValue(key);
+            }, { exclusiveStartKey: dataStore.kvKey });
+        }
+        else {
+            state = (await apify_1.default.getValue(dataStore.kvKey) || {});
+        }
         return {
             ...dataStore,
             initialized: true,
-            state: (await apify_1.default.getValue(dataStore.kvKey) || {}),
+            state,
         };
     }
     return dataStore;
@@ -132,11 +143,19 @@ const load = async (dataStore) => {
 exports.load = load;
 const persist = async (dataStore) => {
     mustBeLoaded(dataStore);
-    await apify_1.default.setValue(dataStore.kvKey, dataStore.state);
+    if (dataStore.splitByKey) {
+        await Promise.allSettled((0, exports.entries)(dataStore).map(([key, value]) => {
+            return apify_1.default.setValue(`${dataStore.kvKey}-${key}`, value);
+        }));
+    }
+    else {
+        await apify_1.default.setValue(dataStore.kvKey, dataStore.state);
+    }
+    ;
 };
 exports.persist = persist;
 const listen = (dataStore) => {
-    apify_events_1.default.onShutdown(async () => {
+    apify_events_1.default.onAll(async () => {
         logger_1.default.info(logger_1.default.create(dataStore), 'Persisting store...');
         await (0, exports.persist)(dataStore);
     });

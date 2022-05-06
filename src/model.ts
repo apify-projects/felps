@@ -9,7 +9,7 @@ import { traverse, traverseAndCarry } from './utils';
 import Validator from './validator';
 
 export const create = (options: ModelOptions): ModelInstance<JSONSchema> => {
-    const { parents = [] } = options;
+    const { parentType, parentKey, parents = [] } = options;
     let { schema, name } = options;
 
     name = name || (schema as JSONSchemaObject)?.modelName;
@@ -18,6 +18,8 @@ export const create = (options: ModelOptions): ModelInstance<JSONSchema> => {
     return wrap({
         ...base.create({ name, key: 'model' }),
         schema,
+        parentType,
+        parentKey,
         parents,
     });
 };
@@ -49,23 +51,42 @@ export const walk = (model: ModelInstance, walker: (key: string, value: ReallyAn
 
 export const flatten = (model: ModelInstance): ModelInstance[] => {
     const models = new Set<ModelInstance>();
-    traverseAndCarry(model.schema, { parents: [] }, (value, ctx) => {
-        const modelName: string = value[SCHEMA_MODEL_NAME_KEY];
+    traverseAndCarry(
+        model.schema,
+        {
+            parentPath: [],
+            parents: [],
+        },
+        (value, key, ctx) => {
+            const parentPath = [...ctx.parentPath, key].filter(Boolean);
+            if (SCHEMA_MODEL_NAME_KEY in value) {
+                const modelName: string = value[SCHEMA_MODEL_NAME_KEY];
+                let parentKey = parentPath.slice(-1)[0];
+                const parentType = parentKey === 'items' ? 'array' : value.type;
+                if (parentKey === 'items') parentKey = parentPath.slice(-2)[0];
 
-        if (modelName) {
-            models.add(create({
-                name: modelName,
-                schema: value,
-                parents: ctx.parents,
-            }));
+                models.add(
+                    create({
+                        name: modelName,
+                        schema: value,
+                        parentType,
+                        parentKey,
+                        parents: ctx.parents,
+                    }),
+                );
+
+                return {
+                    ...ctx,
+                    parentPath,
+                    parents: [...ctx.parents, modelName],
+                };
+            };
 
             return {
-                parents: [...ctx.parents, modelName],
+                ...ctx,
+                parentPath,
             };
-        }
-
-        return ctx;
-    });
+        });
 
     return [...models];
 };
@@ -99,16 +120,12 @@ export const referenceFor = (model: ModelInstance, ref: ModelReference, withOwnR
     return pickAll(keys, ref);
 };
 
-// export const match = (model: ModelInstance, ref: ModelReference): boolean => {
-//     return Object.values(referenceFor(model, ref, true)).every((value) => value !== undefined);
-// };
-
-export const validate = <T = unknown>(model: ModelInstance<JSONSchema>, data: T, options: ValidatorValidateOptions = {}): boolean => {
+export const validate = <T = unknown>(model: ModelInstance<JSONSchema>, data: T, options: ValidatorValidateOptions = {}) => {
     const validator = Validator.create({ name: model.name, schema: model.schema });
     return Validator.validate(validator, data, { partial: false, logError: true, throwError: false, ...options });
 };
 
-export const validateReference = <T = unknown>(model: ModelInstance, ref: ModelReference<T>, options: ValidatorValidateOptions = {}): boolean => {
+export const validateReference = <T = unknown>(model: ModelInstance, ref: ModelReference<T>, options: ValidatorValidateOptions = {}) => {
     const validator = Validator.create({ name: model.name, schema: referenceKeysSchema(model) });
     return Validator.validate(validator, ref, { partial: false, logError: true, throwError: false, ...options });
 };

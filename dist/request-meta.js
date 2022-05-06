@@ -12,6 +12,7 @@ const create = (requestOrRequestContext) => {
     const userData = {
         ...(request?.userData || {}),
         [consts_1.METADATA_KEY]: (0, ramda_1.mergeDeepRight)({
+            flowStart: false,
             flowName: undefined,
             stepName: undefined,
             crawlerMode: undefined,
@@ -46,8 +47,8 @@ const extend = (requestMeta, ...metadata) => {
     return (0, exports.create)({
         ...requestMeta.request,
         userData: {
-            ...requestMeta.userData,
-            [consts_1.METADATA_KEY]: metadata.reduce((acc, data) => (0, ramda_1.mergeDeepRight)(acc, data), requestMeta.data),
+            ...(requestMeta.userData || {}),
+            [consts_1.METADATA_KEY]: (metadata || []).reduce((acc, data) => (0, ramda_1.mergeDeepRight)(acc, data), requestMeta.data),
         },
     });
 };

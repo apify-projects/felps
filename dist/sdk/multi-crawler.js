@@ -6,11 +6,31 @@ const apify_1 = require("apify");
 const playwright_launcher_1 = require("apify/build/browser_launchers/playwright_launcher");
 const puppeteer_utils_1 = require("apify/build/puppeteer_utils");
 const cheerio = tslib_1.__importStar(require("cheerio"));
+const https_proxy_agent_1 = tslib_1.__importDefault(require("https-proxy-agent"));
+const lodash_get_1 = tslib_1.__importDefault(require("lodash.get"));
 const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 const ow_1 = tslib_1.__importDefault(require("ow"));
 const playwright_1 = require("playwright");
-const consts_1 = require("../consts");
+const getBrowserPlugin = (browser, launchContext) => {
+    let launcher;
+    switch (browser) {
+        case 'firefox':
+            launcher = playwright_1.firefox;
+            break;
+        case 'webkit':
+            launcher = playwright_1.webkit;
+            break;
+        case 'http':
+        case 'chromium':
+        default:
+            launcher = playwright_1.chromium;
+            break;
+    }
+    return new playwright_launcher_1.PlaywrightLauncher({ ...launchContext, launcher }).createBrowserPlugin();
+};
 class MultiCrawler extends apify_1.BrowserCrawler {
+    browserPlugins = {};
+    crawlerModePath;
     static optionsShape = {
         ...apify_1.BrowserCrawler.optionsShape,
         browserPoolOptions: ow_1.default.optional.object,
@@ -21,28 +41,26 @@ class MultiCrawler extends apify_1.BrowserCrawler {
     constructor(options) {
         (0, ow_1.default)(options, 'PlaywrightCrawlerOptions', ow_1.default.object.exactShape(apify_1.PlaywrightCrawler.optionsShape));
         const { launchContext = {}, browserPoolOptions = {}, ...browserCrawlerOptions } = options;
-        if (launchContext.proxyUrl) {
-            throw new Error('PlaywrightCrawlerOptions.launchContext.proxyUrl is not allowed in PlaywrightCrawler.'
-                + 'Use PlaywrightCrawlerOptions.proxyConfiguration');
-        }
-        browserPoolOptions.browserPlugins = [playwright_1.chromium, playwright_1.firefox].map((launcher) => new playwright_launcher_1.PlaywrightLauncher({ ...launchContext, launcher }).createBrowserPlugin());
-        super({
-            ...browserCrawlerOptions,
-            browserPoolOptions,
-        });
+        const browserPlugins = {
+            http: getBrowserPlugin('http', launchContext),
+            chromium: getBrowserPlugin('chromium', launchContext),
+            firefox: getBrowserPlugin('firefox', launchContext),
+            webkit: getBrowserPlugin('webkit', launchContext),
+        };
+        browserPoolOptions.browserPlugins = Object.values(browserPlugins);
+        super({ ...browserCrawlerOptions, browserPoolOptions });
+        this.crawlerModePath = `crawlerMode`;
+        this.browserPlugins = browserPlugins;
         this.launchContext = launchContext;
     }
     async _navigationHandler(context, nextOptions) {
-        if (this.gotoFunction) {
-            this.log.deprecated('PlaywrightCrawler.nextFunction is deprecated. Use "preNavigationHooks" and "postNavigationHooks" instead.');
-            return this.gotoFunction(context, nextOptions);
-        }
         return (0, puppeteer_utils_1.gotoExtended)(context.page, context.request, nextOptions);
     }
     async _handleRequestFunction(context) {
-        const { crawlerMode = 'http' } = context?.request?.userData?.[consts_1.METADATA_KEY];
+        const crawlerMode = (0, lodash_get_1.default)(context?.request?.userData || {}, this.crawlerModePath) || 'http';
         const newPageOptions = {
             id: context.id,
+            browserPlugin: this.browserPlugins[crawlerMode] || this.browserPlugins.http,
         };
         const useIncognitoPages = this.launchContext && this.launchContext.useIncognitoPages;
         if (this.proxyConfiguration && useIncognitoPages) {
@@ -50,7 +68,6 @@ class MultiCrawler extends apify_1.BrowserCrawler {
             const proxyInfo = this.proxyConfiguration.newProxyInfo(session && session.id);
             context.session = session;
             context.proxyInfo = proxyInfo;
-            newPageOptions.browserPlugin = this.browserPool.browserPlugins.find((plugin) => plugin.launcher.name === crawlerMode);
             newPageOptions.proxyUrl = proxyInfo.url;
             // Disable SSL verification for MITM proxies
             if (this.proxyConfiguration.isManInTheMiddle) {
@@ -59,24 +76,51 @@ class MultiCrawler extends apify_1.BrowserCrawler {
                 };
             }
         }
-        const { url, payload } = context.request;
+        const { url, payload, headers, method = 'GET' } = context.request;
         let page;
         let session;
         if (crawlerMode === 'http') {
             // Handle HTTP requests
+            // LOTS TO BE DONE HERE
+            const proxyUrl = this.proxyConfiguration?.newUrl?.();
+            const agent = proxyUrl ? (0, https_proxy_agent_1.default)(proxyUrl) : undefined;
             try {
+                const gotoOptions = { ...this.defaultGotoOptions };
                 context.response = await (0, node_fetch_1.default)(url, {
-                    // ...restRequest as ReallyAny,
+                    method,
+                    headers: {
+                        // ...new HeaderGenerator(),
+                        ...headers,
+                    },
                     body: payload,
-                    // proxyUrl: this.proxyConfiguration?.newUrl?.(),
+                    agent,
                 });
-                try {
-                    const html = await context.response.text();
-                    context.$ = cheerio.load(html);
+                await this._executeHooks(this.preNavigationHooks, context, gotoOptions);
+                (0, timeout_1.tryCancel)();
+                const contentType = Object.fromEntries(context.response.headers.entries())['content-type'] || '';
+                if (contentType.includes('application/json')) {
+                    try {
+                        context.json = await context.response.json();
+                    }
+                    catch (error) {
+                        // silent
+                    }
+                    ;
                 }
-                catch (error) {
-                    // silent
+                else if (contentType.includes('text/html')) {
+                    try {
+                        const html = await context.response.text();
+                        context.body = html;
+                        context.$ = cheerio.load(html);
+                    }
+                    catch (error) {
+                        // silent
+                    }
+                    ;
                 }
+                ;
+                (0, timeout_1.tryCancel)();
+                await this._executeHooks(this.postNavigationHooks, context, gotoOptions);
             }
             catch (error) {
                 this._handleNavigationTimeout(context, error);

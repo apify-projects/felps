@@ -29,7 +29,7 @@ const create = (actor) => {
                 },
                 addPartial(modelName, value, ref) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName, ref);
-                    _1.Model.validate(modelInstance.model, value, { throwError: true });
+                    _1.Model.validate(modelInstance.model, value, { partial: true, throwError: true });
                     return trail_data_model_1.default.setPartial(modelInstance, value, modelRef);
                 },
                 get(modelName, ref) {

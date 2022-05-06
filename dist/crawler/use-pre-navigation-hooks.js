@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 /* eslint-disable @typescript-eslint/no-explicit-any */
+const __1 = require("..");
+const consts_1 = require("../consts");
 const use_handle_request_error_function_1 = tslib_1.__importDefault(require("./use-handle-request-error-function"));
 exports.default = (actor) => {
     // const logTrailHistory = (RequestContext: RequestContext) => {
@@ -12,10 +14,22 @@ exports.default = (actor) => {
     //     }
     // };
     return {
-        async requestHook(RequestContext) {
-            RequestContext.page.on('requestfailed', async () => {
-                await (0, use_handle_request_error_function_1.default)(actor)(RequestContext);
+        async flowHook(context) {
+            const meta = __1.RequestMeta.create(context.request);
+            const stepApi = __1.StepApi.create(actor);
+            if (meta.data.flowStart && context && !meta.data.isHook) {
+                context.request.userData[consts_1.METADATA_KEY].flowStart = false;
+                const actorKey = meta.data.reference.fActorKey;
+                await actor?.hooks?.[(0, consts_1.PREFIXED_NAME_BY_ACTOR)(actorKey, 'FLOW_STARTED')].handler?.(context, stepApi(context));
+            }
+        },
+        async requestHook(context) {
+            context?.page?.on?.('requestfailed', async () => {
+                await (0, use_handle_request_error_function_1.default)(actor)(context);
             });
+            if (context.response.status !== 200) {
+                await (0, use_handle_request_error_function_1.default)(actor)(context);
+            }
         },
         async trailHook() {
             // async trailHook(RequestContext: RequestContext) {

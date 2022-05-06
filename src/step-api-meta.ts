@@ -16,6 +16,8 @@ export const create = (actor: ActorInstance): StepApiMetaInstance => {
                 getUserData: () => meta.userData,
                 getMetaData: () => meta.data,
                 getRerence: () => meta.data.reference,
+                getFlowName: () => meta.data.flowName,
+                getStepName: () => meta.data.stepName,
                 getFlowInput: () => {
                     return Trail.getFlow(trail, meta.data?.reference?.[FLOW_KEY_PROP])?.input || {};
                 },

@@ -1,7 +1,8 @@
 import { Logger, Orchestrator, RequestMeta, StepApi, Trail } from '.';
 import base from './base';
-import { ActorInstance, ReallyAny, RequestContext, StepInstance, StepOptions } from './types';
+import { ACTOR_KEY_PROP } from './consts';
 import TrailDataRequests from './trail-data-requests';
+import { ActorInstance, ReallyAny, RequestContext, StepInstance, StepOptions } from './types';
 
 export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepInstance<Methods> => {
     const {
@@ -10,6 +11,9 @@ export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepI
         handler,
         errorHandler,
         requestErrorHandler,
+        afterHandler,
+        beforeHandler,
+        actorKey,
     } = options || {};
 
     return {
@@ -18,6 +22,9 @@ export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepI
         handler,
         errorHandler,
         requestErrorHandler,
+        afterHandler,
+        beforeHandler,
+        actorKey,
     };
 };
 
@@ -38,13 +45,13 @@ export const extend = <Methods = unknown>(step: StepInstance, options: StepOptio
 };
 
 export const run = async (step: StepInstance | undefined, actor: ActorInstance, context: RequestContext | undefined): Promise<void> => {
-    if (!step) {
-        return;
-    }
+    if (!step) return;
+
     const logger = Logger.create(step);
 
-    Logger.start(logger, context?.request?.url ? `at ${context.request.url}` : '');
     const ctx = RequestMeta.contextDefaulted(context);
+    // Add actorKey to make sure we can identify the original actor when prefixed
+    ctx.request.userData = RequestMeta.extend(RequestMeta.create(ctx.request), { reference: { [ACTOR_KEY_PROP]: step.actorKey } }).userData;
 
     const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
 
@@ -52,18 +59,30 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
     const digest = Trail.digested(trail);
     const meta = RequestMeta.create(ctx.request);
 
+    if (!meta.data.isHook) {
+        // CONDITIONALLY DISPLAY IT FOR HOOK AS WELL
+        Logger.start(logger, context?.request?.url ? `at ${context.request.url}` : '');
+    }
+
     try {
+        await step?.beforeHandler?.(ctx, stepApi(ctx));
+
         await step?.handler?.(ctx, stepApi(ctx));
-        TrailDataRequests.setStatus(digest.requests, 'SUCCEEDED', meta.data.reference);
+        if (!meta.data.isHook) {
+            TrailDataRequests.setStatus(digest.requests, 'SUCCEEDED', meta.data.reference);
+        }
+
+        await step?.afterHandler?.(ctx, stepApi(ctx));
     } catch (error) {
         console.error(error);
-        // Logger.error(logger, error as string);
         await step?.errorHandler?.(ctx, stepApi(ctx));
-        TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
+        if (!meta.data.isHook) {
+            TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
+        }
     } finally {
         if (step?.handler) {
             await Orchestrator.run(Orchestrator.create(actor), ctx, stepApi(ctx));
-        }
+        };
     }
 };
 

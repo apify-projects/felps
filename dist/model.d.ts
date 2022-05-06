@@ -8,12 +8,19 @@ export declare const dependencies: (model: ModelInstance) => ModelInstance[];
 export declare const referenceKeys: (model: ModelInstance) => ReferenceKey[];
 export declare const referenceKeysSchema: (model: ModelInstance) => JSONSchema;
 export declare const referenceFor: (model: ModelInstance, ref: ModelReference, withOwnReferenceKey?: boolean | undefined) => ModelReference;
-export declare const validate: <T = unknown>(model: ModelInstance<JSONSchema>, data: T, options?: ValidatorValidateOptions) => boolean;
+export declare const validate: <T = unknown>(model: ModelInstance<JSONSchema>, data: T, options?: ValidatorValidateOptions) => {
+    valid: boolean;
+    errors: import("ajv").ErrorObject<string, Record<string, any>, unknown>[] | null | undefined;
+};
 export declare const validateReference: <T = unknown>(model: ModelInstance, ref: Partial<{ [K in Extract<keyof T, string> as `${import("./types").SnakeToCamelCase<K>}Key`]: string; } & {
     fRequestKey: string;
     fTrailKey: string;
     fFlowKey: string;
-}>, options?: ValidatorValidateOptions) => boolean;
+    fActorKey: string;
+}>, options?: ValidatorValidateOptions) => {
+    valid: boolean;
+    errors: import("ajv").ErrorObject<string, Record<string, any>, unknown>[] | null | undefined;
+};
 export declare const find: (model: ModelInstance, items: TrailDataModelItem<ReallyAny>[], newItem: TrailDataModelItem<ReallyAny>) => TrailDataModelItem<ReallyAny> | undefined;
 export declare const connect: ({ api }: {
     api: GeneralStepApi;
@@ -33,18 +40,27 @@ declare const _default: {
         fRequestKey: string;
         fTrailKey: string;
         fFlowKey: string;
+        fActorKey: string;
     }>, withOwnReferenceKey?: boolean | undefined) => Partial<{} & {
         fRequestKey: string;
         fTrailKey: string;
         fFlowKey: string;
+        fActorKey: string;
     }>;
     find: (model: ModelInstance<JSONSchema>, items: TrailDataModelItem<any>[], newItem: TrailDataModelItem<any>) => TrailDataModelItem<any> | undefined;
-    validate: <T_1 = unknown>(model: ModelInstance<JSONSchema>, data: T_1, options?: ValidatorValidateOptions) => boolean;
+    validate: <T_1 = unknown>(model: ModelInstance<JSONSchema>, data: T_1, options?: ValidatorValidateOptions) => {
+        valid: boolean;
+        errors: import("ajv").ErrorObject<string, Record<string, any>, unknown>[] | null | undefined;
+    };
     validateReference: <T_2 = unknown>(model: ModelInstance<JSONSchema>, ref: Partial<{ [K in Extract<keyof T_2, string> as `${import("./types").SnakeToCamelCase<K>}Key`]: string; } & {
         fRequestKey: string;
         fTrailKey: string;
         fFlowKey: string;
-    }>, options?: ValidatorValidateOptions) => boolean;
+        fActorKey: string;
+    }>, options?: ValidatorValidateOptions) => {
+        valid: boolean;
+        errors: import("ajv").ErrorObject<string, Record<string, any>, unknown>[] | null | undefined;
+    };
     connect: ({ api }: {
         api: GeneralStepApi<import("./types").InputDefinition<{
             type: "object";

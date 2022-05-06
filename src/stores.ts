@@ -1,13 +1,13 @@
 import {
     DataStoreInstance, DefaultDataStoreNames, DefaultFileStoreNames,
-    FileStoreInstance, GenerateObject, StoreInstance, StoresInstance, StoresOptions,
+    FileStoreInstance, GenerateObject, ReallyAny, StoreInstance, StoresInstance, StoresOptions,
 } from './types';
 import DataStore from './data-store';
 import FileStore from './file-store';
 
 export const DefaultDataStores: GenerateObject<DefaultDataStoreNames, DataStoreInstance> = {
     state: DataStore.create({ name: 'state', kvKey: 'STATE' }),
-    trails: DataStore.create({ name: 'trails', kvKey: 'TRAILS' }),
+    trails: DataStore.create({ name: 'trails', kvKey: 'TRAILS', splitByKey: true }),
     incorrectDataset: DataStore.create({ name: 'incorrectDataset', kvKey: 'INCORRECT_DATASET' }),
 };
 
@@ -51,10 +51,10 @@ export const load = async (stores: StoresInstance): Promise<StoresInstance> => {
         }),
     ) as StoreInstance[];
 
-    return storesLoaded.reduce<Record<string, StoreInstance>>((acc, store: StoreInstance) => {
+    return storesLoaded.reduce((acc, store: StoreInstance) => {
         acc[store.name] = store;
         return acc;
-    }, {});
+    }, {} as ReallyAny);
 };
 
 export const persist = async (stores: StoresInstance): Promise<void> => {

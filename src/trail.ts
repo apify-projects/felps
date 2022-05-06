@@ -1,19 +1,19 @@
-import { RequestMeta } from '.';
+import { Model, RequestMeta } from '.';
 import Base from './base';
-import { TRAIL_KEY_PROP } from './consts';
+import { TRAIL_KEY_PROP, TRAIL_UID_PREFIX } from './consts';
 import DataStore from './data-store';
 import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
 import {
     DataStoreInstance,
-    DeepPartial, ModelInstance, ReallyAny, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem,
+    DeepPartial, ModelInstance, ModelReference, ReallyAny, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem,
     TrailDataStage, TrailDataStages, TrailFlowState, TrailInstance,
     TrailOptions, TrailState, UniqueyKey,
 } from './types';
 import { craftUIDKey, pathify } from './utils';
 
 export const create = (options: TrailOptions): TrailInstance => {
-    const { id = craftUIDKey('trail'), actor } = options || {};
+    const { id = craftUIDKey(TRAIL_UID_PREFIX), actor } = options || {};
 
     const store = (actor?.stores as ReallyAny)?.trails as DataStoreInstance;
     const models = actor?.models;
@@ -111,4 +111,52 @@ export const promote = (trail: TrailInstance, item: TrailDataModelItem | TrailDa
     DataStore.remove(trail.store, path('ingested'));
 };
 
-export default { create, createFrom, load, get, setRequest, setFlow, getFlow, ingested, digested, promote };
+export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance): T | undefined => {
+    const digest = digested(trail);
+
+    const getEntities = (modelName: string, ref: ModelReference) => {
+        const digestModel = digest.models[modelName];
+        return TrailDataModel.getItemsList(digestModel, ref);
+    };
+
+    const models = Model.flatten(model);
+    // console.log(models);
+
+    const data = { root: undefined } as ReallyAny;
+
+    const orderByKeys = (keys: string[], obj: ReallyAny) => keys.reduce((acc, key) => {
+        if (key in obj) return { ...acc, [key]: obj[key] };
+        return acc;
+    }, {});
+
+    const reducer = (obj: ReallyAny, modelName: string | undefined, ref: ModelReference) => {
+        const childModels = models.filter((m) => m.parents?.reverse()[0] === modelName);
+        // console.log({ childModels });
+
+        for (const child of childModels) {
+            const key = child.parentKey || 'root';
+            const entities = getEntities(child.name, ref);
+            // console.log({ entities });
+            if (!entities.length) continue;
+
+            if (child.parentType === 'array') {
+                for (const entity of entities) {
+                    const idx = obj[key].push(orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {})) - 1;
+                    reducer(obj[key][idx], child.name, entity.reference);
+                }
+            } else {
+                const entity = entities?.[0];
+                obj[key] = orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {});
+                reducer(obj[key], child.name, entity.reference);
+            }
+
+            reducer(obj[key], child.name, {});
+        }
+    };
+
+    reducer(data, undefined, {});
+
+    return data.root;
+};
+
+export default { create, createFrom, load, get, setRequest, setFlow, getFlow, ingested, digested, promote, resolve };

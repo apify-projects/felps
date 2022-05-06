@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.promote = exports.digested = exports.ingested = exports.stage = exports.setRequest = exports.setFlow = exports.getFlow = exports.get = exports.createFrom = exports.load = exports.create = void 0;
+exports.resolve = exports.promote = exports.digested = exports.ingested = exports.stage = exports.setRequest = exports.setFlow = exports.getFlow = exports.get = exports.createFrom = exports.load = exports.create = void 0;
 const tslib_1 = require("tslib");
 const _1 = require(".");
 const base_1 = tslib_1.__importDefault(require("./base"));
@@ -10,7 +10,7 @@ const trail_data_model_1 = tslib_1.__importDefault(require("./trail-data-model")
 const trail_data_requests_1 = tslib_1.__importDefault(require("./trail-data-requests"));
 const utils_1 = require("./utils");
 const create = (options) => {
-    const { id = (0, utils_1.craftUIDKey)('trail'), actor } = options || {};
+    const { id = (0, utils_1.craftUIDKey)(consts_1.TRAIL_UID_PREFIX), actor } = options || {};
     const store = actor?.stores?.trails;
     const models = actor?.models;
     return {
@@ -103,5 +103,46 @@ const promote = (trail, item) => {
     data_store_1.default.remove(trail.store, path('ingested'));
 };
 exports.promote = promote;
-exports.default = { create: exports.create, createFrom: exports.createFrom, load: exports.load, get: exports.get, setRequest: exports.setRequest, setFlow: exports.setFlow, getFlow: exports.getFlow, ingested: exports.ingested, digested: exports.digested, promote: exports.promote };
+const resolve = (trail, model) => {
+    const digest = (0, exports.digested)(trail);
+    const getEntities = (modelName, ref) => {
+        const digestModel = digest.models[modelName];
+        return trail_data_model_1.default.getItemsList(digestModel, ref);
+    };
+    const models = _1.Model.flatten(model);
+    // console.log(models);
+    const data = { root: undefined };
+    const orderByKeys = (keys, obj) => keys.reduce((acc, key) => {
+        if (key in obj)
+            return { ...acc, [key]: obj[key] };
+        return acc;
+    }, {});
+    const reducer = (obj, modelName, ref) => {
+        const childModels = models.filter((m) => m.parents?.reverse()[0] === modelName);
+        // console.log({ childModels });
+        for (const child of childModels) {
+            const key = child.parentKey || 'root';
+            const entities = getEntities(child.name, ref);
+            // console.log({ entities });
+            if (!entities.length)
+                continue;
+            if (child.parentType === 'array') {
+                for (const entity of entities) {
+                    const idx = obj[key].push(orderByKeys(Object.keys(child.schema?.properties), entity.data || {})) - 1;
+                    reducer(obj[key][idx], child.name, entity.reference);
+                }
+            }
+            else {
+                const entity = entities?.[0];
+                obj[key] = orderByKeys(Object.keys(child.schema?.properties), entity.data || {});
+                reducer(obj[key], child.name, entity.reference);
+            }
+            reducer(obj[key], child.name, {});
+        }
+    };
+    reducer(data, undefined, {});
+    return data.root;
+};
+exports.resolve = resolve;
+exports.default = { create: exports.create, createFrom: exports.createFrom, load: exports.load, get: exports.get, setRequest: exports.setRequest, setFlow: exports.setFlow, getFlow: exports.getFlow, ingested: exports.ingested, digested: exports.digested, promote: exports.promote, resolve: exports.resolve };
 //# sourceMappingURL=trail.js.map

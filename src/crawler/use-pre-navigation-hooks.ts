@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { RequestMeta, StepApi } from '..';
+import { METADATA_KEY, PREFIXED_NAME_BY_ACTOR } from '../consts';
+import { ActorInstance, RequestContext, StepInstance } from '../types';
 import useHandleRequestErrorFunction from './use-handle-request-error-function';
-import { ActorInstance, RequestContext } from '../types';
 
 export default (actor: ActorInstance) => {
     // const logTrailHistory = (RequestContext: RequestContext) => {
@@ -12,13 +14,27 @@ export default (actor: ActorInstance) => {
     // };
 
     return {
-        async requestHook(RequestContext: RequestContext) {
-            RequestContext.page.on('requestfailed', async () => {
-                await useHandleRequestErrorFunction(actor)(RequestContext);
+        async flowHook(context: RequestContext) {
+            const meta = RequestMeta.create(context.request);
+            const stepApi = StepApi.create(actor);
+
+            if (meta.data.flowStart && context && !meta.data.isHook) {
+                context.request.userData[METADATA_KEY].flowStart = false;
+                const actorKey = meta.data.reference.fActorKey as string;
+                await (actor?.hooks?.[PREFIXED_NAME_BY_ACTOR(actorKey, 'FLOW_STARTED') as 'FLOW_STARTED'] as StepInstance).handler?.(context, stepApi(context));
+            }
+        },
+        async requestHook(context: RequestContext) {
+            context?.page?.on?.('requestfailed', async () => {
+                await useHandleRequestErrorFunction(actor)(context);
             });
+
+            if (context.response.status !== 200) {
+                await useHandleRequestErrorFunction(actor)(context);
+            }
         },
         async trailHook() {
-        // async trailHook(RequestContext: RequestContext) {
+            // async trailHook(RequestContext: RequestContext) {
             // const trailId = RequestContext.request?.userData?.trailId;
 
             // RequestContext.request.userData.startedAt = new Date().toISOString();

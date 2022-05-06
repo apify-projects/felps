@@ -30,7 +30,7 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                 },
                 addPartial(modelName, value, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref);
-                    Model.validate(modelInstance.model, value, { throwError: true });
+                    Model.validate(modelInstance.model, value, { partial: true, throwError: true });
                     return TrailDataModel.setPartial(modelInstance, value as ReallyAny, modelRef) as ModelReference<ReallyAny>;
                 },
                 get(modelName, ref?) {

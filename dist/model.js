@@ -8,13 +8,15 @@ const consts_1 = require("./consts");
 const utils_1 = require("./utils");
 const validator_1 = tslib_1.__importDefault(require("./validator"));
 const create = (options) => {
-    const { parents = [] } = options;
+    const { parentType, parentKey, parents = [] } = options;
     let { schema, name } = options;
     name = name || schema?.modelName;
     schema = { modelName: name, ...schema };
     return (0, exports.wrap)({
         ...base_1.default.create({ name, key: 'model' }),
         schema,
+        parentType,
+        parentKey,
         parents,
     });
 };
@@ -43,19 +45,35 @@ const walk = (model, walker) => {
 exports.walk = walk;
 const flatten = (model) => {
     const models = new Set();
-    (0, utils_1.traverseAndCarry)(model.schema, { parents: [] }, (value, ctx) => {
-        const modelName = value[consts_1.SCHEMA_MODEL_NAME_KEY];
-        if (modelName) {
+    (0, utils_1.traverseAndCarry)(model.schema, {
+        parentPath: [],
+        parents: [],
+    }, (value, key, ctx) => {
+        const parentPath = [...ctx.parentPath, key].filter(Boolean);
+        if (consts_1.SCHEMA_MODEL_NAME_KEY in value) {
+            const modelName = value[consts_1.SCHEMA_MODEL_NAME_KEY];
+            let parentKey = parentPath.slice(-1)[0];
+            const parentType = parentKey === 'items' ? 'array' : value.type;
+            if (parentKey === 'items')
+                parentKey = parentPath.slice(-2)[0];
             models.add((0, exports.create)({
                 name: modelName,
                 schema: value,
+                parentType,
+                parentKey,
                 parents: ctx.parents,
             }));
             return {
+                ...ctx,
+                parentPath,
                 parents: [...ctx.parents, modelName],
             };
         }
-        return ctx;
+        ;
+        return {
+            ...ctx,
+            parentPath,
+        };
     });
     return [...models];
 };
@@ -90,9 +108,6 @@ const referenceFor = (model, ref, withOwnReferenceKey) => {
     return (0, ramda_1.pickAll)(keys, ref);
 };
 exports.referenceFor = referenceFor;
-// export const match = (model: ModelInstance, ref: ModelReference): boolean => {
-//     return Object.values(referenceFor(model, ref, true)).every((value) => value !== undefined);
-// };
 const validate = (model, data, options = {}) => {
     const validator = validator_1.default.create({ name: model.name, schema: model.schema });
     return validator_1.default.validate(validator, data, { partial: false, logError: true, throwError: false, ...options });

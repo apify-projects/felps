@@ -10,6 +10,13 @@ export declare const on: (step: StepInstance, handler: () => void) => {
     requestErrorHandler?: import("./types").StepOptionsHandler<import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
         type: "object";
     }>> & import("./types").StepApiUtilsAPI> | undefined;
+    afterHandler?: import("./types").StepOptionsHandler<import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+        type: "object";
+    }>> & import("./types").StepApiUtilsAPI> | undefined;
+    beforeHandler?: import("./types").StepOptionsHandler<import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+        type: "object";
+    }>> & import("./types").StepApiUtilsAPI> | undefined;
+    actorKey?: string | undefined;
     uid?: string | undefined;
     key?: string | undefined;
     id: string;
@@ -25,6 +32,13 @@ export declare const extend: <Methods = unknown>(step: StepInstance, options: St
     requestErrorHandler?: import("./types").StepOptionsHandler<Methods & import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
         type: "object";
     }>> & import("./types").StepApiUtilsAPI> | undefined;
+    afterHandler?: import("./types").StepOptionsHandler<Methods & import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+        type: "object";
+    }>> & import("./types").StepApiUtilsAPI> | undefined;
+    beforeHandler?: import("./types").StepOptionsHandler<Methods & import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+        type: "object";
+    }>> & import("./types").StepApiUtilsAPI> | undefined;
+    actorKey?: string | undefined;
     name: string;
     uid?: string | undefined;
     key?: string | undefined;
@@ -43,6 +57,13 @@ declare const _default: {
         requestErrorHandler?: import("./types").StepOptionsHandler<import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
             type: "object";
         }>> & import("./types").StepApiUtilsAPI> | undefined;
+        afterHandler?: import("./types").StepOptionsHandler<import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+            type: "object";
+        }>> & import("./types").StepApiUtilsAPI> | undefined;
+        beforeHandler?: import("./types").StepOptionsHandler<import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+            type: "object";
+        }>> & import("./types").StepApiUtilsAPI> | undefined;
+        actorKey?: string | undefined;
         uid?: string | undefined;
         key?: string | undefined;
         id: string;
@@ -58,6 +79,13 @@ declare const _default: {
         requestErrorHandler?: import("./types").StepOptionsHandler<Methods_1 & import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
             type: "object";
         }>> & import("./types").StepApiUtilsAPI> | undefined;
+        afterHandler?: import("./types").StepOptionsHandler<Methods_1 & import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+            type: "object";
+        }>> & import("./types").StepApiUtilsAPI> | undefined;
+        beforeHandler?: import("./types").StepOptionsHandler<Methods_1 & import("./types").StepApiMetaAPI<import("./types").InputDefinition<{
+            type: "object";
+        }>> & import("./types").StepApiUtilsAPI> | undefined;
+        actorKey?: string | undefined;
         name: string;
         uid?: string | undefined;
         key?: string | undefined;

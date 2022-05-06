@@ -21,6 +21,7 @@ import Datasets from './datasets';
 import Dataset from './dataset';
 import Hooks from './hooks';
 import Trail from './trail';
+import Trails from './trails';
 import TrailData from './trail-data';
 import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
@@ -28,6 +29,7 @@ import RequestMeta from './request-meta';
 import Orchestrator from './orchestrator';
 import Input from './input';
 import Search from './search';
+import UrlPattern from './url-pattern';
 import Logger from './logger';
 import RequestQueue from './sdk/request-queue';
 import MultiCrawler from './sdk/multi-crawler';
@@ -56,6 +58,7 @@ export {
     Dataset,
     Hooks,
     Trail,
+    Trails,
     TrailData,
     TrailDataModel,
     TrailDataRequests,
@@ -63,6 +66,7 @@ export {
     Orchestrator,
     Input,
     Search,
+    UrlPattern,
     Logger,
     RequestQueue,
     MultiCrawler,
@@ -92,6 +96,7 @@ export default {
     Dataset,
     Hooks,
     Trail,
+    Trails,
     TrailData,
     TrailDataModel,
     TrailDataRequests,
@@ -99,6 +104,7 @@ export default {
     Orchestrator,
     Input,
     Search,
+    UrlPattern,
     Logger,
     RequestQueue,
     MultiCrawler,

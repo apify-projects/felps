@@ -15,7 +15,7 @@ const getPath = (trailData, ref, ...segments) => {
     const referenceKey = trailData?.referenceKey;
     const key = ref?.[referenceKey];
     if (!key) {
-        throw new Error(`No reference key found for ${JSON.stringify(ref)}`);
+        throw new Error(`No reference key ${referenceKey} found for ${JSON.stringify(ref)}`);
     }
     return (0, utils_1.pathify)(trailData.path, key, ...segments);
 };

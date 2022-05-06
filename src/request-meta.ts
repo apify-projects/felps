@@ -11,6 +11,7 @@ export const create = (requestOrRequestContext?: RequestSource | RequestContext 
         ...(request?.userData || {}),
         [METADATA_KEY]: mergeDeepRight(
             {
+                flowStart: false,
                 flowName: undefined,
                 stepName: undefined,
                 crawlerMode: undefined,
@@ -49,8 +50,8 @@ export const extend = (requestMeta: RequestMetaInstance, ...metadata: Partial<Re
     return create({
         ...requestMeta.request,
         userData: {
-            ...requestMeta.userData,
-            [METADATA_KEY]: metadata.reduce((acc, data) => mergeDeepRight(acc, data), requestMeta.data),
+            ...(requestMeta.userData || {}),
+            [METADATA_KEY]: (metadata || []).reduce((acc, data) => mergeDeepRight(acc, data), requestMeta.data),
         },
     });
 };

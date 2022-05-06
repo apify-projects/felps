@@ -5,13 +5,14 @@ const tslib_1 = require("tslib");
 const _1 = require(".");
 const base_1 = tslib_1.__importDefault(require("./base"));
 const create = (options) => {
-    const { name, crawlerMode, steps = [], input, output } = options || {};
+    const { name, crawlerMode, steps = [], input, output, actorKey } = options || {};
     return {
         ...base_1.default.create({ key: 'flow', name }),
         crawlerMode,
         steps,
         input: _1.Model.create(input),
         output: _1.Model.create(output),
+        actorKey,
     };
 };
 exports.create = create;

@@ -33,7 +33,7 @@ export const validate = (validator: ValidatorInstance, data: ReallyAny = {}, opt
             throw new Error(`Input ${validator.name} is invalid`);
         };
     }
-    return valid;
+    return { valid, errors: check.errors };
 };
 
 export default { create, validate };

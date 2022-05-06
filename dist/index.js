@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MultiCrawler = exports.RequestQueue = exports.Logger = exports.Search = exports.Input = exports.Orchestrator = exports.RequestMeta = exports.TrailDataRequests = exports.TrailDataModel = exports.TrailData = exports.Trail = exports.Hooks = exports.Dataset = exports.Datasets = exports.Queue = exports.Queues = exports.FileStore = exports.DataStore = exports.Stores = exports.Model = exports.Models = exports.StepApiUtils = exports.StepApiModel = exports.StepApiMeta = exports.StepApiFlow = exports.StepApi = exports.Step = exports.Steps = exports.Flow = exports.Flows = exports.Crawler = exports.Actor = exports.Base = void 0;
+exports.MultiCrawler = exports.RequestQueue = exports.Logger = exports.UrlPattern = exports.Search = exports.Input = exports.Orchestrator = exports.RequestMeta = exports.TrailDataRequests = exports.TrailDataModel = exports.TrailData = exports.Trails = exports.Trail = exports.Hooks = exports.Dataset = exports.Datasets = exports.Queue = exports.Queues = exports.FileStore = exports.DataStore = exports.Stores = exports.Model = exports.Models = exports.StepApiUtils = exports.StepApiModel = exports.StepApiMeta = exports.StepApiFlow = exports.StepApi = exports.Step = exports.Steps = exports.Flow = exports.Flows = exports.Crawler = exports.Actor = exports.Base = void 0;
 const tslib_1 = require("tslib");
 const base_1 = tslib_1.__importDefault(require("./base"));
 exports.Base = base_1.default;
@@ -48,6 +48,8 @@ const hooks_1 = tslib_1.__importDefault(require("./hooks"));
 exports.Hooks = hooks_1.default;
 const trail_1 = tslib_1.__importDefault(require("./trail"));
 exports.Trail = trail_1.default;
+const trails_1 = tslib_1.__importDefault(require("./trails"));
+exports.Trails = trails_1.default;
 const trail_data_1 = tslib_1.__importDefault(require("./trail-data"));
 exports.TrailData = trail_data_1.default;
 const trail_data_model_1 = tslib_1.__importDefault(require("./trail-data-model"));
@@ -62,6 +64,8 @@ const input_1 = tslib_1.__importDefault(require("./input"));
 exports.Input = input_1.default;
 const search_1 = tslib_1.__importDefault(require("./search"));
 exports.Search = search_1.default;
+const url_pattern_1 = tslib_1.__importDefault(require("./url-pattern"));
+exports.UrlPattern = url_pattern_1.default;
 const logger_1 = tslib_1.__importDefault(require("./logger"));
 exports.Logger = logger_1.default;
 const request_queue_1 = tslib_1.__importDefault(require("./sdk/request-queue"));
@@ -92,6 +96,7 @@ exports.default = {
     Dataset: dataset_1.default,
     Hooks: hooks_1.default,
     Trail: trail_1.default,
+    Trails: trails_1.default,
     TrailData: trail_data_1.default,
     TrailDataModel: trail_data_model_1.default,
     TrailDataRequests: trail_data_requests_1.default,
@@ -99,6 +104,7 @@ exports.default = {
     Orchestrator: orchestrator_1.default,
     Input: input_1.default,
     Search: search_1.default,
+    UrlPattern: url_pattern_1.default,
     Logger: logger_1.default,
     RequestQueue: request_queue_1.default,
     MultiCrawler: multi_crawler_1.default,

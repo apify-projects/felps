@@ -1,11 +1,13 @@
-import Apify from 'apify';
+/// <reference types="node" />
+import Apify, { PlaywrightCrawlerOptions, Request } from 'apify';
 import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
 import { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
 import type { JSONSchema7 as $JSONSchema7 } from 'json-schema';
 import type { FromSchema } from 'json-schema-to-ts';
 import { Readonly } from 'json-schema-to-ts/lib/utils';
-import MultiCrawler, { MultiCrawlerOptions } from './sdk/multi-crawler';
+import Route from 'route-parser';
+import MultiCrawler from './sdk/multi-crawler';
 import RequestQueue from './sdk/request-queue';
 export type { JSONSchemaType } from 'ajv';
 export declare type MakeSchema<S> = S | Readonly<S>;
@@ -55,6 +57,9 @@ export declare type DeepPartial<T> = Partial<{
 }>;
 export declare type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` ? `${Lowercase<T>}${Capitalize<SnakeToCamelCase<Lowercase<U>>>}` : Lowercase<S>;
 export declare type SnakeToPascalCase<S extends string> = S extends `${infer T}_${infer U}` ? `${Capitalize<Lowercase<T>>}${SnakeToPascalCase<Capitalize<Lowercase<U>>>}` : Capitalize<Lowercase<S>>;
+export declare type WithoutFunctions<T> = {
+    [K in keyof T]: T[K] extends (string | number) ? K : never;
+};
 export declare type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
 export declare type GeneralKeyedObject<N extends Record<string, string>, T> = {
     [K in Extract<keyof N, string>]: T;
@@ -93,12 +98,14 @@ export declare type FlowInstance<StepNames> = {
     steps: StepNames[];
     input: ModelInstance<JSONSchema>;
     output: ModelInstance<JSONSchema>;
+    actorKey: UniqueyKey | undefined;
 } & BaseInstance;
 export declare type FlowDefinition<StepNames = string> = {
     crawlerMode?: RequestCrawlerMode;
     steps: StepNames[];
     input: ModelDefinition<JSONSchemaWithMethods>;
     output: ModelDefinition<JSONSchemaWithMethods>;
+    actorKey?: UniqueyKey;
 };
 export declare type FlowNamesObject<F extends Record<string, ReallyAny>> = {
     [K in keyof F]: Extract<K, string>;
@@ -126,6 +133,9 @@ export declare type StepInstance<Methods = unknown> = {
     handler?: StepOptionsHandler<Methods & GeneralStepApi>;
     errorHandler?: StepOptionsHandler<Methods & GeneralStepApi>;
     requestErrorHandler?: StepOptionsHandler<Methods & GeneralStepApi>;
+    afterHandler?: StepOptionsHandler<Methods & GeneralStepApi>;
+    beforeHandler?: StepOptionsHandler<Methods & GeneralStepApi>;
+    actorKey?: string;
 } & BaseInstance;
 export declare type StepOptions<Methods = unknown> = {
     name: string;
@@ -133,6 +143,9 @@ export declare type StepOptions<Methods = unknown> = {
     handler?: StepOptionsHandler<Methods & GeneralStepApi>;
     errorHandler?: StepOptionsHandler<Methods & GeneralStepApi>;
     requestErrorHandler?: StepOptionsHandler<Methods & GeneralStepApi>;
+    afterHandler?: StepOptionsHandler<Methods & GeneralStepApi>;
+    beforeHandler?: StepOptionsHandler<Methods & GeneralStepApi>;
+    actorKey?: string;
 };
 export declare type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>;
 export declare type StepApiInstance<F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>, I extends InputDefinition> = GeneralStepApi<I> & StepApiFlowsAPI<F, S, M> & StepApiModelAPI<M>;
@@ -141,14 +154,21 @@ export declare type StepApiFlowsInstance<F extends Record<string, FlowDefinition
     handler: (context: RequestContext) => StepApiFlowsAPI<F, S, M>;
 };
 export declare type StepApiFlowsAPI<F extends Record<string, FlowDefinition<keyof S>>, S, M> = {
-    isStep: (stepName: string) => boolean;
-    isFlow: (flowName: string) => boolean;
+    actor(): ActorInstance;
+    flows(): Record<string, FlowInstance<ReallyAny>>;
+    hooks(): Record<string, StepInstance>;
+    steps(): Record<string, StepInstance>;
+    isCurrentStep: (stepName: string) => boolean;
+    isCurrentFlow: (flowName: string) => boolean;
+    isStep: (stepNameToTest: string, stepNameExpected: string) => boolean;
+    isFlow: (flowNameToTest: string, flowNameExpected: string) => boolean;
     asFlowName: (flowName: string) => (Extract<keyof F, string> | undefined);
     asStepName: (stepName: string) => (Extract<keyof S, string> | undefined);
     start: <FlowName extends keyof F>(flowName: Extract<FlowName, string>, request: RequestSource, input?: ReallyAny, // FromSchema<F[FlowName]['input']>
     options?: {
         reference?: ModelReference<M>;
         crawlerMode: RequestCrawlerMode | undefined;
+        stepName?: string;
         useNewTrail: boolean;
     }) => ModelReference<M>;
     pipe: <FlowName extends keyof F>(flowName: Extract<FlowName, string>, request: RequestSource, input?: ReallyAny, // FromSchema<F[FlowName]['input']>
@@ -187,6 +207,8 @@ export declare type StepApiMetaAPI<I extends InputDefinition = InputDefinition> 
     getMetaData: () => RequestMetaData;
     getRerence: () => RequestMetaData['reference'];
     getFlowInput: () => TrailFlowState['input'];
+    getFlowName: () => string;
+    getStepName: () => string;
 };
 export declare type StepApiUtilsInstance = {
     handler: (context: RequestContext) => StepApiUtilsAPI;
@@ -200,6 +222,8 @@ export declare type ModelInstance<TSchema = JSONSchema> = ModelDefinition<TSchem
 export declare type ModelDefinition<TSchema = JSONSchema> = {
     name?: string;
     schema: TSchema;
+    parentType?: string;
+    parentKey?: string;
     parents?: string[];
 };
 export declare type ModelOptions<TSchema = JSONSchema> = ModelDefinition<TSchema>;
@@ -209,8 +233,9 @@ export declare type ModelReference<T = unknown> = Partial<{
     fRequestKey: UniqueyKey;
     fTrailKey: UniqueyKey;
     fFlowKey: UniqueyKey;
+    fActorKey: UniqueyKey;
 }>;
-export declare type StoresInstance<DataStoreNames extends string[] = [], FileStoreNames extends string[] = []> = GenerateObject<FileStoreNames & DefaultFileStoreNames, FileStoreInstance> & GenerateObject<DataStoreNames & DefaultDataStoreNames, DataStoreInstance>;
+export declare type StoresInstance<DataStoreNames extends string[] = DefaultDataStoreNames, FileStoreNames extends string[] = DefaultFileStoreNames> = GenerateObject<FileStoreNames & DefaultFileStoreNames, FileStoreInstance> & GenerateObject<DataStoreNames & DefaultDataStoreNames, DataStoreInstance>;
 export declare type StoreInstance = DataStoreInstance | FileStoreInstance;
 export declare type DefaultDataStoreNames = ['state', 'trails', 'incorrectDataset'];
 export declare type DefaultFileStoreNames = ['files', 'responseBodies', 'browserTraces'];
@@ -222,6 +247,7 @@ export declare type DataStoreInstance = {
     type: 'data-store';
     kvKey: string;
     pathPrefix: string;
+    splitByKey?: boolean;
     initialized: boolean;
     state: Record<string, unknown>;
 } & BaseInstance;
@@ -229,6 +255,7 @@ export declare type DataStoreOptions = {
     name: string;
     key?: string;
     kvKey?: string;
+    splitByKey?: boolean;
     pathPrefix?: string;
 };
 export declare type FileStoreInstance = {
@@ -274,6 +301,14 @@ export declare type TrailState = {
     digested: TrailDataStage;
     output: any;
 };
+export declare type TrailsOptions = {
+    actor: ActorInstance;
+    store?: DataStoreInstance;
+};
+export declare type TrailsInstance = {
+    actor: ActorInstance;
+    store: DataStoreInstance;
+} & BaseInstance;
 export declare type TrailDataStages = 'digested' | 'ingested';
 export declare type TrailDataStage = {
     models: Record<string, TrailDataModelInstance>;
@@ -359,8 +394,9 @@ export declare type DatasetsOptions<Names extends string[] = []> = {
 };
 export declare type DefaultDatasetNames = ['default'];
 export declare type ActorInstance = {
-    name?: string;
+    name: string;
     crawlerMode?: RequestCrawlerMode;
+    crawlerOptions?: ActorCrawlerOptions;
     input: InputInstance;
     crawler: CrawlerInstance;
     steps: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
@@ -372,9 +408,10 @@ export declare type ActorInstance = {
     hooks: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
 } & BaseInstance;
 export declare type ActorOptions = {
-    name?: string;
+    name: string;
     input?: InputInstance;
     crawlerMode?: RequestCrawlerMode;
+    crawlerOptions?: ActorCrawlerOptions;
     crawler?: CrawlerInstance;
     steps?: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
     flows?: FlowsInstance<ReallyAny>;
@@ -384,10 +421,16 @@ export declare type ActorOptions = {
     datasets?: DatasetsInstance;
     hooks?: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
 };
+export declare type ActorInput = string | {
+    [x: string]: any;
+} | Buffer | null;
+export declare type ActorCrawlerOptions = PlaywrightCrawlerOptions;
 export declare type HooksInstance<M extends Record<string, ModelDefinition>, F extends Record<string, FlowDefinition<keyof S>>, S, I extends InputDefinition> = {
     [K in DefaultHookNames[number]]: StepInstance<StepApiInstance<F, S, M, I>>;
 };
 export declare type DefaultHookNames = [
+    'FLOW_STARTED',
+    'FLOW_ENDED',
     'STEP_STARTED',
     'STEP_ENDED',
     'STEP_FAILED',
@@ -402,15 +445,19 @@ export declare type GenerateHookFireMethods<T extends string[]> = {
 };
 export declare type HookMethods = GenerateHookFireMethods<DefaultHookNames>;
 export declare type RequestMetaInstance = {
-    request: RequestSource;
+    request: Request;
     userData: Record<string, unknown>;
     data: RequestMetaData;
 } & BaseInstance;
 export declare type RequestMetaOptions = {
     nothing?: string;
 };
-export declare type RequestCrawlerMode = 'http' | 'chromium' | 'firefox' | 'safari';
+export declare type RequestCrawlerMode = 'http' | 'chromium' | 'firefox' | 'webkit';
 export declare type RequestMetaData = {
+    isHook: boolean;
+    stepStop: boolean;
+    flowStop: boolean;
+    flowStart: boolean;
     flowName: string;
     stepName: string;
     crawlerMode: RequestCrawlerMode;
@@ -418,11 +465,11 @@ export declare type RequestMetaData = {
 };
 export declare type CrawlerInstance = {
     launcher?: MultiCrawler | ReallyAny;
-    crawlerOptions?: Partial<MultiCrawlerOptions>;
+    crawlerOptions?: Partial<PlaywrightCrawlerOptions>;
 } & BaseInstance;
 export declare type CrawlerOptions = {
     launcher?: MultiCrawler | ReallyAny;
-    crawlerOptions?: Partial<MultiCrawlerOptions>;
+    crawlerOptions?: Partial<PlaywrightCrawlerOptions>;
 };
 export declare type LoggerOptions = {
     suffix?: string;
@@ -476,5 +523,18 @@ export declare type SearchOptions = {
     name?: string;
     indexOptions?: IndexOptions<string, false>;
     documentOptions?: IndexOptionsForDocumentSearch<unknown, false>;
+};
+export declare type UrlPatternInstance = {
+    pattern: string;
+    resource: Route;
+} & BaseInstance;
+export declare type UrlPatternOptions = {
+    name?: string;
+    pattern: string;
+};
+export declare type UrlPatternParsed = {
+    origin?: string;
+    searchParams?: Record<string, string | number>;
+    pathParams?: Record<string, string | number>;
 };
 //# sourceMappingURL=types.d.ts.map

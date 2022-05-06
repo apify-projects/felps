@@ -36,7 +36,7 @@ const validate = (validator, data = {}, options = {}) => {
         }
         ;
     }
-    return valid;
+    return { valid, errors: check.errors };
 };
 exports.validate = validate;
 exports.default = { create: exports.create, validate: exports.validate };
