@@ -95,12 +95,14 @@ export type ExtractFlowsSchemaModelNames<F extends Record<string, FlowDefinition
     [K in keyof F]: ExtractSchemaModelNames<F[K]['output']['schema']>
 }[keyof F];
 
-// export type WithoutType<T, V, WithNevers = {
-//     [K in keyof T]: Exclude<T[K], undefined> extends V ? never
-//     : (T[K] extends Record<string, unknown> ? WithoutType<T[K], V> : T[K])
-// }> = Pick<WithNevers, {
-//     [K in keyof WithNevers]: WithNevers[K] extends never ? never : K
-// }[keyof WithNevers]>
+type DeepModelsOmitter<V> = V extends { modelName: string }
+    ? never : (V extends Record<string, any> ? { [K in keyof V]: DeepModelsOmitter<V[K]> } : V);
+type DeepOmitModels<T> = {
+    [K in keyof T]: DeepModelsOmitter<T[K]>
+}
+// type DeepOmitModelsRoot<T> = DeepOmitModels<{
+//     [K in keyof T]: DeepOmitModels<T[K]>
+// }>
 
 type ExcludeKeysWithTypeOf<T, V> = Pick<T, {
     [K in keyof T]: Exclude<T[K], undefined> extends V ? never : K
@@ -326,43 +328,37 @@ export type StepApiModelAPI<
     F extends Record<string, FlowDefinition<keyof S>> = never,
     StepName extends string = 'nope',
     N extends Record<string, ReallyAny> = KeyedSchemaType<M>,
-    // AvailableFlows extends Record<string, FlowDefinition<keyof S>> = StepName extends keyof S ? ExtractFlowsWithStep<StepName, S, F> : F,
     AvailableFlows = StepName extends 'nope' ? 'nope' : ExtractFlowsWithStep<StepName, S, F>,
     // eslint-disable-next-line max-len
-    // RawAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M,
-    RawAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M,
-    AvailableModelNames = RawAvailableModelNames extends string ? RawAvailableModelNames : keyof M,
+    RawAvailableModelNames = AvailableFlows extends string ? 0 : (AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M),
+    AvailableModelNames = RawAvailableModelNames extends number ? keyof M : RawAvailableModelNames,
     > = {
         add: <ModelName extends AvailableModelNames>(
             modelName: ModelName,
-            value: ModelName extends keyof N ? N[ModelName]['schema'] : never,
+            value: ModelName extends keyof N ? DeepOmitModels<N[ModelName]['schema']> : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
         addPartial: <ModelName extends AvailableModelNames>(
             modelName: ModelName,
-            value: ModelName extends keyof N ? Partial<N[ModelName]['schema']> : never,
+            value: ModelName extends keyof N ? Partial<DeepOmitModels<N[ModelName]['schema']>> : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
         get: <ModelName extends AvailableModelNames>(
             modelName: ModelName,
             ref?: ModelReference<M>,
         ) => ModelName extends keyof N ? N[ModelName]['schema'] : never;
-        update: <ModelName extends AvailableModelNames>
-            // eslint-disable-next-line max-len
-            (
+        update: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof N ? DeepOmitModels<N[ModelName]['schema']> : never>(
             modelName: ModelName,
             value: ModelName extends keyof N ? (
-                Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>
-                ) => Partial<N[ModelName]['schema']>)) : never,
+                Partial<ModelSchema> | ((previous: Partial<ModelSchema>
+                ) => Partial<ModelSchema>)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
-        updatePartial: <ModelName extends AvailableModelNames>
-            // eslint-disable-next-line max-len
-            (
+        updatePartial: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof N ? DeepOmitModels<N[ModelName]['schema']> : never>(
             modelName: ModelName,
             value: ModelName extends keyof N ? (
-                Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>
-                ) => Partial<N[ModelName]['schema']>)) : never,
+                Partial<ModelSchema> | ((previous: Partial<ModelSchema>
+                ) => Partial<ModelSchema>)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
     };
