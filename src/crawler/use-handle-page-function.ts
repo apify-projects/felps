@@ -20,7 +20,6 @@ export default (actor: ActorInstance) => {
         if (meta.data.stepStop) {
             Logger.info(Logger.create(step), 'Step has been stopped');
             const stepApi = StepApi.create(actor);
-            console.log('HERE');
             await Orchestrator.run(Orchestrator.create(actor), context, stepApi(context));
             // This step has been prohibited from running any further
             return;

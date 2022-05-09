@@ -459,7 +459,7 @@ declare const _default: {
         filterByFlowStart: (item: import("./types").TrailDataRequestItem) => boolean;
     };
     RequestMeta: {
-        create: (requestOrRequestContext?: import("./types").RequestSource | import("./types").RequestContext | undefined) => import("./types").RequestMetaInstance;
+        create: (requestOrRequestContext?: import("./types").RequestContext | import("./types").RequestSource | undefined) => import("./types").RequestMetaInstance;
         extend: (requestMeta: import("./types").RequestMetaInstance, ...metadata: Partial<import("./types").RequestMetaData>[]) => import("./types").RequestMetaInstance;
         contextDefaulted: (context?: import("./types").RequestContext | undefined) => import("./types").RequestContext;
     };

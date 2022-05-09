@@ -18,7 +18,6 @@ exports.default = (actor) => {
         if (meta.data.stepStop) {
             index_1.Logger.info(index_1.Logger.create(step), 'Step has been stopped');
             const stepApi = index_1.StepApi.create(actor);
-            console.log('HERE');
             await index_1.Orchestrator.run(index_1.Orchestrator.create(actor), context, stepApi(context));
             // This step has been prohibited from running any further
             return;
