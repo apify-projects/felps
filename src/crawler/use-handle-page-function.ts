@@ -2,7 +2,7 @@
 import { PREFIXED_NAME_BY_ACTOR } from '../consts';
 import { Logger, Orchestrator, Step, StepApi } from '../index';
 import RequestMeta from '../request-meta';
-import { ActorInstance, ReallyAny, RequestContext, StepInstance } from '../types';
+import { ActorInstance, RequestContext, StepInstance } from '../types';
 
 export default (actor: ActorInstance) => {
     return async (context: RequestContext) => {
@@ -19,7 +19,8 @@ export default (actor: ActorInstance) => {
 
         if (meta.data.stepStop) {
             Logger.info(Logger.create(step), 'Step has been stopped');
-            const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
+            const stepApi = StepApi.create(actor);
+            console.log('HERE');
             await Orchestrator.run(Orchestrator.create(actor), context, stepApi(context));
             // This step has been prohibited from running any further
             return;

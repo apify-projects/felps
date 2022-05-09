@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.names = exports.use = exports.create = void 0;
+exports.clone = exports.names = exports.use = exports.create = void 0;
 const tslib_1 = require("tslib");
 const flow_1 = tslib_1.__importDefault(require("./flow"));
 const create = ({ FLOWS }) => {
@@ -18,6 +18,7 @@ const use = (_) => {
     return {
         define: (flows) => {
             return flows;
+            // return flows as unknown as FlowDefinitions<keyof S, T>;
         },
     };
 };
@@ -29,5 +30,13 @@ const names = (FLOWS) => {
     }), {});
 };
 exports.names = names;
-exports.default = { create: exports.create, use: exports.use, names: exports.names };
+const clone = (flows) => {
+    return Object.keys(flows)
+        .reduce((acc, name) => ({
+        ...acc,
+        [name]: flow_1.default.create(flows[name]),
+    }), {});
+};
+exports.clone = clone;
+exports.default = { create: exports.create, use: exports.use, names: exports.names, clone: exports.clone };
 //# sourceMappingURL=flows.js.map

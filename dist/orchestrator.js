@@ -126,6 +126,7 @@ const create = (actor) => {
                 const resultsAsArray = Array.isArray(results) ? results : [results];
                 for (const result of resultsAsArray) {
                     const { valid: isValid, errors } = _1.Model.validate(flow.output, result);
+                    console.log({ result, isValid, errors });
                     if (isValid) {
                         await _1.Dataset.push(actor?.datasets?.default, result);
                     }

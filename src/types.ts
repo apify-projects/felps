@@ -83,6 +83,33 @@ export type GeneralKeyedObject<N extends Record<string, string>, T> = { [K in Ex
 export type GenerateObject<N extends string[], T> = { [K in N[number]]: T };
 export type ValueOf<T> = T[keyof T];
 
+export type ExtractSchemaModelNames<N> =
+    N extends ReadonlyArray<string> ? never :
+    (N extends Record<string, ReallyAny> ?
+        (N extends { modelName: infer MN }
+            ? Extract<MN, string> | ExtractSchemaModelNames<Omit<N, 'modelName'>>
+            : { [K in keyof N]: ExtractSchemaModelNames<N[K]> }[keyof N])
+        : never);
+
+export type ExtractFlowsSchemaModelNames<F extends Record<string, FlowDefinition<ReallyAny>>> = {
+    [K in keyof F]: ExtractSchemaModelNames<F[K]['output']['schema']>
+}[keyof F];
+
+// export type WithoutType<T, V, WithNevers = {
+//     [K in keyof T]: Exclude<T[K], undefined> extends V ? never
+//     : (T[K] extends Record<string, unknown> ? WithoutType<T[K], V> : T[K])
+// }> = Pick<WithNevers, {
+//     [K in keyof WithNevers]: WithNevers[K] extends never ? never : K
+// }[keyof WithNevers]>
+
+type ExcludeKeysWithTypeOf<T, V> = Pick<T, {
+    [K in keyof T]: Exclude<T[K], undefined> extends V ? never : K
+}[keyof T]>;
+
+export type ExtractFlowsWithStep<StepName extends string, S, F extends Record<string, FlowDefinition<keyof S>>> = ExcludeKeysWithTypeOf<{
+    [K in keyof F]: StepName extends F[K]['steps'][number] ? F[K] : 'not this'
+}, 'not this'>;
+
 // apify --------------------------------------------------
 export type RequestSource = import('apify').Request | import('apify').RequestOptions
 export type RequestOptionalOptions = { priority?: number, type?: RequestCrawlerMode, forefront?: boolean | undefined } | undefined
@@ -104,28 +131,34 @@ export type BaseOptions = {
 }
 
 // flows.ts ------------------------------------------------------------
-export type FlowsInstance<StepNames = string> = FlowDefinitions<StepNames, ReallyAny>;
+export type FlowsInstance<StepNames = string> = Record<string, FlowInstance<StepNames>>;
+export type FlowDefinitions<StepNames = string> = Record<string, FlowDefinition<StepNames>>;
+// FlowDefinitions<StepNames, ReallyAny>;
 
-export type FlowDefinitions<StepNames, T extends Record<string, FlowDefinition<StepNames>>> = {
-    [K in keyof T]: T[K] extends FlowDefinition<StepNames> ? T[K] & { name: string } : never
-};
+// export type FlowDefinitions<StepNames, T extends Record<string, FlowDefinition<StepNames>>> = {
+//     [K in keyof T]: T[K] & { name: string }
+//     // [K in keyof T]: T[K] extends FlowDefinition<StepNames> ? T[K] & { name: string } : never
+// };
 
 // flow.ts ------------------------------------------------------------
 export type FlowInstance<StepNames> = {
     crawlerMode?: RequestCrawlerMode,
-    steps: StepNames[],
+    steps: StepNames[] | readonly Readonly<StepNames>[],
     input: ModelInstance<JSONSchema>,
     output: ModelInstance<JSONSchema>,
     actorKey: UniqueyKey | undefined,
 } & BaseInstance;
 
-export type FlowDefinition<StepNames = string> = {
+export type FlowDefinitionRaw<StepNames = string> = {
+    name?: string,
     crawlerMode?: RequestCrawlerMode,
     steps: StepNames[],
     input: ModelDefinition<JSONSchemaWithMethods>,
     output: ModelDefinition<JSONSchemaWithMethods>,
     actorKey?: UniqueyKey,
-}
+};
+
+export type FlowDefinition<StepNames = string> = FlowDefinitionRaw<StepNames> | Readonly<FlowDefinitionRaw<StepNames>>;
 
 export type FlowNamesObject<F extends Record<string, ReallyAny>> = {
     [K in keyof F]: Extract<K, string>
@@ -139,7 +172,8 @@ export type FlowOptionsWithoutName<StepNames = string> = Omit<FlowOptions<StepNa
 
 // steps.ts ------------------------------------------------------------
 export type StepsInstance<M extends Record<string, ModelDefinition>, F extends Record<string, FlowDefinition<keyof S>>, S, I extends InputDefinition> = {
-    [K in keyof S]: S[K] extends StepDefinition ? StepInstance<StepApiInstance<F, S, M, I>> & S[K] : never
+    [StepName in Extract<keyof S, string>]: StepInstance<StepApiInstance<F, S, M, I, StepName>> &
+    Omit<S[StepName], 'handler' | 'errorHandler' | 'requestErrorHandler' | 'afterHandler' | 'beforeHandler'>
 };
 
 export type StepsOptions<T> = {
@@ -183,9 +217,14 @@ export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, ap
 
 // step-api.ts -----------------------------------------------------------------
 export type StepApiInstance<
-    F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>, I extends InputDefinition> = GeneralStepApi<I>
+    F extends Record<string, FlowDefinition<keyof S>>,
+    S,
+    M extends Record<string, ModelDefinition>,
+    I extends InputDefinition,
+    StepName extends string = 'nope'
+    > = GeneralStepApi<I>
     & StepApiFlowsAPI<F, S, M>
-    & StepApiModelAPI<M>;
+    & StepApiModelAPI<M, S, F, StepName>;
 
 export type GeneralStepApi<I extends InputDefinition = InputDefinition> = StepApiMetaAPI<I> & StepApiUtilsAPI;
 
@@ -242,37 +281,88 @@ export type KeyedSchemaType<TModels extends Record<string, ModelDefinition>> = {
     }
 }
 
-// eslint-disable-next-line max-len
+// export type StepApiModelByFlowAPI<
+//     M extends Record<string, ModelDefinition>,
+//     N extends Record<string, ReallyAny> = KeyedSchemaType<M>,
+//     AvailableModelNames = ExtractSchemaModelNames<M['output']>,
+//     > = {
+//         add: <ModelName extends AvailableModelNames>(
+//             modelName: ModelName,
+//             value: ModelName extends keyof N ? N[ModelName]['schema'] : never,
+//             ref?: ModelReference<M>,
+//         ) => ModelReference<M>;
+//         addPartial: <ModelName extends AvailableModelNames>(
+//             modelName: ModelName,
+//             value: ModelName extends keyof N ? Partial<N[ModelName]['schema']> : never,
+//             ref?: ModelReference<M>,
+//         ) => ModelReference<M>;
+//         get: <ModelName extends AvailableModelNames>(
+//             modelName: ModelName,
+//             ref?: ModelReference<M>,
+//         ) => ModelName extends keyof N ? N[ModelName]['schema'] : never;
+//         update: <ModelName extends AvailableModelNames>
+//             // eslint-disable-next-line max-len
+//             (
+//             modelName: ModelName,
+//             value: ModelName extends keyof N ? (
+//                 Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>
+//                 ) => Partial<N[ModelName]['schema']>)) : never,
+//             ref?: ModelReference<M>,
+//         ) => ModelReference<M>;
+//         updatePartial: <ModelName extends AvailableModelNames>
+//             // eslint-disable-next-line max-len
+//             (
+//             modelName: ModelName,
+//             value: ModelName extends keyof N ? (
+//                 Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>
+//                 ) => Partial<N[ModelName]['schema']>)) : never,
+//             ref?: ModelReference<M>,
+//         ) => ModelReference<M>;
+//     };
+
 export type StepApiModelAPI<
     M extends Record<string, ModelDefinition>,
-    N extends Record<string, ReallyAny> = KeyedSchemaType<M>
+    S = { 'No stepname provided': never },
+    F extends Record<string, FlowDefinition<keyof S>> = never,
+    StepName extends string = 'nope',
+    N extends Record<string, ReallyAny> = KeyedSchemaType<M>,
+    // AvailableFlows extends Record<string, FlowDefinition<keyof S>> = StepName extends keyof S ? ExtractFlowsWithStep<StepName, S, F> : F,
+    AvailableFlows = StepName extends 'nope' ? 'nope' : ExtractFlowsWithStep<StepName, S, F>,
+    // eslint-disable-next-line max-len
+    // RawAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M,
+    RawAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M,
+    AvailableModelNames = RawAvailableModelNames extends string ? RawAvailableModelNames : keyof M,
     > = {
-        add: <ModelName extends keyof N>(
+        add: <ModelName extends AvailableModelNames>(
             modelName: ModelName,
-            value: N[ModelName]['schema'],
+            value: ModelName extends keyof N ? N[ModelName]['schema'] : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
-        addPartial: <ModelName extends keyof N>(
+        addPartial: <ModelName extends AvailableModelNames>(
             modelName: ModelName,
-            value: Partial<N[ModelName]['schema']>,
+            value: ModelName extends keyof N ? Partial<N[ModelName]['schema']> : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
-        get: <ModelName extends keyof N>(
+        get: <ModelName extends AvailableModelNames>(
             modelName: ModelName,
             ref?: ModelReference<M>,
-        ) => N[ModelName]['schema'];
-        update: <ModelName extends keyof N>
+        ) => ModelName extends keyof N ? N[ModelName]['schema'] : never;
+        update: <ModelName extends AvailableModelNames>
             // eslint-disable-next-line max-len
             (
             modelName: ModelName,
-            value: Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>) => Partial<N[ModelName]['schema']>),
+            value: ModelName extends keyof N ? (
+                Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>
+                ) => Partial<N[ModelName]['schema']>)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
-        updatePartial: <ModelName extends keyof N>
+        updatePartial: <ModelName extends AvailableModelNames>
             // eslint-disable-next-line max-len
             (
             modelName: ModelName,
-            value: Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>) => Partial<N[ModelName]['schema']>),
+            value: ModelName extends keyof N ? (
+                Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>
+                ) => Partial<N[ModelName]['schema']>)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
     };
@@ -550,13 +640,15 @@ export type ActorInstance = {
     crawlerOptions?: ActorCrawlerOptions,
     input: InputInstance,
     crawler: CrawlerInstance,
-    steps: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    steps: ReallyAny;
+    // steps: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
     flows: FlowsInstance<ReallyAny>;
     models: ModelsInstance<ReallyAny>;
     stores: StoresInstance;
     queues: QueuesInstance;
     datasets: DatasetsInstance;
-    hooks: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    hooks: ReallyAny;
+    // hooks: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
 } & BaseInstance;
 
 export type ActorOptions = {
@@ -565,13 +657,15 @@ export type ActorOptions = {
     crawlerMode?: RequestCrawlerMode,
     crawlerOptions?: ActorCrawlerOptions,
     crawler?: CrawlerInstance,
-    steps?: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    steps?: ReallyAny;
+    // steps?: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
     flows?: FlowsInstance<ReallyAny>;
     models?: ModelsInstance<ReallyAny>;
     stores?: StoresInstance;
     queues?: QueuesInstance;
     datasets?: DatasetsInstance;
-    hooks?: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    hooks?: ReallyAny;
+    // hooks?: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
 }
 
 export type ActorInput = string | {

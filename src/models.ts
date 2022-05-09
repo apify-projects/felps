@@ -1,3 +1,4 @@
+import cloneDeep from 'lodash.clonedeep';
 import { Model } from '.';
 import { JSONSchemaWithMethods, ModelDefinition, ModelDefinitions } from './types';
 
@@ -23,4 +24,8 @@ export const define = <T extends Record<string, ModelDefinition<JSONSchemaWithMe
     }, {} as ModelDefinitions<T>);
 };
 
-export default { create, define };
+export const clone = <T>(models: T): T => {
+    return cloneDeep(models);
+};
+
+export default { create, define, clone };

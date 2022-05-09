@@ -5,7 +5,7 @@ import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
 import {
     ActorInstance, FlowInstance, OrchestratorInstance, QueueInstance,
-    ReallyAny, RequestContext, StepApiInstance, StepInstance,
+    ReallyAny, RequestContext, StepInstance,
 } from './types';
 
 export const create = (actor: ActorInstance): OrchestratorInstance => {
@@ -142,6 +142,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 const resultsAsArray = Array.isArray(results) ? results : [results];
                 for (const result of resultsAsArray) {
                     const { valid: isValid, errors } = Model.validate(flow.output, result);
+                    console.log({ result, isValid, errors });
                     if (isValid) {
                         await Dataset.push(actor?.datasets?.default, result);
                     } else {
@@ -153,7 +154,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
     };
 };
 
-export const run = async (orchestrator: OrchestratorInstance, context: RequestContext, api: StepApiInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>) => {
+export const run = async (orchestrator: OrchestratorInstance, context: RequestContext, api: ReallyAny) => {
     await orchestrator.handler(context, api);
 };
 

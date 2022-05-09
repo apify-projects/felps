@@ -68,6 +68,20 @@ export declare type GenerateObject<N extends string[], T> = {
     [K in N[number]]: T;
 };
 export declare type ValueOf<T> = T[keyof T];
+export declare type ExtractSchemaModelNames<N> = N extends ReadonlyArray<string> ? never : (N extends Record<string, ReallyAny> ? (N extends {
+    modelName: infer MN;
+} ? Extract<MN, string> | ExtractSchemaModelNames<Omit<N, 'modelName'>> : {
+    [K in keyof N]: ExtractSchemaModelNames<N[K]>;
+}[keyof N]) : never);
+export declare type ExtractFlowsSchemaModelNames<F extends Record<string, FlowDefinition<ReallyAny>>> = {
+    [K in keyof F]: ExtractSchemaModelNames<F[K]['output']['schema']>;
+}[keyof F];
+declare type ExcludeKeysWithTypeOf<T, V> = Pick<T, {
+    [K in keyof T]: Exclude<T[K], undefined> extends V ? never : K;
+}[keyof T]>;
+export declare type ExtractFlowsWithStep<StepName extends string, S, F extends Record<string, FlowDefinition<keyof S>>> = ExcludeKeysWithTypeOf<{
+    [K in keyof F]: StepName extends F[K]['steps'][number] ? F[K] : 'not this';
+}, 'not this'>;
 export declare type RequestSource = import('apify').Request | import('apify').RequestOptions;
 export declare type RequestOptionalOptions = {
     priority?: number;
@@ -87,26 +101,24 @@ export declare type BaseOptions = {
     uid?: string;
     id?: string;
 };
-export declare type FlowsInstance<StepNames = string> = FlowDefinitions<StepNames, ReallyAny>;
-export declare type FlowDefinitions<StepNames, T extends Record<string, FlowDefinition<StepNames>>> = {
-    [K in keyof T]: T[K] extends FlowDefinition<StepNames> ? T[K] & {
-        name: string;
-    } : never;
-};
+export declare type FlowsInstance<StepNames = string> = Record<string, FlowInstance<StepNames>>;
+export declare type FlowDefinitions<StepNames = string> = Record<string, FlowDefinition<StepNames>>;
 export declare type FlowInstance<StepNames> = {
     crawlerMode?: RequestCrawlerMode;
-    steps: StepNames[];
+    steps: StepNames[] | readonly Readonly<StepNames>[];
     input: ModelInstance<JSONSchema>;
     output: ModelInstance<JSONSchema>;
     actorKey: UniqueyKey | undefined;
 } & BaseInstance;
-export declare type FlowDefinition<StepNames = string> = {
+export declare type FlowDefinitionRaw<StepNames = string> = {
+    name?: string;
     crawlerMode?: RequestCrawlerMode;
     steps: StepNames[];
     input: ModelDefinition<JSONSchemaWithMethods>;
     output: ModelDefinition<JSONSchemaWithMethods>;
     actorKey?: UniqueyKey;
 };
+export declare type FlowDefinition<StepNames = string> = FlowDefinitionRaw<StepNames> | Readonly<FlowDefinitionRaw<StepNames>>;
 export declare type FlowNamesObject<F extends Record<string, ReallyAny>> = {
     [K in keyof F]: Extract<K, string>;
 };
@@ -115,7 +127,7 @@ export declare type FlowOptions<StepNames = string> = FlowDefinition<StepNames> 
 };
 export declare type FlowOptionsWithoutName<StepNames = string> = Omit<FlowOptions<StepNames>, 'name'>;
 export declare type StepsInstance<M extends Record<string, ModelDefinition>, F extends Record<string, FlowDefinition<keyof S>>, S, I extends InputDefinition> = {
-    [K in keyof S]: S[K] extends StepDefinition ? StepInstance<StepApiInstance<F, S, M, I>> & S[K] : never;
+    [StepName in Extract<keyof S, string>]: StepInstance<StepApiInstance<F, S, M, I, StepName>> & Omit<S[StepName], 'handler' | 'errorHandler' | 'requestErrorHandler' | 'afterHandler' | 'beforeHandler'>;
 };
 export declare type StepsOptions<T> = {
     STEPS?: T;
@@ -148,7 +160,7 @@ export declare type StepOptions<Methods = unknown> = {
     actorKey?: string;
 };
 export declare type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>;
-export declare type StepApiInstance<F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>, I extends InputDefinition> = GeneralStepApi<I> & StepApiFlowsAPI<F, S, M> & StepApiModelAPI<M>;
+export declare type StepApiInstance<F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>, I extends InputDefinition, StepName extends string = 'nope'> = GeneralStepApi<I> & StepApiFlowsAPI<F, S, M> & StepApiModelAPI<M, S, F, StepName>;
 export declare type GeneralStepApi<I extends InputDefinition = InputDefinition> = StepApiMetaAPI<I> & StepApiUtilsAPI;
 export declare type StepApiFlowsInstance<F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>> = {
     handler: (context: RequestContext) => StepApiFlowsAPI<F, S, M>;
@@ -191,12 +203,14 @@ export declare type KeyedSchemaType<TModels extends Record<string, ModelDefiniti
         schema: FromSchema<TModels[TModelName]['schema']>;
     };
 };
-export declare type StepApiModelAPI<M extends Record<string, ModelDefinition>, N extends Record<string, ReallyAny> = KeyedSchemaType<M>> = {
-    add: <ModelName extends keyof N>(modelName: ModelName, value: N[ModelName]['schema'], ref?: ModelReference<M>) => ModelReference<M>;
-    addPartial: <ModelName extends keyof N>(modelName: ModelName, value: Partial<N[ModelName]['schema']>, ref?: ModelReference<M>) => ModelReference<M>;
-    get: <ModelName extends keyof N>(modelName: ModelName, ref?: ModelReference<M>) => N[ModelName]['schema'];
-    update: <ModelName extends keyof N>(modelName: ModelName, value: Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>) => Partial<N[ModelName]['schema']>), ref?: ModelReference<M>) => ModelReference<M>;
-    updatePartial: <ModelName extends keyof N>(modelName: ModelName, value: Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>) => Partial<N[ModelName]['schema']>), ref?: ModelReference<M>) => ModelReference<M>;
+export declare type StepApiModelAPI<M extends Record<string, ModelDefinition>, S = {
+    'No stepname provided': never;
+}, F extends Record<string, FlowDefinition<keyof S>> = never, StepName extends string = 'nope', N extends Record<string, ReallyAny> = KeyedSchemaType<M>, AvailableFlows = StepName extends 'nope' ? 'nope' : ExtractFlowsWithStep<StepName, S, F>, RawAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M, AvailableModelNames = RawAvailableModelNames extends string ? RawAvailableModelNames : keyof M> = {
+    add: <ModelName extends AvailableModelNames>(modelName: ModelName, value: ModelName extends keyof N ? N[ModelName]['schema'] : never, ref?: ModelReference<M>) => ModelReference<M>;
+    addPartial: <ModelName extends AvailableModelNames>(modelName: ModelName, value: ModelName extends keyof N ? Partial<N[ModelName]['schema']> : never, ref?: ModelReference<M>) => ModelReference<M>;
+    get: <ModelName extends AvailableModelNames>(modelName: ModelName, ref?: ModelReference<M>) => ModelName extends keyof N ? N[ModelName]['schema'] : never;
+    update: <ModelName extends AvailableModelNames>(modelName: ModelName, value: ModelName extends keyof N ? (Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>) => Partial<N[ModelName]['schema']>)) : never, ref?: ModelReference<M>) => ModelReference<M>;
+    updatePartial: <ModelName extends AvailableModelNames>(modelName: ModelName, value: ModelName extends keyof N ? (Partial<N[ModelName]['schema']> | ((previous: Partial<N[ModelName]['schema']>) => Partial<N[ModelName]['schema']>)) : never, ref?: ModelReference<M>) => ModelReference<M>;
 };
 export declare type StepApiMetaInstance = {
     handler: (context: RequestContext) => StepApiMetaAPI;
@@ -399,13 +413,13 @@ export declare type ActorInstance = {
     crawlerOptions?: ActorCrawlerOptions;
     input: InputInstance;
     crawler: CrawlerInstance;
-    steps: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    steps: ReallyAny;
     flows: FlowsInstance<ReallyAny>;
     models: ModelsInstance<ReallyAny>;
     stores: StoresInstance;
     queues: QueuesInstance;
     datasets: DatasetsInstance;
-    hooks: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    hooks: ReallyAny;
 } & BaseInstance;
 export declare type ActorOptions = {
     name: string;
@@ -413,13 +427,13 @@ export declare type ActorOptions = {
     crawlerMode?: RequestCrawlerMode;
     crawlerOptions?: ActorCrawlerOptions;
     crawler?: CrawlerInstance;
-    steps?: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    steps?: ReallyAny;
     flows?: FlowsInstance<ReallyAny>;
     models?: ModelsInstance<ReallyAny>;
     stores?: StoresInstance;
     queues?: QueuesInstance;
     datasets?: DatasetsInstance;
-    hooks?: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    hooks?: ReallyAny;
 };
 export declare type ActorInput = string | {
     [x: string]: any;

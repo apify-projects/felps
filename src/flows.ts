@@ -1,5 +1,5 @@
 import Flow from './flow';
-import { FlowDefinition, FlowDefinitions, FlowNamesObject, ModelDefinition, StepDefinition } from './types';
+import { FlowDefinition, FlowInstance, FlowNamesObject, ModelDefinition, ReallyAny, StepDefinition } from './types';
 
 export const create = <
     F extends Record<string, FlowDefinition<string>>
@@ -20,8 +20,9 @@ export const use = <
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 >(_: { STEPS: S, MODELS?: M }) => {
     return {
-        define: <T extends Record<string, FlowDefinition<keyof S>>>(flows: T): FlowDefinitions<keyof S, T> => {
-            return flows as unknown as FlowDefinitions<keyof S, T>;
+        define: <T extends Record<string, FlowDefinition<keyof S>>>(flows: T): T => {
+            return flows as T;
+            // return flows as unknown as FlowDefinitions<keyof S, T>;
         },
     };
 };
@@ -33,4 +34,12 @@ export const names = <F extends Record<string, FlowDefinition<string>>>(FLOWS: F
     }), {} as FlowNamesObject<F>);
 };
 
-export default { create, use, names };
+export const clone = <T>(flows: T): T => {
+    return Object.keys(flows)
+        .reduce((acc, name) => ({
+            ...acc,
+            [name]: Flow.create((flows as unknown as Record<string, FlowInstance<ReallyAny>>)[name]),
+        }), {}) as T;
+};
+
+export default { create, use, names, clone };

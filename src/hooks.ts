@@ -1,5 +1,5 @@
 import Step from './step';
-import type { FlowDefinition, HooksInstance, InputDefinition, ModelDefinition } from './types';
+import type { FlowDefinition, HooksInstance, InputDefinition, ModelDefinition, StepInstance } from './types';
 
 export const create = <
     M extends Record<string, ModelDefinition>, F extends Record<string, FlowDefinition<keyof S>>, S, I extends InputDefinition
@@ -23,4 +23,8 @@ export const create = <
 
 export const globalHookNames = ['ACTOR_STARTED', 'ACTOR_ENDED', 'QUEUE_STARTED', 'QUEUE_ENDED'];
 
-export default { create, globalHookNames };
+export const clone = <T extends Record<string, StepInstance>>(hooks: T): T => {
+    return Object.keys(hooks).reduce((acc, name) => ({ ...acc, [name]: Step.create(hooks[name]) }), {}) as T;
+};
+
+export default { create, globalHookNames, clone };

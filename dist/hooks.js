@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.globalHookNames = exports.create = void 0;
+exports.clone = exports.globalHookNames = exports.create = void 0;
 const tslib_1 = require("tslib");
 const step_1 = tslib_1.__importDefault(require("./step"));
 const create = (_) => {
@@ -21,5 +21,9 @@ const create = (_) => {
 };
 exports.create = create;
 exports.globalHookNames = ['ACTOR_STARTED', 'ACTOR_ENDED', 'QUEUE_STARTED', 'QUEUE_ENDED'];
-exports.default = { create: exports.create, globalHookNames: exports.globalHookNames };
+const clone = (hooks) => {
+    return Object.keys(hooks).reduce((acc, name) => ({ ...acc, [name]: step_1.default.create(hooks[name]) }), {});
+};
+exports.clone = clone;
+exports.default = { create: exports.create, globalHookNames: exports.globalHookNames, clone: exports.clone };
 //# sourceMappingURL=hooks.js.map

@@ -54,17 +54,13 @@ const run = async (step, actor, context) => {
     try {
         await step?.beforeHandler?.(ctx, stepApi(ctx));
         await step?.handler?.(ctx, stepApi(ctx));
-        if (!meta.data.isHook) {
-            trail_data_requests_1.default.setStatus(digest.requests, 'SUCCEEDED', meta.data.reference);
-        }
+        trail_data_requests_1.default.setStatus(digest.requests, 'SUCCEEDED', meta.data.reference);
         await step?.afterHandler?.(ctx, stepApi(ctx));
     }
     catch (error) {
         console.error(error);
         await step?.errorHandler?.(ctx, stepApi(ctx));
-        if (!meta.data.isHook) {
-            trail_data_requests_1.default.setStatus(digest.requests, 'FAILED', meta.data.reference);
-        }
+        trail_data_requests_1.default.setStatus(digest.requests, 'FAILED', meta.data.reference);
     }
     finally {
         if (step?.handler) {

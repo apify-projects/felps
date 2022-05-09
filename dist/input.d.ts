@@ -7,6 +7,7 @@ export declare const create: <I extends InputDefinition<{
 export declare const define: <I extends InputDefinition<{
     type: "object";
 }>>(input: I) => I;
+export declare const clone: <T>(input: T) => T;
 declare const _default: {
     create: <I extends InputDefinition<{
         type: "object";
@@ -16,6 +17,7 @@ declare const _default: {
     define: <I_1 extends InputDefinition<{
         type: "object";
     }>>(input: I_1) => I_1;
+    clone: <T>(input: T) => T;
 };
 export default _default;
 //# sourceMappingURL=input.d.ts.map

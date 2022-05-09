@@ -1,5 +1,6 @@
+import { Step } from '.';
 import step from './step';
-import { FlowDefinition, InputDefinition, ModelDefinition, ReallyAny, StepDefinition, StepDefinitions, StepsInstance } from './types';
+import { FlowDefinition, InputDefinition, ModelDefinition, ReallyAny, StepDefinition, StepDefinitions, StepInstance, StepsInstance } from './types';
 
 export const create = <
     M extends Record<string, ModelDefinition>,
@@ -17,4 +18,12 @@ export const define = <T extends Record<string, StepDefinition>>(steps: T): Step
     return steps as unknown as StepDefinitions<T>;
 };
 
-export default { create, define };
+export const clone = <T>(hooks: T): T => {
+    return Object.keys(hooks)
+        .reduce((acc, name) => ({
+            ...acc,
+            [name]: Step.create((hooks as unknown as Record<string, StepInstance>)[name]),
+        }), {}) as T;
+};
+
+export default { create, define, clone };
