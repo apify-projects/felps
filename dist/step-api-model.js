@@ -21,7 +21,7 @@ const create = (actor) => {
                 _1.Model.validateReference(modelInstance.model, modelRef, { throwError: true });
                 return { modelInstance, modelRef };
             };
-            return {
+            const modelApi = {
                 add(modelName, value, ref) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName, ref);
                     _1.Model.validate(modelInstance.model, value, { throwError: true });
@@ -54,6 +54,10 @@ const create = (actor) => {
                     trail_data_model_1.default.updatePartial(modelInstance, value, modelRef);
                     return modelRef;
                 },
+            };
+            return {
+                ...modelApi,
+                within: () => modelApi,
             };
         },
     };

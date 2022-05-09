@@ -135,12 +135,6 @@ export type BaseOptions = {
 // flows.ts ------------------------------------------------------------
 export type FlowsInstance<StepNames = string> = Record<string, FlowInstance<StepNames>>;
 export type FlowDefinitions<StepNames = string> = Record<string, FlowDefinition<StepNames>>;
-// FlowDefinitions<StepNames, ReallyAny>;
-
-// export type FlowDefinitions<StepNames, T extends Record<string, FlowDefinition<StepNames>>> = {
-//     [K in keyof T]: T[K] & { name: string }
-//     // [K in keyof T]: T[K] extends FlowDefinition<StepNames> ? T[K] & { name: string } : never
-// };
 
 // flow.ts ------------------------------------------------------------
 export type FlowInstance<StepNames> = {
@@ -148,7 +142,7 @@ export type FlowInstance<StepNames> = {
     steps: StepNames[] | readonly Readonly<StepNames>[],
     input: ModelInstance<JSONSchema>,
     output: ModelInstance<JSONSchema>,
-    actorKey: UniqueyKey | undefined,
+    actorKey?: UniqueyKey | undefined,
 } & BaseInstance;
 
 export type FlowDefinitionRaw<StepNames = string> = {
@@ -333,35 +327,44 @@ export type StepApiModelAPI<
     RawAvailableModelNames = AvailableFlows extends string ? 0 : (AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M),
     AvailableModelNames = RawAvailableModelNames extends number ? keyof M : RawAvailableModelNames,
     > = {
-        add: <ModelName extends AvailableModelNames>(
-            modelName: ModelName,
-            value: ModelName extends keyof N ? DeepOmitModels<N[ModelName]['schema']> : never,
-            ref?: ModelReference<M>,
-        ) => ModelReference<M>;
-        addPartial: <ModelName extends AvailableModelNames>(
-            modelName: ModelName,
-            value: ModelName extends keyof N ? Partial<DeepOmitModels<N[ModelName]['schema']>> : never,
-            ref?: ModelReference<M>,
-        ) => ModelReference<M>;
-        get: <ModelName extends AvailableModelNames>(
-            modelName: ModelName,
-            ref?: ModelReference<M>,
-        ) => ModelName extends keyof N ? N[ModelName]['schema'] : never;
-        update: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof N ? DeepOmitModels<N[ModelName]['schema']> : never>(
-            modelName: ModelName,
-            value: ModelName extends keyof N ? (
-                Partial<ModelSchema> | ((previous: Partial<ModelSchema>
-                ) => Partial<ModelSchema>)) : never,
-            ref?: ModelReference<M>,
-        ) => ModelReference<M>;
-        updatePartial: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof N ? DeepOmitModels<N[ModelName]['schema']> : never>(
-            modelName: ModelName,
-            value: ModelName extends keyof N ? (
-                Partial<ModelSchema> | ((previous: Partial<ModelSchema>
-                ) => Partial<ModelSchema>)) : never,
-            ref?: ModelReference<M>,
-        ) => ModelReference<M>;
-    };
+        within: <
+            FlowName extends keyof AvailableFlows,
+            FlowRawAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<ReallyAny>>
+            ? ExtractSchemaModelNames<AvailableFlows[FlowName]['output']['schema']> : keyof M,
+            FlowAvailableModelNames = FlowRawAvailableModelNames extends number ? keyof M : FlowRawAvailableModelNames,
+            > (flowName: FlowName) => StepApiModelByFlowAPI<M, FlowAvailableModelNames>,
+    } & StepApiModelByFlowAPI<N, AvailableModelNames>;
+
+export type StepApiModelByFlowAPI<M extends Record<string, ModelDefinition>, AvailableModelNames = keyof M> = {
+    add: <ModelName extends AvailableModelNames>(
+        modelName: ModelName,
+        value: ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never,
+        ref?: ModelReference<M>,
+    ) => ModelReference<M>;
+    addPartial: <ModelName extends AvailableModelNames>(
+        modelName: ModelName,
+        value: ModelName extends keyof M ? Partial<DeepOmitModels<M[ModelName]['schema']>> : never,
+        ref?: ModelReference<M>,
+    ) => ModelReference<M>;
+    get: <ModelName extends AvailableModelNames>(
+        modelName: ModelName,
+        ref?: ModelReference<M>,
+    ) => ModelName extends keyof M ? M[ModelName]['schema'] : never;
+    update: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
+        modelName: ModelName,
+        value: ModelName extends keyof M ? (
+            Partial<ModelSchema> | ((previous: Partial<ModelSchema>
+            ) => Partial<ModelSchema>)) : never,
+        ref?: ModelReference<M>,
+    ) => ModelReference<M>;
+    updatePartial: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
+        modelName: ModelName,
+        value: ModelName extends keyof M ? (
+            Partial<ModelSchema> | ((previous: Partial<ModelSchema>
+            ) => Partial<ModelSchema>)) : never,
+        ref?: ModelReference<M>,
+    ) => ModelReference<M>;
+}
 
 // step-api-meta.ts ------------------------------------------------------------
 export type StepApiMetaInstance = {
@@ -638,8 +641,10 @@ export type ActorInstance = {
     crawler: CrawlerInstance,
     steps: ReallyAny;
     // steps: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
-    flows: FlowsInstance<ReallyAny>;
-    models: ModelsInstance<ReallyAny>;
+    flows: ReallyAny;
+    // flows: FlowsInstance<ReallyAny>;
+    models: ReallyAny;
+    // models: ModelsInstance<ReallyAny>;
     stores: StoresInstance;
     queues: QueuesInstance;
     datasets: DatasetsInstance;
@@ -655,8 +660,10 @@ export type ActorOptions = {
     crawler?: CrawlerInstance,
     steps?: ReallyAny;
     // steps?: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
-    flows?: FlowsInstance<ReallyAny>;
-    models?: ModelsInstance<ReallyAny>;
+    flows?: ReallyAny;
+    // flows?: FlowsInstance<ReallyAny>;
+    models?: ReallyAny;
+    // models?: ModelsInstance<ReallyAny>;
     stores?: StoresInstance;
     queues?: QueuesInstance;
     datasets?: DatasetsInstance;

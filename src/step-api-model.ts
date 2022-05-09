@@ -22,7 +22,7 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                 return { modelInstance, modelRef };
             };
 
-            return {
+            const modelApi = {
                 add(modelName, value, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(ingest)(modelName as string, ref);
                     Model.validate(modelInstance.model, value, { throwError: true });
@@ -55,6 +55,11 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                     TrailDataModel.updatePartial<ReallyAny>(modelInstance, value, modelRef as ReallyAny);
                     return modelRef as ModelReference<ReallyAny>;
                 },
+            } as Omit<StepApiModelAPI<M>, 'from'>;
+
+            return {
+                ...modelApi,
+                within: () => modelApi as ReallyAny,
             } as StepApiModelAPI<M>;
         },
     };
