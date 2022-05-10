@@ -78,18 +78,26 @@ export type WithoutFunctions<T> = {
     [K in keyof T]: T[K] extends (string | number) ? K : never
 };
 
+export type Primitives = bigint | boolean | null | number | string | symbol | undefined
 export type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
 export type GeneralKeyedObject<N extends Record<string, string>, T> = { [K in Extract<keyof N, string>]: T };
 export type GenerateObject<N extends string[], T> = { [K in N[number]]: T };
 export type ValueOf<T> = T[keyof T];
 
-export type ExtractSchemaModelNames<N> =
-    N extends ReadonlyArray<string> ? never :
+export type ExtractSchemaModelNames<N> = N extends (ReadonlyArray<ReallyAny> | Array<ReallyAny>) ? never :
     (N extends Record<string, ReallyAny> ?
         (N extends { modelName: infer MN }
             ? Extract<MN, string> | ExtractSchemaModelNames<Omit<N, 'modelName'>>
             : { [K in keyof N]: ExtractSchemaModelNames<N[K]> }[keyof N])
         : never);
+
+// export type ExtractSchemaModelNames<N> =
+// N extends (ReadonlyArray<ReallyAny> | Array<ReallyAny>) ? never :
+// (N extends Record<string, ReallyAny> ?
+//     (N extends { modelName: infer MN }
+//         ? Extract<MN, string> | ExtractSchemaModelNames<Omit<N, 'modelName'>>
+//         : { [K in keyof N]: ExtractSchemaModelNames<N[K]> }[keyof N])
+//     : never);
 
 export type ExtractFlowsSchemaModelNames<F extends Record<string, FlowDefinition<ReallyAny>>> = {
     [K in keyof F]: ExtractSchemaModelNames<F[K]['output']['schema']>
@@ -324,16 +332,17 @@ export type StepApiModelAPI<
     N extends Record<string, ReallyAny> = KeyedSchemaType<M>,
     AvailableFlows = StepName extends 'nope' ? 'nope' : ExtractFlowsWithStep<StepName, S, F>,
     // eslint-disable-next-line max-len
+    // RawAvailableModelNames = keyof M,
     RawAvailableModelNames = AvailableFlows extends string ? 0 : (AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M),
     AvailableModelNames = RawAvailableModelNames extends number ? keyof M : RawAvailableModelNames,
-    > = {
+    > = StepApiModelByFlowAPI<N, AvailableModelNames> & {
         within: <
             FlowName extends keyof AvailableFlows,
             FlowRawAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<ReallyAny>>
             ? ExtractSchemaModelNames<AvailableFlows[FlowName]['output']['schema']> : keyof M,
             FlowAvailableModelNames = FlowRawAvailableModelNames extends number ? keyof M : FlowRawAvailableModelNames,
             > (flowName: FlowName) => StepApiModelByFlowAPI<M, FlowAvailableModelNames>,
-    } & StepApiModelByFlowAPI<N, AvailableModelNames>;
+    };
 
 export type StepApiModelByFlowAPI<M extends Record<string, ModelDefinition>, AvailableModelNames = keyof M> = {
     add: <ModelName extends AvailableModelNames>(

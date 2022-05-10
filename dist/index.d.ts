@@ -197,9 +197,9 @@ declare const _default: {
             }>;
             isListComplete(model: import("./types").ModelInstance<import("./types").JSONSchema>, items: import("./types").TrailDataModelItem<unknown>[]): Promise<boolean>;
         };
-        wrap: (model: import("./types").ModelInstance<import("./types").JSONSchema>) => import("./types").ModelInstance<import("./types").JSONSchema>;
         walk: (model: import("./types").ModelInstance<import("./types").JSONSchema>, walker: (key: string, value: any) => void) => void;
         flatten: (model: import("./types").ModelInstance<import("./types").JSONSchema>) => import("./types").ModelInstance<import("./types").JSONSchema>[];
+        schemaAsRaw: <T_9>(schema: T_9) => T_9;
     };
     Stores: {
         create: <DataStoreNames extends string[] = [], FileStoreNames extends string[] = []>(options?: import("./types").StoresOptions<DataStoreNames, FileStoreNames> | undefined) => import("./types").StoresInstance<DataStoreNames, FileStoreNames>;
@@ -211,20 +211,20 @@ declare const _default: {
     };
     DataStore: {
         create: (options: import("./types").DataStoreOptions) => import("./types").DataStoreInstance;
-        get: <T_9 = any>(dataStore: import("./types").DataStoreInstance, path?: string | undefined) => T_9;
-        set: <T_10 = any>(dataStore: import("./types").DataStoreInstance, path: string, data: T_10) => void;
+        get: <T_10 = any>(dataStore: import("./types").DataStoreInstance, path?: string | undefined) => T_10;
+        set: <T_11 = any>(dataStore: import("./types").DataStoreInstance, path: string, data: T_11) => void;
         remove: (dataStore: import("./types").DataStoreInstance, path: string) => void;
         has: (dataStore: import("./types").DataStoreInstance, path: string) => boolean;
-        entries: <T_11 = any>(dataStore: import("./types").DataStoreInstance, path?: string | undefined) => [string, T_11][];
-        values: <T_12 = any>(dataStore: import("./types").DataStoreInstance, path?: string | undefined) => T_12[];
-        keys: <T_13 = any>(dataStore: import("./types").DataStoreInstance, path?: string | undefined) => string[];
+        entries: <T_12 = any>(dataStore: import("./types").DataStoreInstance, path?: string | undefined) => [string, T_12][];
+        values: <T_13 = any>(dataStore: import("./types").DataStoreInstance, path?: string | undefined) => T_13[];
+        keys: <T_14 = any>(dataStore: import("./types").DataStoreInstance, path?: string | undefined) => string[];
         increment: (dataStore: import("./types").DataStoreInstance, path: string, stepNumber?: number) => number;
         decrement: (dataStore: import("./types").DataStoreInstance, path: string, stepNumber?: number) => number;
-        pop: <T_14 = any>(dataStore: import("./types").DataStoreInstance, path: string) => T_14;
-        shift: <T_15 = any>(dataStore: import("./types").DataStoreInstance, path: string) => T_15;
-        push: <T_16 = any>(dataStore: import("./types").DataStoreInstance, path: string, ...data: T_16[]) => void;
-        setAndGetKey: <T_17 = any>(dataStore: import("./types").DataStoreInstance, data: T_17) => string;
-        update: <T_18 = any>(dataStore: import("./types").DataStoreInstance, path: string, data: T_18) => void;
+        pop: <T_15 = any>(dataStore: import("./types").DataStoreInstance, path: string) => T_15;
+        shift: <T_16 = any>(dataStore: import("./types").DataStoreInstance, path: string) => T_16;
+        push: <T_17 = any>(dataStore: import("./types").DataStoreInstance, path: string, ...data: T_17[]) => void;
+        setAndGetKey: <T_18 = any>(dataStore: import("./types").DataStoreInstance, data: T_18) => string;
+        update: <T_19 = any>(dataStore: import("./types").DataStoreInstance, path: string, data: T_19) => void;
         load: (dataStore: import("./types").DataStoreInstance) => Promise<import("./types").DataStoreInstance>;
         persist: (dataStore: import("./types").DataStoreInstance) => Promise<void>;
         listen: (dataStore: import("./types").DataStoreInstance) => void;
@@ -268,7 +268,7 @@ declare const _default: {
             INPUT: I_2;
         }) => import("./types").HooksInstance<M_6, F_5, S_3, I_2>;
         globalHookNames: string[];
-        clone: <T_19 extends Record<string, import("./types").StepInstance<unknown>>>(hooks: T_19) => T_19;
+        clone: <T_20 extends Record<string, import("./types").StepInstance<unknown>>>(hooks: T_20) => T_20;
     };
     Trail: {
         create: (options: import("./types").TrailOptions) => import("./types").TrailInstance;
@@ -281,7 +281,7 @@ declare const _default: {
         ingested: (trail: import("./types").TrailInstance) => import("./types").TrailDataStage;
         digested: (trail: import("./types").TrailInstance) => import("./types").TrailDataStage;
         promote: (trail: import("./types").TrailInstance, item: import("./types").TrailDataModelItem<unknown> | import("./types").TrailDataRequestItem) => void;
-        resolve: <T_20 = unknown>(trail: import("./types").TrailInstance, model: import("./types").ModelInstance<import("./types").JSONSchema>) => T_20 | undefined;
+        resolve: <T_21 = unknown>(trail: import("./types").TrailInstance, model: import("./types").ModelInstance<import("./types").JSONSchema>) => T_21 | undefined;
     };
     Trails: {
         create: (options: import("./types").TrailsOptions) => import("./types").TrailsInstance;
@@ -289,7 +289,7 @@ declare const _default: {
         getItemsList: (trails: import("./types").TrailsInstance) => import("./types").TrailInstance[];
     };
     TrailData: {
-        getPath: <T_21 = unknown>(trailData: import("./types").TrailDataInstance, ref: Partial<{ [K_1 in Extract<keyof T_21, string> as `${import("./types").SnakeToCamelCase<K_1>}Key`]: string; } & {
+        getPath: <T_22 = unknown>(trailData: import("./types").TrailDataInstance, ref: Partial<{ [K_1 in Extract<keyof T_22, string> as `${import("./types").SnakeToCamelCase<K_1>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
@@ -299,19 +299,19 @@ declare const _default: {
     };
     TrailDataModel: {
         create: (options: import("./types").TrailDataModelOptions) => import("./types").TrailDataModelInstance;
-        get: <T_22 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref: Partial<{ [K_2 in Extract<keyof T_22, string> as `${import("./types").SnakeToCamelCase<K_2>}Key`]: string; } & {
+        get: <T_23 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref: Partial<{ [K_2 in Extract<keyof T_23, string> as `${import("./types").SnakeToCamelCase<K_2>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
             fActorKey: string;
-        }>) => import("./types").TrailDataModelItem<T_22>;
-        getItems: <T_23 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref?: Partial<{ [K_3 in Extract<keyof T_23, string> as `${import("./types").SnakeToCamelCase<K_3>}Key`]: string; } & {
+        }>) => import("./types").TrailDataModelItem<T_23>;
+        getItems: <T_24 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref?: Partial<{ [K_3 in Extract<keyof T_24, string> as `${import("./types").SnakeToCamelCase<K_3>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
             fActorKey: string;
         }> | undefined) => Record<string, import("./types").TrailDataModelItem<unknown>>;
-        getItemsList: <T_24 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref?: Partial<{ [K_4 in Extract<keyof T_24, string> as `${import("./types").SnakeToCamelCase<K_4>}Key`]: string; } & {
+        getItemsList: <T_25 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref?: Partial<{ [K_4 in Extract<keyof T_25, string> as `${import("./types").SnakeToCamelCase<K_4>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
@@ -323,40 +323,40 @@ declare const _default: {
             fFlowKey: string;
             fActorKey: string;
         }> | undefined) => import("./types").TrailDataModelItem<unknown>[];
-        getChildrenItemsList: <T_25 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, parentRef: Partial<{ [K_5 in Extract<keyof T_25, string> as `${import("./types").SnakeToCamelCase<K_5>}Key`]: string; } & {
+        getChildrenItemsList: <T_26 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, parentRef: Partial<{ [K_5 in Extract<keyof T_26, string> as `${import("./types").SnakeToCamelCase<K_5>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
             fActorKey: string;
         }>) => import("./types").TrailDataModelItem<unknown>[];
-        update: <T_26 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_26>, ref: Partial<{ [K_6 in Extract<keyof T_26, string> as `${import("./types").SnakeToCamelCase<K_6>}Key`]: string; } & {
+        update: <T_27 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_27>, ref: Partial<{ [K_6 in Extract<keyof T_27, string> as `${import("./types").SnakeToCamelCase<K_6>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
             fActorKey: string;
-        }>) => Partial<{ [K_6 in Extract<keyof T_26, string> as `${import("./types").SnakeToCamelCase<K_6>}Key`]: string; } & {
-            fRequestKey: string;
-            fTrailKey: string;
-            fFlowKey: string;
-            fActorKey: string;
-        }>;
-        updatePartial: <T_27 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_27>, ref: Partial<{ [K_7 in Extract<keyof T_27, string> as `${import("./types").SnakeToCamelCase<K_7>}Key`]: string; } & {
-            fRequestKey: string;
-            fTrailKey: string;
-            fFlowKey: string;
-            fActorKey: string;
-        }>) => Partial<{ [K_7 in Extract<keyof T_27, string> as `${import("./types").SnakeToCamelCase<K_7>}Key`]: string; } & {
+        }>) => Partial<{ [K_6 in Extract<keyof T_27, string> as `${import("./types").SnakeToCamelCase<K_6>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
             fActorKey: string;
         }>;
-        set: <T_28 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_28, ref?: Partial<{ [K_8 in Extract<keyof T_28, string> as `${import("./types").SnakeToCamelCase<K_8>}Key`]: string; } & {
+        updatePartial: <T_28 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_28>, ref: Partial<{ [K_7 in Extract<keyof T_28, string> as `${import("./types").SnakeToCamelCase<K_7>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
             fActorKey: string;
-        }> | undefined) => Partial<{ [K_8 in Extract<keyof T_28, string> as `${import("./types").SnakeToCamelCase<K_8>}Key`]: string; } & {
+        }>) => Partial<{ [K_7 in Extract<keyof T_28, string> as `${import("./types").SnakeToCamelCase<K_7>}Key`]: string; } & {
+            fRequestKey: string;
+            fTrailKey: string;
+            fFlowKey: string;
+            fActorKey: string;
+        }>;
+        set: <T_29 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_29, ref?: Partial<{ [K_8 in Extract<keyof T_29, string> as `${import("./types").SnakeToCamelCase<K_8>}Key`]: string; } & {
+            fRequestKey: string;
+            fTrailKey: string;
+            fFlowKey: string;
+            fActorKey: string;
+        }> | undefined) => Partial<{ [K_8 in Extract<keyof T_29, string> as `${import("./types").SnakeToCamelCase<K_8>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
@@ -368,33 +368,33 @@ declare const _default: {
             fFlowKey: string;
             fActorKey: string;
         }>) => void;
-        count: <T_29 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref: Partial<{ [K_9 in Extract<keyof T_29, string> as `${import("./types").SnakeToCamelCase<K_9>}Key`]: string; } & {
+        count: <T_30 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, ref: Partial<{ [K_9 in Extract<keyof T_30, string> as `${import("./types").SnakeToCamelCase<K_9>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
             fActorKey: string;
         }>) => number;
-        setPartial: <T_30 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_30>, ref: Partial<{ [K_10 in Extract<keyof T_30, string> as `${import("./types").SnakeToCamelCase<K_10>}Key`]: string; } & {
+        setPartial: <T_31 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: Partial<T_31>, ref: Partial<{ [K_10 in Extract<keyof T_31, string> as `${import("./types").SnakeToCamelCase<K_10>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
             fActorKey: string;
-        }>) => Partial<{ [K_10 in Extract<keyof T_30, string> as `${import("./types").SnakeToCamelCase<K_10>}Key`]: string; } & {
+        }>) => Partial<{ [K_10 in Extract<keyof T_31, string> as `${import("./types").SnakeToCamelCase<K_10>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
             fActorKey: string;
         }>;
-        boostrapItem: <T_31 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_31, ref?: Partial<{ [K_11 in Extract<keyof T_31, string> as `${import("./types").SnakeToCamelCase<K_11>}Key`]: string; } & {
+        boostrapItem: <T_32 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_32, ref?: Partial<{ [K_11 in Extract<keyof T_32, string> as `${import("./types").SnakeToCamelCase<K_11>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
             fActorKey: string;
-        }> | undefined) => Partial<import("./types").TrailDataModelItem<T_31>>;
+        }> | undefined) => Partial<import("./types").TrailDataModelItem<T_32>>;
         filterByStatus: (...statuses: import("./types").TrailDataModelItemStatus[]) => (value: any) => boolean;
         filterByPartial: (partial?: boolean | undefined) => (value: any) => boolean;
         groupByParentHash: (trailDataModel: import("./types").TrailDataModelInstance, items: import("./types").TrailDataModelItem<unknown>[]) => Map<string, import("./types").TrailDataModelItem<unknown>[]>;
-        getExistingReference: <T_32 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_32) => Partial<{ [K_12 in Extract<keyof T_32, string> as `${import("./types").SnakeToCamelCase<K_12>}Key`]: string; } & {
+        getExistingReference: <T_33 = unknown>(trailDataModel: import("./types").TrailDataModelInstance, data: T_33) => Partial<{ [K_12 in Extract<keyof T_33, string> as `${import("./types").SnakeToCamelCase<K_12>}Key`]: string; } & {
             fRequestKey: string;
             fTrailKey: string;
             fFlowKey: string;
@@ -459,7 +459,7 @@ declare const _default: {
         filterByFlowStart: (item: import("./types").TrailDataRequestItem) => boolean;
     };
     RequestMeta: {
-        create: (requestOrRequestContext?: import("./types").RequestContext | import("./types").RequestSource | undefined) => import("./types").RequestMetaInstance;
+        create: (requestOrRequestContext?: import("./types").RequestSource | import("./types").RequestContext | undefined) => import("./types").RequestMetaInstance;
         extend: (requestMeta: import("./types").RequestMetaInstance, ...metadata: Partial<import("./types").RequestMetaData>[]) => import("./types").RequestMetaInstance;
         contextDefaulted: (context?: import("./types").RequestContext | undefined) => import("./types").RequestContext;
     };
@@ -476,7 +476,7 @@ declare const _default: {
         define: <I_4 extends import("./types").InputDefinition<{
             type: "object";
         }>>(input: I_4) => I_4;
-        clone: <T_33>(input: T_33) => T_33;
+        clone: <T_34>(input: T_34) => T_34;
     };
     Search: {
         create: (options: import("./types").SearchOptions) => {
@@ -487,7 +487,7 @@ declare const _default: {
             name: string;
             id: string;
         };
-        withinObjects: <T_34 extends Record<string, any>>(search: import("./types").SearchInstance, path: string, items: T_34[], query: string) => T_34[];
+        withinObjects: <T_35 extends Record<string, any>>(search: import("./types").SearchInstance, path: string, items: T_35[], query: string) => T_35[];
         withinTexts: (search: import("./types").SearchInstance, items: string[], query: string) => string[];
         withinTextsAsIndexes: (search: import("./types").SearchInstance, items: string[], query: string) => (string | number)[];
     };

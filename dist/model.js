@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.connect = exports.find = exports.validateReference = exports.validate = exports.referenceFor = exports.referenceKeysSchema = exports.referenceKeys = exports.dependencies = exports.flatten = exports.walk = exports.wrap = exports.define = exports.create = void 0;
+exports.schemaAsRaw = exports.connect = exports.find = exports.validateReference = exports.validate = exports.referenceFor = exports.referenceKeysSchema = exports.referenceKeys = exports.dependencies = exports.flatten = exports.walk = exports.define = exports.create = void 0;
 const tslib_1 = require("tslib");
+const fast_safe_stringify_1 = tslib_1.__importDefault(require("fast-safe-stringify"));
 const ramda_1 = require("ramda");
 const base_1 = tslib_1.__importDefault(require("./base"));
 const consts_1 = require("./consts");
@@ -12,33 +13,19 @@ const create = (options) => {
     let { schema, name } = options;
     name = name || schema?.modelName;
     schema = { modelName: name, ...schema };
-    return (0, exports.wrap)({
+    return {
         ...base_1.default.create({ name, key: 'model' }),
         schema,
         parentType,
         parentKey,
         parents,
-    });
+    };
 };
 exports.create = create;
 const define = (model) => {
     return model;
 };
 exports.define = define;
-const wrap = (model) => {
-    return new Proxy(model, {
-        get: (target, prop) => {
-            if (prop === 'schema') {
-                return {
-                    ...target.schema,
-                    [consts_1.SCHEMA_MODEL_NAME_KEY]: model.name,
-                };
-            }
-            return target[prop];
-        },
-    });
-};
-exports.wrap = wrap;
 const walk = (model, walker) => {
     (0, utils_1.traverse)(model.schema, walker);
 };
@@ -137,5 +124,13 @@ const connect = ({ api }) => ({
     },
 });
 exports.connect = connect;
-exports.default = { create: exports.create, define: exports.define, dependencies: exports.dependencies, referenceKeys: exports.referenceKeys, referenceFor: exports.referenceFor, find: exports.find, validate: exports.validate, validateReference: exports.validateReference, connect: exports.connect, wrap: exports.wrap, walk: exports.walk, flatten: exports.flatten };
+const schemaAsRaw = (schema) => {
+    return JSON.parse((0, fast_safe_stringify_1.default)(schema, (key, value) => {
+        if (key === 'modelName')
+            return undefined;
+        return value;
+    }));
+};
+exports.schemaAsRaw = schemaAsRaw;
+exports.default = { create: exports.create, define: exports.define, dependencies: exports.dependencies, referenceKeys: exports.referenceKeys, referenceFor: exports.referenceFor, find: exports.find, validate: exports.validate, validateReference: exports.validateReference, connect: exports.connect, walk: exports.walk, flatten: exports.flatten, schemaAsRaw: exports.schemaAsRaw };
 //# sourceMappingURL=model.js.map

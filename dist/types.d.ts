@@ -60,6 +60,7 @@ export declare type SnakeToPascalCase<S extends string> = S extends `${infer T}_
 export declare type WithoutFunctions<T> = {
     [K in keyof T]: T[K] extends (string | number) ? K : never;
 };
+export declare type Primitives = bigint | boolean | null | number | string | symbol | undefined;
 export declare type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
 export declare type GeneralKeyedObject<N extends Record<string, string>, T> = {
     [K in Extract<keyof N, string>]: T;
@@ -68,7 +69,7 @@ export declare type GenerateObject<N extends string[], T> = {
     [K in N[number]]: T;
 };
 export declare type ValueOf<T> = T[keyof T];
-export declare type ExtractSchemaModelNames<N> = N extends ReadonlyArray<string> ? never : (N extends Record<string, ReallyAny> ? (N extends {
+export declare type ExtractSchemaModelNames<N> = N extends (ReadonlyArray<ReallyAny> | Array<ReallyAny>) ? never : (N extends Record<string, ReallyAny> ? (N extends {
     modelName: infer MN;
 } ? Extract<MN, string> | ExtractSchemaModelNames<Omit<N, 'modelName'>> : {
     [K in keyof N]: ExtractSchemaModelNames<N[K]>;
@@ -213,9 +214,9 @@ export declare type KeyedSchemaType<TModels extends Record<string, ModelDefiniti
 };
 export declare type StepApiModelAPI<M extends Record<string, ModelDefinition>, S = {
     'No stepname provided': never;
-}, F extends Record<string, FlowDefinition<keyof S>> = never, StepName extends string = 'nope', N extends Record<string, ReallyAny> = KeyedSchemaType<M>, AvailableFlows = StepName extends 'nope' ? 'nope' : ExtractFlowsWithStep<StepName, S, F>, RawAvailableModelNames = AvailableFlows extends string ? 0 : (AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M), AvailableModelNames = RawAvailableModelNames extends number ? keyof M : RawAvailableModelNames> = {
+}, F extends Record<string, FlowDefinition<keyof S>> = never, StepName extends string = 'nope', N extends Record<string, ReallyAny> = KeyedSchemaType<M>, AvailableFlows = StepName extends 'nope' ? 'nope' : ExtractFlowsWithStep<StepName, S, F>, RawAvailableModelNames = AvailableFlows extends string ? 0 : (AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M), AvailableModelNames = RawAvailableModelNames extends number ? keyof M : RawAvailableModelNames> = StepApiModelByFlowAPI<N, AvailableModelNames> & {
     within: <FlowName extends keyof AvailableFlows, FlowRawAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractSchemaModelNames<AvailableFlows[FlowName]['output']['schema']> : keyof M, FlowAvailableModelNames = FlowRawAvailableModelNames extends number ? keyof M : FlowRawAvailableModelNames>(flowName: FlowName) => StepApiModelByFlowAPI<M, FlowAvailableModelNames>;
-} & StepApiModelByFlowAPI<N, AvailableModelNames>;
+};
 export declare type StepApiModelByFlowAPI<M extends Record<string, ModelDefinition>, AvailableModelNames = keyof M> = {
     add: <ModelName extends AvailableModelNames>(modelName: ModelName, value: ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never, ref?: ModelReference<M>) => ModelReference<M>;
     addPartial: <ModelName extends AvailableModelNames>(modelName: ModelName, value: ModelName extends keyof M ? Partial<DeepOmitModels<M[ModelName]['schema']>> : never, ref?: ModelReference<M>) => ModelReference<M>;

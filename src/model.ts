@@ -1,3 +1,4 @@
+import stringify from 'fast-safe-stringify';
 import { pickAll } from 'ramda';
 import base from './base';
 import { REFERENCE_KEY, SCHEMA_MODEL_NAME_KEY, TRAIL_KEY_PROP } from './consts';
@@ -15,34 +16,17 @@ export const create = (options: ModelOptions): ModelInstance<JSONSchema> => {
     name = name || (schema as JSONSchemaObject)?.modelName;
     schema = { modelName: name, ...schema as JSONSchemaObject };
 
-    return wrap({
+    return {
         ...base.create({ name, key: 'model' }),
         schema,
         parentType,
         parentKey,
         parents,
-    });
+    };
 };
 
 export const define = <T extends ModelDefinition<JSONSchemaWithMethods>>(model: T): T => {
     return model as T;
-};
-
-export const wrap = (model: ModelInstance<JSONSchema>): ModelInstance<JSONSchema> => {
-    return new Proxy(
-        model,
-        {
-            get: (target, prop) => {
-                if (prop === 'schema') {
-                    return {
-                        ...target.schema as unknown as Record<string, ReallyAny>,
-                        [SCHEMA_MODEL_NAME_KEY]: model.name,
-                    };
-                }
-
-                return target[prop as keyof ModelInstance];
-            },
-        });
 };
 
 export const walk = (model: ModelInstance, walker: (key: string, value: ReallyAny) => void): void => {
@@ -149,4 +133,13 @@ export const connect = ({ api }: { api: GeneralStepApi }) => ({
     },
 });
 
-export default { create, define, dependencies, referenceKeys, referenceFor, find, validate, validateReference, connect, wrap, walk, flatten };
+export const schemaAsRaw = <T>(schema: T): T => {
+    return JSON.parse(
+        stringify(schema, (key, value) => {
+            if (key === 'modelName') return undefined;
+            return value;
+        }),
+    );
+};
+
+export default { create, define, dependencies, referenceKeys, referenceFor, find, validate, validateReference, connect, walk, flatten, schemaAsRaw };

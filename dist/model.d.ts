@@ -1,7 +1,6 @@
 import { GeneralStepApi, JSONSchema, JSONSchemaWithMethods, ModelDefinition, ModelInstance, ModelOptions, ModelReference, ReallyAny, ReferenceKey, TrailDataModelItem, ValidatorValidateOptions } from './types';
 export declare const create: (options: ModelOptions) => ModelInstance<JSONSchema>;
 export declare const define: <T extends ModelDefinition<JSONSchemaWithMethods>>(model: T) => T;
-export declare const wrap: (model: ModelInstance<JSONSchema>) => ModelInstance<JSONSchema>;
 export declare const walk: (model: ModelInstance, walker: (key: string, value: ReallyAny) => void) => void;
 export declare const flatten: (model: ModelInstance) => ModelInstance[];
 export declare const dependencies: (model: ModelInstance) => ModelInstance[];
@@ -31,6 +30,7 @@ export declare const connect: ({ api }: {
     }>;
     isListComplete(model: ModelInstance, items: TrailDataModelItem[]): Promise<boolean>;
 };
+export declare const schemaAsRaw: <T>(schema: T) => T;
 declare const _default: {
     create: (options: ModelOptions<JSONSchema>) => ModelInstance<JSONSchema>;
     define: <T extends ModelDefinition<JSONSchemaWithMethods>>(model: T) => T;
@@ -72,9 +72,9 @@ declare const _default: {
         }>;
         isListComplete(model: ModelInstance<JSONSchema>, items: TrailDataModelItem<unknown>[]): Promise<boolean>;
     };
-    wrap: (model: ModelInstance<JSONSchema>) => ModelInstance<JSONSchema>;
     walk: (model: ModelInstance<JSONSchema>, walker: (key: string, value: any) => void) => void;
     flatten: (model: ModelInstance<JSONSchema>) => ModelInstance<JSONSchema>[];
+    schemaAsRaw: <T_3>(schema: T_3) => T_3;
 };
 export default _default;
 //# sourceMappingURL=model.d.ts.map
