@@ -325,12 +325,14 @@ export type StepApiModelAPI<
     F extends Record<string, FlowDefinition<keyof S>> = {},
     StepName extends string = 'NO_STEPNAME',
     AvailableFlows = StepName extends 'NO_STEPNAME' ? F : ExtractFlowsWithStep<StepName, S, F>,
+    // eslint-disable-next-line max-len
     AvailableModelNames = StepName extends 'NO_STEPNAME' ? (AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M) : keyof M,
     AvailableFlowNames = AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? keyof AvailableFlows : keyof F,
     N extends Record<string, ReallyAny> = KeyedSchemaType<M>,
     > = StepApiModelByFlowAPI<N, AvailableModelNames> & {
         inFlow: <
             FlowName extends AvailableFlowNames,
+            // eslint-disable-next-line max-len
             FlowAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? (FlowName extends keyof AvailableFlows ? ExtractSchemaModelNames<AvailableFlows[FlowName]['output']['schema']> : keyof M) : keyof M,
             > (flowName: FlowName) => StepApiModelByFlowAPI<N, FlowAvailableModelNames>,
     };
@@ -339,12 +341,12 @@ export type StepApiModelByFlowAPI<
     M extends Record<string, ModelDefinition>,
     AvailableModelNames = keyof M,
     > = {
-        add: <ModelName extends AvailableModelNames>(
+        set: <ModelName extends AvailableModelNames>(
             modelName: ModelName,
             value: ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
-        addPartial: <ModelName extends AvailableModelNames>(
+        setPartial: <ModelName extends AvailableModelNames>(
             modelName: ModelName,
             value: ModelName extends keyof M ? Partial<DeepOmitModels<M[ModelName]['schema']>> : never,
             ref?: ModelReference<M>,
@@ -353,6 +355,20 @@ export type StepApiModelByFlowAPI<
             modelName: ModelName,
             ref?: ModelReference<M>,
         ) => ModelName extends keyof M ? M[ModelName]['schema'] : never;
+        upsert: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
+            modelName: ModelName,
+            value: ModelName extends keyof M ? (
+                Partial<ModelSchema> | ((previous: Partial<ModelSchema>
+                ) => Partial<ModelSchema>)) : never,
+            ref?: ModelReference<M>,
+        ) => ModelReference<M>;
+        upsertPartial: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
+            modelName: ModelName,
+            value: ModelName extends keyof M ? (
+                Partial<ModelSchema> | ((previous: Partial<ModelSchema>
+                ) => Partial<ModelSchema>)) : never,
+            ref?: ModelReference<M>,
+        ) => ModelReference<M>;
         update: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
             modelName: ModelName,
             value: ModelName extends keyof M ? (
@@ -367,6 +383,8 @@ export type StepApiModelByFlowAPI<
                 ) => Partial<ModelSchema>)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
+        getInputModelName: () => M['input']['name'] | undefined;
+        getOutputModelName: () => M['output']['name'] | undefined;
     }
 
 // step-api-meta.ts ------------------------------------------------------------

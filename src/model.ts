@@ -1,4 +1,5 @@
 import stringify from 'fast-safe-stringify';
+import get from 'lodash.get';
 import { pickAll } from 'ramda';
 import base from './base';
 import { REFERENCE_KEY, SCHEMA_MODEL_NAME_KEY, TRAIL_KEY_PROP } from './consts';
@@ -98,6 +99,10 @@ export const referenceKeysSchema = (model: ModelInstance): JSONSchema => {
     };
 };
 
+export const referenceValue = (model: ModelInstance, ref: ModelReference): string => {
+    return get(ref, REFERENCE_KEY(model.name));
+};
+
 export const referenceFor = (model: ModelInstance, ref: ModelReference, withOwnReferenceKey?: boolean): ModelReference => {
     const keys = referenceKeys(model);
     if (withOwnReferenceKey) keys.unshift(REFERENCE_KEY(model.name));
@@ -142,4 +147,18 @@ export const schemaAsRaw = <T>(schema: T): T => {
     );
 };
 
-export default { create, define, dependencies, referenceKeys, referenceFor, find, validate, validateReference, connect, walk, flatten, schemaAsRaw };
+export default {
+    create,
+    define,
+    dependencies,
+    referenceKeys,
+    referenceFor,
+    referenceValue,
+    find,
+    validate,
+    validateReference,
+    connect,
+    walk,
+    flatten,
+    schemaAsRaw,
+};

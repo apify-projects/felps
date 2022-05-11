@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resolve = exports.promote = exports.digested = exports.ingested = exports.stage = exports.setRequest = exports.setFlow = exports.getFlow = exports.get = exports.createFrom = exports.load = exports.create = void 0;
+exports.resolve = exports.promote = exports.digested = exports.ingested = exports.modelOfStage = exports.stage = exports.setRequest = exports.setFlow = exports.getFlow = exports.get = exports.createFrom = exports.load = exports.create = void 0;
 const tslib_1 = require("tslib");
 const _1 = require(".");
 const base_1 = tslib_1.__importDefault(require("./base"));
@@ -86,6 +86,13 @@ const stage = (trail, type) => {
     };
 };
 exports.stage = stage;
+const modelOfStage = (trailStage, modelName) => {
+    const model = trailStage.models?.[modelName];
+    if (!model)
+        throw new Error(`Model ${modelName} not found in stage`);
+    return model;
+};
+exports.modelOfStage = modelOfStage;
 const ingested = (trail) => {
     return (0, exports.stage)(trail, 'ingested');
 };
@@ -144,5 +151,5 @@ const resolve = (trail, model) => {
     return data.root;
 };
 exports.resolve = resolve;
-exports.default = { create: exports.create, createFrom: exports.createFrom, load: exports.load, get: exports.get, setRequest: exports.setRequest, setFlow: exports.setFlow, getFlow: exports.getFlow, ingested: exports.ingested, digested: exports.digested, promote: exports.promote, resolve: exports.resolve };
+exports.default = { create: exports.create, createFrom: exports.createFrom, load: exports.load, get: exports.get, setRequest: exports.setRequest, setFlow: exports.setFlow, getFlow: exports.getFlow, ingested: exports.ingested, digested: exports.digested, modelOfStage: exports.modelOfStage, promote: exports.promote, resolve: exports.resolve };
 //# sourceMappingURL=trail.js.map

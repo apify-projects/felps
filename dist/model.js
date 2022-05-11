@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.schemaAsRaw = exports.connect = exports.find = exports.validateReference = exports.validate = exports.referenceFor = exports.referenceKeysSchema = exports.referenceKeys = exports.dependencies = exports.flatten = exports.walk = exports.define = exports.create = void 0;
+exports.schemaAsRaw = exports.connect = exports.find = exports.validateReference = exports.validate = exports.referenceFor = exports.referenceValue = exports.referenceKeysSchema = exports.referenceKeys = exports.dependencies = exports.flatten = exports.walk = exports.define = exports.create = void 0;
 const tslib_1 = require("tslib");
 const fast_safe_stringify_1 = tslib_1.__importDefault(require("fast-safe-stringify"));
+const lodash_get_1 = tslib_1.__importDefault(require("lodash.get"));
 const ramda_1 = require("ramda");
 const base_1 = tslib_1.__importDefault(require("./base"));
 const consts_1 = require("./consts");
@@ -88,6 +89,10 @@ const referenceKeysSchema = (model) => {
     };
 };
 exports.referenceKeysSchema = referenceKeysSchema;
+const referenceValue = (model, ref) => {
+    return (0, lodash_get_1.default)(ref, (0, consts_1.REFERENCE_KEY)(model.name));
+};
+exports.referenceValue = referenceValue;
 const referenceFor = (model, ref, withOwnReferenceKey) => {
     const keys = (0, exports.referenceKeys)(model);
     if (withOwnReferenceKey)
@@ -132,5 +137,19 @@ const schemaAsRaw = (schema) => {
     }));
 };
 exports.schemaAsRaw = schemaAsRaw;
-exports.default = { create: exports.create, define: exports.define, dependencies: exports.dependencies, referenceKeys: exports.referenceKeys, referenceFor: exports.referenceFor, find: exports.find, validate: exports.validate, validateReference: exports.validateReference, connect: exports.connect, walk: exports.walk, flatten: exports.flatten, schemaAsRaw: exports.schemaAsRaw };
+exports.default = {
+    create: exports.create,
+    define: exports.define,
+    dependencies: exports.dependencies,
+    referenceKeys: exports.referenceKeys,
+    referenceFor: exports.referenceFor,
+    referenceValue: exports.referenceValue,
+    find: exports.find,
+    validate: exports.validate,
+    validateReference: exports.validateReference,
+    connect: exports.connect,
+    walk: exports.walk,
+    flatten: exports.flatten,
+    schemaAsRaw: exports.schemaAsRaw,
+};
 //# sourceMappingURL=model.js.map

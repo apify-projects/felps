@@ -6,6 +6,7 @@ export declare const flatten: (model: ModelInstance) => ModelInstance[];
 export declare const dependencies: (model: ModelInstance) => ModelInstance[];
 export declare const referenceKeys: (model: ModelInstance) => ReferenceKey[];
 export declare const referenceKeysSchema: (model: ModelInstance) => JSONSchema;
+export declare const referenceValue: (model: ModelInstance, ref: ModelReference) => string;
 export declare const referenceFor: (model: ModelInstance, ref: ModelReference, withOwnReferenceKey?: boolean | undefined) => ModelReference;
 export declare const validate: <T = unknown>(model: ModelInstance<JSONSchema>, data: T, options?: ValidatorValidateOptions) => {
     valid: boolean;
@@ -47,6 +48,12 @@ declare const _default: {
         fFlowKey: string;
         fActorKey: string;
     }>;
+    referenceValue: (model: ModelInstance<JSONSchema>, ref: Partial<{} & {
+        fRequestKey: string;
+        fTrailKey: string;
+        fFlowKey: string;
+        fActorKey: string;
+    }>) => string;
     find: (model: ModelInstance<JSONSchema>, items: TrailDataModelItem<any>[], newItem: TrailDataModelItem<any>) => TrailDataModelItem<any> | undefined;
     validate: <T_1 = unknown>(model: ModelInstance<JSONSchema>, data: T_1, options?: ValidatorValidateOptions) => {
         valid: boolean;

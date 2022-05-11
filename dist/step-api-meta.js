@@ -16,7 +16,7 @@ const create = (actor) => {
                 getActorInput: () => actor.input.data,
                 getUserData: () => meta.userData,
                 getMetaData: () => meta.data,
-                getRerence: () => meta.data.reference,
+                getReference: () => meta.data.reference,
                 getFlowName: () => meta.data.flowName,
                 getStepName: () => meta.data.stepName,
                 getFlowInput: () => {

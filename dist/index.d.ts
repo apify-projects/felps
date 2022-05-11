@@ -172,6 +172,12 @@ declare const _default: {
             fFlowKey: string;
             fActorKey: string;
         }>;
+        referenceValue: (model: import("./types").ModelInstance<import("./types").JSONSchema>, ref: Partial<{} & {
+            fRequestKey: string;
+            fTrailKey: string;
+            fFlowKey: string;
+            fActorKey: string;
+        }>) => string;
         find: (model: import("./types").ModelInstance<import("./types").JSONSchema>, items: import("./types").TrailDataModelItem<any>[], newItem: import("./types").TrailDataModelItem<any>) => import("./types").TrailDataModelItem<any> | undefined;
         validate: <T_7 = unknown>(model: import("./types").ModelInstance<import("./types").JSONSchema>, data: T_7, options?: import("./types").ValidatorValidateOptions) => {
             valid: boolean;
@@ -280,6 +286,7 @@ declare const _default: {
         getFlow: (trail: import("./types").TrailInstance, flowKey: string | undefined) => import("./types").TrailFlowState | undefined;
         ingested: (trail: import("./types").TrailInstance) => import("./types").TrailDataStage;
         digested: (trail: import("./types").TrailInstance) => import("./types").TrailDataStage;
+        modelOfStage: (trailStage: import("./types").TrailDataStage, modelName: string) => import("./types").TrailDataModelInstance;
         promote: (trail: import("./types").TrailInstance, item: import("./types").TrailDataModelItem<unknown> | import("./types").TrailDataRequestItem) => void;
         resolve: <T_21 = unknown>(trail: import("./types").TrailInstance, model: import("./types").ModelInstance<import("./types").JSONSchema>) => T_21 | undefined;
     };

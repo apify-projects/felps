@@ -94,6 +94,12 @@ export const stage = (trail: TrailInstance, type: TrailDataStages): TrailDataSta
     };
 };
 
+export const modelOfStage = (trailStage: TrailDataStage, modelName: string): TrailDataModelInstance => {
+    const model = trailStage.models?.[modelName];
+    if (!model) throw new Error(`Model ${modelName} not found in stage`);
+    return model;
+};
+
 export const ingested = (trail: TrailInstance): TrailDataStage => {
     return stage(trail, 'ingested');
 };
@@ -159,4 +165,4 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
     return data.root;
 };
 
-export default { create, createFrom, load, get, setRequest, setFlow, getFlow, ingested, digested, promote, resolve };
+export default { create, createFrom, load, get, setRequest, setFlow, getFlow, ingested, digested, modelOfStage, promote, resolve };

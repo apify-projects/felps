@@ -126,12 +126,13 @@ const create = (actor) => {
                 const resultsAsArray = Array.isArray(results) ? results : [results];
                 for (const result of resultsAsArray) {
                     const { valid: isValid, errors } = _1.Model.validate(flow.output, result);
-                    // console.log({ result, isValid, errors });
-                    if (isValid) {
-                        await _1.Dataset.push(actor?.datasets?.default, result);
+                    const decoratedResults = isValid ? { success: true, ...result } : { errors, success: false, ...result };
+                    const { valid: isDecoratedValid } = _1.Model.validate(flow.output, decoratedResults);
+                    if (isDecoratedValid) {
+                        await _1.Dataset.push(actor?.datasets?.default, decoratedResults);
                     }
                     else {
-                        _1.DataStore.setAndGetKey(actor?.stores?.incorrectDataset, { result, errors });
+                        _1.DataStore.setAndGetKey(actor?.stores?.incorrectDataset, decoratedResults);
                     }
                 }
             }

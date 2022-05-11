@@ -1,4 +1,4 @@
-import { ModelInstance, RequestSource, TrailDataModelItem, TrailDataRequestItem, TrailDataStage, TrailDataStages, TrailFlowState, TrailInstance, TrailOptions, TrailState, UniqueyKey } from './types';
+import { ModelInstance, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem, TrailDataStage, TrailDataStages, TrailFlowState, TrailInstance, TrailOptions, TrailState, UniqueyKey } from './types';
 export declare const create: (options: TrailOptions) => TrailInstance;
 export declare const load: (trail: TrailInstance) => Promise<TrailInstance>;
 export declare const createFrom: (request: RequestSource, options: TrailOptions) => TrailInstance;
@@ -7,6 +7,7 @@ export declare const getFlow: (trail: TrailInstance, flowKey: UniqueyKey | undef
 export declare const setFlow: (trail: TrailInstance, flowState: TrailFlowState) => UniqueyKey;
 export declare const setRequest: (trail: TrailInstance, request: any) => void;
 export declare const stage: (trail: TrailInstance, type: TrailDataStages) => TrailDataStage;
+export declare const modelOfStage: (trailStage: TrailDataStage, modelName: string) => TrailDataModelInstance;
 export declare const ingested: (trail: TrailInstance) => TrailDataStage;
 export declare const digested: (trail: TrailInstance) => TrailDataStage;
 export declare const promote: (trail: TrailInstance, item: TrailDataModelItem | TrailDataRequestItem) => void;
@@ -21,6 +22,7 @@ declare const _default: {
     getFlow: (trail: TrailInstance, flowKey: string | undefined) => TrailFlowState | undefined;
     ingested: (trail: TrailInstance) => TrailDataStage;
     digested: (trail: TrailInstance) => TrailDataStage;
+    modelOfStage: (trailStage: TrailDataStage, modelName: string) => TrailDataModelInstance;
     promote: (trail: TrailInstance, item: TrailDataModelItem<unknown> | TrailDataRequestItem) => void;
     resolve: <T = unknown>(trail: TrailInstance, model: ModelInstance<import("./types").JSONSchema>) => T | undefined;
 };
