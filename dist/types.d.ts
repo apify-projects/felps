@@ -69,7 +69,7 @@ export declare type GenerateObject<N extends string[], T> = {
     [K in N[number]]: T;
 };
 export declare type ValueOf<T> = T[keyof T];
-export declare type ExtractSchemaModelNames<N> = N extends (ReadonlyArray<ReallyAny> | Array<ReallyAny>) ? never : (N extends Record<string, ReallyAny> ? (N extends {
+export declare type ExtractSchemaModelNames<N> = N extends (ReadonlyArray<ReallyAny> | Array<ReallyAny> | Function) ? never : (N extends object ? (N extends {
     modelName: infer MN;
 } ? Extract<MN, string> | ExtractSchemaModelNames<Omit<N, 'modelName'>> : {
     [K in keyof N]: ExtractSchemaModelNames<N[K]>;
@@ -169,7 +169,7 @@ export declare type StepOptions<Methods = unknown> = {
     actorKey?: string;
 };
 export declare type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>;
-export declare type StepApiInstance<F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>, I extends InputDefinition, StepName extends string = 'nope'> = GeneralStepApi<I> & StepApiFlowsAPI<F, S, M> & StepApiModelAPI<M, S, F, StepName>;
+export declare type StepApiInstance<F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>, I extends InputDefinition, StepName extends string = 'NO_STEPNAME'> = GeneralStepApi<I> & StepApiFlowsAPI<F, S, M> & StepApiModelAPI<M, S, F, StepName>;
 export declare type GeneralStepApi<I extends InputDefinition = InputDefinition> = StepApiMetaAPI<I> & StepApiUtilsAPI;
 export declare type StepApiFlowsInstance<F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>> = {
     handler: (context: RequestContext) => StepApiFlowsAPI<F, S, M>;
@@ -212,10 +212,8 @@ export declare type KeyedSchemaType<TModels extends Record<string, ModelDefiniti
         schema: FromSchema<TModels[TModelName]['schema']>;
     };
 };
-export declare type StepApiModelAPI<M extends Record<string, ModelDefinition>, S = {
-    'No stepname provided': never;
-}, F extends Record<string, FlowDefinition<keyof S>> = never, StepName extends string = 'nope', N extends Record<string, ReallyAny> = KeyedSchemaType<M>, AvailableFlows = StepName extends 'nope' ? 'nope' : ExtractFlowsWithStep<StepName, S, F>, RawAvailableModelNames = AvailableFlows extends string ? 0 : (AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M), AvailableModelNames = RawAvailableModelNames extends number ? keyof M : RawAvailableModelNames> = StepApiModelByFlowAPI<N, AvailableModelNames> & {
-    within: <FlowName extends keyof AvailableFlows, FlowRawAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<ReallyAny>> ? ExtractSchemaModelNames<AvailableFlows[FlowName]['output']['schema']> : keyof M, FlowAvailableModelNames = FlowRawAvailableModelNames extends number ? keyof M : FlowRawAvailableModelNames>(flowName: FlowName) => StepApiModelByFlowAPI<M, FlowAvailableModelNames>;
+export declare type StepApiModelAPI<M extends Record<string, ModelDefinition>, S = 'NO_STEPS', F extends Record<string, FlowDefinition<keyof S>> = {}, StepName extends string = 'NO_STEPNAME', AvailableFlows = StepName extends 'NO_STEPNAME' ? F : ExtractFlowsWithStep<StepName, S, F>, AvailableModelNames = StepName extends 'NO_STEPNAME' ? (AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M) : keyof M, AvailableFlowNames = AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? keyof AvailableFlows : keyof F, N extends Record<string, ReallyAny> = KeyedSchemaType<M>> = StepApiModelByFlowAPI<N, AvailableModelNames> & {
+    inFlow: <FlowName extends AvailableFlowNames, FlowAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? (FlowName extends keyof AvailableFlows ? ExtractSchemaModelNames<AvailableFlows[FlowName]['output']['schema']> : keyof M) : keyof M>(flowName: FlowName) => StepApiModelByFlowAPI<N, FlowAvailableModelNames>;
 };
 export declare type StepApiModelByFlowAPI<M extends Record<string, ModelDefinition>, AvailableModelNames = keyof M> = {
     add: <ModelName extends AvailableModelNames>(modelName: ModelName, value: ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never, ref?: ModelReference<M>) => ModelReference<M>;
@@ -231,7 +229,7 @@ export declare type StepApiMetaAPI<I extends InputDefinition = InputDefinition> 
     getActorInput: () => ReallyAny | FromSchema<I['schema']>;
     getUserData: () => Record<string, unknown>;
     getMetaData: () => RequestMetaData;
-    getRerence: () => RequestMetaData['reference'];
+    getReference: () => RequestMetaData['reference'];
     getFlowInput: () => TrailFlowState['input'];
     getFlowName: () => string;
     getStepName: () => string;

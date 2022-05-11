@@ -32,6 +32,7 @@ const get = (trailDataModel, ref) => {
 exports.get = get;
 const getItemsList = (trailDataModel, ref) => {
     const entities = data_store_1.default.get(trailDataModel.store, trailDataModel.path) || {};
+    // console.log('entities', entities);
     const items = Object.keys(entities).reduce((list, key) => {
         if (entities[key].model === trailDataModel.model.name) {
             list.push(entities[key]);

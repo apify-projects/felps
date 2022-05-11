@@ -21,7 +21,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
 
             const flow = meta.data.flowName ? actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, meta.data.flowName)] as FlowInstance<ReallyAny> : undefined;
 
-            const stepApi = StepApi.create(actor);
+            const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
             const api = stepApi(context);
             const connectedModel = Model.connect({ api });
 

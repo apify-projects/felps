@@ -1,8 +1,8 @@
-import requestMeta from './request-meta';
-import base from './base';
-import { ActorInstance, StepApiMetaInstance } from './types';
 import { Trail } from '.';
+import base from './base';
 import { FLOW_KEY_PROP } from './consts';
+import requestMeta from './request-meta';
+import { ActorInstance, ReallyAny, StepApiMetaInstance } from './types';
 
 export const create = (actor: ActorInstance): StepApiMetaInstance => {
     return {
@@ -21,7 +21,7 @@ export const create = (actor: ActorInstance): StepApiMetaInstance => {
                 getFlowInput: () => {
                     return Trail.getFlow(trail, meta.data?.reference?.[FLOW_KEY_PROP])?.input || {};
                 },
-            };
+            } as ReallyAny;
         },
     };
 };

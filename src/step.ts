@@ -2,7 +2,7 @@ import { Logger, Orchestrator, RequestMeta, StepApi, Trail } from '.';
 import base from './base';
 import { ACTOR_KEY_PROP } from './consts';
 import TrailDataRequests from './trail-data-requests';
-import { ActorInstance, RequestContext, StepInstance, StepOptions } from './types';
+import { ActorInstance, ReallyAny, RequestContext, StepInstance, StepOptions } from './types';
 
 export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepInstance<Methods> => {
     const {
@@ -53,7 +53,7 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
     // Add actorKey to make sure we can identify the original actor when prefixed
     ctx.request.userData = RequestMeta.extend(RequestMeta.create(ctx.request), { reference: { [ACTOR_KEY_PROP]: step.actorKey } }).userData;
 
-    const stepApi = StepApi.create(actor);
+    const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
 
     const trail = Trail.createFrom(ctx.request, { actor });
     const digest = Trail.digested(trail);

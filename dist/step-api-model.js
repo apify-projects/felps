@@ -57,7 +57,7 @@ const create = (actor) => {
             };
             return {
                 ...modelApi,
-                within: () => modelApi,
+                inFlow: () => modelApi,
             };
         },
     };

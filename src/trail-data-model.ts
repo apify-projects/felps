@@ -33,6 +33,7 @@ export const get = <T = unknown>(trailDataModel: TrailDataModelInstance, ref: Mo
 
 export const getItemsList = <T = unknown>(trailDataModel: TrailDataModelInstance, ref?: ModelReference<T>): TrailDataModelItem[] => {
     const entities = dataStore.get<Record<string, TrailDataModelItem>>(trailDataModel.store, trailDataModel.path) || {};
+    // console.log('entities', entities);
     const items = Object.keys(entities).reduce((list, key) => {
         if (entities[key].model === trailDataModel.model.name) {
             list.push(entities[key]);

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RequestMeta, StepApi } from '..';
 import { METADATA_KEY, PREFIXED_NAME_BY_ACTOR } from '../consts';
-import { ActorInstance, RequestContext, StepInstance } from '../types';
+import { ActorInstance, ReallyAny, RequestContext, StepInstance } from '../types';
 import useHandleRequestErrorFunction from './use-handle-request-error-function';
 
 export default (actor: ActorInstance) => {
@@ -16,7 +16,7 @@ export default (actor: ActorInstance) => {
     return {
         async flowHook(context: RequestContext) {
             const meta = RequestMeta.create(context.request);
-            const stepApi = StepApi.create(actor);
+            const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
 
             if (meta.data.flowStart && context && !meta.data.isHook) {
                 context.request.userData[METADATA_KEY].flowStart = false;

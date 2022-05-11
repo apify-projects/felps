@@ -3,7 +3,7 @@ import { StepApi } from '..';
 import { PREFIXED_NAME_BY_ACTOR } from '../consts';
 import RequestMeta from '../request-meta';
 import step from '../step';
-import { ActorInstance, RequestContext, StepInstance } from '../types';
+import { ActorInstance, ReallyAny, RequestContext, StepInstance } from '../types';
 
 export default (actor: ActorInstance) => {
     return async (context: RequestContext) => {
@@ -26,6 +26,6 @@ export default (actor: ActorInstance) => {
         }
 
         // const api = new StepApi({ step: stepInstance, context }).make(RequestContext);
-        await stepInstance?.errorHandler?.(context, StepApi.create(actor)(context));
+        await stepInstance?.errorHandler?.(context, StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor)(context));
     };
 };

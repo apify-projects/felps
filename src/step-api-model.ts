@@ -59,7 +59,7 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
 
             return {
                 ...modelApi,
-                within: () => modelApi as ReallyAny,
+                inFlow: () => modelApi as ReallyAny,
             } as StepApiModelAPI<M>;
         },
     };

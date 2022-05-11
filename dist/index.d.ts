@@ -135,7 +135,7 @@ declare const _default: {
     StepApi: {
         create: <F_3 extends Record<string, import("./types").FlowDefinition<keyof S_1>>, S_1, M_2 extends Record<string, import("./types").ModelDefinition<import("./types").JSONSchema>>, I_1 extends import("./types").InputDefinition<{
             type: "object";
-        }>>(actor: import("./types").ActorInstance) => (context: import("./types").RequestContext) => import("./types").StepApiInstance<F_3, S_1, M_2, I_1, "nope">;
+        }>>(actor: import("./types").ActorInstance) => (context: import("./types").RequestContext) => import("./types").StepApiInstance<F_3, S_1, M_2, I_1, "NO_STEPNAME">;
     };
     StepApiFlow: {
         create: <F_4 extends Record<string, import("./types").FlowDefinition<keyof S_2>>, S_2, M_3 extends Record<string, import("./types").ModelDefinition<import("./types").JSONSchema>>>(actor: import("./types").ActorInstance) => import("./types").StepApiFlowsInstance<F_4, S_2, M_3>;
