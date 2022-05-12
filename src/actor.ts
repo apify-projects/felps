@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PlaywrightHook, RequestQueue } from 'apify';
-import { Datasets, Flow, Flows, Hooks, Input, Logger, Models, Queue, Queues, Step, Steps, Stores } from '.';
+import { Datasets, Flow, Flows, Hooks, Input, Logger, Models, Queue, Queues, RequestMeta, Step, Steps, Stores } from '.';
 import Base from './base';
 import { PREFIXED_NAME_BY_ACTOR, UNPREFIXED_NAME_BY_ACTOR } from './consts';
 import crawler from './crawler';
@@ -67,7 +67,7 @@ export const combine = (actor: ActorInstance, ...actors: ActorInstance[]): Actor
                     !otherHook.name.startsWith(prefix(actor, ''))
                     && otherHook.name.endsWith(UNPREFIXED_NAME_BY_ACTOR(hook.name))
                 ) {
-                    hooksPromises.push(Step.run(otherHook, actor, context));
+                    hooksPromises.push(Step.run(otherHook, actor, RequestMeta.cloneContext(context)));
                 }
             }
             await Promise.allSettled(hooksPromises);

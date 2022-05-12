@@ -56,4 +56,11 @@ export const extend = (requestMeta: RequestMetaInstance, ...metadata: Partial<Re
     });
 };
 
-export default { create, extend, contextDefaulted };
+export const cloneContext = (context: RequestContext): RequestContext => {
+    return {
+        ...context,
+        request: cloneDeep(context.request),
+    };
+};
+
+export default { create, extend, contextDefaulted, cloneContext };

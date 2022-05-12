@@ -1,14 +1,14 @@
 {
   "name": "felps",
-  "version": "1.0.3",
+  "version": "1.0.301",
   "description": "Flow-based crawler framework",
   "repository": {
     "type": "git",
     "url": "git@github.com:gahabeen/felps.git"
   },
-  "typings": "dist/index",
+  "typings": "lib/index",
   "source": "src/index",
-  "main": "dist/index",
+  "main": "lib/index",
   "dependencies": {
     "@apify/timeout": "^0.2.1",
     "ajv": "^8.11.0",
@@ -82,8 +82,8 @@
     "puppeteer": "^10.4.0"
   },
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.json --outDir dist",
-    "dev": "rimraf dist && tsc -p tsconfig.json --outDir dist --watch",
+    "build": "rimraf dist && tsc",
+    "dev": "rimraf dist && tsc --watch",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix"
   },

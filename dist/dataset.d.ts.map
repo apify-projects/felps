@@ -1,1 +1,0 @@
-{"version":3,"file":"dataset.d.ts","sourceRoot":"","sources":["../src/dataset.ts"],"names":[],"mappings":"AAGA,OAAO,EAAE,eAAe,EAAE,cAAc,EAAE,SAAS,EAAE,MAAM,SAAS,CAAC;AAErE,eAAO,MAAM,MAAM,YAAa,cAAc,KAAG,eAOhD,CAAC;AAEF,eAAO,MAAM,IAAI,YAAmB,eAAe,KAAG,QAAQ,eAAe,CAO5E,CAAC;AAEF,eAAO,MAAM,IAAI,YAAmB,eAAe,QAAQ,SAAS,GAAG,SAAS,EAAE,8BAGjF,CAAC;;;;;;AAEF,wBAAsC"}
