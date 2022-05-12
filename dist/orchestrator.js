@@ -45,12 +45,15 @@ const create = (actor) => {
                     const entities = trail_data_model_1.default.getItemsList(ingestModel);
                     const entitiesByParentHash = trail_data_model_1.default.groupByParentHash(ingestModel, entities);
                     for (const parentRefHash of entitiesByParentHash.keys()) {
-                        const entitiesOrganised = await connectedModel.organizeList(model, entitiesByParentHash.get(parentRefHash));
-                        const listIsComplete = await connectedModel.isListComplete(model, entitiesOrganised.valid);
-                        // console.log({ model: model.name, stop})
-                        if (listIsComplete) {
-                            stopedReferencesHashes.add(parentRefHash);
-                            // console.log(parentRefHash, entitiesByParentHash.get(parentRefHash))
+                        const outputModel = _1.Model.dependency(flow.output, model.name);
+                        if (outputModel) {
+                            const entitiesOrganised = await connectedModel.organizeList(outputModel, entitiesByParentHash.get(parentRefHash));
+                            const listIsComplete = await connectedModel.isListComplete(outputModel, entitiesOrganised.valid);
+                            // console.log({ model: model.name, stop})
+                            if (listIsComplete) {
+                                stopedReferencesHashes.add(parentRefHash);
+                                // console.log(parentRefHash, entitiesByParentHash.get(parentRefHash))
+                            }
                         }
                     }
                 }
@@ -104,13 +107,16 @@ const create = (actor) => {
                 // INGESTED Stage
                 for (const modelName of Object.keys(actor?.models)) {
                     const items = trail_data_model_1.default.getItemsListByStatus(ingest.models[modelName], ['CREATED']);
-                    const filteredAs = await connectedModel.organizeList(ingest.models[modelName].model, items);
-                    for (const validItem of filteredAs.valid) {
-                        _1.Trail.promote(trail, validItem);
-                    }
-                    ;
-                    for (const invalidItem of filteredAs.invalid) {
-                        trail_data_model_1.default.setStatus(ingest.models[modelName], consts_1.MODEL_STATUS.DISCARDED, invalidItem.reference);
+                    const outputModel = _1.Model.dependency(flow.output, modelName);
+                    if (outputModel) {
+                        const filteredAs = await connectedModel.organizeList(outputModel, items);
+                        for (const validItem of filteredAs.valid) {
+                            _1.Trail.promote(trail, validItem);
+                        }
+                        ;
+                        for (const invalidItem of filteredAs.invalid) {
+                            trail_data_model_1.default.setStatus(ingest.models[modelName], consts_1.MODEL_STATUS.DISCARDED, invalidItem.reference);
+                        }
                     }
                 }
                 // DIGESTED Stage

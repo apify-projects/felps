@@ -1,3 +1,5 @@
+import setPath from 'lodash.set';
+import getPath from 'lodash.get';
 import { Model, RequestMeta } from '.';
 import Base from './base';
 import { TRAIL_KEY_PROP, TRAIL_UID_PREFIX } from './consts';
@@ -140,23 +142,25 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
         // console.log({ childModels });
 
         for (const child of childModels) {
-            const key = child.parentKey || 'root';
+            const path = child.parentPath || 'root';
             const entities = getEntities(child.name, ref);
             // console.log({ entities });
             if (!entities.length) continue;
 
             if (child.parentType === 'array') {
+                setPath(obj, path, []);
+                const arr = getPath(obj, path);
                 for (const entity of entities) {
-                    const idx = obj[key].push(orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {})) - 1;
-                    reducer(obj[key][idx], child.name, entity.reference);
+                    const idx = arr.push(orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {})) - 1;
+                    reducer(arr[idx], child.name, entity.reference);
                 }
             } else {
                 const entity = entities?.[0];
-                obj[key] = orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {});
-                reducer(obj[key], child.name, entity.reference);
+                setPath(obj, path, orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {}));
+                reducer(getPath(obj, path), child.name, entity.reference);
             }
 
-            reducer(obj[key], child.name, {});
+            reducer(getPath(obj, path), child.name, {});
         }
     };
 

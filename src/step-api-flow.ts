@@ -26,17 +26,17 @@ export const create = <
                 hooks: () => actor.hooks,
                 isStep(stepNameToTest, stepNameExpected) {
                     actorKeyMustExists();
-                    return PREFIXED_NAME_BY_ACTOR(actorKey, stepNameToTest) === PREFIXED_NAME_BY_ACTOR(actorKey, stepNameExpected);
+                    return PREFIXED_NAME_BY_ACTOR(actorKey, stepNameToTest) === PREFIXED_NAME_BY_ACTOR(actorKey, stepNameExpected as string);
                 },
                 isFlow(flowNameToTest, flowNameExpected) {
                     actorKeyMustExists();
-                    return PREFIXED_NAME_BY_ACTOR(actorKey, flowNameToTest) === PREFIXED_NAME_BY_ACTOR(actorKey, flowNameExpected);
+                    return PREFIXED_NAME_BY_ACTOR(actorKey, flowNameToTest) === PREFIXED_NAME_BY_ACTOR(actorKey, flowNameExpected as string);
                 },
                 isCurrentStep(stepName) {
-                    return currentMeta.data.stepName === stepName;
+                    return PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.stepName) === PREFIXED_NAME_BY_ACTOR(actorKey, stepName as string);
                 },
                 isCurrentFlow(flowName) {
-                    return currentMeta.data.flowName === flowName;
+                    return PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.flowName) === PREFIXED_NAME_BY_ACTOR(actorKey, flowName as string);
                 },
                 asFlowName(flowName) {
                     actorKeyMustExists();

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.schemaAsRaw = exports.connect = exports.find = exports.validateReference = exports.validate = exports.referenceFor = exports.referenceValue = exports.referenceKeysSchema = exports.referenceKeys = exports.dependencies = exports.flatten = exports.walk = exports.define = exports.create = void 0;
+exports.schemaAsRaw = exports.connect = exports.find = exports.validateReference = exports.validate = exports.referenceFor = exports.referenceValue = exports.referenceKeysSchema = exports.referenceKeys = exports.dependencies = exports.dependency = exports.flatten = exports.walk = exports.define = exports.create = void 0;
 const tslib_1 = require("tslib");
 const fast_safe_stringify_1 = tslib_1.__importDefault(require("fast-safe-stringify"));
 const lodash_get_1 = tslib_1.__importDefault(require("lodash.get"));
@@ -10,7 +10,7 @@ const consts_1 = require("./consts");
 const utils_1 = require("./utils");
 const validator_1 = tslib_1.__importDefault(require("./validator"));
 const create = (options) => {
-    const { parentType, parentKey, parents = [] } = options;
+    const { parentType, parentPath, parents = [] } = options;
     let { schema, name } = options;
     name = name || schema?.modelName;
     schema = { modelName: name, ...schema };
@@ -18,7 +18,7 @@ const create = (options) => {
         ...base_1.default.create({ name, key: 'model' }),
         schema,
         parentType,
-        parentKey,
+        parentPath,
         parents,
     };
 };
@@ -34,38 +34,42 @@ exports.walk = walk;
 const flatten = (model) => {
     const models = new Set();
     (0, utils_1.traverseAndCarry)(model.schema, {
-        parentPath: [],
+        parentPathSegments: [],
         parents: [],
     }, (value, key, ctx) => {
-        const parentPath = [...ctx.parentPath, key].filter(Boolean);
+        const parentPathSegments = [...ctx.parentPathSegments, key].filter(Boolean);
         if (consts_1.SCHEMA_MODEL_NAME_KEY in value) {
             const modelName = value[consts_1.SCHEMA_MODEL_NAME_KEY];
-            let parentKey = parentPath.slice(-1)[0];
-            const parentType = parentKey === 'items' ? 'array' : value.type;
-            if (parentKey === 'items')
-                parentKey = parentPath.slice(-2)[0];
+            const parentType = parentPathSegments.slice(-1)[0] === 'items' ? 'array' : value.type;
+            // TO BE OPTIMIZED
+            // ttems or properties could well be valid object keys as well
+            const parentPath = parentPathSegments.filter((segment) => !['items', 'properties'].includes(segment)).join('.');
             models.add((0, exports.create)({
                 name: modelName,
                 schema: value,
                 parentType,
-                parentKey,
+                parentPath,
                 parents: ctx.parents,
             }));
             return {
                 ...ctx,
-                parentPath,
+                parentPathSegments: [],
                 parents: [...ctx.parents, modelName],
             };
         }
         ;
         return {
             ...ctx,
-            parentPath,
+            parentPathSegments,
         };
     });
     return [...models];
 };
 exports.flatten = flatten;
+const dependency = (model, modelName) => {
+    return (0, exports.flatten)(model).find((m) => m.name === modelName);
+};
+exports.dependency = dependency;
 const dependencies = (model) => {
     return (0, exports.flatten)(model).filter((m) => m.name !== model.name);
 };
@@ -140,6 +144,7 @@ exports.schemaAsRaw = schemaAsRaw;
 exports.default = {
     create: exports.create,
     define: exports.define,
+    dependency: exports.dependency,
     dependencies: exports.dependencies,
     referenceKeys: exports.referenceKeys,
     referenceFor: exports.referenceFor,

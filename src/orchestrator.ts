@@ -51,12 +51,15 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                     const entities = TrailDataModel.getItemsList(ingestModel);
                     const entitiesByParentHash = TrailDataModel.groupByParentHash(ingestModel, entities);
                     for (const parentRefHash of entitiesByParentHash.keys()) {
-                        const entitiesOrganised = await connectedModel.organizeList(model, entitiesByParentHash.get(parentRefHash) as []);
-                        const listIsComplete = await connectedModel.isListComplete(model, entitiesOrganised.valid);
-                        // console.log({ model: model.name, stop})
-                        if (listIsComplete) {
-                            stopedReferencesHashes.add(parentRefHash);
-                            // console.log(parentRefHash, entitiesByParentHash.get(parentRefHash))
+                        const outputModel = Model.dependency(flow.output, model.name);
+                        if (outputModel) {
+                            const entitiesOrganised = await connectedModel.organizeList(outputModel, entitiesByParentHash.get(parentRefHash) as []);
+                            const listIsComplete = await connectedModel.isListComplete(outputModel, entitiesOrganised.valid);
+                            // console.log({ model: model.name, stop})
+                            if (listIsComplete) {
+                                stopedReferencesHashes.add(parentRefHash);
+                                // console.log(parentRefHash, entitiesByParentHash.get(parentRefHash))
+                            }
                         }
                     }
                 }
@@ -118,14 +121,17 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 for (const modelName of Object.keys(actor?.models)) {
                     const items = TrailDataModel.getItemsListByStatus(ingest.models[modelName], ['CREATED']);
 
-                    const filteredAs = await connectedModel.organizeList(ingest.models[modelName].model, items);
+                    const outputModel = Model.dependency(flow.output, modelName);
+                    if (outputModel) {
+                        const filteredAs = await connectedModel.organizeList(outputModel, items);
 
-                    for (const validItem of filteredAs.valid) {
-                        Trail.promote(trail, validItem);
-                    };
+                        for (const validItem of filteredAs.valid) {
+                            Trail.promote(trail, validItem);
+                        };
 
-                    for (const invalidItem of filteredAs.invalid) {
-                        TrailDataModel.setStatus(ingest.models[modelName], MODEL_STATUS.DISCARDED, invalidItem.reference);
+                        for (const invalidItem of filteredAs.invalid) {
+                            TrailDataModel.setStatus(ingest.models[modelName], MODEL_STATUS.DISCARDED, invalidItem.reference);
+                        }
                     }
                 }
 

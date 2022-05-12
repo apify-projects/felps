@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolve = exports.promote = exports.digested = exports.ingested = exports.modelOfStage = exports.stage = exports.setRequest = exports.setFlow = exports.getFlow = exports.get = exports.createFrom = exports.load = exports.create = void 0;
 const tslib_1 = require("tslib");
+const lodash_set_1 = tslib_1.__importDefault(require("lodash.set"));
+const lodash_get_1 = tslib_1.__importDefault(require("lodash.get"));
 const _1 = require(".");
 const base_1 = tslib_1.__importDefault(require("./base"));
 const consts_1 = require("./consts");
@@ -128,23 +130,25 @@ const resolve = (trail, model) => {
         const childModels = models.filter((m) => m.parents?.reverse()[0] === modelName);
         // console.log({ childModels });
         for (const child of childModels) {
-            const key = child.parentKey || 'root';
+            const path = child.parentPath || 'root';
             const entities = getEntities(child.name, ref);
             // console.log({ entities });
             if (!entities.length)
                 continue;
             if (child.parentType === 'array') {
+                (0, lodash_set_1.default)(obj, path, []);
+                const arr = (0, lodash_get_1.default)(obj, path);
                 for (const entity of entities) {
-                    const idx = obj[key].push(orderByKeys(Object.keys(child.schema?.properties), entity.data || {})) - 1;
-                    reducer(obj[key][idx], child.name, entity.reference);
+                    const idx = arr.push(orderByKeys(Object.keys(child.schema?.properties), entity.data || {})) - 1;
+                    reducer(arr[idx], child.name, entity.reference);
                 }
             }
             else {
                 const entity = entities?.[0];
-                obj[key] = orderByKeys(Object.keys(child.schema?.properties), entity.data || {});
-                reducer(obj[key], child.name, entity.reference);
+                (0, lodash_set_1.default)(obj, path, orderByKeys(Object.keys(child.schema?.properties), entity.data || {}));
+                reducer((0, lodash_get_1.default)(obj, path), child.name, entity.reference);
             }
-            reducer(obj[key], child.name, {});
+            reducer((0, lodash_get_1.default)(obj, path), child.name, {});
         }
     };
     reducer(data, undefined, {});

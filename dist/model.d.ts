@@ -3,6 +3,7 @@ export declare const create: (options: ModelOptions) => ModelInstance<JSONSchema
 export declare const define: <T extends ModelDefinition<JSONSchemaWithMethods>>(model: T) => T;
 export declare const walk: (model: ModelInstance, walker: (key: string, value: ReallyAny) => void) => void;
 export declare const flatten: (model: ModelInstance) => ModelInstance[];
+export declare const dependency: (model: ModelInstance, modelName: string) => ModelInstance | undefined;
 export declare const dependencies: (model: ModelInstance) => ModelInstance[];
 export declare const referenceKeys: (model: ModelInstance) => ReferenceKey[];
 export declare const referenceKeysSchema: (model: ModelInstance) => JSONSchema;
@@ -35,6 +36,7 @@ export declare const schemaAsRaw: <T>(schema: T) => T;
 declare const _default: {
     create: (options: ModelOptions<JSONSchema>) => ModelInstance<JSONSchema>;
     define: <T extends ModelDefinition<JSONSchemaWithMethods>>(model: T) => T;
+    dependency: (model: ModelInstance<JSONSchema>, modelName: string) => ModelInstance<JSONSchema> | undefined;
     dependencies: (model: ModelInstance<JSONSchema>) => ModelInstance<JSONSchema>[];
     referenceKeys: (model: ModelInstance<JSONSchema>) => string[];
     referenceFor: (model: ModelInstance<JSONSchema>, ref: Partial<{} & {

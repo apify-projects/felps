@@ -11,7 +11,7 @@ import { traverse, traverseAndCarry } from './utils';
 import Validator from './validator';
 
 export const create = (options: ModelOptions): ModelInstance<JSONSchema> => {
-    const { parentType, parentKey, parents = [] } = options;
+    const { parentType, parentPath, parents = [] } = options;
     let { schema, name } = options;
 
     name = name || (schema as JSONSchemaObject)?.modelName;
@@ -21,7 +21,7 @@ export const create = (options: ModelOptions): ModelInstance<JSONSchema> => {
         ...base.create({ name, key: 'model' }),
         schema,
         parentType,
-        parentKey,
+        parentPath,
         parents,
     };
 };
@@ -39,41 +39,47 @@ export const flatten = (model: ModelInstance): ModelInstance[] => {
     traverseAndCarry(
         model.schema,
         {
-            parentPath: [],
+            parentPathSegments: [],
             parents: [],
         },
         (value, key, ctx) => {
-            const parentPath = [...ctx.parentPath, key].filter(Boolean);
+            const parentPathSegments: string[] = [...ctx.parentPathSegments, key].filter(Boolean);
             if (SCHEMA_MODEL_NAME_KEY in value) {
                 const modelName: string = value[SCHEMA_MODEL_NAME_KEY];
-                let parentKey = parentPath.slice(-1)[0];
-                const parentType = parentKey === 'items' ? 'array' : value.type;
-                if (parentKey === 'items') parentKey = parentPath.slice(-2)[0];
+                const parentType = parentPathSegments.slice(-1)[0] === 'items' ? 'array' : value.type;
+
+                // TO BE OPTIMIZED
+                // ttems or properties could well be valid object keys as well
+                const parentPath = parentPathSegments.filter((segment) => !['items', 'properties'].includes(segment)).join('.');
 
                 models.add(
                     create({
                         name: modelName,
                         schema: value,
                         parentType,
-                        parentKey,
+                        parentPath,
                         parents: ctx.parents,
                     }),
                 );
 
                 return {
                     ...ctx,
-                    parentPath,
+                    parentPathSegments: [],
                     parents: [...ctx.parents, modelName],
                 };
             };
 
             return {
                 ...ctx,
-                parentPath,
+                parentPathSegments,
             };
         });
 
     return [...models];
+};
+
+export const dependency = (model: ModelInstance, modelName: string): ModelInstance | undefined => {
+    return flatten(model).find((m) => m.name === modelName);
 };
 
 export const dependencies = (model: ModelInstance): ModelInstance[] => {
@@ -150,6 +156,7 @@ export const schemaAsRaw = <T>(schema: T): T => {
 export default {
     create,
     define,
+    dependency,
     dependencies,
     referenceKeys,
     referenceFor,

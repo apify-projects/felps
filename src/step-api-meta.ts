@@ -12,6 +12,7 @@ export const create = (actor: ActorInstance): StepApiMetaInstance => {
             const meta = requestMeta.create(context);
 
             return {
+                getActorName: () => meta.data.reference.fActorKey,
                 getActorInput: () => actor.input.data,
                 getUserData: () => meta.userData,
                 getMetaData: () => meta.data,

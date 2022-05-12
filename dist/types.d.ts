@@ -179,10 +179,10 @@ export declare type StepApiFlowsAPI<F extends Record<string, FlowDefinition<keyo
     flows(): Record<string, FlowInstance<ReallyAny>>;
     hooks(): Record<string, StepInstance>;
     steps(): Record<string, StepInstance>;
-    isCurrentStep: (stepName: string) => boolean;
-    isCurrentFlow: (flowName: string) => boolean;
-    isStep: (stepNameToTest: string, stepNameExpected: string) => boolean;
-    isFlow: (flowNameToTest: string, flowNameExpected: string) => boolean;
+    isCurrentStep: (stepName: keyof S) => boolean;
+    isCurrentFlow: (flowName: keyof F) => boolean;
+    isStep: (stepNameToTest: string, stepNameExpected: keyof S) => boolean;
+    isFlow: (flowNameToTest: string, flowNameExpected: keyof F) => boolean;
     asFlowName: (flowName: string) => (Extract<keyof F, string> | undefined);
     asStepName: (stepName: string) => (Extract<keyof S, string> | undefined);
     start: <FlowName extends keyof F>(flowName: Extract<FlowName, string>, request: RequestSource, input?: ReallyAny, // FromSchema<F[FlowName]['input']>
@@ -212,7 +212,7 @@ export declare type KeyedSchemaType<TModels extends Record<string, ModelDefiniti
         schema: FromSchema<TModels[TModelName]['schema']>;
     };
 };
-export declare type StepApiModelAPI<M extends Record<string, ModelDefinition>, S = 'NO_STEPS', F extends Record<string, FlowDefinition<keyof S>> = {}, StepName extends string = 'NO_STEPNAME', AvailableFlows = StepName extends 'NO_STEPNAME' ? F : ExtractFlowsWithStep<StepName, S, F>, AvailableModelNames = StepName extends 'NO_STEPNAME' ? (AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M) : keyof M, AvailableFlowNames = AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? keyof AvailableFlows : keyof F, N extends Record<string, ReallyAny> = KeyedSchemaType<M>> = StepApiModelByFlowAPI<N, AvailableModelNames> & {
+export declare type StepApiModelAPI<M extends Record<string, ModelDefinition>, S = 'NO_STEPS', F extends Record<string, FlowDefinition<keyof S>> = Record<string, never>, StepName extends string = 'NO_STEPNAME', AvailableFlows = StepName extends 'NO_STEPNAME' ? F : ExtractFlowsWithStep<StepName, S, F>, AvailableModelNames = StepName extends 'NO_STEPNAME' ? (AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? ExtractFlowsSchemaModelNames<AvailableFlows> : keyof M) : keyof M, AvailableFlowNames = AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? keyof AvailableFlows : keyof F, N extends Record<string, ReallyAny> = KeyedSchemaType<M>> = StepApiModelByFlowAPI<N, AvailableModelNames> & {
     inFlow: <FlowName extends AvailableFlowNames, FlowAvailableModelNames = AvailableFlows extends Record<string, FlowDefinition<keyof S>> ? (FlowName extends keyof AvailableFlows ? ExtractSchemaModelNames<AvailableFlows[FlowName]['output']['schema']> : keyof M) : keyof M>(flowName: FlowName) => StepApiModelByFlowAPI<N, FlowAvailableModelNames>;
 };
 export declare type StepApiModelByFlowAPI<M extends Record<string, ModelDefinition>, AvailableModelNames = keyof M> = {
@@ -230,6 +230,7 @@ export declare type StepApiMetaInstance = {
     handler: (context: RequestContext) => StepApiMetaAPI;
 };
 export declare type StepApiMetaAPI<I extends InputDefinition = InputDefinition> = {
+    getActorName: () => string | undefined;
     getActorInput: () => ReallyAny | FromSchema<I['schema']>;
     getUserData: () => Record<string, unknown>;
     getMetaData: () => RequestMetaData;
@@ -251,7 +252,7 @@ export declare type ModelDefinition<TSchema = JSONSchema> = {
     name?: string;
     schema: TSchema;
     parentType?: string;
-    parentKey?: string;
+    parentPath?: string;
     parents?: string[];
 };
 export declare type ModelOptions<TSchema = JSONSchema> = ModelDefinition<TSchema>;

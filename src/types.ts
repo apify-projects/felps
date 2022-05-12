@@ -237,10 +237,10 @@ export type StepApiFlowsAPI<F extends Record<string, FlowDefinition<keyof S>>, S
     flows(): Record<string, FlowInstance<ReallyAny>>,
     hooks(): Record<string, StepInstance>,
     steps(): Record<string, StepInstance>,
-    isCurrentStep: (stepName: string) => boolean,
-    isCurrentFlow: (flowName: string) => boolean,
-    isStep: (stepNameToTest: string, stepNameExpected: string) => boolean,
-    isFlow: (flowNameToTest: string, flowNameExpected: string) => boolean,
+    isCurrentStep: (stepName: keyof S) => boolean,
+    isCurrentFlow: (flowName: keyof F) => boolean,
+    isStep: (stepNameToTest: string, stepNameExpected: keyof S) => boolean,
+    isFlow: (flowNameToTest: string, flowNameExpected: keyof F) => boolean,
     asFlowName: (flowName: string) => (Extract<keyof F, string> | undefined),
     asStepName: (stepName: string) => (Extract<keyof S, string> | undefined),
     start: <FlowName extends keyof F>(
@@ -322,7 +322,7 @@ export type KeyedSchemaType<TModels extends Record<string, ModelDefinition>> = {
 export type StepApiModelAPI<
     M extends Record<string, ModelDefinition>,
     S = 'NO_STEPS',
-    F extends Record<string, FlowDefinition<keyof S>> = {},
+    F extends Record<string, FlowDefinition<keyof S>> = Record<string, never>,
     StepName extends string = 'NO_STEPNAME',
     AvailableFlows = StepName extends 'NO_STEPNAME' ? F : ExtractFlowsWithStep<StepName, S, F>,
     // eslint-disable-next-line max-len
@@ -393,6 +393,7 @@ export type StepApiMetaInstance = {
 };
 
 export type StepApiMetaAPI<I extends InputDefinition = InputDefinition> = {
+    getActorName: () => string | undefined;
     getActorInput: () => ReallyAny | FromSchema<I['schema']>;
     getUserData: () => Record<string, unknown>,
     getMetaData: () => RequestMetaData,
@@ -422,7 +423,7 @@ export type ModelDefinition<TSchema = JSONSchema> = {
     name?: string,
     schema: TSchema,
     parentType?: string,
-    parentKey?: string,
+    parentPath?: string,
     parents?: string[],
 }
 

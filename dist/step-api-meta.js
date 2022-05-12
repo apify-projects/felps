@@ -13,6 +13,7 @@ const create = (actor) => {
             const trail = _1.Trail.createFrom(context?.request, { actor });
             const meta = request_meta_1.default.create(context);
             return {
+                getActorName: () => meta.data.reference.fActorKey,
                 getActorInput: () => actor.input.data,
                 getUserData: () => meta.userData,
                 getMetaData: () => meta.data,

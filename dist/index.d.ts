@@ -159,6 +159,7 @@ declare const _default: {
     Model: {
         create: (options: import("./types").ModelOptions<import("./types").JSONSchema>) => import("./types").ModelInstance<import("./types").JSONSchema>;
         define: <T_6 extends import("./types").ModelDefinition<import("./types").JSONSchemaWithMethods>>(model: T_6) => T_6;
+        dependency: (model: import("./types").ModelInstance<import("./types").JSONSchema>, modelName: string) => import("./types").ModelInstance<import("./types").JSONSchema> | undefined;
         dependencies: (model: import("./types").ModelInstance<import("./types").JSONSchema>) => import("./types").ModelInstance<import("./types").JSONSchema>[];
         referenceKeys: (model: import("./types").ModelInstance<import("./types").JSONSchema>) => string[];
         referenceFor: (model: import("./types").ModelInstance<import("./types").JSONSchema>, ref: Partial<{} & {
@@ -466,7 +467,7 @@ declare const _default: {
         filterByFlowStart: (item: import("./types").TrailDataRequestItem) => boolean;
     };
     RequestMeta: {
-        create: (requestOrRequestContext?: import("./types").RequestSource | import("./types").RequestContext | undefined) => import("./types").RequestMetaInstance;
+        create: (requestOrRequestContext?: import("./types").RequestContext | import("./types").RequestSource | undefined) => import("./types").RequestMetaInstance;
         extend: (requestMeta: import("./types").RequestMetaInstance, ...metadata: Partial<import("./types").RequestMetaData>[]) => import("./types").RequestMetaInstance;
         contextDefaulted: (context?: import("./types").RequestContext | undefined) => import("./types").RequestContext;
     };

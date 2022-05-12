@@ -32,10 +32,10 @@ const create = (actor) => {
                     return (0, consts_1.PREFIXED_NAME_BY_ACTOR)(actorKey, flowNameToTest) === (0, consts_1.PREFIXED_NAME_BY_ACTOR)(actorKey, flowNameExpected);
                 },
                 isCurrentStep(stepName) {
-                    return currentMeta.data.stepName === stepName;
+                    return (0, consts_1.PREFIXED_NAME_BY_ACTOR)(actorKey, currentMeta.data.stepName) === (0, consts_1.PREFIXED_NAME_BY_ACTOR)(actorKey, stepName);
                 },
                 isCurrentFlow(flowName) {
-                    return currentMeta.data.flowName === flowName;
+                    return (0, consts_1.PREFIXED_NAME_BY_ACTOR)(actorKey, currentMeta.data.flowName) === (0, consts_1.PREFIXED_NAME_BY_ACTOR)(actorKey, flowName);
                 },
                 asFlowName(flowName) {
                     actorKeyMustExists();
