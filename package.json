@@ -82,8 +82,8 @@
     "puppeteer": "^10.4.0"
   },
   "scripts": {
-    "build": "rimraf dist && tsc",
-    "dev": "rimraf dist && tsc --watch",
+    "build": "rimraf lib && tsc",
+    "dev": "rimraf lib && tsc --watch",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix"
   },
