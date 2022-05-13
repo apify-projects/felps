@@ -2,10 +2,12 @@
 import Apify, { PlaywrightCrawlerOptions, Request } from 'apify';
 import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
+import EventEmitter from 'eventemitter3';
 import { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
 import type { JSONSchema7 as $JSONSchema7 } from 'json-schema';
 import type { FromSchema } from 'json-schema-to-ts';
 import { Readonly } from 'json-schema-to-ts/lib/utils';
+import Queue from 'queue';
 import Route from 'route-parser';
 import MultiCrawler from './sdk/multi-crawler';
 import RequestQueue from './sdk/request-queue';
@@ -98,12 +100,10 @@ export type ExtractFlowsSchemaModelNames<F extends Record<string, FlowDefinition
 
 type DeepModelsOmitter<V> = V extends { modelName: string }
     ? never : (V extends Record<string, any> ? { [K in keyof V]: DeepModelsOmitter<V[K]> } : V);
+
 type DeepOmitModels<T> = {
     [K in keyof T]: DeepModelsOmitter<T[K]>
 }
-// type DeepOmitModelsRoot<T> = DeepOmitModels<{
-//     [K in keyof T]: DeepOmitModels<T[K]>
-// }>
 
 type ExcludeKeysWithTypeOf<T, V> = Pick<T, { [K in keyof T]: Exclude<T[K], undefined> extends V ? never : K }[keyof T]>;
 
@@ -237,10 +237,15 @@ export type StepApiFlowsAPI<F extends Record<string, FlowDefinition<keyof S>>, S
     flows(): Record<string, FlowInstance<ReallyAny>>,
     hooks(): Record<string, StepInstance>,
     steps(): Record<string, StepInstance>,
+    currentStep(): string,
+    currentFlow(): string,
     isCurrentStep: (stepName: keyof S) => boolean,
     isCurrentFlow: (flowName: keyof F) => boolean,
+    isCurrentActor: (actorKey: string) => boolean,
     isStep: (stepNameToTest: string, stepNameExpected: keyof S) => boolean,
     isFlow: (flowNameToTest: string, flowNameExpected: keyof F) => boolean,
+    isSomeStep: (stepNameToTest: string, stepNamesExpected: (keyof S)[]) => boolean,
+    isSomeFlow: (flowNameToTest: string, flowNamesExpected: (keyof F)[]) => boolean,
     asFlowName: (flowName: string) => (Extract<keyof F, string> | undefined),
     asStepName: (stepName: string) => (Extract<keyof S, string> | undefined),
     start: <FlowName extends keyof F>(
@@ -341,6 +346,10 @@ export type StepApiModelByFlowAPI<
     M extends Record<string, ModelDefinition>,
     AvailableModelNames = keyof M,
     > = {
+        get: <ModelName extends AvailableModelNames>(
+            modelName: ModelName,
+            ref?: ModelReference<M>,
+        ) => ModelName extends keyof M ? TrailDataModelItem : never;
         set: <ModelName extends AvailableModelNames>(
             modelName: ModelName,
             value: ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never,
@@ -348,43 +357,39 @@ export type StepApiModelByFlowAPI<
         ) => ModelReference<M>;
         setPartial: <ModelName extends AvailableModelNames>(
             modelName: ModelName,
-            value: ModelName extends keyof M ? Partial<DeepOmitModels<M[ModelName]['schema']>> : never,
+            value?: ModelName extends keyof M ? DeepPartial<DeepOmitModels<M[ModelName]['schema']>> : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
-        get: <ModelName extends AvailableModelNames>(
-            modelName: ModelName,
-            ref?: ModelReference<M>,
-        ) => ModelName extends keyof M ? M[ModelName]['schema'] : never;
         upsert: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
             modelName: ModelName,
             value: ModelName extends keyof M ? (
-                Partial<ModelSchema> | ((previous: Partial<ModelSchema>
-                ) => Partial<ModelSchema>)) : never,
+                ModelSchema | ((previous: DeepPartial<ModelSchema>
+                ) => ModelSchema)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
         upsertPartial: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
             modelName: ModelName,
-            value: ModelName extends keyof M ? (
-                Partial<ModelSchema> | ((previous: Partial<ModelSchema>
-                ) => Partial<ModelSchema>)) : never,
+            value?: ModelName extends keyof M ? (
+                DeepPartial<ModelSchema> | ((previous: DeepPartial<ModelSchema>
+                ) => DeepPartial<ModelSchema>)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
         update: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
             modelName: ModelName,
             value: ModelName extends keyof M ? (
-                Partial<ModelSchema> | ((previous: Partial<ModelSchema>
-                ) => Partial<ModelSchema>)) : never,
+                ModelSchema | ((previous: DeepPartial<ModelSchema>
+                ) => ModelSchema)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
         updatePartial: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
             modelName: ModelName,
             value: ModelName extends keyof M ? (
-                Partial<ModelSchema> | ((previous: Partial<ModelSchema>
-                ) => Partial<ModelSchema>)) : never,
+                DeepPartial<ModelSchema> | ((previous: DeepPartial<ModelSchema>
+                ) => DeepPartial<ModelSchema>)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
-        getInputModelName: () => M['input']['name'] | undefined;
-        getOutputModelName: () => M['output']['name'] | undefined;
+        getInputModelName: () => string | undefined;
+        getOutputModelName: () => string | undefined;
     }
 
 // step-api-meta.ts ------------------------------------------------------------
@@ -639,6 +644,7 @@ export type DefaultQueueNames = ['default'];
 export type DatasetInstance = {
     name: string;
     resource: Apify.Dataset | undefined;
+    events: EventsInstance;
 } & BaseInstance;
 
 export type DatasetOptions = {
@@ -843,3 +849,17 @@ export type UrlPatternParsed = {
     searchParams?: Record<string, string | number>,
     pathParams?: Record<string, string | number>
 }
+
+// events.ts
+export type EventsOptions = {
+    name?: string,
+    batchSize?: number,
+    batchMinIntervals?: number,
+};
+
+export type EventsInstance = {
+    resource: EventEmitter,
+    queues: Queue[],
+    batchSize: number,
+    batchMinIntervals: number,
+} & BaseInstance;

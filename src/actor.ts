@@ -188,6 +188,7 @@ export const run = async (actor: ActorInstance, input: ActorInput, crawlerOption
     } finally {
         // Closing..
         await Stores.persist(actor.stores);
+        await Datasets.close(actor.datasets);
     }
 };
 

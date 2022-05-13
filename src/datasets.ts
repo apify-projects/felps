@@ -1,5 +1,6 @@
-import { DatasetsInstance, DatasetsOptions } from './types';
+import { DatasetInstance, DatasetsInstance, DatasetsOptions } from './types';
 import dataset from './dataset';
+import { Dataset } from '.';
 
 export const DefaultDatasets = {
     default: dataset.create({}),
@@ -14,4 +15,8 @@ export const create = <Names extends string[] = []>(options?: DatasetsOptions<Na
     }), DefaultDatasets as unknown as DatasetsInstance<Names>);
 };
 
-export default { create };
+export const close = async <Names extends string[] = []>(datasets: DatasetsInstance<Names>) => {
+    await Promise.all(Object.values<DatasetInstance>(datasets).map((d) => Dataset.close(d)));
+};
+
+export default { create, close };

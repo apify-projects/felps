@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify from 'apify';
+import Events from './events';
 import base from './base';
 import { DatasetInstance, DatasetOptions, ReallyAny } from './types';
 
@@ -9,6 +10,7 @@ export const create = (options: DatasetOptions): DatasetInstance => {
     return {
         ...base.create({ key: 'dataset', name: name as string }),
         resource: undefined,
+        events: Events.create({ name: name as string }),
     };
 };
 
@@ -23,7 +25,14 @@ export const load = async (dataset: DatasetInstance): Promise<DatasetInstance> =
 
 export const push = async (dataset: DatasetInstance, data: ReallyAny | ReallyAny[]) => {
     const loaded = await load(dataset);
-    return loaded.resource?.pushData(data);
+    if (loaded.resource) {
+        Events.emit(dataset.events, 'push', data);
+        return loaded.resource.pushData(data);
+    }
 };
 
-export default { create, load, push };
+export const close = async (dataset: DatasetInstance) => {
+    await Events.close(dataset.events);
+};
+
+export default { create, load, push, close };

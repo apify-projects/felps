@@ -19,7 +19,7 @@ export const MODEL_STATUS: Record<TrailDataModelItemStatus, TrailDataModelItemSt
     DISCARDED: 'DISCARDED',
 };
 
-export const UNPREFIXED_NAME_BY_ACTOR = (name: string) => name.split(/:/g).reverse()[0];
+export const UNPREFIXED_NAME_BY_ACTOR = (name = '') => name.split(/:/g).reverse()[0];
 export const PREFIXED_NAME_BY_ACTOR = (actorName: string, name: string) => `a:${actorName}:${UNPREFIXED_NAME_BY_ACTOR(name)}`;
 export const IS_NAME_SUFFIXED_BY_ACTOR = (name: string) => name.startsWith('a:');
 

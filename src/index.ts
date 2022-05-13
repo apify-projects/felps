@@ -20,6 +20,7 @@ import Queue from './queue';
 import Datasets from './datasets';
 import Dataset from './dataset';
 import Hooks from './hooks';
+import Events from './events';
 import Trail from './trail';
 import Trails from './trails';
 import TrailData from './trail-data';
@@ -57,6 +58,7 @@ export {
     Datasets,
     Dataset,
     Hooks,
+    Events,
     Trail,
     Trails,
     TrailData,
@@ -95,6 +97,7 @@ export default {
     Datasets,
     Dataset,
     Hooks,
+    Events,
     Trail,
     Trails,
     TrailData,

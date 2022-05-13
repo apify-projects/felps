@@ -49,6 +49,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 const ingestModel = ingest.models[model.name];
                 if (ingestModel) {
                     const entities = TrailDataModel.getItemsList(ingestModel);
+                    // const entitiesByParentHash = TrailDataModel.groupByParentHash({ ...ingestModel, model }, entities);
                     const entitiesByParentHash = TrailDataModel.groupByParentHash(ingestModel, entities);
                     for (const parentRefHash of entitiesByParentHash.keys()) {
                         const outputModel = Model.dependency(flow.output, model.name);

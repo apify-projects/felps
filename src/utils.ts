@@ -41,11 +41,13 @@ export const randomNumberBetween = (min: number, max: number) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-export const resolveUrl = (absoluteUrl: string, relativeUrl: string): string | void => {
+export const resolveUrl = (absoluteUrl: string, relativeUrl: string): string | undefined => {
+    if (relativeUrl === undefined) return undefined;
     try {
         const link = new URL(absoluteUrl, relativeUrl);
         return link.href;
     } catch (error) {
+        return undefined;
         // fail silently, return undefined
     }
 };

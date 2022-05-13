@@ -152,11 +152,13 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
                 const arr = getPath(obj, path);
                 for (const entity of entities) {
                     const idx = arr.push(orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {})) - 1;
+                    // console.log('reduce', arr[idx], child.name, entity.reference);
                     reducer(arr[idx], child.name, entity.reference);
                 }
             } else {
                 const entity = entities?.[0];
                 setPath(obj, path, orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {}));
+                // console.log('reduce', path, obj, child.name, entity.reference);
                 reducer(getPath(obj, path), child.name, entity.reference);
             }
 

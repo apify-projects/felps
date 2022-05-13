@@ -50,7 +50,20 @@ export const flatten = (model: ModelInstance): ModelInstance[] => {
 
                 // TO BE OPTIMIZED
                 // ttems or properties could well be valid object keys as well
+                // const lastItemsKeyIndex = [...parentPathSegments].reverse().findIndex((k) => k === 'items');
+                // const parentPath = parentType === 'array'
+                //     ? parentPathSegments.slice(-lastItemsKeyIndex).join('.')
+                //     : parentPathSegments.filter((segment) => !['items', 'properties'].includes(segment)).join('.');
+
                 const parentPath = parentPathSegments.filter((segment) => !['items', 'properties'].includes(segment)).join('.');
+
+                // console.log({
+                //     name: modelName,
+                //     schema: value,
+                //     parentType,
+                //     parentPath,
+                //     parents: ctx.parents,
+                // })
 
                 models.add(
                     create({
@@ -153,6 +166,12 @@ export const schemaAsRaw = <T>(schema: T): T => {
     );
 };
 
+export const schemaWithoutRequired = <T extends JSONSchema>(schema: T): T => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { required, ...rest } = ((schema || {}) as Record<string, ReallyAny>);
+    return rest as T;
+};
+
 export default {
     create,
     define,
@@ -168,4 +187,5 @@ export default {
     walk,
     flatten,
     schemaAsRaw,
+    schemaWithoutRequired,
 };
