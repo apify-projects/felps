@@ -6,15 +6,15 @@ import DataStore from './data-store';
 import FileStore from './file-store';
 
 export const DefaultDataStores: GenerateObject<DefaultDataStoreNames, DataStoreInstance> = {
-    state: DataStore.create({ name: 'state', kvKey: 'STATE' }),
-    trails: DataStore.create({ name: 'trails', kvKey: 'TRAILS', splitByKey: true }),
-    incorrectDataset: DataStore.create({ name: 'incorrectDataset', kvKey: 'INCORRECT_DATASET' }),
+    state: DataStore.create({ name: 'state', kvKey: 'state' }),
+    trails: DataStore.create({ name: 'trails', kvKey: 'trails', splitByKey: true }),
+    incorrectDataset: DataStore.create({ name: 'incorrectDataset', kvKey: 'incorrect-dataset' }),
 };
 
 export const DefautFileStores: & GenerateObject<DefaultFileStoreNames, FileStoreInstance> = {
-    files: FileStore.create({ name: 'files', kvKey: 'FILES' }),
-    responseBodies: FileStore.create({ name: 'responseBodies', kvKey: 'RESPONSE_BODIES' }),
-    browserTraces: FileStore.create({ name: 'browserTraces', kvKey: 'BROWSER_TRACES' }),
+    files: FileStore.create({ name: 'files', kvKey: 'files' }),
+    responseBodies: FileStore.create({ name: 'responseBodies', kvKey: 'response-bodies' }),
+    browserTraces: FileStore.create({ name: 'browserTraces', kvKey: 'browser-traces' }),
 };
 
 // eslint-disable-next-line max-len
