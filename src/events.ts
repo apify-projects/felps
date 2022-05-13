@@ -28,7 +28,7 @@ export const once = (events: EventsInstance, eventName: string, callback: (...ar
     events.resource.once(eventName, callback);
 };
 
-export const batch = (events: EventsInstance, eventName: string, callback: (...args: ReallyAny[]) => void, options?: { size: number }) => {
+export const batch = (events: EventsInstance, eventName: string, callback: (events: ReallyAny[]) => void, options?: { size: number }) => {
     const { size = events.batchSize } = options || {};
     const stack: ReallyAny[] = [];
 
@@ -49,10 +49,10 @@ export const batch = (events: EventsInstance, eventName: string, callback: (...a
         }
     };
 
-    const enqueue = throttle((...args) => q.push(async () => processor(...args)), events.batchMinIntervals);
+    const enqueue = throttle((forceAll = false) => q.push(async () => processor(forceAll)), events.batchMinIntervals);
 
-    events.resource.on(eventName, (...args) => {
-        stack.push(args);
+    events.resource.on(eventName, (event: ReallyAny) => {
+        stack.push(event);
         enqueue();
     });
 };
