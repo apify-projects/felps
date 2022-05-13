@@ -19,7 +19,7 @@ export const load = async (dataset: DatasetInstance): Promise<DatasetInstance> =
 
     return {
         ...dataset,
-        resource: await Apify.openDataset(dataset.name),
+        resource: await Apify.openDataset(dataset.name !== 'default' ? dataset.name : undefined),
     };
 };
 
