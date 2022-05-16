@@ -179,6 +179,12 @@ export default class MultiCrawler extends BrowserCrawler {
 
                 await this._responseHandler(context);
                 tryCancel();
+
+                try {
+                    context.$ = cheerio.load(await page.content());
+                } catch (error) {
+                    // silent
+                };
             }
 
             // save cookies

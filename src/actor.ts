@@ -100,7 +100,7 @@ export const makeCrawlerOptions = async (actor: ActorInstance, options: ActorCra
         requestQueue: (await Queue.load(actor?.queues?.default as QueueInstance))?.resource as RequestQueue,
         handlePageFunction: useHandlePageFunction(actor) as any,
         handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
-        maxRequestRetries: 1,
+        maxRequestRetries: 3,
         launchContext: {
             launchOptions: {
                 headless: false,

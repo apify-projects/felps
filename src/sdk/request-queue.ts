@@ -19,10 +19,10 @@ export default class RequestQueue extends ApifyRequestQueue {
     }
 
     override async addRequest(request: RequestSource, options?: RequestOptionalOptions): Promise<QueueOperationInfo> {
-        const { priority = Infinity, type = 'http', ...restOptions } = options || {};
+        const { priority = Infinity, crawlerMode = 'http', ...restOptions } = options || {};
         const store = await DataStore.load(this._store);
 
-        const meta = RequestMeta.extend(RequestMeta.create(request), { crawlerMode: type });
+        const meta = RequestMeta.extend(RequestMeta.create(request), { crawlerMode });
 
         const requestInfo = await super.addRequest(meta.request, restOptions);
         DataStore.set(store, requestInfo.requestId, priority);

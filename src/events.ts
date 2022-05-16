@@ -1,6 +1,4 @@
 import EventEmitter from 'eventemitter3';
-
-import throttle from 'lodash.throttle';
 import Queue from 'queue';
 import { Base } from '.';
 import ApifyEvents from './apify-events';
@@ -41,15 +39,13 @@ export const batch = (events: EventsInstance, eventName: string, callback: (even
 
     const processor = async (forceAll = false) => {
         if (forceAll) {
-            await Promise.resolve(callback(stack));
-            stack.splice(0, stack.length);
+            await Promise.resolve(callback(stack.splice(0, stack.length)));
         } else if (stack.length >= size) {
-            await Promise.resolve(callback(stack.slice(0, size)));
-            stack.splice(0, size);
+            await Promise.resolve(callback(stack.splice(0, size)));
         }
     };
 
-    const enqueue = throttle((forceAll = false) => q.push(async () => processor(forceAll)), events.batchMinIntervals);
+    const enqueue = (forceAll = false) => q.push(async () => processor(forceAll));
 
     events.resource.on(eventName, (event: ReallyAny) => {
         stack.push(event);

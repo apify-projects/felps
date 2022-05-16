@@ -25,11 +25,13 @@ export default (actor: ActorInstance) => {
             }
         },
         async requestHook(context: RequestContext) {
-            context?.page?.on?.('requestfailed', async () => {
-                await useHandleRequestErrorFunction(actor)(context);
+            context?.page?.on?.('requestfailed', async (req) => {
+                if ([context.request.url, context.request.loadedUrl].filter(Boolean).includes(req.url())) {
+                    await useHandleRequestErrorFunction(actor)(context);
+                }
             });
 
-            if (context.response.status !== 200) {
+            if (context?.response && context?.response?.status !== 200) {
                 await useHandleRequestErrorFunction(actor)(context);
             }
         },

@@ -26,7 +26,7 @@ export const PRESETS: Record<string, Partial<PlaywrightCrawlerOptions>> = {
         maxRequestRetries: 3,
         launchContext: {
             launchOptions: {
-                headless: true,
+                headless: false,
                 args: [
                     '--disable-web-security',
                     '--disable-features=IsolateOrigins,site-per-process',

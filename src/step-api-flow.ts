@@ -115,10 +115,13 @@ export const create = <
                     return this.start(flowName, request, input, { crawlerMode, reference, useNewTrail: true });
                 },
                 next(stepName, request, reference, options) {
-                    const { crawlerMode } = options || {};
+                    let { crawlerMode } = options || {};
                     actorKeyMustExists();
 
+                    const flow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.flowName)];
                     const step = actor.steps?.[PREFIXED_NAME_BY_ACTOR(actorKey, stepName)];
+
+                    crawlerMode = crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode;
 
                     const meta = RequestMeta.extend(
                         RequestMeta.create(request),

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify, { PlaywrightCrawlerOptions, Request } from 'apify';
-import { ApifyClient } from 'apify-client';
+// import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
 import EventEmitter from 'eventemitter3';
 import { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
@@ -117,7 +117,7 @@ export type ExtractFlowsWithStep<
 
 // apify --------------------------------------------------
 export type RequestSource = import('apify').Request | import('apify').RequestOptions
-export type RequestOptionalOptions = { priority?: number, type?: RequestCrawlerMode, forefront?: boolean | undefined } | undefined
+export type RequestOptionalOptions = { priority?: number, crawlerMode?: RequestCrawlerMode, forefront?: boolean | undefined } | undefined
 export type RequestContext = Apify.CheerioHandlePageInputs & Apify.PlaywrightHandlePageFunctionParam & Apify.BrowserCrawlingContext & Apify.CrawlingContext
 
 // base.ts ------------------------------------------------------------
@@ -781,13 +781,13 @@ export type LoggerInstance = {
 }
 
 // apify-client.ts ------------------------------------------------------------
-export type ApifyClientInstance = {
-    resource: ApifyClient,
-};
+// export type ApifyClientInstance = {
+//     resource: ApifyClient,
+// };
 
-export type ApifyClientOptions = {
-    token?: string,
-};
+// export type ApifyClientOptions = {
+//     token?: string,
+// };
 
 // dispatcher.ts ------------------------------------------------------------
 export type OrchestratorInstance = {

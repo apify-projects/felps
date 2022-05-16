@@ -17,6 +17,10 @@ export default (actor: ActorInstance) => {
 
         const step = actor.steps?.[PREFIXED_NAME_BY_ACTOR(actorKey, meta.data.stepName)];
 
+        if (!step) {
+            return;
+        }
+
         if (meta.data.stepStop) {
             Logger.info(Logger.create(step), 'Step has been stopped');
             const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);

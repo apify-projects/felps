@@ -24,6 +24,6 @@ export default (actor: ActorInstance) => {
             return;
         }
 
-        await stepInstance.requestErrorHandler(context, StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor)(context));
+        await stepInstance?.requestErrorHandler?.(context, StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor)(context));
     };
 };

@@ -3,14 +3,14 @@ import { FlowDefinition, FlowInstance, FlowNamesObject, ModelDefinition, ReallyA
 
 export const create = <
     F extends Record<string, FlowDefinition<string>>
->({ FLOWS }: { FLOWS: F }): F => {
+>({ FLOWS }: { FLOWS: F }): Record<keyof F, FlowInstance<string>> => {
     return Object.keys(FLOWS).reduce((acc, name) => ({
         ...acc,
         [name]: Flow.create<string>({
             ...(FLOWS[name] || {}),
             name,
         }),
-    }), {} as F);
+    }), {} as Record<keyof F, FlowInstance<string>>);
 };
 
 // eslint-disable-next-line max-len
