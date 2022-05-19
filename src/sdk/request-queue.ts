@@ -1,48 +1,66 @@
 import { QueueOperationInfo, Request } from 'apify';
-import { ApifyClient } from 'apify-client';
 import { RequestQueue as ApifyRequestQueue } from 'apify/build/storages/request_queue';
 import { DataStore, RequestMeta } from '..';
-import { DataStoreInstance, RequestOptionalOptions, RequestSource } from '../types';
+import { DataStoreInstance, ReallyAny, RequestOptionalOptions, RequestSource } from '../types';
 
 export default class RequestQueue extends ApifyRequestQueue {
-    private _store: DataStoreInstance;
+    private _requestQueueStore: DataStoreInstance;
+    private _requestQueueHistoryStore: DataStoreInstance;
 
     constructor(options: {
         id: string;
         name?: string | undefined;
         isLocal: boolean;
-        client: ApifyClient; // | ApifyStorageLocal
+        client: ReallyAny; // | ApifyStorageLocal
     }) {
         super(options);
-        this._store = DataStore.create({ name: options?.name || 'default', key: 'request-queue' });
-        DataStore.listen(this._store);
+        this._requestQueueStore = DataStore.create({ name: `rq-${options?.name || 'default'}`, key: 'request-queue' });
+        this._requestQueueHistoryStore = DataStore.create({ name: `rqh-${options?.name || 'default'}`, key: 'request-queue-history' });
+        DataStore.listen(this._requestQueueStore);
+        DataStore.listen(this._requestQueueHistoryStore);
     }
 
     override async addRequest(request: RequestSource, options?: RequestOptionalOptions): Promise<QueueOperationInfo> {
         const { priority = Infinity, crawlerMode = 'http', ...restOptions } = options || {};
-        const store = await DataStore.load(this._store);
+        const reqQueueStore = await DataStore.load(this._requestQueueStore);
 
         const meta = RequestMeta.extend(RequestMeta.create(request), { crawlerMode });
 
         const requestInfo = await super.addRequest(meta.request, restOptions);
-        DataStore.set(store, requestInfo.requestId, priority);
+        DataStore.set(reqQueueStore, requestInfo.requestId, priority);
 
         return requestInfo;
     }
 
     override async markRequestHandled(request: Request) {
-        const store = await DataStore.load(this._store);
-        DataStore.remove(store, request.id);
+        const reqQueueHistoryStore = await DataStore.load(this._requestQueueStore);
+        DataStore.remove(reqQueueHistoryStore, request.id);
         return super.markRequestHandled(request);
     }
 
+    override async reclaimRequest(request: Request, options: { forefront?: boolean } = {}) {
+        const reqQueueHistoryStore = await DataStore.load(this._requestQueueStore);
+
+        const localRequest = DataStore.get(reqQueueHistoryStore, request.id);
+        if (localRequest) {
+            localRequest.retryCount++;
+        }
+
+        const queueOperationInfo = super.reclaimRequest(localRequest || request, options);
+
+        return queueOperationInfo;
+    }
+
     override async fetchNextRequest(): Promise<Request | null> {
-        const store = await DataStore.load(this._store);
-        const smallestPriority = Math.min(...DataStore.values(store));
-        const [requestId] = DataStore.entries(store).find(([, priority]) => priority === smallestPriority) || [];
+        const reqQueueStore = await DataStore.load(this._requestQueueStore);
+        const reqQueueHistoryStore = await DataStore.load(this._requestQueueHistoryStore);
+
+        const smallestPriority = Math.min(...DataStore.values(reqQueueStore));
+        const [requestId] = DataStore.entries(reqQueueStore).find(([, priority]) => priority === smallestPriority) || [];
 
         if (requestId) {
-            DataStore.remove(store, requestId);
+            DataStore.set(reqQueueHistoryStore, requestId, DataStore.get(reqQueueStore, requestId));
+            DataStore.remove(reqQueueStore, requestId);
             const request = await this.getRequest(requestId);
             if (request?.handledAt) {
                 this.recentlyHandled.add(requestId, true);

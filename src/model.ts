@@ -1,6 +1,6 @@
 import stringify from 'fast-safe-stringify';
 import get from 'lodash.get';
-import { pickAll } from 'ramda';
+import { pick, pickAll } from 'ramda';
 import base from './base';
 import { REFERENCE_KEY, SCHEMA_MODEL_NAME_KEY, TRAIL_KEY_PROP } from './consts';
 import {
@@ -122,10 +122,14 @@ export const referenceValue = (model: ModelInstance, ref: ModelReference): strin
     return get(ref, REFERENCE_KEY(model.name));
 };
 
-export const referenceFor = (model: ModelInstance, ref: ModelReference, withOwnReferenceKey?: boolean): ModelReference => {
+export const referenceFor = (
+    model: ModelInstance,
+    ref: ModelReference,
+    options: { withOwnReferenceKey?: boolean, includeNotFound?: boolean } = { includeNotFound: true },
+): ModelReference => {
     const keys = referenceKeys(model);
-    if (withOwnReferenceKey) keys.unshift(REFERENCE_KEY(model.name));
-    return pickAll(keys, ref);
+    if (options?.withOwnReferenceKey) keys.unshift(REFERENCE_KEY(model.name));
+    return options.includeNotFound ? pickAll(keys, ref) : pick(keys, ref);
 };
 
 export const validate = <T = unknown>(model: ModelInstance<JSONSchema>, data: T, options: ValidatorValidateOptions = {}) => {

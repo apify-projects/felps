@@ -18,6 +18,7 @@ export type MakeSchema<S> = S | Readonly<S>;
 export type JSONSchema = MakeSchema<_JSONSchema7>;
 export type JSONSchemaWithMethods = MakeSchema<_JSONSchema7<JSONSchemaMethods>>;
 export type JSONSchemaMethods = {
+    resolveList?: (ref: ModelReference, methods: { getEntities: (modelName: string, ref?: ModelReference) => TrailDataModelItem[]; }) => TrailDataModelItem[],
     organizeList?: (items: TrailDataModelItem[], api: GeneralStepApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
     isItemUnique?: (existingItem: TrailDataModelItem<ReallyAny>, newItem: TrailDataModelItem<ReallyAny>) => boolean,
     isListComplete?: (items: TrailDataModelItem[], api: GeneralStepApi) => boolean | Promise<boolean>,
@@ -143,6 +144,7 @@ export type FlowDefinitions<StepNames = string> = Record<string, FlowDefinition<
 export type FlowInstance<StepNames> = {
     crawlerMode?: RequestCrawlerMode,
     steps: StepNames[] | readonly Readonly<StepNames>[],
+    flows: string[] | readonly Readonly<string>[],
     input: ModelInstance<JSONSchema>,
     output: ModelInstance<JSONSchema>,
     actorKey?: UniqueyKey | undefined,
@@ -152,6 +154,7 @@ export type FlowDefinitionRaw<StepNames = string> = {
     name?: string,
     crawlerMode?: RequestCrawlerMode,
     steps: StepNames[],
+    flows?: string[],
     input: ModelDefinition<JSONSchemaWithMethods>,
     output: ModelDefinition<JSONSchemaWithMethods>,
     actorKey?: UniqueyKey,
@@ -248,28 +251,29 @@ export type StepApiFlowsAPI<F extends Record<string, FlowDefinition<keyof S>>, S
     isSomeFlow: (flowNameToTest: string, flowNamesExpected: (keyof F)[]) => boolean,
     asFlowName: (flowName: string) => (Extract<keyof F, string> | undefined),
     asStepName: (stepName: string) => (Extract<keyof S, string> | undefined),
-    start: <FlowName extends keyof F>(
+    startFlow: <FlowName extends keyof F>(
         flowName: Extract<FlowName, string>,
         request: RequestSource,
         input?: ReallyAny, // FromSchema<F[FlowName]['input']>
         options?: {
-            reference?: ModelReference<M>,
-            crawlerMode: RequestCrawlerMode | undefined,
+            reference?: ModelReference<ReallyAny>,
+            crawlerMode?: RequestCrawlerMode | undefined,
             stepName?: string, // Extract<keyof F[FlowName]['steps'], string>
-            useNewTrail: boolean
+            useNewTrail?: boolean
         }
     ) => ModelReference<M>;
-    pipe: <FlowName extends keyof F>(
-        flowName: Extract<FlowName, string>,
-        request: RequestSource,
-        input?: ReallyAny, // FromSchema<F[FlowName]['input']>
-        options?: {
-            reference?: ModelReference<M>,
-            crawlerMode: RequestCrawlerMode | undefined,
-            useNewTrail: boolean
-        }
-    ) => ModelReference<M>;
-    next: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode }) => void;
+    // pipe: <FlowName extends keyof F>(
+    //     flowName: Extract<FlowName, string>,
+    //     request: RequestSource,
+    //     input?: ReallyAny, // FromSchema<F[FlowName]['input']>
+    //     options?: {
+    //         reference?: ModelReference<M>,
+    //         crawlerMode: RequestCrawlerMode | undefined,
+    //         useNewTrail: boolean
+    //     }
+    // ) => ModelReference<M>;
+    nextStep: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode })
+        => void;
     stop: (reference?: ModelReference<M>) => void;
     retry: (reference?: ModelReference<M>) => void;
 };
@@ -414,7 +418,7 @@ export type StepApiUtilsInstance = {
 };
 
 export type StepApiUtilsAPI = {
-    absoluteUrl: (url: string) => string | void,
+    absoluteUrl: (url: string) => string | undefined,
 }
 
 // models.ts ------------------------------------------------------------
@@ -450,11 +454,16 @@ export type StoresInstance<DataStoreNames extends string[] = DefaultDataStoreNam
 export type StoreInstance = DataStoreInstance | FileStoreInstance;
 
 export type DefaultDataStoreNames = ['state', 'trails', 'incorrectDataset']
-export type DefaultFileStoreNames = ['files', 'responseBodies', 'browserTraces']
+export type DefaultFileStoreNames = ['cachedRequests', 'files', 'responseBodies', 'browserTraces']
 
 export type StoresOptions<DataStoreNames extends string[] = [], FileStoreNames extends string[] = []> = {
     dataStoreNames?: Extract<ValueOf<DataStoreNames>, string>[],
     fileStoreNames?: Extract<ValueOf<FileStoreNames>, string>[],
+}
+
+export type StorageStatistics = {
+    reads: number,
+    writes: number
 }
 
 // data-store.ts ------------------------------------------------------------
@@ -465,6 +474,7 @@ export type DataStoreInstance = {
     splitByKey?: boolean,
     initialized: boolean;
     state: Record<string, unknown>;
+    stats: StorageStatistics;
 } & BaseInstance;
 
 export type DataStoreOptions = {
@@ -481,6 +491,7 @@ export type FileStoreInstance = {
     kvKey: string,
     resource: Apify.KeyValueStore | undefined,
     initialized: boolean,
+    stats: StorageStatistics;
 } & BaseInstance;
 
 export type FileStoreOptions = {

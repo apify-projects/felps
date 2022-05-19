@@ -72,9 +72,8 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
 
         await step?.afterHandler?.(ctx, stepApi(ctx));
     } catch (error) {
-        console.error(error);
-        await step?.errorHandler?.(ctx, stepApi(ctx));
         TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
+        throw error;
     } finally {
         if (step?.handler) {
             await Orchestrator.run(Orchestrator.create(actor), ctx, stepApi(ctx));

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { StepApi } from '..';
+import { Logger, StepApi, Trail, TrailDataRequests } from '..';
 import { PREFIXED_NAME_BY_ACTOR } from '../consts';
 import RequestMeta from '../request-meta';
 import step from '../step';
@@ -15,6 +15,8 @@ export default (actor: ActorInstance) => {
         };
 
         const actorKey = meta.data.reference.fActorKey as string;
+        const trail = Trail.createFrom(context.request, { actor });
+        const digest = Trail.digested(trail);
 
         // Run a general hook
         await step.run(actor.hooks?.[PREFIXED_NAME_BY_ACTOR(actorKey, 'STEP_FAILED') as 'STEP_FAILED'] as StepInstance, actor, contextHook);
@@ -25,7 +27,11 @@ export default (actor: ActorInstance) => {
             return;
         }
 
-        // const api = new StepApi({ step: stepInstance, context }).make(RequestContext);
-        await stepInstance?.errorHandler?.(context, StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor)(context));
+        try {
+            TrailDataRequests.setStatus(digest.requests, 'DISCARDED', meta.data.reference);
+            await stepInstance?.errorHandler?.(context, StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor)(context));
+        } catch (err) {
+            Logger.error(Logger.create(stepInstance), `Error happened within step errorHandler: ${meta.data.stepName}`, { err });
+        };
     };
 };

@@ -1,5 +1,5 @@
-import setPath from 'lodash.set';
 import getPath from 'lodash.get';
+import setPath from 'lodash.set';
 import { Model, RequestMeta } from '.';
 import Base from './base';
 import { TRAIL_KEY_PROP, TRAIL_UID_PREFIX } from './consts';
@@ -8,11 +8,11 @@ import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
 import {
     DataStoreInstance,
-    DeepPartial, ModelInstance, ModelReference, ReallyAny, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem,
+    DeepPartial, JSONSchemaMethods, ModelInstance, ModelReference, ReallyAny, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem,
     TrailDataStage, TrailDataStages, TrailFlowState, TrailInstance,
     TrailOptions, TrailState, UniqueyKey,
 } from './types';
-import { craftUIDKey, pathify } from './utils';
+import { compareUIDKeysFromFirst, craftUIDKey, pathify } from './utils';
 
 export const create = (options: TrailOptions): TrailInstance => {
     const { id = craftUIDKey(TRAIL_UID_PREFIX), actor } = options || {};
@@ -61,6 +61,11 @@ export const get = (trail: TrailInstance): TrailState => {
 // export const update = (trail: TrailInstance, data: DeepPartial<Pick<TrailState, 'flows'>>): void => {
 //     DataStore.update(trail.store, trail.id, data);
 // };
+export const getMainFlow = (trail: TrailInstance): TrailFlowState | undefined => {
+    const flows = DataStore.get(trail.store, pathify(trail.id, 'flows')) || {};
+    const flowKeysOrdered = Object.keys(flows).sort(compareUIDKeysFromFirst);
+    return flows[flowKeysOrdered[0]];
+};
 
 export const getFlow = (trail: TrailInstance, flowKey: UniqueyKey | undefined): TrailFlowState | undefined => {
     if (!flowKey) return;
@@ -119,14 +124,17 @@ export const promote = (trail: TrailInstance, item: TrailDataModelItem | TrailDa
     DataStore.remove(trail.store, path('ingested'));
 };
 
-export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance): T | undefined => {
+export const getEntities = (trail: TrailInstance, modelName: string, ref?: ModelReference): TrailDataModelItem[] => {
     const digest = digested(trail);
+    const digestModel = digest.models[modelName];
+    // HAAACKY
+    const models = Model.flatten(digestModel.model);
+    const model = models.find((m) => m.name === modelName);
+    const reference = Model.referenceFor(model as ModelInstance, ref as ModelReference, { withOwnReferenceKey: true, includeNotFound: false });
+    return TrailDataModel.getItemsList(digestModel, reference);
+};
 
-    const getEntities = (modelName: string, ref: ModelReference) => {
-        const digestModel = digest.models[modelName];
-        return TrailDataModel.getItemsList(digestModel, ref);
-    };
-
+export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance): T | undefined => {
     const models = Model.flatten(model);
     // console.log(models);
 
@@ -137,13 +145,39 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
         return acc;
     }, {});
 
+    const processedModel = new Set();
+
     const reducer = (obj: ReallyAny, modelName: string | undefined, ref: ModelReference) => {
-        const childModels = models.filter((m) => m.parents?.reverse()[0] === modelName);
+        const childModels = models.filter((m) => m.parents?.reverse?.()?.[0] === modelName); //
         // console.log({ childModels });
 
         for (const child of childModels) {
+            if (processedModel.has(child.name)) {
+                // hacky skip
+                return;
+            }
+
+            processedModel.add(child.name);
             const path = child.parentPath || 'root';
-            const entities = getEntities(child.name, ref);
+
+            const { resolveList } = (child.schema || {}) as JSONSchemaMethods;
+
+            // console.log('resolveList', resolveList)
+
+            if (resolveList) {
+                const resolvedList = resolveList(ref, {
+                    getEntities(_modelName, _ref = {}) {
+                        return getEntities(trail, _modelName, _ref);
+                    },
+                });
+                // console.log('resolvedList', resolvedList);
+
+                setPath(obj, path, resolvedList);
+                // Stop early as we resolve the list differently
+                return;
+            }
+
+            const entities = getEntities(trail, child.name, ref);
             // console.log({ entities });
             if (!entities.length) continue;
 
@@ -171,4 +205,4 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
     return data.root;
 };
 
-export default { create, createFrom, load, get, setRequest, setFlow, getFlow, ingested, digested, modelOfStage, promote, resolve };
+export default { create, createFrom, load, get, setRequest, getMainFlow, setFlow, getFlow, ingested, digested, modelOfStage, promote, resolve, getEntities };

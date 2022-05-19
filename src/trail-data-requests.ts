@@ -91,6 +91,10 @@ export const setStatus = (trailDataRequests: TrailDataRequestsInstance, status: 
     }
 };
 
+export const getStatus = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): void => {
+    return DataStore.get(trailDataRequests.store, pathify(trailDataRequests.path, ref?.[REQUEST_KEY_PROP] as string, 'status'));
+};
+
 // export const getNextKeys = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): UniqueyKey[] => {
 //     // const sortedKeys = sortBy(keyedResults, getSortingOrder());
 
@@ -109,4 +113,4 @@ export const setStatus = (trailDataRequests: TrailDataRequestsInstance, status: 
 //     return [];
 // };
 
-export default { create, count, get, getItems, getItemsList, getReference, set, setStatus, getItemsListByStatus, filterByFlowStart };
+export default { create, count, get, getItems, getItemsList, getReference, set, setStatus, getStatus, getItemsListByStatus, filterByFlowStart };

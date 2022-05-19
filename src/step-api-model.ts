@@ -3,7 +3,7 @@ import base from './base';
 import { PREFIXED_NAME_BY_ACTOR } from './consts';
 import TrailDataModel from './trail-data-model';
 import {
-    ActorInstance, FlowInstance, ModelDefinition, ModelReference,
+    ActorInstance, ModelDefinition, ModelReference,
     ReallyAny, StepApiModelAPI, StepApiModelInstance, TrailDataModelInstance,
 } from './types';
 
@@ -17,10 +17,12 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
 
             const meta = RequestMeta.create(context?.request);
             const actorKey = meta.data.reference.fActorKey as string;
-            const flow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, meta.data.flowName)] as FlowInstance<ReallyAny>;
-            // const flow = meta.data.flowName ? actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, meta.data.flowName)] as FlowInstance<ReallyAny> : undefined;
+            // const flow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, meta.data.flowName)] as FlowInstance<ReallyAny>;
+            const mainFlowName = Trail.getMainFlow(trail)?.name || '';
+            const mainFlow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, mainFlowName)];
 
-            // (stage: TrailDataStage) =>
+            // const currentFlow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, meta.data.flowName)] as FlowInstance<ReallyAny>;
+
             const getModelDetails = (
                 modelName: string,
                 ref: ModelReference = {},
@@ -29,22 +31,26 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                 const { withOwnReferenceKey = false } = options || {};
                 const modelInstance = Trail.modelOfStage(ingest, modelName);
                 // CHECK IF MODEL EXISTS
-                // const model = Model.dependency(flow.output, modelName) as ModelInstance<ReallyAny>;
+                // const model = (Model.dependency(mainFlow?.output, modelName) ||
+                // Model.dependency(currentFlow?.output, modelName)) as ModelInstance<ReallyAny>;
                 const reference = { ...meta.data.reference, ...ref };
+                // console.log('model', modelName, model)
                 // const modelRef = Model.referenceFor(model, reference, withOwnReferenceKey);
+                // console.log('modelRef', modelName, modelRef, reference)
                 // Model.validateReference(model, modelRef, { throwError: true });
-                // return { modelInstance: { ...modelInstance, model }, modelRef };
-                const modelRef = Model.referenceFor(modelInstance.model, reference, withOwnReferenceKey);
+                // Pass on full reference instead of hand picked one
+                // return { modelInstance: { ...modelInstance, model }, modelRef: reference };
+                const modelRef = Model.referenceFor(modelInstance.model, reference, { withOwnReferenceKey });
                 Model.validateReference(modelInstance.model, modelRef, { throwError: true });
-                return { modelInstance, modelRef };
+                return { modelInstance, modelRef: reference };
             };
 
             const modelApi = {
                 getInputModelName() {
-                    return flow?.input?.name;
+                    return mainFlow?.input?.name;
                 },
                 getOutputModelName() {
-                    return flow?.output?.name;
+                    return mainFlow?.output?.name;
                 },
                 get(modelName, ref?) {
                     const { modelInstance, modelRef } = getModelDetails(modelName as string, ref, { withOwnReferenceKey: true });

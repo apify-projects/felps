@@ -12,9 +12,10 @@ export const DefaultDataStores: GenerateObject<DefaultDataStoreNames, DataStoreI
 };
 
 export const DefautFileStores: & GenerateObject<DefaultFileStoreNames, FileStoreInstance> = {
-    files: FileStore.create({ name: 'files', kvKey: 'files' }),
-    responseBodies: FileStore.create({ name: 'responseBodies', kvKey: 'response-bodies' }),
-    browserTraces: FileStore.create({ name: 'browserTraces', kvKey: 'browser-traces' }),
+    cachedRequests: FileStore.create({ name: 'files', kvKey: 'felps-cached-request' }),
+    files: FileStore.create({ name: 'files', kvKey: 'felps-files' }),
+    responseBodies: FileStore.create({ name: 'responseBodies', kvKey: 'felps-response-bodies' }),
+    browserTraces: FileStore.create({ name: 'browserTraces', kvKey: 'felps-browser-traces' }),
 };
 
 // eslint-disable-next-line max-len

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Step, StepApi } from '..';
+import { Orchestrator, Step, StepApi } from '..';
 import { PREFIXED_NAME_BY_ACTOR } from '../consts';
 import RequestMeta from '../request-meta';
 import { ActorInstance, ReallyAny, RequestContext, StepInstance } from '../types';
@@ -25,5 +25,9 @@ export default (actor: ActorInstance) => {
         }
 
         await stepInstance?.requestErrorHandler?.(context, StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor)(context));
+
+        if (stepInstance?.handler) {
+            await Orchestrator.run(Orchestrator.create(actor), context, StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor)(context));
+        };
     };
 };

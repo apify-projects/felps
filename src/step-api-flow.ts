@@ -1,6 +1,6 @@
 import { Model, RequestMeta, Trail } from '.';
 import base from './base';
-import { FLOW_KEY_PROP, PREFIXED_NAME_BY_ACTOR, TRAIL_KEY_PROP } from './consts';
+import { FLOW_KEY_PROP, PREFIXED_NAME_BY_ACTOR, TRAIL_KEY_PROP, UNPREFIXED_NAME_BY_ACTOR } from './consts';
 import TrailDataRequests from './trail-data-requests';
 import { ActorInstance, FlowDefinition, FlowInstance, ModelDefinition, ModelReference, ReallyAny, StepApiFlowsAPI, StepApiFlowsInstance } from './types';
 
@@ -65,27 +65,38 @@ export const create = <
                     const prefixedStepName = PREFIXED_NAME_BY_ACTOR(actorKey, stepName);
                     return Object.keys(actor.steps).includes(prefixedStepName) ? prefixedStepName : undefined;
                 },
-                start(flowName, request, input, options) {
+                startFlow(flowName, request, input, options) {
+                    const { useNewTrail = false } = options || {};
                     let { crawlerMode, reference } = options || {};
                     actorKeyMustExists();
 
-                    const localTrail = Trail.create({ actor });
+                    const flowNamePrefixed = PREFIXED_NAME_BY_ACTOR(actorKey, flowName);
 
-                    const flow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, flowName)] as FlowInstance<Extract<keyof S, string>>;
+                    const localTrail = useNewTrail ? Trail.create({ actor }) : currentTrail;
+
+                    const flow = actor.flows?.[flowNamePrefixed] as FlowInstance<Extract<keyof S, string>>;
                     const stepName = flow?.steps?.[0];
                     const step = actor.steps?.[PREFIXED_NAME_BY_ACTOR(actorKey, stepName)];
 
-                    Model.validate(flow.input, input, { throwError: true });
+                    const currentFlow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data?.flowName)] as FlowInstance<Extract<keyof S, string>>;
+                    if (currentFlow && !(currentFlow.flows || []).includes(UNPREFIXED_NAME_BY_ACTOR(flowName))) {
+                        throw new Error(`Flow ${flowName} is not runnable from current flow ${currentFlow.name}`);
+                    };
+
+                    const inputCompleted = { ...(input || {}), flow: UNPREFIXED_NAME_BY_ACTOR(flowName) };
+
+                    Model.validate(flow.input, inputCompleted, { throwError: true });
 
                     crawlerMode = crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode;
                     reference = {
+                        ...(currentMeta.data.reference || {}),
                         ...(reference || {}),
                         [TRAIL_KEY_PROP]: localTrail.id,
                     } as ModelReference<ReallyAny>;
 
                     const flowKey = Trail.setFlow(localTrail, {
-                        name: flowName,
-                        input,
+                        name: flowNamePrefixed,
+                        input: inputCompleted,
                         reference,
                         crawlerMode,
                         output: undefined,
@@ -96,7 +107,7 @@ export const create = <
                         currentMeta.data,
                         {
                             flowStart: true,
-                            flowName,
+                            flowName: flowNamePrefixed,
                             stepName,
                             crawlerMode,
                             reference: {
@@ -110,11 +121,11 @@ export const create = <
                     TrailDataRequests.set(localIngested.requests, meta.request);
                     return meta.data.reference;
                 },
-                pipe(flowName, request, input, options) {
-                    const { crawlerMode, reference } = options || {};
-                    return this.start(flowName, request, input, { crawlerMode, reference, useNewTrail: true });
-                },
-                next(stepName, request, reference, options) {
+                // pipe(flowName, request, input, options) {
+                //     const { crawlerMode, reference } = options || {};
+                //     return this.start(flowName, request, input, { crawlerMode, reference, useNewTrail: true });
+                // },
+                nextStep(stepName, request, reference, options) {
                     let { crawlerMode } = options || {};
                     actorKeyMustExists();
 
@@ -144,7 +155,7 @@ export const create = <
                     context.request.userData = RequestMeta.extend(currentMeta, { stepStop: true }).userData;
                 },
                 retry() {
-                    // retry current flow
+                    throw new Error('Retry this step');
                 },
             } as StepApiFlowsAPI<F, S, M>;
         },

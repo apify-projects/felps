@@ -28,6 +28,7 @@ export const create = (options: DataStoreOptions): DataStoreInstance => {
         splitByKey,
         initialized: false,
         state: {},
+        stats: { reads: 0, writes: 0 },
     };
 };
 
@@ -129,9 +130,11 @@ export const load = async (dataStore: DataStoreInstance): Promise<DataStoreInsta
 
         if (dataStore.splitByKey) {
             await keyValueStore.forEachKey(async (key) => {
+                dataStore.stats.reads++;
                 state[key] = await keyValueStore.getValue(key);
             }, { exclusiveStartKey: dataStore.kvKey });
         } else {
+            dataStore.stats.reads++;
             state = (await Apify.getValue(dataStore.kvKey) || {}) as Record<string, ReallyAny>;
         }
 
@@ -149,16 +152,18 @@ export const persist = async (dataStore: DataStoreInstance): Promise<void> => {
 
     if (dataStore.splitByKey) {
         await Promise.allSettled(entries(dataStore).map(([key, value]) => {
+            dataStore.stats.writes++;
             return Apify.setValue(`${dataStore.kvKey}-${key}`, value);
         }));
     } else {
         await Apify.setValue(dataStore.kvKey, dataStore.state);
     };
+
+    Logger.info(Logger.create(dataStore), 'Persisting store...', { stats: dataStore.stats });
 };
 
 export const listen = (dataStore: DataStoreInstance): void => {
     ApifyEvents.onAll(async () => {
-        Logger.info(Logger.create(dataStore), 'Persisting store...');
         await persist(dataStore);
     });
 };

@@ -10,6 +10,7 @@ export const create = (options: FileStoreOptions): FileStoreInstance => {
         kvKey: kvKey || name,
         resource: undefined,
         initialized: false,
+        stats: { reads: 0, writes: 0 },
     };
 };
 
@@ -25,11 +26,13 @@ export const load = async (fileStore: FileStoreInstance): Promise<FileStoreInsta
 
 export const get = async (fileStore: FileStoreInstance, key: string) => {
     const loaded = await load(fileStore);
+    fileStore.stats.reads++;
     return loaded.resource?.getValue(key);
 };
 
 export const set = async <TValue extends object = ReallyAny>(fileStore: FileStoreInstance, key: string, value: TValue, options?: { contentType?: string; }) => {
     const loaded = await load(fileStore);
+    fileStore.stats.writes++;
     return loaded.resource?.setValue(key, value, options);
 };
 
