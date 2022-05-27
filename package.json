@@ -1,6 +1,6 @@
 {
   "name": "felps",
-  "version": "1.0.309",
+  "version": "1.0.310",
   "description": "Flow-based crawler framework",
   "repository": {
     "type": "git",
@@ -9,6 +9,9 @@
   "typings": "lib/index",
   "source": "src/index",
   "main": "lib/index",
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "@apify/timeout": "^0.2.1",
     "ajv": "^8.11.0",
@@ -83,7 +86,7 @@
   },
   "scripts": {
     "build": "rimraf lib && tsc",
-    "dev": "rimraf lib && tsc --watch",
+    "dev": "rimraf lib && tsc --project tsconfig.json --watch",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix"
   },
