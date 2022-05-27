@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Apify, { PlaywrightCrawlerOptions, Request } from 'apify';
+import Apify, { Request } from 'apify';
 // import { ApifyClient } from 'apify-client';
 import { LogLevel } from 'apify/build/utils_log';
 import EventEmitter from 'eventemitter3';
@@ -59,11 +59,13 @@ export type JSONSchemaObject<T = unknown> =
 
 export type _JSONSchema7<T = unknown> = boolean | JSONSchemaObject<T>;
 
+export type Self<T> = T;
 export type AnyObject = Record<string, ReallyAny>;
 export type ReallyAny = any;
 export type UniqueyKey = string;
 export type ReferenceKey = string;
 
+export type ArrayElementType<T> = T extends (infer E)[] ? E : T;
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export type DeepPartial<T> = Partial<{ [P in keyof T]: DeepPartial<T[P]> }>;
 
@@ -143,6 +145,7 @@ export type FlowDefinitions<StepNames = string> = Record<string, FlowDefinition<
 // flow.ts ------------------------------------------------------------
 export type FlowInstance<StepNames> = {
     crawlerMode?: RequestCrawlerMode,
+    crawlerOptions?: RequestCrawlerOptions,
     steps: StepNames[] | readonly Readonly<StepNames>[],
     flows: string[] | readonly Readonly<string>[],
     input: ModelInstance<JSONSchema>,
@@ -153,6 +156,7 @@ export type FlowInstance<StepNames> = {
 export type FlowDefinitionRaw<StepNames = string> = {
     name?: string,
     crawlerMode?: RequestCrawlerMode,
+    crawlerOptions?: RequestCrawlerOptions,
     steps: StepNames[],
     flows?: string[],
     input: ModelDefinition<JSONSchemaWithMethods>,
@@ -173,12 +177,13 @@ export type FlowOptions<StepNames = string> = FlowDefinition<StepNames> & {
 export type FlowOptionsWithoutName<StepNames = string> = Omit<FlowOptions<StepNames>, 'name'>;
 
 // steps.ts ------------------------------------------------------------
-export type StepsInstance<M extends Record<string, ModelDefinition>, F extends Record<string, FlowDefinition<keyof S>>, S, I extends InputDefinition> = {
+// eslint-disable-next-line max-len
+export type StepCollectionInstance<M extends Record<string, ModelDefinition>, F extends Record<string, FlowDefinition<keyof S>>, S, I extends InputDefinition> = {
     [StepName in Extract<keyof S, string>]: StepInstance<StepApiInstance<F, S, M, I, StepName>> &
     Omit<S[StepName], 'handler' | 'errorHandler' | 'requestErrorHandler' | 'afterHandler' | 'beforeHandler'>
 };
 
-export type StepsOptions<T> = {
+export type StepCollectionOptions<T> = {
     STEPS?: T
 }
 
@@ -196,6 +201,7 @@ export type StepNamesSignature = Record<string, string>
 export type StepInstance<Methods = unknown> = {
     name: string,
     crawlerMode?: RequestCrawlerMode,
+    crawlerOptions?: RequestCrawlerOptions,
     handler?: StepOptionsHandler<Methods & GeneralStepApi>,
     errorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
     requestErrorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
@@ -207,6 +213,7 @@ export type StepInstance<Methods = unknown> = {
 export type StepOptions<Methods = unknown> = {
     name: string,
     crawlerMode?: RequestCrawlerMode,
+    crawlerOptions?: RequestCrawlerOptions,
     handler?: StepOptionsHandler<Methods & GeneralStepApi>,
     errorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
     requestErrorHandler?: StepOptionsHandler<Methods & GeneralStepApi>
@@ -229,6 +236,10 @@ export type StepApiInstance<
     & StepApiModelAPI<M, S, F, StepName>;
 
 export type GeneralStepApi<I extends InputDefinition = InputDefinition> = StepApiMetaAPI<I> & StepApiUtilsAPI;
+
+export type StepApiOptions = {
+    extend?: (context: RequestContext, api: ReallyAny, actor: ActorInstance) => Record<string, ReallyAny>
+}
 
 // step-api-flow.ts ------------------------------------------------------------
 export type StepApiFlowsInstance<F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>> = {
@@ -272,8 +283,11 @@ export type StepApiFlowsAPI<F extends Record<string, FlowDefinition<keyof S>>, S
     //         useNewTrail: boolean
     //     }
     // ) => ModelReference<M>;
+    paginateStep: (request: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode })
+        => void;
     nextStep: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode })
         => void;
+    nextDefaultStep: (request?: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode }) => void;
     stop: (reference?: ModelReference<M>) => void;
     retry: (reference?: ModelReference<M>) => void;
 };
@@ -351,42 +365,42 @@ export type StepApiModelByFlowAPI<
     AvailableModelNames = keyof M,
     > = {
         get: <ModelName extends AvailableModelNames>(
-            modelName: ModelName,
+            modelName: Extract<ModelName, string>,
             ref?: ModelReference<M>,
         ) => ModelName extends keyof M ? TrailDataModelItem : never;
         set: <ModelName extends AvailableModelNames>(
-            modelName: ModelName,
+            modelName: Extract<ModelName, string>,
             value: ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
         setPartial: <ModelName extends AvailableModelNames>(
-            modelName: ModelName,
+            modelName: Extract<ModelName, string>,
             value?: ModelName extends keyof M ? DeepPartial<DeepOmitModels<M[ModelName]['schema']>> : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
         upsert: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
-            modelName: ModelName,
+            modelName: Extract<ModelName, string>,
             value: ModelName extends keyof M ? (
                 ModelSchema | ((previous: DeepPartial<ModelSchema>
                 ) => ModelSchema)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
         upsertPartial: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
-            modelName: ModelName,
+            modelName: Extract<ModelName, string>,
             value?: ModelName extends keyof M ? (
                 DeepPartial<ModelSchema> | ((previous: DeepPartial<ModelSchema>
                 ) => DeepPartial<ModelSchema>)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
         update: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
-            modelName: ModelName,
+            modelName: Extract<ModelName, string>,
             value: ModelName extends keyof M ? (
                 ModelSchema | ((previous: DeepPartial<ModelSchema>
                 ) => ModelSchema)) : never,
             ref?: ModelReference<M>,
         ) => ModelReference<M>;
         updatePartial: <ModelName extends AvailableModelNames, ModelSchema = ModelName extends keyof M ? DeepOmitModels<M[ModelName]['schema']> : never>(
-            modelName: ModelName,
+            modelName: Extract<ModelName, string>,
             value: ModelName extends keyof M ? (
                 DeepPartial<ModelSchema> | ((previous: DeepPartial<ModelSchema>
                 ) => DeepPartial<ModelSchema>)) : never,
@@ -449,16 +463,20 @@ export type ModelReference<T = unknown> = Partial<{
 
 // stores.ts ------------------------------------------------------------
 // eslint-disable-next-line max-len
-export type StoresInstance<DataStoreNames extends string[] = DefaultDataStoreNames, FileStoreNames extends string[] = DefaultFileStoreNames> = GenerateObject<FileStoreNames & DefaultFileStoreNames, FileStoreInstance> & GenerateObject<DataStoreNames & DefaultDataStoreNames, DataStoreInstance>;
+export type StoreCollectionInstance<DataStoreNames extends string[] = DefaultDataStoreNames, FileStoreNames extends string[] = DefaultFileStoreNames> = GenerateObject<FileStoreNames & DefaultFileStoreNames, FileStoreInstance> & GenerateObject<DataStoreNames & DefaultDataStoreNames, DataStoreInstance>;
 
 export type StoreInstance = DataStoreInstance | FileStoreInstance;
 
 export type DefaultDataStoreNames = ['state', 'trails', 'incorrectDataset']
 export type DefaultFileStoreNames = ['cachedRequests', 'files', 'responseBodies', 'browserTraces']
 
-export type StoresOptions<DataStoreNames extends string[] = [], FileStoreNames extends string[] = []> = {
-    dataStoreNames?: Extract<ValueOf<DataStoreNames>, string>[],
-    fileStoreNames?: Extract<ValueOf<FileStoreNames>, string>[],
+export type StoreCollectionOptions = {
+    dataStores?: DataStoreOptions[],
+    fileStores?: FileStoreOptions[],
+    // dataStoreNames?: Extract<ValueOf<DataStoreNames>, string>[],
+    // fileStoreNames?: Extract<ValueOf<FileStoreNames>, string>[],
+    dataStoreAdapter?: KVStoreAdapterInstance,
+    fileStoreAdapter?: KVStoreAdapterInstance,
 }
 
 export type StorageStatistics = {
@@ -469,6 +487,7 @@ export type StorageStatistics = {
 // data-store.ts ------------------------------------------------------------
 export type DataStoreInstance = {
     type: 'data-store',
+    adapter: KVStoreAdapterInstance,
     kvKey: string;
     pathPrefix: string;
     splitByKey?: boolean,
@@ -478,6 +497,7 @@ export type DataStoreInstance = {
 } & BaseInstance;
 
 export type DataStoreOptions = {
+    adapter: KVStoreAdapterInstance,
     name: string,
     key?: string,
     kvKey?: string,
@@ -643,9 +663,9 @@ export type QueueOptions = {
 }
 
 // queues.ts ------------------------------------------------------------
-export type QueuesInstance<Names extends string[] = []> = GenerateObject<Names | DefaultQueueNames, StepInstance>;
+export type QueueCollectionInstance<Names extends string[] = []> = GenerateObject<Names | DefaultQueueNames, StepInstance>;
 
-export type QueuesOptions<Names> = {
+export type QueueCollectionOptions<Names> = {
     names?: Extract<ValueOf<Names>, string>[],
 }
 
@@ -663,9 +683,9 @@ export type DatasetOptions = {
 }
 
 // datasets.ts ------------------------------------------------------------
-export type DatasetsInstance<Names extends string[] = []> = GenerateObject<Names | DefaultDatasetNames, DatasetInstance>;
+export type DatasetCollectionInstance<Names extends string[] = []> = GenerateObject<Names | DefaultDatasetNames, DatasetInstance>;
 
-export type DatasetsOptions<Names extends string[] = []> = {
+export type DatasetCollectionOptions<Names extends string[] = []> = {
     names?: Names,
 };
 
@@ -675,18 +695,19 @@ export type DefaultDatasetNames = ['default'];
 export type ActorInstance = {
     name: string,
     crawlerMode?: RequestCrawlerMode,
-    crawlerOptions?: ActorCrawlerOptions,
+    crawlerOptions?: RequestCrawlerOptions,
     input: InputInstance,
     crawler: CrawlerInstance,
     steps: ReallyAny;
-    // steps: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    stepApiOptions: StepApiOptions,
+    // steps: StepCollectionInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
     flows: ReallyAny;
     // flows: FlowsInstance<ReallyAny>;
     models: ReallyAny;
     // models: ModelsInstance<ReallyAny>;
-    stores: StoresInstance;
-    queues: QueuesInstance;
-    datasets: DatasetsInstance;
+    stores: StoreCollectionInstance;
+    queues: QueueCollectionInstance;
+    datasets: DatasetCollectionInstance;
     hooks: ReallyAny;
     // hooks: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
 } & BaseInstance;
@@ -695,17 +716,18 @@ export type ActorOptions = {
     name: string,
     input?: InputInstance,
     crawlerMode?: RequestCrawlerMode,
-    crawlerOptions?: ActorCrawlerOptions,
+    crawlerOptions?: RequestCrawlerOptions,
     crawler?: CrawlerInstance,
     steps?: ReallyAny;
-    // steps?: StepsInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    stepApiOptions?: StepApiOptions,
+    // steps?: StepCollectionInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
     flows?: ReallyAny;
     // flows?: FlowsInstance<ReallyAny>;
     models?: ReallyAny;
     // models?: ModelsInstance<ReallyAny>;
-    stores?: StoresInstance;
-    queues?: QueuesInstance;
-    datasets?: DatasetsInstance;
+    stores?: StoreCollectionInstance;
+    queues?: QueueCollectionInstance;
+    datasets?: DatasetCollectionInstance;
     hooks?: ReallyAny;
     // hooks?: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
 }
@@ -714,9 +736,7 @@ export type ActorInput = string | {
     [x: string]: any;
 } | Buffer | null;
 
-export type ActorCrawlerOptions = PlaywrightCrawlerOptions;
-
-// export type ActorPrefixedSteps<Prefix extends string, S extends Record<string, StepInstance>> = {
+// export type ActorPrefixedStepCollection<Prefix extends string, S extends Record<string, StepInstance>> = {
 //     [K in Extract<keyof S, string> as `${Prefix}${K}`]: S[K]
 // }
 
@@ -753,6 +773,9 @@ export type RequestMetaOptions = {
 }
 
 export type RequestCrawlerMode = 'http' | 'chromium' | 'firefox' | 'webkit';
+export type RequestCrawlerOptions = {
+    mode: RequestCrawlerMode
+};
 
 export type RequestMetaData = {
     isHook: boolean,
@@ -768,12 +791,12 @@ export type RequestMetaData = {
 // crawler.ts ------------------------------------------------------------
 export type CrawlerInstance = {
     launcher?: MultiCrawler | ReallyAny,
-    crawlerOptions?: Partial<PlaywrightCrawlerOptions>,
+    resource: MultiCrawler | undefined,
+    events: EventsInstance,
 } & BaseInstance;
 
 export type CrawlerOptions = {
     launcher?: MultiCrawler | ReallyAny,
-    crawlerOptions?: Partial<PlaywrightCrawlerOptions>,
 }
 
 // logger.ts ------------------------------------------------------------
@@ -874,3 +897,20 @@ export type EventsInstance = {
     batchSize: number,
     batchMinIntervals: number,
 } & BaseInstance;
+
+// kv-store-adapter.ts
+export type KVStoreAdapterInstance<T = ReallyAny> = KVStoreAdapterOptions<T>
+    & BaseInstance;
+
+export type KVStoreAdapterOptions<T = ReallyAny> = {
+    resource?: ReallyAny,
+    init?: (...args: ReallyAny[]) => ReallyAny | Promise<ReallyAny>,
+    get: (connectedKv: KVStoreAdapterInstance, key: string) => Promise<T>,
+    set: (connectedKv: KVStoreAdapterInstance, key: string, value: ReallyAny, options: ReallyAny) => Promise<T>,
+    list: (connectedKv: KVStoreAdapterInstance, prefix?: string, options?: ReallyAny) => Promise<KVStoreAdapterListResult>,
+}
+
+export type KVStoreAdapterListResult = {
+    keys: { key: string, size?: number }[],
+    cursor?: string,
+}

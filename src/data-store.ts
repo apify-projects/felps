@@ -1,15 +1,14 @@
-import Apify from 'apify';
 import cloneDeep from 'lodash.clonedeep';
 import getByKey from 'lodash.get';
 import hasByPath from 'lodash.has';
-// import omit from 'lodash.omit';
-import { dissocPath, mergeDeepRight } from 'ramda';
 import setByKey from 'lodash.set';
+import { dissocPath, mergeDeepRight } from 'ramda';
 import ApifyEvents from './apify-events';
 import base from './base';
+import KvStoreAdapter from './kv-store-adapter';
+import Logger from './logger';
 import { DataStoreInstance, DataStoreOptions, ReallyAny } from './types';
 import { craftUIDKey } from './utils';
-import Logger from './logger';
 
 const mustBeLoaded = (store: DataStoreInstance): void => {
     if (!store.initialized) {
@@ -18,10 +17,11 @@ const mustBeLoaded = (store: DataStoreInstance): void => {
 };
 
 export const create = (options: DataStoreOptions): DataStoreInstance => {
-    const { name, kvKey, key = 'data-store', splitByKey = false, pathPrefix = '' } = options || {};
+    const { adapter, name, kvKey, key = 'data-store', splitByKey = false, pathPrefix = '' } = options || {};
 
     return {
         type: 'data-store',
+        adapter,
         ...base.create({ key, name, id: `${key}-${name}${kvKey ? `-${kvKey}` : ''}` }),
         kvKey: kvKey || name,
         pathPrefix,
@@ -126,16 +126,17 @@ export const load = async (dataStore: DataStoreInstance): Promise<DataStoreInsta
     if (!dataStore.initialized) {
         Logger.start(Logger.create(dataStore), 'Loading...');
         let state: Record<string, ReallyAny> = {};
-        const keyValueStore = await Apify.openKeyValueStore();
+        const connected = await KvStoreAdapter.load(dataStore.adapter);
 
         if (dataStore.splitByKey) {
-            await keyValueStore.forEachKey(async (key) => {
+            const currentKeys = await KvStoreAdapter.list(connected, dataStore.kvKey);
+            for (const { key } of currentKeys.keys) {
                 dataStore.stats.reads++;
-                state[key] = await keyValueStore.getValue(key);
-            }, { exclusiveStartKey: dataStore.kvKey });
+                state[key] = await KvStoreAdapter.get(connected, key) || {};
+            }
         } else {
             dataStore.stats.reads++;
-            state = (await Apify.getValue(dataStore.kvKey) || {}) as Record<string, ReallyAny>;
+            state = await KvStoreAdapter.get(connected, dataStore.kvKey) || {};
         }
 
         return {
@@ -153,10 +154,10 @@ export const persist = async (dataStore: DataStoreInstance): Promise<void> => {
     if (dataStore.splitByKey) {
         await Promise.allSettled(entries(dataStore).map(([key, value]) => {
             dataStore.stats.writes++;
-            return Apify.setValue(`${dataStore.kvKey}-${key}`, value);
+            return KvStoreAdapter.set(dataStore.adapter, `${dataStore.kvKey}-${key}`, value);
         }));
     } else {
-        await Apify.setValue(dataStore.kvKey, dataStore.state);
+        await KvStoreAdapter.set(dataStore.adapter, dataStore.kvKey, dataStore.state);
     };
 
     Logger.info(Logger.create(dataStore), 'Persisting store...', { stats: dataStore.stats });

@@ -3,14 +3,13 @@ import { BrowserCrawler, BrowserPlugin, PlaywrightCrawler, PlaywrightCrawlerOpti
 import { PlaywrightLauncher } from 'apify/build/browser_launchers/playwright_launcher';
 import { gotoExtended } from 'apify/build/puppeteer_utils';
 import * as cheerio from 'cheerio';
+import EventEmitter from 'eventemitter3';
 import HttpsProxyAgent from 'https-proxy-agent';
 import getPath from 'lodash.get';
 import nodeFetch from 'node-fetch';
 import ow from 'ow';
 import { chromium, firefox, webkit } from 'playwright';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ReallyAny = any;
+import { ReallyAny } from '../types';
 
 const getBrowserPlugin = (browser: string, launchContext: PlaywrightLaunchContext): BrowserPlugin => {
     let launcher;
@@ -35,8 +34,8 @@ const getBrowserPlugin = (browser: string, launchContext: PlaywrightLaunchContex
 
 export default class MultiCrawler extends BrowserCrawler {
     browserPlugins: { [browser: string]: BrowserPlugin } = {};
-
     crawlerModePath: string;
+    events: EventEmitter
 
     static override optionsShape = {
         ...BrowserCrawler.optionsShape,
@@ -66,6 +65,7 @@ export default class MultiCrawler extends BrowserCrawler {
         this.crawlerModePath = `crawlerMode`;
         this.browserPlugins = browserPlugins;
         this.launchContext = launchContext;
+        this.events = new EventEmitter();
     }
 
     override async _navigationHandler(context: ReallyAny, nextOptions: ReallyAny): Promise<ReallyAny> {

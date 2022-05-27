@@ -1,4 +1,5 @@
 import { PlaywrightCrawlerOptions, PlaywrightHook } from 'apify';
+import { Events } from '.';
 import base from './base';
 import { METADATA_KEY } from './consts';
 import MultiCrawler from './sdk/multi-crawler';
@@ -18,8 +19,21 @@ export const PRE_NAVIGATION_HOOKS: Record<string, PlaywrightHook> = {
     },
 };
 
-export const PRESETS: Record<string, Partial<PlaywrightCrawlerOptions>> = {
-    DEFAULT: {
+export const create = (options?: CrawlerOptions): CrawlerInstance => {
+    const { launcher = MultiCrawler as ReallyAny } = options || {};
+
+    return {
+        ...base.create({ key: 'crawler', name: 'multi-crawler' }),
+        launcher,
+        resource: undefined,
+        events: Events.create({ name: 'multi-crawler' }),
+    };
+};
+
+export const run = async (crawler: CrawlerInstance, crawlerOptions?: PlaywrightCrawlerOptions): Promise<CrawlerInstance> => {
+    // eslint-disable-next-line new-cap
+    crawler.resource = new crawler.launcher({
+        ...crawlerOptions,
         handlePageTimeoutSecs: 120,
         navigationTimeoutSecs: 60,
         maxConcurrency: 40,
@@ -33,30 +47,19 @@ export const PRESETS: Record<string, Partial<PlaywrightCrawlerOptions>> = {
                 ],
             },
         },
-        preNavigationHooks: [
-            PRE_NAVIGATION_HOOKS.excludeResources,
-        ],
-    },
-};
+    });
 
-export const create = (options?: CrawlerOptions): CrawlerInstance => {
-    const { launcher, crawlerOptions = PRESETS.DEFAULT } = options || {};
+    if (crawler.resource) {
+        // crawler.resource.events.on('', () => { });
 
-    return {
-        ...base.create({ key: 'crawler', name: 'multi-crawler' }),
-        launcher: launcher || MultiCrawler as ReallyAny,
-        crawlerOptions,
-    };
-};
-
-export const run = async (crawler: CrawlerInstance, crawlerOptions?: PlaywrightCrawlerOptions): Promise<void> => {
-    // eslint-disable-next-line new-cap
-    const resource = new crawler.launcher(crawlerOptions || {});
-    // const resource = new crawler.launcher(mergeDeepRight(crawlerOptions || {}, crawler.crawlerOptions || {}));
-    if ('crawlerModePath' in resource) {
-        resource.crawlerModePath = `${METADATA_KEY}.crawlerMode`;
+        // const resource = new crawler.launcher(mergeDeepRight(crawlerOptions || {}, crawler.crawlerOptions || {}));
+        if ('crawlerModePath' in crawler.resource) {
+            crawler.resource.crawlerModePath = `${METADATA_KEY}.crawlerMode`;
+        }
+        await crawler.resource.run();
     }
-    await resource.run();
+
+    return crawler;
 };
 
 export default { create, run };

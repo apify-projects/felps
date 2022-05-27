@@ -9,15 +9,20 @@ export const create = <
     S,
     M extends Record<string, ModelDefinition>,
     I extends InputDefinition,
-    >(actor: ActorInstance) => {
+    >(actor: ActorInstance) => { // , options?: StepApiOptions
     return (context: RequestContext) => {
         const api = {
             ...StepApiFlow.create(actor).handler(context),
             ...StepApiMeta.create(actor).handler(context),
-            ...StepApiUtils.create().handler(context),
             ...StepApiModel.create(actor).handler(context),
-        } as unknown as StepApiInstance<F, S, M, I>;
-        return api;
+            ...StepApiUtils.create().handler(context),
+        };
+
+        return api as unknown as StepApiInstance<F, S, M, I>;
+        // return {
+        //     ...api,
+        //     // ...(options?.extend?.(context, api, actor) || {}),
+        // };
     };
 };
 

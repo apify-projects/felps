@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { PlaywrightHook, RequestQueue } from 'apify';
-import { Datasets, Flow, Flows, Hooks, Input, Logger, Models, Queue, Queues, RequestMeta, Step, Steps, Stores } from '.';
+import { PlaywrightCrawlerOptions, PlaywrightHook, RequestQueue } from 'apify';
+import {
+    DatasetCollection, Flow, FlowCollection, HookCollection, Input, Logger,
+    ModelCollection, Queue, QueueCollection, RequestMeta, Step, StepCollection, StoreCollection,
+} from '.';
 import Base from './base';
 import { PREFIXED_NAME_BY_ACTOR, UNPREFIXED_NAME_BY_ACTOR } from './consts';
 import crawler from './crawler';
@@ -8,8 +11,8 @@ import useHandleFailedRequestFunction from './crawler/use-handle-failed-request-
 import useHandlePageFunction from './crawler/use-handle-page-function';
 import usePostNavigationHooks from './crawler/use-post-navigation-hooks';
 import usePreNavigationHooks from './crawler/use-pre-navigation-hooks';
-import { globalHookNames } from './hooks';
-import { ActorCrawlerOptions, ActorInput, ActorInstance, ActorOptions, CrawlerInstance, QueueInstance, ReallyAny, StepInstance, StoresInstance } from './types';
+import { globalHookNames } from './hook-collection';
+import { ActorInput, ActorInstance, ActorOptions, CrawlerInstance, QueueInstance, ReallyAny, StepInstance, StoreCollectionInstance } from './types';
 
 export const create = (options: ActorOptions): ActorInstance => {
     return {
@@ -25,18 +28,19 @@ export const extend = (actor: ActorInstance, options: Partial<ActorOptions> = {}
         input: options?.input || Input.create({ INPUT: { schema: { type: 'object' } } }),
         crawlerMode: options?.crawlerMode || 'http',
         crawler: options?.crawler || actor.crawler || crawler.create(),
-        steps: (options?.steps || actor.steps || Steps.create({ STEPS: {}, INPUT: { schema: { type: 'object' } } })) as ReallyAny,
-        flows: (options?.flows || actor.flows || Flows.create({ FLOWS: {} })) as ReallyAny,
-        models: options?.models || actor.models || Models.create({ MODELS: {} }),
-        stores: options?.stores || actor.stores || Stores.create(),
-        queues: options?.queues || actor.queues || Queues.create(),
-        datasets: options?.datasets || actor.datasets || Datasets.create(),
-        hooks: options?.hooks || actor.hooks || Hooks.create({ MODELS: {}, STEPS: {}, FLOWS: {}, INPUT: { schema: { type: 'object' } } }),
+        steps: (options?.steps || actor.steps || StepCollection.create({ STEPS: {}, INPUT: { schema: { type: 'object' } } })) as ReallyAny,
+        stepApiOptions: (options?.stepApiOptions || {}),
+        flows: (options?.flows || actor.flows || FlowCollection.create({ FLOWS: {} })) as ReallyAny,
+        models: options?.models || actor.models || ModelCollection.create({ MODELS: {} }),
+        stores: options?.stores || actor.stores || StoreCollection.create(),
+        queues: options?.queues || actor.queues || QueueCollection.create(),
+        datasets: options?.datasets || actor.datasets || DatasetCollection.create(),
+        hooks: options?.hooks || actor.hooks || HookCollection.create({ MODELS: {}, STEPS: {}, FLOWS: {}, INPUT: { schema: { type: 'object' } } }),
     };
 
-    instance.steps = prefixSteps(instance);
-    instance.flows = prefixFlows(instance);
-    instance.hooks = prefixHooks(instance);
+    instance.steps = prefixStepCollection(instance);
+    instance.flows = prefixFlowCollection(instance);
+    instance.hooks = prefixHookCollection(instance);
 
     return instance;
 };
@@ -48,21 +52,21 @@ export const combine = (actor: ActorInstance, ...actors: ActorInstance[]): Actor
         actor.hooks = { ...actor.hooks, ...other.hooks };
     }
 
-    const mainHooks = Object
+    const mainHookCollection = Object
         .keys(actor.hooks)
         .filter((key) => key.startsWith(prefix(actor, '')) && globalHookNames.some((name) => key.endsWith(name)))
         .map((key) => (actor.hooks as ReallyAny)[key]) as StepInstance[];
 
-    const otherHooks = Object
+    const otherHookCollection = Object
         .keys(actor.hooks)
         .filter((key) => !key.startsWith(prefix(actor, '')) && globalHookNames.some((name) => key.endsWith(name)))
         .map((key) => (actor.hooks as ReallyAny)[key]) as StepInstance[];
 
     // Propagate hooks to other actors
-    for (const hook of mainHooks) {
+    for (const hook of mainHookCollection) {
         hook.afterHandler = async (context) => {
             const hooksPromises = [];
-            for (const otherHook of otherHooks) {
+            for (const otherHook of otherHookCollection) {
                 if (
                     !otherHook.name.startsWith(prefix(actor, ''))
                     && otherHook.name.endsWith(UNPREFIXED_NAME_BY_ACTOR(hook.name))
@@ -77,7 +81,7 @@ export const combine = (actor: ActorInstance, ...actors: ActorInstance[]): Actor
     return actor;
 };
 
-export const makeCrawlerOptions = async (actor: ActorInstance, options: ActorCrawlerOptions): Promise<ActorCrawlerOptions> => {
+export const makeCrawlerOptions = async (actor: ActorInstance, options: PlaywrightCrawlerOptions): Promise<PlaywrightCrawlerOptions> => {
     // const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
     const proxyConfiguration = undefined;
 
@@ -124,7 +128,7 @@ export const prefix = (actor: ActorInstance, text: string): string => {
     return PREFIXED_NAME_BY_ACTOR(actor.name, text);
 };
 
-export const prefixSteps = (actor: ActorInstance): ActorInstance['steps'] => {
+export const prefixStepCollection = (actor: ActorInstance): ActorInstance['steps'] => {
     return Object.keys(actor.steps).reduce((acc, key) => {
         const name = prefix(actor, actor.steps[key].name);
         acc[name] = Step.create({
@@ -136,7 +140,7 @@ export const prefixSteps = (actor: ActorInstance): ActorInstance['steps'] => {
     }, {} as ActorInstance['steps']);
 };
 
-export const prefixFlows = (actor: ActorInstance): ActorInstance['flows'] => {
+export const prefixFlowCollection = (actor: ActorInstance): ActorInstance['flows'] => {
     return Object.keys(actor.flows).reduce((acc, key) => {
         const name = prefix(actor, actor.flows[key].name);
         acc[name] = Flow.create({
@@ -148,7 +152,7 @@ export const prefixFlows = (actor: ActorInstance): ActorInstance['flows'] => {
     }, {} as ActorInstance['flows']);
 };
 
-export const prefixHooks = (actor: ActorInstance): ActorInstance['hooks'] => {
+export const prefixHookCollection = (actor: ActorInstance): ActorInstance['hooks'] => {
     return Object.keys(actor.hooks).reduce((acc, key) => {
         const name = prefix(actor, (actor.hooks as ReallyAny)[key].name);
         (acc as ReallyAny)[name] = Step.create({
@@ -160,11 +164,11 @@ export const prefixHooks = (actor: ActorInstance): ActorInstance['hooks'] => {
     }, {} as ActorInstance['hooks']);
 };
 
-export const run = async (actor: ActorInstance, input: ActorInput, crawlerOptions?: ActorCrawlerOptions): Promise<void> => {
+export const run = async (actor: ActorInstance, input: ActorInput, crawlerOptions?: PlaywrightCrawlerOptions): Promise<void> => {
     try {
         // Initialize actor
-        actor.stores = await Stores.load(actor?.stores as StoresInstance);
-        Stores.listen(actor.stores);
+        actor.stores = await StoreCollection.load(actor?.stores as StoreCollectionInstance);
+        StoreCollection.listen(actor.stores);
 
         actor.input.data = input;
 
@@ -178,7 +182,7 @@ export const run = async (actor: ActorInstance, input: ActorInput, crawlerOption
         /*
        * Run async requests
        */
-        const crawlerOptionsComplete = await makeCrawlerOptions(actor, (crawlerOptions || {}) as ActorCrawlerOptions);
+        const crawlerOptionsComplete = await makeCrawlerOptions(actor, (crawlerOptions || {}) as PlaywrightCrawlerOptions);
         await crawler.run(actor.crawler as CrawlerInstance, crawlerOptionsComplete);
 
         // TODO: Provider functionnalities to the end hook
@@ -190,8 +194,8 @@ export const run = async (actor: ActorInstance, input: ActorInput, crawlerOption
         Logger.error(Logger.create(actor), `Actor ${actor.name} failed`, { error } as ReallyAny);
     } finally {
         // Closing..
-        await Stores.persist(actor.stores);
-        await Datasets.close(actor.datasets);
+        await StoreCollection.persist(actor.stores);
+        await DatasetCollection.close(actor.datasets);
     }
 };
 

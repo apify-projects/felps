@@ -4,7 +4,7 @@ import { PREFIXED_NAME_BY_ACTOR } from './consts';
 import TrailDataModel from './trail-data-model';
 import {
     ActorInstance, ModelDefinition, ModelReference,
-    ReallyAny, StepApiModelAPI, StepApiModelInstance, TrailDataModelInstance,
+    ReallyAny, StepApiModelAPI, StepApiModelByFlowAPI, StepApiModelInstance, TrailDataModelInstance,
 } from './types';
 
 // eslint-disable-next-line max-len
@@ -106,12 +106,12 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                     TrailDataModel.updatePartial<ReallyAny>(modelInstance, value, modelRef as ReallyAny);
                     return modelRef as ModelReference<ReallyAny>;
                 },
-            } as Omit<StepApiModelAPI<M>, 'inFlow'>;
+            } as StepApiModelByFlowAPI<M>;
 
             return {
                 ...modelApi,
                 inFlow: () => modelApi as ReallyAny,
-            } as StepApiModelAPI<M>;
+            } as unknown as StepApiModelAPI<M>;
         },
     };
 };

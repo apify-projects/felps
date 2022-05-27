@@ -66,7 +66,7 @@ export const create = <
                     return Object.keys(actor.steps).includes(prefixedStepName) ? prefixedStepName : undefined;
                 },
                 startFlow(flowName, request, input, options) {
-                    const { useNewTrail = false } = options || {};
+                    const { useNewTrail = true } = options || {};
                     let { crawlerMode, reference } = options || {};
                     actorKeyMustExists();
 
@@ -125,6 +125,9 @@ export const create = <
                 //     const { crawlerMode, reference } = options || {};
                 //     return this.start(flowName, request, input, { crawlerMode, reference, useNewTrail: true });
                 // },
+                paginateStep(request, reference, options) {
+                    return this.nextStep(this.currentStep() as ReallyAny, request, reference, options);
+                },
                 nextStep(stepName, request, reference, options) {
                     let { crawlerMode } = options || {};
                     actorKeyMustExists();
@@ -150,6 +153,21 @@ export const create = <
 
                     TrailDataRequests.set(ingest.requests, meta.request);
                     return meta.data.reference;
+                },
+                nextDefaultStep(request, reference, options) {
+                    actorKeyMustExists();
+
+                    const flow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.flowName)];
+                    const currentStepIndex = (flow?.steps || []).findIndex((localStepName: string) => localStepName
+                        === UNPREFIXED_NAME_BY_ACTOR(currentMeta.data.stepName),
+                    );
+                    const nextStepName = currentStepIndex > -1 ? flow.steps[currentStepIndex + 1] : undefined;
+
+                    if (!nextStepName) {
+                        throw new Error(`No default step found for flow ${flow.name}`);
+                    }
+
+                    return this.nextStep(nextStepName, request || { url: context.request.url, headers: context.request.headers }, reference, options);
                 },
                 stop() {
                     context.request.userData = RequestMeta.extend(currentMeta, { stepStop: true }).userData;

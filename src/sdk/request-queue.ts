@@ -1,6 +1,7 @@
 import { QueueOperationInfo, Request } from 'apify';
 import { RequestQueue as ApifyRequestQueue } from 'apify/build/storages/request_queue';
 import { DataStore, RequestMeta } from '..';
+import ApifyKvStore from '../adapters/apify-kv-store';
 import { DataStoreInstance, ReallyAny, RequestOptionalOptions, RequestSource } from '../types';
 
 export default class RequestQueue extends ApifyRequestQueue {
@@ -14,8 +15,12 @@ export default class RequestQueue extends ApifyRequestQueue {
         client: ReallyAny; // | ApifyStorageLocal
     }) {
         super(options);
-        this._requestQueueStore = DataStore.create({ name: `rq-${options?.name || 'default'}`, key: 'request-queue' });
-        this._requestQueueHistoryStore = DataStore.create({ name: `rqh-${options?.name || 'default'}`, key: 'request-queue-history' });
+        this._requestQueueStore = DataStore.create({ name: `rq-${options?.name || 'default'}`, key: 'request-queue', adapter: ApifyKvStore() });
+        this._requestQueueHistoryStore = DataStore.create({
+            name: `rqh-${options?.name || 'default'}`,
+            key: 'request-queue-history',
+            adapter: ApifyKvStore(),
+        });
         DataStore.listen(this._requestQueueStore);
         DataStore.listen(this._requestQueueHistoryStore);
     }
