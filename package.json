@@ -1,6 +1,6 @@
 {
   "name": "felps",
-  "version": "1.0.310",
+  "version": "1.0.311",
   "description": "Flow-based crawler framework",
   "repository": {
     "type": "git",
