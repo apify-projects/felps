@@ -1,5 +1,5 @@
 import cloneDeep from 'lodash.clonedeep';
-import { mergeDeepRight } from 'ramda';
+import mergeDeep from 'merge-deep';
 import base from './base';
 import { METADATA_KEY, TRAIL_KEY_PROP } from './consts';
 import { RequestContext, RequestMetaData, RequestMetaInstance, RequestSource } from './types';
@@ -9,7 +9,7 @@ export const create = (requestOrRequestContext?: RequestSource | RequestContext 
     const request = cloneDeep((requestOrRequestContext as RequestContext)?.request || (requestOrRequestContext as RequestSource));
     const userData = {
         ...(request?.userData || {}),
-        [METADATA_KEY]: mergeDeepRight(
+        [METADATA_KEY]: mergeDeep(
             {
                 flowStart: false,
                 flowName: undefined,
@@ -51,7 +51,7 @@ export const extend = (requestMeta: RequestMetaInstance, ...metadata: Partial<Re
         ...requestMeta.request,
         userData: {
             ...(requestMeta.userData || {}),
-            [METADATA_KEY]: (metadata || []).reduce((acc, data) => mergeDeepRight(acc, data), requestMeta.data),
+            [METADATA_KEY]: (metadata || []).reduce((acc, data) => mergeDeep(acc, data), requestMeta.data),
         },
     });
 };

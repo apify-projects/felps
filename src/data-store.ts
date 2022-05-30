@@ -1,8 +1,9 @@
 import cloneDeep from 'lodash.clonedeep';
-import getByKey from 'lodash.get';
+import getByPath from 'lodash.get';
 import hasByPath from 'lodash.has';
-import setByKey from 'lodash.set';
-import { dissocPath, mergeDeepRight } from 'ramda';
+import setByPath from 'lodash.set';
+import unsetByPath from 'lodash.unset';
+import mergeDeep from 'merge-deep';
 import ApifyEvents from './apify-events';
 import base from './base';
 import KvStoreAdapter from './kv-store-adapter';
@@ -39,18 +40,18 @@ export const getPath = (dataStore: DataStoreInstance, path: string): string => {
 
 export const get = <T = ReallyAny>(dataStore: DataStoreInstance, path?: string): T => {
     mustBeLoaded(dataStore);
-    return cloneDeep<ReallyAny>(path ? getByKey(dataStore.state, getPath(dataStore, path)) : dataStore.state);
+    return cloneDeep<ReallyAny>(path ? getByPath(dataStore.state, getPath(dataStore, path)) : dataStore.state);
 };
 
 export const set = <T = ReallyAny>(dataStore: DataStoreInstance, path: string, data: T): void => {
     mustBeLoaded(dataStore);
     const p = getPath(dataStore, path);
-    setByKey(dataStore.state, p, data);
+    setByPath(dataStore.state, p, data);
 };
 
 export const remove = (dataStore: DataStoreInstance, path: string): void => {
     mustBeLoaded(dataStore);
-    dataStore.state = dissocPath(getPath(dataStore, path).split('.'), dataStore.state);
+    unsetByPath(dataStore.state, getPath(dataStore, path).split('.'));
 };
 
 export const has = (dataStore: DataStoreInstance, path: string): boolean => {
@@ -117,7 +118,7 @@ export const update = <T = ReallyAny>(dataStore: DataStoreInstance, path: string
 
     const p = getPath(dataStore, path);
     const original = get(dataStore, p) || {};
-    const merged = mergeDeepRight<ReallyAny, ReallyAny>(original, data || {});
+    const merged = mergeDeep(original, data || {});
 
     set(dataStore, path, merged);
 };

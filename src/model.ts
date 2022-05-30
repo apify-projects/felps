@@ -1,6 +1,6 @@
 import stringify from 'fast-safe-stringify';
 import get from 'lodash.get';
-import { pick, pickAll } from 'ramda';
+import pick from 'lodash.pick';
 import base from './base';
 import { REFERENCE_KEY, SCHEMA_MODEL_NAME_KEY, TRAIL_KEY_PROP } from './consts';
 import {
@@ -129,7 +129,8 @@ export const referenceFor = (
 ): ModelReference => {
     const keys = referenceKeys(model);
     if (options?.withOwnReferenceKey) keys.unshift(REFERENCE_KEY(model.name));
-    return options.includeNotFound ? pickAll(keys, ref) : pick(keys, ref);
+    const pickedProperties = pick(ref, keys);
+    return options.includeNotFound ? { ...(keys.reduce((acc, key) => ({ ...acc, [key]: undefined }), {})), ...pickedProperties } : pickedProperties;
 };
 
 export const validate = <T = unknown>(model: ModelInstance<JSONSchema>, data: T, options: ValidatorValidateOptions = {}) => {
