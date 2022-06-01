@@ -19,7 +19,7 @@ export type JSONSchema = MakeSchema<_JSONSchema7>;
 export type JSONSchemaWithMethods = MakeSchema<_JSONSchema7<JSONSchemaMethods>>;
 export type JSONSchemaMethods = {
     resolveList?: (ref: ModelReference, methods: { getEntities: (modelName: string, ref?: ModelReference) => TrailDataModelItem[]; }) => TrailDataModelItem[],
-    organizeList?: (items: TrailDataModelItem[], api: GeneralStepApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
+    organizeList?: (items: TrailDataModelItem<ReallyAny>[], api: GeneralStepApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
     isItemUnique?: (existingItem: TrailDataModelItem<ReallyAny>, newItem: TrailDataModelItem<ReallyAny>) => boolean,
     isListComplete?: (items: TrailDataModelItem[], api: GeneralStepApi) => boolean | Promise<boolean>,
 };
@@ -120,7 +120,7 @@ export type ExtractFlowsWithStep<
 
 // apify --------------------------------------------------
 export type RequestSource = import('apify').Request | import('apify').RequestOptions
-export type RequestOptionalOptions = { priority?: number, crawlerMode?: RequestCrawlerMode, forefront?: boolean | undefined } | undefined
+export type RequestOptionalOptions = { priority?: number, crawlerOptions?: RequestCrawlerOptions, forefront?: boolean | undefined } | undefined
 export type RequestContext = Apify.CheerioHandlePageInputs & Apify.PlaywrightHandlePageFunctionParam & Apify.BrowserCrawlingContext & Apify.CrawlingContext
 
 // base.ts ------------------------------------------------------------
@@ -144,7 +144,6 @@ export type FlowDefinitions<StepNames = string> = Record<string, FlowDefinition<
 
 // flow.ts ------------------------------------------------------------
 export type FlowInstance<StepNames> = {
-    crawlerMode?: RequestCrawlerMode,
     crawlerOptions?: RequestCrawlerOptions,
     steps: StepNames[] | readonly Readonly<StepNames>[],
     flows: string[] | readonly Readonly<string>[],
@@ -155,7 +154,6 @@ export type FlowInstance<StepNames> = {
 
 export type FlowDefinitionRaw<StepNames = string> = {
     name?: string,
-    crawlerMode?: RequestCrawlerMode,
     crawlerOptions?: RequestCrawlerOptions,
     steps: StepNames[],
     flows?: string[],
@@ -189,18 +187,17 @@ export type StepCollectionOptions<T> = {
 
 export type StepDefinitions<T extends Record<string, StepDefinition>> = {
     [K in keyof T]: T[K] extends StepDefinition ? {
-        crawlerMode: T[K]['crawlerMode'],
+        crawlerOptions: T[K]['crawlerOptions'],
     } : never
 };
 
-export type StepDefinition<Methods = unknown> = Partial<Pick<StepInstance<Methods & GeneralStepApi>, 'crawlerMode'>>
+export type StepDefinition<Methods = unknown> = Partial<Pick<StepInstance<Methods & GeneralStepApi>, 'crawlerOptions'>>
 
 export type StepNamesSignature = Record<string, string>
 
 // step.ts ------------------------------------------------------------
 export type StepInstance<Methods = unknown> = {
     name: string,
-    crawlerMode?: RequestCrawlerMode,
     crawlerOptions?: RequestCrawlerOptions,
     handler?: StepOptionsHandler<Methods & GeneralStepApi>,
     errorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
@@ -212,7 +209,6 @@ export type StepInstance<Methods = unknown> = {
 
 export type StepOptions<Methods = unknown> = {
     name: string,
-    crawlerMode?: RequestCrawlerMode,
     crawlerOptions?: RequestCrawlerOptions,
     handler?: StepOptionsHandler<Methods & GeneralStepApi>,
     errorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
@@ -268,26 +264,16 @@ export type StepApiFlowsAPI<F extends Record<string, FlowDefinition<keyof S>>, S
         input?: ReallyAny, // FromSchema<F[FlowName]['input']>
         options?: {
             reference?: ModelReference<ReallyAny>,
-            crawlerMode?: RequestCrawlerMode | undefined,
+            crawlerOptions?: RequestCrawlerOptions | undefined,
             stepName?: string, // Extract<keyof F[FlowName]['steps'], string>
             useNewTrail?: boolean
         }
     ) => ModelReference<M>;
-    // pipe: <FlowName extends keyof F>(
-    //     flowName: Extract<FlowName, string>,
-    //     request: RequestSource,
-    //     input?: ReallyAny, // FromSchema<F[FlowName]['input']>
-    //     options?: {
-    //         reference?: ModelReference<M>,
-    //         crawlerMode: RequestCrawlerMode | undefined,
-    //         useNewTrail: boolean
-    //     }
-    // ) => ModelReference<M>;
-    paginateStep: (request: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode })
+    paginateStep: (request: RequestSource, reference?: ModelReference<M>, options?: { crawlerOptions?: RequestCrawlerOptions })
         => void;
-    nextStep: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode })
+    nextStep: (stepName: Extract<keyof S, string>, request: RequestSource, reference?: ModelReference<M>, options?: { crawlerOptions?: RequestCrawlerOptions })
         => void;
-    nextDefaultStep: (request?: RequestSource, reference?: ModelReference<M>, options?: { crawlerMode: RequestCrawlerMode }) => void;
+    nextDefaultStep: (request?: RequestSource, reference?: ModelReference<M>, options?: { crawlerOptions?: RequestCrawlerOptions }) => void;
     stop: (reference?: ModelReference<M>) => void;
     retry: (reference?: ModelReference<M>) => void;
 };
@@ -536,7 +522,7 @@ export type TrailFlowState = {
     name: string,
     input: any,
     reference: ModelReference<ReallyAny> | undefined,
-    crawlerMode?: RequestCrawlerMode,
+    crawlerOptions?: RequestCrawlerOptions,
     output?: any,
 }
 
@@ -694,7 +680,6 @@ export type DefaultDatasetNames = ['default'];
 // actor.ts ------------------------------------------------------------
 export type ActorInstance = {
     name: string,
-    crawlerMode?: RequestCrawlerMode,
     crawlerOptions?: RequestCrawlerOptions,
     input: InputInstance,
     crawler: CrawlerInstance,
@@ -715,7 +700,6 @@ export type ActorInstance = {
 export type ActorOptions = {
     name: string,
     input?: InputInstance,
-    crawlerMode?: RequestCrawlerMode,
     crawlerOptions?: RequestCrawlerOptions,
     crawler?: CrawlerInstance,
     steps?: ReallyAny;
@@ -735,17 +719,6 @@ export type ActorOptions = {
 export type ActorInput = string | {
     [x: string]: any;
 } | Buffer | null;
-
-// export type ActorPrefixedStepCollection<Prefix extends string, S extends Record<string, StepInstance>> = {
-//     [K in Extract<keyof S, string> as `${Prefix}${K}`]: S[K]
-// }
-
-// export type ActorPrefixedFlows<Prefix extends string, S extends Record<string, FlowInstance<ReallyAny>>> = {
-//     [K in Extract<keyof S, string> as `${Prefix}${K}`]: S[K]
-// }
-// {
-//     [K in RequestCrawlerMode]: PlaywrightCrawlerOptions
-// };
 
 // hooks.ts ------------------------------------------------------------
 export type HooksInstance<M extends Record<string, ModelDefinition>, F extends Record<string, FlowDefinition<keyof S>>, S, I extends InputDefinition> = {
@@ -784,7 +757,7 @@ export type RequestMetaData = {
     flowStart: boolean,
     flowName: string,
     stepName: string,
-    crawlerMode: RequestCrawlerMode,
+    crawlerOptions?: RequestCrawlerOptions,
     reference: Partial<ModelReference<any>>,
 }
 

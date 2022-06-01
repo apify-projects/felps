@@ -4,11 +4,11 @@ import { UNPREFIXED_NAME_BY_ACTOR } from './consts';
 import { FlowInstance, FlowOptions, ModelDefinition, JSONSchema } from './types';
 
 export const create = <StepNames = string>(options: FlowOptions<StepNames>): FlowInstance<StepNames> => {
-    const { name, crawlerMode, steps = [], flows = [], input, output, actorKey } = options || {};
+    const { name, crawlerOptions, steps = [], flows = [], input, output, actorKey } = options || {};
 
     return {
         ...base.create({ key: 'flow', name }),
-        crawlerMode,
+        crawlerOptions,
         steps,
         flows,
         input: Model.create(input as ModelDefinition<JSONSchema>),

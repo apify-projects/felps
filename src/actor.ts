@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PlaywrightCrawlerOptions, PlaywrightHook, RequestQueue } from 'apify';
+import mergeDeep from 'merge-deep';
 import {
     DatasetCollection, Flow, FlowCollection, HookCollection, Input, Logger,
     ModelCollection, Queue, QueueCollection, RequestMeta, Step, StepCollection, StoreCollection,
@@ -12,7 +13,10 @@ import useHandlePageFunction from './crawler/use-handle-page-function';
 import usePostNavigationHooks from './crawler/use-post-navigation-hooks';
 import usePreNavigationHooks from './crawler/use-pre-navigation-hooks';
 import { globalHookNames } from './hook-collection';
-import { ActorInput, ActorInstance, ActorOptions, CrawlerInstance, QueueInstance, ReallyAny, StepInstance, StoreCollectionInstance } from './types';
+import {
+    ActorInput, ActorInstance, ActorOptions, CrawlerInstance,
+    QueueInstance, ReallyAny, RequestCrawlerOptions, StepInstance, StoreCollectionInstance,
+} from './types';
 
 export const create = (options: ActorOptions): ActorInstance => {
     return {
@@ -26,7 +30,7 @@ export const extend = (actor: ActorInstance, options: Partial<ActorOptions> = {}
         ...actor,
         name: options.name || actor.name,
         input: options?.input || Input.create({ INPUT: { schema: { type: 'object' } } }),
-        crawlerMode: options?.crawlerMode || 'http',
+        crawlerOptions: mergeDeep({ mode: 'http' }, options?.crawlerOptions || {}) as RequestCrawlerOptions,
         crawler: options?.crawler || actor.crawler || crawler.create(),
         steps: (options?.steps || actor.steps || StepCollection.create({ STEPS: {}, INPUT: { schema: { type: 'object' } } })) as ReallyAny,
         stepApiOptions: (options?.stepApiOptions || {}),

@@ -1,3 +1,4 @@
+import mergeDeep from 'merge-deep';
 import { Model, RequestMeta, Trail } from '.';
 import base from './base';
 import { FLOW_KEY_PROP, PREFIXED_NAME_BY_ACTOR, TRAIL_KEY_PROP, UNPREFIXED_NAME_BY_ACTOR } from './consts';
@@ -67,7 +68,7 @@ export const create = <
                 },
                 startFlow(flowName, request, input, options) {
                     const { useNewTrail = true } = options || {};
-                    let { crawlerMode, reference } = options || {};
+                    let { crawlerOptions, reference } = options || {};
                     actorKeyMustExists();
 
                     const flowNamePrefixed = PREFIXED_NAME_BY_ACTOR(actorKey, flowName);
@@ -87,7 +88,7 @@ export const create = <
 
                     Model.validate(flow.input, inputCompleted, { throwError: true });
 
-                    crawlerMode = crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode;
+                    crawlerOptions = mergeDeep(crawlerOptions || {}, step?.crawlerOptions || {}, flow?.crawlerOptions || {}, actor?.crawlerOptions || {});
                     reference = {
                         ...(currentMeta.data.reference || {}),
                         ...(reference || {}),
@@ -98,7 +99,7 @@ export const create = <
                         name: flowNamePrefixed,
                         input: inputCompleted,
                         reference,
-                        crawlerMode,
+                        crawlerOptions,
                         output: undefined,
                     });
 
@@ -109,7 +110,7 @@ export const create = <
                             flowStart: true,
                             flowName: flowNamePrefixed,
                             stepName,
-                            crawlerMode,
+                            crawlerOptions,
                             reference: {
                                 ...reference,
                                 [FLOW_KEY_PROP]: flowKey,
@@ -121,21 +122,17 @@ export const create = <
                     TrailDataRequests.set(localIngested.requests, meta.request);
                     return meta.data.reference;
                 },
-                // pipe(flowName, request, input, options) {
-                //     const { crawlerMode, reference } = options || {};
-                //     return this.start(flowName, request, input, { crawlerMode, reference, useNewTrail: true });
-                // },
                 paginateStep(request, reference, options) {
                     return this.nextStep(this.currentStep() as ReallyAny, request, reference, options);
                 },
                 nextStep(stepName, request, reference, options) {
-                    let { crawlerMode } = options || {};
+                    let { crawlerOptions } = options || {};
                     actorKeyMustExists();
 
                     const flow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.flowName)];
                     const step = actor.steps?.[PREFIXED_NAME_BY_ACTOR(actorKey, stepName)];
 
-                    crawlerMode = crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode;
+                    crawlerOptions = mergeDeep(crawlerOptions || {}, step?.crawlerOptions || {}, flow?.crawlerOptions || {}, actor?.crawlerOptions || {});
 
                     const meta = RequestMeta.extend(
                         RequestMeta.create(request),
@@ -143,7 +140,7 @@ export const create = <
                         {
                             flowStart: false,
                             stepName,
-                            crawlerMode: crawlerMode || step?.crawlerMode || actor?.crawlerMode,
+                            crawlerOptions,
                             reference: {
                                 ...(reference || {}),
                                 [TRAIL_KEY_PROP]: currentTrail.id,

@@ -62,7 +62,7 @@ export default class MultiCrawler extends BrowserCrawler {
 
         super({ ...browserCrawlerOptions, browserPoolOptions });
 
-        this.crawlerModePath = `crawlerMode`;
+        this.crawlerModePath = `crawlerOptions.mode`;
         this.browserPlugins = browserPlugins;
         this.launchContext = launchContext;
         this.events = new EventEmitter();

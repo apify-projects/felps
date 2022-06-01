@@ -152,7 +152,7 @@ export const find = (
 };
 
 export const connect = ({ api }: { api: GeneralStepApi }) => ({
-    async organizeList(model: ModelInstance, items: TrailDataModelItem[]): Promise<{ valid: TrailDataModelItem[], invalid: TrailDataModelItem[] }> {
+    async organizeList(model: ModelInstance, items: TrailDataModelItem<ReallyAny>[]): Promise<{ valid: TrailDataModelItem[], invalid: TrailDataModelItem[] }> {
         const valid = await Promise.resolve((model.schema as JSONSchemaMethods)?.organizeList?.(items, api)) || items;
         const invalid = items.filter((item) => !valid.includes(item));
         return { valid, invalid };

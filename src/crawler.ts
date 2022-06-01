@@ -54,7 +54,7 @@ export const run = async (crawler: CrawlerInstance, crawlerOptions?: PlaywrightC
 
         // const resource = new crawler.launcher(mergeDeepRight(crawlerOptions || {}, crawler.crawlerOptions || {}));
         if ('crawlerModePath' in crawler.resource) {
-            crawler.resource.crawlerModePath = `${METADATA_KEY}.crawlerMode`;
+            crawler.resource.crawlerModePath = `${METADATA_KEY}.crawlerOptions.mode`;
         }
         await crawler.resource.run();
     }

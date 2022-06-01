@@ -7,7 +7,7 @@ import { ActorInstance, ReallyAny, RequestContext, StepInstance, StepOptions } f
 export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepInstance<Methods> => {
     const {
         name,
-        crawlerMode,
+        crawlerOptions,
         handler,
         errorHandler,
         requestErrorHandler,
@@ -18,7 +18,7 @@ export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepI
 
     return {
         ...base.create({ key: 'step', name: name as string }),
-        crawlerMode,
+        crawlerOptions,
         handler,
         errorHandler,
         requestErrorHandler,

@@ -4,7 +4,7 @@ import { PREFIXED_NAME_BY_ACTOR } from './consts';
 import TrailDataModel from './trail-data-model';
 import {
     ActorInstance, ModelDefinition, ModelReference,
-    ReallyAny, StepApiModelAPI, StepApiModelByFlowAPI, StepApiModelInstance, TrailDataModelInstance,
+    ReallyAny, StepApiModelAPI, StepApiModelByFlowAPI, StepApiModelInstance, TrailDataModelInstance
 } from './types';
 
 // eslint-disable-next-line max-len
@@ -29,7 +29,9 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                 options?: { withOwnReferenceKey?: boolean },
             ): { modelInstance: TrailDataModelInstance, modelRef: ModelReference } => {
                 const { withOwnReferenceKey = false } = options || {};
-                const modelInstance = Trail.modelOfStage(ingest, modelName);
+                const modelInstance = { ...Trail.modelOfStage(ingest, modelName) };
+                const { model } = modelInstance
+                modelInstance.model = Model.dependency(mainFlow.output, modelName) || modelInstance.model;
                 // CHECK IF MODEL EXISTS
                 // const model = (Model.dependency(mainFlow?.output, modelName) ||
                 // Model.dependency(currentFlow?.output, modelName)) as ModelInstance<ReallyAny>;
@@ -40,8 +42,8 @@ export const create = <M extends Record<string, ModelDefinition>>(actor: ActorIn
                 // Model.validateReference(model, modelRef, { throwError: true });
                 // Pass on full reference instead of hand picked one
                 // return { modelInstance: { ...modelInstance, model }, modelRef: reference };
-                const modelRef = Model.referenceFor(modelInstance.model, reference, { withOwnReferenceKey });
-                Model.validateReference(modelInstance.model, modelRef, { throwError: true });
+                const modelRef = Model.referenceFor(model, reference, { withOwnReferenceKey });
+                Model.validateReference(model, modelRef, { throwError: true });
                 return { modelInstance, modelRef: reference };
             };
 

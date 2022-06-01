@@ -37,7 +37,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                     const metaLocal = RequestMeta.create(newRequest.source);
                     TrailDataRequests.setStatus(digestLocal.requests, REQUEST_STATUS.QUEUED, metaLocal.data.reference);
                     try {
-                        await Queue.add(actor?.queues?.default as QueueInstance, metaLocal.request, { crawlerMode: metaLocal.data.crawlerMode });
+                        await Queue.add(actor?.queues?.default as QueueInstance, metaLocal.request, { crawlerOptions: metaLocal.data.crawlerOptions });
                     } catch (error) {
                         TrailDataRequests.setStatus(digest.requests, REQUEST_STATUS.CREATED, metaLocal.data.reference);
                     }
@@ -114,7 +114,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 if (metaLocal.data.reference) {
                     TrailDataRequests.setStatus(digest.requests, REQUEST_STATUS.QUEUED, metaLocal.data.reference);
                     try {
-                        await Queue.add(actor?.queues?.default as QueueInstance, metaLocal.request, { crawlerMode: metaLocal.data.crawlerMode });
+                        await Queue.add(actor?.queues?.default as QueueInstance, metaLocal.request, { crawlerOptions: metaLocal.data.crawlerOptions });
                     } catch (error) {
                         TrailDataRequests.setStatus(digest.requests, REQUEST_STATUS.CREATED, metaLocal.data.reference);
                     }

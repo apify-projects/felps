@@ -14,7 +14,7 @@ export const create = (requestOrRequestContext?: RequestSource | RequestContext 
                 flowStart: false,
                 flowName: undefined,
                 stepName: undefined,
-                crawlerMode: undefined,
+                crawlerOptions: { mode: 'http' },
                 reference: {},
             },
             request?.userData?.[METADATA_KEY] || {},
