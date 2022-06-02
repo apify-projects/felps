@@ -20,8 +20,8 @@ export type JSONSchemaWithMethods = MakeSchema<_JSONSchema7<JSONSchemaMethods>>;
 export type JSONSchemaMethods = {
     resolveList?: (ref: ModelReference, methods: { getEntities: (modelName: string, ref?: ModelReference) => TrailDataModelItem[]; }) => TrailDataModelItem[],
     organizeList?: (items: TrailDataModelItem<ReallyAny>[], api: GeneralStepApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
-    isItemUnique?: (existingItem: TrailDataModelItem<ReallyAny>, newItem: TrailDataModelItem<ReallyAny>) => boolean,
     isListComplete?: (items: TrailDataModelItem[], api: GeneralStepApi) => boolean | Promise<boolean>,
+    isItemMatch?: (existingItem: TrailDataModelItem<ReallyAny>, newItem: TrailDataModelItem<ReallyAny>) => boolean,
 };
 
 export type JSONSchemaObject<T = unknown> =

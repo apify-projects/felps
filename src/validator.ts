@@ -9,7 +9,7 @@ function createAjv() {
     ajv.addKeyword('resolveList');
     ajv.addKeyword('organizeList');
     ajv.addKeyword('isListComplete');
-    ajv.addKeyword('isItemUnique');
+    ajv.addKeyword('isItemMatch');
     addFormats(ajv);
     return ajv;
 }

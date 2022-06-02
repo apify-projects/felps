@@ -4,7 +4,7 @@ import { PREFIXED_NAME_BY_ACTOR } from './consts';
 import TrailDataModel from './trail-data-model';
 import {
     ActorInstance, ModelDefinition, ModelReference,
-    ReallyAny, StepApiModelAPI, StepApiModelByFlowAPI, StepApiModelInstance, TrailDataModelInstance
+    ReallyAny, StepApiModelAPI, StepApiModelByFlowAPI, StepApiModelInstance, TrailDataModelInstance,
 } from './types';
 
 // eslint-disable-next-line max-len

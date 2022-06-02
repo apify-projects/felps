@@ -5,7 +5,7 @@ import TrailDataModel from './trail-data-model';
 import TrailDataRequests from './trail-data-requests';
 import {
     ActorInstance, OrchestratorInstance, QueueInstance,
-    ReallyAny, RequestContext, StepInstance,
+    ReallyAny, RequestContext, StepInstance
 } from './types';
 
 export const create = (actor: ActorInstance): OrchestratorInstance => {
@@ -25,7 +25,8 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
             const api = stepApi(context);
             const connectedModel = Model.connect({ api });
 
-            const stopedReferencesHashes = new Set<string>();
+            const stoppedReferencesHashes = new Set<string>();
+            const allowedReferencesHashes = new Set<string>();
 
             // Handle all new flow start requests
             for (const trailInstance of Trails.getItemsList(trails)) {
@@ -66,7 +67,10 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                             const listIsComplete = await connectedModel.isListComplete(outputModel, entitiesOrganised.valid);
                             // console.log({ model: model.name, stop})
                             if (listIsComplete) {
-                                stopedReferencesHashes.add(parentRefHash);
+                                stoppedReferencesHashes.add(parentRefHash);
+                                for (const entity of entitiesOrganised.valid) {
+                                    allowedReferencesHashes.add(hash(entity.reference));
+                                }
                                 // console.log(parentRefHash, entitiesByParentHash.get(parentRefHash))
                             }
                         }
@@ -84,7 +88,8 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 const flowLocal = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, metaLocal.data.flowName)];
                 const stepIsPartofFlow = !!flowLocal && Flow.has(flowLocal, metaLocal.data.stepName);
 
-                const requestIsLimited = stopedReferencesHashes.has(hash(metaLocal?.data?.reference));
+                const referenceHash = hash(metaLocal?.data?.reference);
+                const requestIsLimited = stoppedReferencesHashes.has(referenceHash) && !allowedReferencesHashes.has(referenceHash);
                 const requestShouldBeQueued = stepIsPartofFlow && !requestIsLimited;
 
                 // console.log({

@@ -95,7 +95,7 @@ export const boostrapItem = <T = unknown>(trailDataModel: TrailDataModelInstance
 
 export const getExistingReference = <T = unknown>(trailDataModel: TrailDataModelInstance, data: T): ModelReference<T> | undefined => {
     const entities = getItemsList(trailDataModel);
-    const existingReference = Model.find(trailDataModel.model, entities, data as ReallyAny);
+    const existingReference = Model.find(trailDataModel.model, entities, { data } as ReallyAny);
     return existingReference?.reference;
 };
 

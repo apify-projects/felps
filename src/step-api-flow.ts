@@ -88,7 +88,7 @@ export const create = <
 
                     Model.validate(flow.input, inputCompleted, { throwError: true });
 
-                    crawlerOptions = mergeDeep(crawlerOptions || {}, step?.crawlerOptions || {}, flow?.crawlerOptions || {}, actor?.crawlerOptions || {});
+                    crawlerOptions = mergeDeep(actor?.crawlerOptions || {}, flow?.crawlerOptions || {}, step?.crawlerOptions || {}, crawlerOptions || {});
                     reference = {
                         ...(currentMeta.data.reference || {}),
                         ...(reference || {}),
@@ -132,7 +132,7 @@ export const create = <
                     const flow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.flowName)];
                     const step = actor.steps?.[PREFIXED_NAME_BY_ACTOR(actorKey, stepName)];
 
-                    crawlerOptions = mergeDeep(crawlerOptions || {}, step?.crawlerOptions || {}, flow?.crawlerOptions || {}, actor?.crawlerOptions || {});
+                    crawlerOptions = mergeDeep(actor?.crawlerOptions || {}, flow?.crawlerOptions || {}, step?.crawlerOptions || {}, crawlerOptions || {});
 
                     const meta = RequestMeta.extend(
                         RequestMeta.create(request),

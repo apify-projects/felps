@@ -146,7 +146,8 @@ export const validateReference = <T = unknown>(model: ModelInstance, ref: ModelR
 export const find = (
     model: ModelInstance, items: TrailDataModelItem<ReallyAny>[], newItem: TrailDataModelItem<ReallyAny>): TrailDataModelItem<ReallyAny> | undefined => {
     for (const item of items) {
-        if ((model.schema as JSONSchemaMethods).isItemUnique?.(item, newItem)) return item;
+        const isMatch = (model.schema as JSONSchemaMethods).isItemMatch?.(item, newItem);
+        if (isMatch) return item;
     }
     return undefined;
 };
@@ -158,7 +159,7 @@ export const connect = ({ api }: { api: GeneralStepApi }) => ({
         return { valid, invalid };
     },
     async isListComplete(model: ModelInstance, items: TrailDataModelItem[]): Promise<boolean> {
-        return (model.schema as JSONSchemaMethods).isListComplete?.(items, api) || false;
+        return Promise.resolve((model.schema as JSONSchemaMethods).isListComplete?.(items, api) || false);
     },
 });
 

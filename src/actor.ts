@@ -169,6 +169,7 @@ export const prefixHookCollection = (actor: ActorInstance): ActorInstance['hooks
 };
 
 export const run = async (actor: ActorInstance, input: ActorInput, crawlerOptions?: PlaywrightCrawlerOptions): Promise<void> => {
+    const startedAt = new Date().getTime();
     try {
         // Initialize actor
         actor.stores = await StoreCollection.load(actor?.stores as StoreCollectionInstance);
@@ -200,6 +201,8 @@ export const run = async (actor: ActorInstance, input: ActorInput, crawlerOption
         // Closing..
         await StoreCollection.persist(actor.stores);
         await DatasetCollection.close(actor.datasets);
+        const duration = new Date().getTime() - startedAt;
+        Logger.info(Logger.create(actor), `Actor ${actor.name} finished in ${duration}ms (${duration / (3600 * 1000)} CUs)`);
     }
 };
 
