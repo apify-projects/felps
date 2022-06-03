@@ -726,7 +726,7 @@ export type HooksInstance<M extends Record<string, ModelDefinition>, F extends R
 };
 
 export type DefaultHookNames = ['FLOW_STARTED', 'FLOW_ENDED', 'STEP_STARTED', 'STEP_ENDED', 'STEP_FAILED', 'STEP_REQUEST_FAILED',
-    'ACTOR_STARTED', 'ACTOR_ENDED', 'QUEUE_STARTED', 'QUEUE_ENDED'];
+    'ACTOR_STARTED', 'ACTOR_ENDED', 'QUEUE_STARTED', 'QUEUE_ENDED', 'PRE_NAVIGATION'];
 
 export type GenerateHookFireMethods<T extends string[]> = {
     [K in T[number]as `fire${SnakeToPascalCase<K>}`]: (request: RequestSource) => void;

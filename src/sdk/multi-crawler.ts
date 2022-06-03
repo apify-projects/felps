@@ -114,10 +114,7 @@ export default class MultiCrawler extends BrowserCrawler {
                     url,
                     {
                         method,
-                        headers: {
-                            // ...new HeaderGenerator(),
-                            ...headers,
-                        },
+                        headers,
                         body: payload,
                         agent,
                     },
@@ -137,6 +134,7 @@ export default class MultiCrawler extends BrowserCrawler {
                 } else if (contentType.includes('text/html')) {
                     try {
                         const html = await context.response.text();
+
                         context.body = html;
                         context.$ = cheerio.load(html);
                     } catch (error) {

@@ -35,6 +35,21 @@ export default (actor: ActorInstance) => {
                 await useHandleRequestErrorFunction(actor)(context);
             }
         },
+        async intercepter(context: RequestContext) {
+            const meta = RequestMeta.create(context.request);
+            const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
+            const actorKey = meta.data.reference.fActorKey as string;
+            await (actor?.hooks?.[PREFIXED_NAME_BY_ACTOR(actorKey, 'PRE_NAVIGATION') as 'PRE_NAVIGATION'] as StepInstance).handler?.(context, stepApi(context));
+
+            // await context.page.route('**/*',
+            //     async (route, req) => {
+            //         if (req.isNavigationRequest()) {
+            //             return route.abort(); // this will effectively make the request hang. aborting will make it navigate to the browser error page
+            //         }
+            //         await route.continue();
+            //     }
+            // );
+        },
         async trailHook() {
             // async trailHook(RequestContext: RequestContext) {
             // const trailId = RequestContext.request?.userData?.trailId;

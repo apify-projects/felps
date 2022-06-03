@@ -3,7 +3,7 @@ import { PlaywrightCrawlerOptions, PlaywrightHook, RequestQueue } from 'apify';
 import mergeDeep from 'merge-deep';
 import {
     DatasetCollection, Flow, FlowCollection, HookCollection, Input, Logger,
-    ModelCollection, Queue, QueueCollection, RequestMeta, Step, StepCollection, StoreCollection,
+    ModelCollection, Queue, QueueCollection, RequestMeta, Step, StepCollection, StoreCollection
 } from '.';
 import Base from './base';
 import { PREFIXED_NAME_BY_ACTOR, UNPREFIXED_NAME_BY_ACTOR } from './consts';
@@ -15,7 +15,7 @@ import usePreNavigationHooks from './crawler/use-pre-navigation-hooks';
 import { globalHookNames } from './hook-collection';
 import {
     ActorInput, ActorInstance, ActorOptions, CrawlerInstance,
-    QueueInstance, ReallyAny, RequestCrawlerOptions, StepInstance, StoreCollectionInstance,
+    QueueInstance, ReallyAny, RequestCrawlerOptions, StepInstance, StoreCollectionInstance
 } from './types';
 
 export const create = (options: ActorOptions): ActorInstance => {
@@ -116,16 +116,24 @@ export const makeCrawlerOptions = async (actor: ActorInstance, options: Playwrig
             launchOptions: {
                 headless: false,
             },
+
         },
         proxyConfiguration,
         preNavigationHooks,
         postNavigationHooks,
     };
 
-    return {
-        ...defaultOptions,
-        ...options,
-    };
+    // const enforcedOptions = {
+    //     browserPoolOptions: {
+    //         postLaunchHooks: [
+    //             async (pageId, browserController) => {
+
+    //             }
+    //         ],
+    //     },
+    // }
+
+    return mergeDeep(defaultOptions, options) as PlaywrightCrawlerOptions;
 };
 
 export const prefix = (actor: ActorInstance, text: string): string => {
@@ -202,7 +210,8 @@ export const run = async (actor: ActorInstance, input: ActorInput, crawlerOption
         await StoreCollection.persist(actor.stores);
         await DatasetCollection.close(actor.datasets);
         const duration = new Date().getTime() - startedAt;
-        Logger.info(Logger.create(actor), `Actor ${actor.name} finished in ${duration}ms (${duration / (3600 * 1000)} CUs)`);
+        Logger.info(Logger.create(actor), `Actor ${actor.name} finished in ${duration}ms`);
+        // Logger.info(Logger.create(actor), `Actor ${actor.name} finished in ${duration}ms (${duration / (3600 * 1000)} CUs)`);
     }
 };
 

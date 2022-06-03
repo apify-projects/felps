@@ -75,6 +75,9 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
         TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
         throw error;
     } finally {
+        // TODO: Better filter which hooks should fire the orchestrator
+        // Can trigger a false push to dataset otherwise
+        // && (!meta.data.isHook || !meta.data.stepName.includes('STEP_STARTED'))
         if (step?.handler) {
             await Orchestrator.run(Orchestrator.create(actor), ctx, stepApi(ctx));
         };

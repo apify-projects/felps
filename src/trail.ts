@@ -158,6 +158,9 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
             }
 
             processedModel.add(child.name);
+            // console.log('processedModel', modelName, child.name, obj)
+            // TODO: Fix here, dirty fix
+            if (child.name === 'PAGE') obj = obj[0];
             const path = child.parentPath || 'root';
 
             const { resolveList } = (child.schema || {}) as JSONSchemaMethods;
@@ -182,13 +185,15 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
             if (!entities.length) continue;
 
             if (child.parentType === 'array') {
-                setPath(obj, path, []);
-                const arr = getPath(obj, path);
+                const arr = [];
                 for (const entity of entities) {
-                    const idx = arr.push(orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {})) - 1;
-                    // console.log('reduce', arr[idx], child.name, entity.reference);
-                    reducer(arr[idx], child.name, entity.reference);
+                    const entityObj = { ...orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {}) };
+                    // const idx =
+                    arr.push(entityObj);
+                    // console.log('reduce', obj, getPath(obj, `${path}.${idx}`), child.name, entity.reference);
+                    reducer(entityObj, child.name, entity.reference);
                 }
+                setPath(obj, path, arr);
             } else {
                 const entity = entities?.[0];
                 setPath(obj, path, orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {}));
@@ -202,6 +207,7 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
 
     reducer(data, undefined, {});
 
+    console.log(data.root.result)
     return data.root;
 };
 

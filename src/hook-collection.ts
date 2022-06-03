@@ -14,6 +14,7 @@ export const create = <
         // local hooks
         FLOW_STARTED: Step.create({ name: 'FLOW_STARTED' }),
         FLOW_ENDED: Step.create({ name: 'FLOW_ENDED' }),
+        PRE_NAVIGATION: Step.create({ name: 'PRE_NAVIGATION' }),
         STEP_STARTED: Step.create({ name: 'STEP_STARTED' }),
         STEP_ENDED: Step.create({ name: 'STEP_ENDED' }),
         STEP_FAILED: Step.create({ name: 'STEP_FAILED' }),
