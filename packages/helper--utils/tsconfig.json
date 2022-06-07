@@ -1,6 +1,7 @@
 {
-    "extends": "@apify/tsconfig",
+    "extends": "../../../tsconfig.json",
     "compilerOptions": {
+        "composite": true,
         "target": "esnext",
         "module": "commonjs",
         "moduleResolution": "node",
@@ -19,8 +20,7 @@
             "ES2019.Array"
         ],
         "rootDir": "src",
-        "outDir": "lib",
-        "composite": true
+        "outDir": "lib"
     },
     "exclude": [
         "node_modules",
@@ -29,13 +29,5 @@
     "include": [
         "src"
     ],
-    "references": [
-        {
-            "path": "."
-        },
-        {
-            "path": "packages/types"
-        }
-    ],
-    "files": []
+    "references": []
 }
