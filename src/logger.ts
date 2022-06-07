@@ -20,12 +20,8 @@ export const create = (element: { id: string }, options?: LoggerOptions): Logger
     };
 };
 
-export const setDebug = () => {
-    loggerEvents.emit('mode', Apify.utils.log.LEVELS.DEBUG);
-};
-
-export const setInfo = () => {
-    loggerEvents.emit('mode', Apify.utils.log.LEVELS.INFO);
+export const setLevel = (level: 'ERROR' | 'DEBUG' | 'INFO') => {
+    loggerEvents.emit('mode', Apify.utils.log.LEVELS[level]);
 };
 
 export const createPrefix = (logger: LoggerInstance, icon: string, id: string) => {
@@ -50,8 +46,7 @@ export const error = createLog('error', '!');
 
 export default {
     create,
-    setDebug,
-    setInfo,
+    setLevel,
     debug,
     start,
     end,

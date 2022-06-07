@@ -207,7 +207,6 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
 
     reducer(data, undefined, {});
 
-    console.log(data.root.result)
     return data.root;
 };
 
