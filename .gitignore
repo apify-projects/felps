@@ -1,15 +1,17 @@
+.DS_Store
+tsconfig.tsbuildinfo
+node_modules/
+lerna-debug.log
+npm-debug.log
 .idea
-node_modules
-apify_storage
-lib/
-apify_storage
 package-lock.json
-yarn.lock
-.npmrc
-# Yarn
+
 .yarn/*
 !.yarn/cache
 !.yarn/releases
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+
+apify_storage/*
+!apify_storage/key_value_stores/default/INPUT.json
