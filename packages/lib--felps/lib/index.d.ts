@@ -516,7 +516,7 @@ declare const _default: {
         filterByFlowStart: (item: import("@usefelps/types").TrailDataRequestItem) => boolean;
     };
     RequestMeta: {
-        create: (requestOrRequestContext?: import("@usefelps/types").RequestContext | import("@usefelps/types").RequestSource) => import("@usefelps/types").RequestMetaInstance;
+        create: (requestOrRequestContext?: import("@usefelps/types").RequestSource | import("@usefelps/types").RequestContext) => import("@usefelps/types").RequestMetaInstance;
         extend: (requestMeta: import("@usefelps/types").RequestMetaInstance, ...metadata: Partial<import("@usefelps/types").RequestMetaData>[]) => import("@usefelps/types").RequestMetaInstance;
         contextDefaulted: (context?: import("@usefelps/types").RequestContext) => import("@usefelps/types").RequestContext;
         cloneContext: (context: import("@usefelps/types").RequestContext) => import("@usefelps/types").RequestContext;

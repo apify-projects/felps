@@ -1,16 +1,9 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "rootDir": "src",
-        "outDir": "lib"
+        "outDir": "./lib"
     },
-    "exclude": [
-        "node_modules",
-        "lib"
-    ],
-    "include": [
-        "src"
-    ],
+    "include": ["src/**/*"],
     "references": [
         {
             "path": "../core--constants"

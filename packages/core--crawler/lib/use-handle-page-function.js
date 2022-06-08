@@ -21,9 +21,9 @@ exports.default = (actor) => {
         if (!step) {
             return;
         }
+        const stepApi = core__step_api_1.default.create(actor);
         if (meta.data.stepStop) {
             helper__logger_1.default.info(helper__logger_1.default.create(step), 'Step has been stopped');
-            const stepApi = core__step_api_1.default.create(actor);
             await core__orchestrator_1.default.run(core__orchestrator_1.default.create(actor), context, stepApi(context));
             // This step has been prohibited from running any further
             return;
@@ -33,6 +33,7 @@ exports.default = (actor) => {
         await core__step_1.default.run(step, actor, context);
         // After each route Hook can be used for checking up data this would have been made ready to push to the dataset in KV.
         await core__step_1.default.run(actor.hooks?.[(0, core__constants_1.PREFIXED_NAME_BY_ACTOR)(actorKey, 'STEP_ENDED')], actor, contextHook);
+        await core__orchestrator_1.default.run(core__orchestrator_1.default.create(actor), context, stepApi(context));
     };
 };
 //# sourceMappingURL=use-handle-page-function.js.map
