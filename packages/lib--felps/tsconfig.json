@@ -1,0 +1,139 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "lib"
+    },
+    "exclude": [
+        "node_modules",
+        "lib"
+    ],
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../adapter--kv-store"
+        },
+        {
+            "path": "../adapter--kv-store--apify"
+        },
+        {
+            "path": "../adapter--kv-store--in-memory"
+        },
+        {
+            "path": "../core--actor"
+        },
+        {
+            "path": "../core--crawler"
+        },
+        {
+            "path": "../core--dataset"
+        },
+        {
+            "path": "../core--dataset-collection"
+        },
+        {
+            "path": "../core--events"
+        },
+        {
+            "path": "../core--flow"
+        },
+        {
+            "path": "../core--flow-collection"
+        },
+        {
+            "path": "../core--hook-collection"
+        },
+        {
+            "path": "../core--input"
+        },
+        {
+            "path": "../core--instance-base"
+        },
+        {
+            "path": "../core--model"
+        },
+        {
+            "path": "../core--model-collection"
+        },
+        {
+            "path": "../core--orchestrator"
+        },
+        {
+            "path": "../core--queue"
+        },
+        {
+            "path": "../core--queue-collection"
+        },
+        {
+            "path": "../core--request-meta"
+        },
+        {
+            "path": "../core--step"
+        },
+        {
+            "path": "../core--step-api"
+        },
+        {
+            "path": "../core--step-api--flow"
+        },
+        {
+            "path": "../core--step-api--helpers"
+        },
+        {
+            "path": "../core--step-api--meta"
+        },
+        {
+            "path": "../core--step-api--model"
+        },
+        {
+            "path": "../core--step-collection"
+        },
+        {
+            "path": "../core--store--data"
+        },
+        {
+            "path": "../core--store--file"
+        },
+        {
+            "path": "../core--store-collection"
+        },
+        {
+            "path": "../core--trail"
+        },
+        {
+            "path": "../core--trail--data"
+        },
+        {
+            "path": "../core--trail--data-model"
+        },
+        {
+            "path": "../core--trail--data-requests"
+        },
+        {
+            "path": "../core--trail-collection"
+        },
+        {
+            "path": "../custom--crawler--playwright"
+        },
+        {
+            "path": "../custom--request-queue"
+        },
+        {
+            "path": "../helper--logger"
+        },
+        {
+            "path": "../helper--mutable"
+        },
+        {
+            "path": "../helper--search"
+        },
+        {
+            "path": "../helper--url-pattern"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}

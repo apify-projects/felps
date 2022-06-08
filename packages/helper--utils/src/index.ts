@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { customAlphabet } from 'nanoid';
+import safeStringify from 'fast-safe-stringify';
 import cloneDeep from 'lodash.clonedeep';
+import pickLodash from 'lodash.pick';
+import getByPath from 'lodash.get';
+import hasByPath from 'lodash.has';
+import setByPath from 'lodash.set';
+import unsetByPath from 'lodash.unset';
+import isMatchLodash from 'lodash.ismatch';
 import { URL } from 'node:url';
 import { UID_KEY_PREFIX, UID_KEY_LENGTH } from '@usefelps/core--constants';
 import { ReallyAny } from '@usefelps/types';
@@ -12,6 +19,13 @@ const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
 export const merge = mergeDeep;
 export const hash = hashMethod;
 export const clone = cloneDeep;
+export const get = getByPath;
+export const has = hasByPath;
+export const set = setByPath;
+export const unset = unsetByPath;
+export const isMatch = isMatchLodash;
+export const pick = pickLodash;
+export const stringify = safeStringify;
 
 export const craftUID = customAlphabet(alphabet, 4);
 // eslint-disable-next-line max-len

@@ -1,12 +1,12 @@
+import * as CONST from '@usefelps/core--constants';
 import Base from '@usefelps/core--instance-base';
 import DataStore from '@usefelps/core--store--data';
 import Trail from '@usefelps/core--trail';
-import { TRAIL_UID_PREFIX } from '@usefelps/core--constants';
-import { DataStoreInstance, ReallyAny, TrailInstance, TrailsInstance, TrailsOptions } from '@usefelps/types';
+import * as FT from '@usefelps/types';
 
-export const create = (options: TrailsOptions): TrailsInstance => {
+export const create = (options:  FT.TrailsOptions):  FT.TrailsInstance => {
     const { actor } = options;
-    const store = (actor?.stores as ReallyAny)?.trails as DataStoreInstance;
+    const store = (actor?.stores as FT.ReallyAny)?.trails as  FT.DataStoreInstance;
 
     return {
         ...Base.create({ key: 'trails', name: 'trails' }),
@@ -15,17 +15,17 @@ export const create = (options: TrailsOptions): TrailsInstance => {
     };
 };
 
-export const getItemsList = (trails: TrailsInstance): TrailInstance[] => {
-    const state = DataStore.get(trails.store) as Record<string, TrailInstance>;
+export const getItemsList = (trails:  FT.TrailsInstance):  FT.TrailInstance[] => {
+    const state = DataStore.get(trails.store) as Record<string,  FT.TrailInstance>;
     const keys = Object.keys(state);
     return keys
-        .filter((key) => key.startsWith(TRAIL_UID_PREFIX))
+        .filter((key) => key.startsWith(CONST.TRAIL_UID_PREFIX))
         .map((key) => {
             return Trail.create({ id: key, actor: trails.actor });
         });
 };
 
-export const getItems = (trails: TrailsInstance): Record<string, TrailInstance> => {
+export const getItems = (trails:  FT.TrailsInstance): Record<string,  FT.TrailInstance> => {
     return getItemsList(trails).reduce((acc, item) => ({ ...acc, [item.id]: item }), {});
 };
 

@@ -1,9 +1,9 @@
-import { PlaywrightCrawlerOptions, PlaywrightHook } from 'apify';
+import * as CONST from '@usefelps/core--constants';
 import Events from "@usefelps/core--events";
 import Base from '@usefelps/core--instance-base';
-import { METADATA_KEY } from '@usefelps/core--constants';
 import PlaywrightCrawler from '@usefelps/crawler-playwright';
-import { CrawlerInstance, CrawlerOptions, ReallyAny } from '@usefelps/types';
+import * as FT from '@usefelps/types';
+import { PlaywrightCrawlerOptions, PlaywrightHook } from 'apify';
 
 export const PRE_NAVIGATION_HOOKS: Record<string, PlaywrightHook> = {
     async excludeResources({ page }) {
@@ -19,8 +19,8 @@ export const PRE_NAVIGATION_HOOKS: Record<string, PlaywrightHook> = {
     },
 };
 
-export const create = (options?: CrawlerOptions): CrawlerInstance => {
-    const { launcher = PlaywrightCrawler as ReallyAny } = options || {};
+export const create = (options?: FT.CrawlerOptions): FT.CrawlerInstance => {
+    const { launcher = PlaywrightCrawler as FT.ReallyAny } = options || {};
 
     return {
         ...Base.create({ key: 'crawler', name: 'multi-crawler' }),
@@ -30,7 +30,7 @@ export const create = (options?: CrawlerOptions): CrawlerInstance => {
     };
 };
 
-export const run = async (crawler: CrawlerInstance, crawlerOptions?: PlaywrightCrawlerOptions): Promise<CrawlerInstance> => {
+export const run = async (crawler: FT.CrawlerInstance, crawlerOptions?: PlaywrightCrawlerOptions): Promise<FT.CrawlerInstance> => {
     // eslint-disable-next-line new-cap
     crawler.resource = new crawler.launcher({
         ...crawlerOptions,
@@ -54,9 +54,9 @@ export const run = async (crawler: CrawlerInstance, crawlerOptions?: PlaywrightC
 
         // const resource = new crawler.launcher(mergeDeepRight(crawlerOptions || {}, crawler.crawlerOptions || {}));
         if ('crawlerModePath' in crawler.resource) {
-            crawler.resource.crawlerModePath = `${METADATA_KEY}.crawlerOptions.mode`;
+            (crawler as FT.ReallyAny).resource.crawlerModePath = `${CONST.METADATA_KEY}.crawlerOptions.mode`;
         }
-        await crawler.resource.run();
+        await (crawler as FT.ReallyAny).resource.run();
     }
 
     return crawler;

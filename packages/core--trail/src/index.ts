@@ -1,24 +1,17 @@
-import getPath from 'lodash.get';
-import setPath from 'lodash.set';
+import * as CONST from '@usefelps/core--constants';
+import Base from '@usefelps/core--instance-base';
 import Model from '@usefelps/core--model';
 import RequestMeta from '@usefelps/core--request-meta';
-import Base from '@usefelps/core--instance-base';
-import { TRAIL_KEY_PROP, TRAIL_UID_PREFIX } from '@usefelps/core--constants';
 import DataStore from '@usefelps/core--store--data';
 import TrailDataModel from '@usefelps/core--trail--data-model';
 import TrailDataRequests from '@usefelps/core--trail--data-requests';
-import {
-    DataStoreInstance,
-    DeepPartial, JSONSchemaMethods, ModelInstance, ModelReference, ReallyAny, RequestSource, TrailDataModelInstance, TrailDataModelItem, TrailDataRequestItem,
-    TrailDataStage, TrailDataStages, TrailFlowState, TrailInstance,
-    TrailOptions, TrailState, UniqueyKey,
-} from '@usefelps/types';
-import { compareUIDKeysFromFirst, craftUIDKey, pathify } from '@usefelps/helper--utils';
+import * as utils from '@usefelps/helper--utils';
+import * as FT from '@usefelps/types';
 
-export const create = (options: TrailOptions): TrailInstance => {
-    const { id = craftUIDKey(TRAIL_UID_PREFIX), actor } = options || {};
+export const create = (options: FT.TrailOptions): FT.TrailInstance => {
+    const { id = utils.craftUIDKey(CONST.TRAIL_UID_PREFIX), actor } = options || {};
 
-    const store = (actor?.stores as ReallyAny)?.trails as DataStoreInstance;
+    const store = (actor?.stores as FT.ReallyAny)?.trails as FT.DataStoreInstance;
     const models = actor?.models;
 
     return {
@@ -28,11 +21,11 @@ export const create = (options: TrailOptions): TrailInstance => {
     };
 };
 
-export const load = async (trail: TrailInstance): Promise<TrailInstance> => {
+export const load = async (trail: FT.TrailInstance): Promise<FT.TrailInstance> => {
     const store = await DataStore.load(trail.store);
 
     if (!DataStore.has(store, trail.id)) {
-        const initialState: DeepPartial<TrailState> = {
+        const initialState: FT.DeepPartial<FT.TrailState> = {
             id: trail.id,
             flows: {},
             stats: { startedAt: new Date().toISOString() },
@@ -47,45 +40,45 @@ export const load = async (trail: TrailInstance): Promise<TrailInstance> => {
     };
 };
 
-export const createFrom = (request: RequestSource, options: TrailOptions): TrailInstance => {
+export const createFrom = (request: FT.RequestSource, options: FT.TrailOptions): FT.TrailInstance => {
     const meta = RequestMeta.create(request);
     return create({
         ...options,
-        id: meta.data?.reference?.[TRAIL_KEY_PROP],
+        id: meta.data?.reference?.[CONST.TRAIL_KEY_PROP],
     });
 };
 
-export const get = (trail: TrailInstance): TrailState => {
+export const get = (trail: FT.TrailInstance): FT.TrailState => {
     return DataStore.get(trail.store, trail.id);
 };
 
 // export const update = (trail: TrailInstance, data: DeepPartial<Pick<TrailState, 'flows'>>): void => {
 //     DataStore.update(trail.store, trail.id, data);
 // };
-export const getMainFlow = (trail: TrailInstance): TrailFlowState | undefined => {
-    const flows = DataStore.get(trail.store, pathify(trail.id, 'flows')) || {};
-    const flowKeysOrdered = Object.keys(flows).sort(compareUIDKeysFromFirst);
+export const getMainFlow = (trail: FT.TrailInstance): FT.TrailFlowState | undefined => {
+    const flows = DataStore.get(trail.store, utils.pathify(trail.id, 'flows')) || {};
+    const flowKeysOrdered = Object.keys(flows).sort(utils.compareUIDKeysFromFirst);
     return flows[flowKeysOrdered[0]];
 };
 
-export const getFlow = (trail: TrailInstance, flowKey: UniqueyKey | undefined): TrailFlowState | undefined => {
-    if (!flowKey) return;
-    return DataStore.get(trail.store, pathify(trail.id, 'flows', flowKey));
+export const getFlow = (trail: FT.TrailInstance, flowKey: FT.UniqueyKey | undefined): FT.TrailFlowState | undefined => {
+    if (!flowKey) return undefined;
+    return DataStore.get(trail.store, utils.pathify(trail.id, 'flows', flowKey));
 };
 
-export const setFlow = (trail: TrailInstance, flowState: TrailFlowState): UniqueyKey => {
-    const flowKey = craftUIDKey('flow');
-    DataStore.set(trail.store, pathify(trail.id, 'flows', flowKey), flowState);
+export const setFlow = (trail: FT.TrailInstance, flowState: FT.TrailFlowState): FT.UniqueyKey => {
+    const flowKey = utils.craftUIDKey('flow');
+    DataStore.set(trail.store, utils.pathify(trail.id, 'flows', flowKey), flowState);
     return flowKey;
 };
 
-export const setRequest = (trail: TrailInstance, request: any): void => {
-    DataStore.set(trail.store, pathify(trail.id, 'requests', request.id), request);
+export const setRequest = (trail: FT.TrailInstance, request: any): void => {
+    DataStore.set(trail.store, utils.pathify(trail.id, 'requests', request.id), request);
 };
 
-export const stage = (trail: TrailInstance, type: TrailDataStages): TrailDataStage => {
+export const stage = (trail: FT.TrailInstance, type: FT.TrailDataStages): FT.TrailDataStage => {
     return {
-        models: Object.values(trail.models as Record<string, ModelInstance>).reduce<Record<string, TrailDataModelInstance>>((acc, model) => {
+        models: Object.values(trail.models as Record<string, FT.ModelInstance>).reduce<Record<string, FT.TrailDataModelInstance>>((acc, model) => {
             acc[model.name] = TrailDataModel.create({
                 id: trail.id,
                 type,
@@ -102,53 +95,53 @@ export const stage = (trail: TrailInstance, type: TrailDataStages): TrailDataSta
     };
 };
 
-export const modelOfStage = (trailStage: TrailDataStage, modelName: string): TrailDataModelInstance => {
+export const modelOfStage = (trailStage: FT.TrailDataStage, modelName: string): FT.TrailDataModelInstance => {
     const model = trailStage.models?.[modelName];
     if (!model) throw new Error(`Model ${modelName} not found in stage`);
     return model;
 };
 
-export const ingested = (trail: TrailInstance): TrailDataStage => {
+export const ingested = (trail: FT.TrailInstance): FT.TrailDataStage => {
     return stage(trail, 'ingested');
 };
 
-export const digested = (trail: TrailInstance): TrailDataStage => {
+export const digested = (trail: FT.TrailInstance): FT.TrailDataStage => {
     return stage(trail, 'digested');
 };
 
-export const promote = (trail: TrailInstance, item: TrailDataModelItem | TrailDataRequestItem): void => {
+export const promote = (trail: FT.TrailInstance, item: FT.TrailDataModelItem | FT.TrailDataRequestItem): void => {
     const { id } = item || {};
-    const path = (stageName: TrailDataStages) => pathify(trail.id, stageName, 'source' in item ? 'requests' : 'models', id);
+    const path = (stageName: FT.TrailDataStages) => utils.pathify(trail.id, stageName, 'source' in item ? 'requests' : 'models', id);
     // Get current ingested item and move it to digested stage
     DataStore.update(trail.store, path('digested'), DataStore.get(trail.store, path('ingested')));
     // Remove it from ingested stage
     DataStore.remove(trail.store, path('ingested'));
 };
 
-export const getEntities = (trail: TrailInstance, modelName: string, ref?: ModelReference): TrailDataModelItem[] => {
+export const getEntities = (trail: FT.TrailInstance, modelName: string, ref?: FT.ModelReference): FT.TrailDataModelItem[] => {
     const digest = digested(trail);
     const digestModel = digest.models[modelName];
     // HAAACKY
     const models = Model.flatten(digestModel.model);
     const model = models.find((m) => m.name === modelName);
-    const reference = Model.referenceFor(model as ModelInstance, ref as ModelReference, { withOwnReferenceKey: true, includeNotFound: false });
+    const reference = Model.referenceFor(model as FT.ModelInstance, ref as FT.ModelReference, { withOwnReferenceKey: true, includeNotFound: false });
     return TrailDataModel.getItemsList(digestModel, reference);
 };
 
-export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance): T | undefined => {
+export const resolve = <T = unknown>(trail: FT.TrailInstance, model: FT.ModelInstance): T | undefined => {
     const models = Model.flatten(model);
     // console.log(models);
 
-    const data = { root: undefined } as ReallyAny;
+    const data = { root: undefined } as FT.ReallyAny;
 
-    const orderByKeys = (keys: string[], obj: ReallyAny) => keys.reduce((acc, key) => {
+    const orderByKeys = (keys: string[], obj: FT.ReallyAny) => keys.reduce((acc, key) => {
         if (key in obj) return { ...acc, [key]: obj[key] };
         return acc;
     }, {});
 
     const processedModel = new Set();
 
-    const reducer = (obj: ReallyAny, modelName: string | undefined, ref: ModelReference) => {
+    const reducer = (obj: FT.ReallyAny, modelName: string | undefined, ref: FT.ModelReference) => {
         const childModels = models.filter((m) => m.parents?.reverse?.()?.[0] === modelName); //
         // console.log({ childModels });
 
@@ -164,7 +157,7 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
             if (child.name === 'PAGE') obj = obj[0];
             const path = child.parentPath || 'root';
 
-            const { resolveList } = (child.schema || {}) as JSONSchemaMethods;
+            const { resolveList } = (child.schema || {}) as FT.JSONSchemaMethods;
 
             // console.log('resolveList', resolveList)
 
@@ -176,7 +169,7 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
                 });
                 // console.log('resolvedList', resolvedList);
 
-                setPath(obj, path, resolvedList);
+                utils.set(obj, path, resolvedList);
                 // Stop early as we resolve the list differently
                 return;
             }
@@ -188,21 +181,21 @@ export const resolve = <T = unknown>(trail: TrailInstance, model: ModelInstance)
             if (child.parentType === 'array') {
                 const arr = [];
                 for (const entity of entities) {
-                    const entityObj = { ...orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {}) };
+                    const entityObj = { ...orderByKeys(Object.keys((child.schema as FT.ReallyAny)?.properties), entity.data || {}) };
                     // const idx =
                     arr.push(entityObj);
-                    // console.log('reduce', obj, getPath(obj, `${path}.${idx}`), child.name, entity.reference);
+                    // console.log('reduce', obj, utils.get(obj, `${path}.${idx}`), child.name, entity.reference);
                     reducer(entityObj, child.name, entity.reference);
                 }
-                setPath(obj, path, arr);
+                utils.set(obj, path, arr);
             } else {
                 const entity = entities?.[0];
-                setPath(obj, path, orderByKeys(Object.keys((child.schema as ReallyAny)?.properties), entity.data || {}));
+                utils.set(obj, path, orderByKeys(Object.keys((child.schema as FT.ReallyAny)?.properties), entity.data || {}));
                 // console.log('reduce', path, obj, child.name, entity.reference);
-                reducer(getPath(obj, path), child.name, entity.reference);
+                reducer(utils.get(obj, path), child.name, entity.reference);
             }
 
-            reducer(getPath(obj, path), child.name, {});
+            reducer(utils.get(obj, path), child.name, {});
         }
     };
 

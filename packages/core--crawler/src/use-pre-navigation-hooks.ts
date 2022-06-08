@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RequestMeta, StepApi } from '..';
-import { METADATA_KEY, PREFIXED_NAME_BY_ACTOR } from '../consts';
-import { ActorInstance, ReallyAny, RequestContext, StepInstance } from '../types';
+import RequestMeta from '@usefelps/core--request-meta';
+import StepApi from '@usefelps/core--step-api';
+import * as CONST from '@usefelps/core--constants';
+import * as FT from '@usefelps/types';
 import useHandleRequestErrorFunction from './use-handle-request-error-function';
 
-export default (actor: ActorInstance) => {
+export default (actor: FT.ActorInstance) => {
     // const logTrailHistory = (RequestContext: RequestContext) => {
     //     const trailId = RequestContext.request?.userData?.trailId;
     //     if (trailId) {
@@ -14,17 +15,17 @@ export default (actor: ActorInstance) => {
     // };
 
     return {
-        async flowHook(context: RequestContext) {
+        async flowHook(context: FT.RequestContext) {
             const meta = RequestMeta.create(context.request);
-            const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
+            const stepApi = StepApi.create<FT.ReallyAny, FT.ReallyAny, FT.ReallyAny, FT.ReallyAny>(actor);
 
             if (meta.data.flowStart && context && !meta.data.isHook) {
-                context.request.userData[METADATA_KEY].flowStart = false;
+                context.request.userData[CONST.METADATA_KEY].flowStart = false;
                 const actorKey = meta.data.reference.fActorKey as string;
-                await (actor?.hooks?.[PREFIXED_NAME_BY_ACTOR(actorKey, 'FLOW_STARTED') as 'FLOW_STARTED'] as StepInstance).handler?.(context, stepApi(context));
+                await (actor?.hooks?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, 'FLOW_STARTED') as 'FLOW_STARTED'] as FT.StepInstance).handler?.(context, stepApi(context));
             }
         },
-        async requestHook(context: RequestContext) {
+        async requestHook(context: FT.RequestContext) {
             context?.page?.on?.('requestfailed', async (req) => {
                 if ([context.request.url, context.request.loadedUrl].filter(Boolean).includes(req.url())) {
                     await useHandleRequestErrorFunction(actor)(context);
@@ -35,11 +36,11 @@ export default (actor: ActorInstance) => {
                 await useHandleRequestErrorFunction(actor)(context);
             }
         },
-        async intercepter(context: RequestContext) {
+        async intercepter(context: FT.RequestContext) {
             const meta = RequestMeta.create(context.request);
-            const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
+            const stepApi = StepApi.create<FT.ReallyAny, FT.ReallyAny, FT.ReallyAny, FT.ReallyAny>(actor);
             const actorKey = meta.data.reference.fActorKey as string;
-            await (actor?.hooks?.[PREFIXED_NAME_BY_ACTOR(actorKey, 'PRE_NAVIGATION') as 'PRE_NAVIGATION'] as StepInstance).handler?.(context, stepApi(context));
+            await (actor?.hooks?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, 'PRE_NAVIGATION') as 'PRE_NAVIGATION'] as FT.StepInstance).handler?.(context, stepApi(context));
 
             // await context.page.route('**/*',
             //     async (route, req) => {

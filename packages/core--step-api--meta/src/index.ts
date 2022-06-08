@@ -2,7 +2,7 @@ import { FLOW_KEY_PROP } from '@usefelps/core--constants';
 import Base from '@usefelps/core--instance-base';
 import RequestMeta from '@usefelps/core--request-meta';
 import Trail from '@usefelps/core--trail';
-import { ActorInstance, StepApiMetaAPI, StepApiMetaInstance } from '@usefelps/helper--utils';
+import { ActorInstance, StepApiMetaAPI, StepApiMetaInstance } from '@usefelps/types';
 
 export const create = (actor: ActorInstance): StepApiMetaInstance => {
     return {

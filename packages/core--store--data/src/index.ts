@@ -1,15 +1,9 @@
-import cloneDeep from 'lodash.clonedeep';
-import getByPath from 'lodash.get';
-import hasByPath from 'lodash.has';
-import setByPath from 'lodash.set';
-import unsetByPath from 'lodash.unset';
-import mergeDeep from 'merge-deep';
 import ApifyEvents from '@usefelps/apify--events';
 import Base from '@usefelps/core--instance-base';
 import KvStoreAdapter from '@usefelps/adapter--kv-store';
 import Logger from '@usefelps/helper--logger';
 import { DataStoreInstance, DataStoreOptions, ReallyAny } from '@usefelps/types';
-import { craftUIDKey } from '@usefelps/helper--utils';
+import * as utils from '@usefelps/helper--utils';
 
 const mustBeLoaded = (store: DataStoreInstance): void => {
     if (!store.initialized) {
@@ -40,23 +34,23 @@ export const getPath = (dataStore: DataStoreInstance, path: string): string => {
 
 export const get = <T = ReallyAny>(dataStore: DataStoreInstance, path?: string): T => {
     mustBeLoaded(dataStore);
-    return cloneDeep<ReallyAny>(path ? getByPath(dataStore.state, getPath(dataStore, path)) : dataStore.state);
+    return utils.clone<ReallyAny>(path ? utils.get(dataStore.state, getPath(dataStore, path)) : dataStore.state);
 };
 
 export const set = <T = ReallyAny>(dataStore: DataStoreInstance, path: string, data: T): void => {
     mustBeLoaded(dataStore);
     const p = getPath(dataStore, path);
-    setByPath(dataStore.state, p, data);
+    utils.set(dataStore.state, p, data);
 };
 
 export const remove = (dataStore: DataStoreInstance, path: string): void => {
     mustBeLoaded(dataStore);
-    unsetByPath(dataStore.state, getPath(dataStore, path).split('.'));
+    utils.unset(dataStore.state, getPath(dataStore, path).split('.'));
 };
 
 export const has = (dataStore: DataStoreInstance, path: string): boolean => {
     mustBeLoaded(dataStore);
-    return hasByPath(dataStore.state, getPath(dataStore, path));
+    return utils.has(dataStore.state, getPath(dataStore, path));
 };
 
 export const entries = <T = ReallyAny>(dataStore: DataStoreInstance, path?: string): [string, T][] => {
@@ -108,7 +102,7 @@ export const push = <T = ReallyAny>(dataStore: DataStoreInstance, path: string, 
 
 export const setAndGetKey = <T = ReallyAny>(dataStore: DataStoreInstance, data: T): string => {
     mustBeLoaded(dataStore);
-    const path = craftUIDKey();
+    const path = utils.craftUIDKey();
     set(dataStore, getPath(dataStore, path), data);
     return path;
 };
@@ -118,7 +112,7 @@ export const update = <T = ReallyAny>(dataStore: DataStoreInstance, path: string
 
     const p = getPath(dataStore, path);
     const original = get(dataStore, p) || {};
-    const merged = mergeDeep(original, data || {});
+    const merged = utils.merge(original, data || {});
 
     set(dataStore, path, merged);
 };

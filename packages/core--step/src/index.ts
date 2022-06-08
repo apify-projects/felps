@@ -1,9 +1,12 @@
 import { ACTOR_KEY_PROP } from '@usefelps/core--constants';
 import Base from '@usefelps/core--instance-base';
 import Logger from '@usefelps/helper--logger';
+// import Orchestrator from '@usefelps/core--orchestrator';
+import RequestMeta from '@usefelps/core--request-meta';
+import StepApi from '@usefelps/core--step-api';
+import Trail from '@usefelps/core--trail';
+import TrailDataRequests from '@usefelps/core--trail--data-requests';
 import { ActorInstance, ReallyAny, RequestContext, StepInstance, StepOptions } from '@usefelps/types';
-import { Orchestrator, RequestMeta, StepApi, Trail } from '.';
-import TrailDataRequests from './trail-data-requests';
 
 export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepInstance<Methods> => {
     const {
@@ -80,7 +83,7 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
         // Can trigger a false push to dataset otherwise
         // && (!meta.data.isHook || !meta.data.stepName.includes('STEP_STARTED'))
         if (step?.handler) {
-            await Orchestrator.run(Orchestrator.create(actor), ctx, stepApi(ctx));
+            // await Orchestrator.run(Orchestrator.create(actor), ctx, stepApi(ctx));
         };
     }
 };

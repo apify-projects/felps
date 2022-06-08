@@ -11,7 +11,10 @@ import {
 } from '@usefelps/types';
 
 export const create = <
-    F extends Record<string, FlowDefinition<keyof S>>, S, M extends Record<string, ModelDefinition>>(actor: ActorInstance): StepApiFlowsInstance<F, S, M> => {
+    F extends Record<string, FlowDefinition<keyof S>>,
+    S,
+    M extends Record<string, ModelDefinition>
+>(actor: ActorInstance): StepApiFlowsInstance<F, S, M> => {
     return {
         ...Base.create({ key: 'step-api-flows', name: 'step-api-flows' }),
         handler(context) {

@@ -1,0 +1,28 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "lib"
+    },
+    "exclude": [
+        "node_modules",
+        "lib"
+    ],
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../core--constants"
+        },
+        {
+            "path": "../core--instance-base"
+        },
+        {
+            "path": "../core--model"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}

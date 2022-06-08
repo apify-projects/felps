@@ -2,7 +2,10 @@ import Step from '@usefelps/core--step';
 import { FlowDefinition, HooksInstance, InputDefinition, ModelDefinition, StepInstance } from '@usefelps/types';
 
 export const create = <
-    M extends Record<string, ModelDefinition>, F extends Record<string, FlowDefinition<keyof S>>, S, I extends InputDefinition
+    M extends Record<string, ModelDefinition>,
+    F extends Record<string, FlowDefinition<keyof S>>,
+    S,
+    I extends InputDefinition,
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 >(_: { MODELS?: M, FLOWS?: F, STEPS: S, INPUT: I }): HooksInstance<M, F, S, I> => {
     return {

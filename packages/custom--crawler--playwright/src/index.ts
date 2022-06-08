@@ -9,7 +9,6 @@ import getPath from 'lodash.get';
 import nodeFetch from 'node-fetch';
 import ow from 'ow';
 import { chromium, firefox, webkit } from 'playwright';
-import { ReallyAny } from '../types';
 
 const getBrowserPlugin = (browser: string, launchContext: PlaywrightLaunchContext): BrowserPlugin => {
     let launcher;
@@ -49,7 +48,7 @@ export default class MultiCrawler extends BrowserCrawler {
     constructor(options: PlaywrightCrawlerOptions) {
         ow(options, 'PlaywrightCrawlerOptions', ow.object.exactShape(PlaywrightCrawler.optionsShape));
 
-        const { launchContext = {}, browserPoolOptions = {}, ...browserCrawlerOptions } = options as ReallyAny;
+        const { launchContext = {}, browserPoolOptions = {}, ...browserCrawlerOptions } = options as any;
 
         const browserPlugins = {
             http: getBrowserPlugin('http', launchContext),
@@ -68,17 +67,17 @@ export default class MultiCrawler extends BrowserCrawler {
         this.events = new EventEmitter();
     }
 
-    override async _navigationHandler(context: ReallyAny, nextOptions: ReallyAny): Promise<ReallyAny> {
+    override async _navigationHandler(context: any, nextOptions: any): Promise<any> {
         return gotoExtended(context.page, context.request, nextOptions);
     }
 
-    override async _handleRequestFunction(context: ReallyAny): Promise<ReallyAny> {
+    override async _handleRequestFunction(context: any): Promise<any> {
         const crawlerMode = getPath(context?.request?.userData || {}, this.crawlerModePath) || 'http';
 
         const newPageOptions = {
             id: context.id,
             browserPlugin: this.browserPlugins[crawlerMode] || this.browserPlugins.http,
-        } as ReallyAny;
+        } as any;
 
         const useIncognitoPages = this.launchContext && this.launchContext.useIncognitoPages as boolean;
         if (this.proxyConfiguration && useIncognitoPages) {
@@ -145,11 +144,11 @@ export default class MultiCrawler extends BrowserCrawler {
                 tryCancel();
                 await this._executeHooks(this.postNavigationHooks, context, gotoOptions);
             } catch (error) {
-                this._handleNavigationTimeout(context, error as ReallyAny);
+                this._handleNavigationTimeout(context, error as any);
                 throw error;
             }
         } else {
-            page = await this.browserPool.newPage(newPageOptions) as ReallyAny;
+            page = await this.browserPool.newPage(newPageOptions) as any;
             tryCancel();
 
             this._enhanceCrawlingContextWithPageInfo?.(context, page, useIncognitoPages);
@@ -203,7 +202,7 @@ export default class MultiCrawler extends BrowserCrawler {
             if (session) session.markGood();
         } finally {
             if (page) {
-                page.close().catch((error: ReallyAny) => this.log.debug('Error while closing page', { error }));
+                page.close().catch((error: any) => this.log.debug('Error while closing page', { error }));
             }
         }
     }

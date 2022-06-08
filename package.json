@@ -15,22 +15,26 @@
     "eslint-plugin-import": "^2.25.3",
     "is-ci": "^3.0.1",
     "rimraf": "^3.0.2",
+    "tsc-watch": "^5.0.3",
     "typescript": "^4.7.2"
   },
-  "workspaces": [
-    "packages/**"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
   "scripts": {
+    "dev": "tsc --build --watch",
+    "build:force": "tsc --build --force",
     "setup": "npm i yarn apify-cli -g && yarn set version 3.2.1 && yarn && yarn build",
     "prepare": "node ./scripts/configure-references.js",
     "clean": "yarn workspaces foreach -pti run clean",
-    "scaffold": "node ./framework/cli/lib/scaffold.js",
-    "build": "yarn workspaces foreach -iv --topological-dev --no-private run build",
-    "dev:template": "yarn workspace @vobilela/framework-template run dev",
-    "build:template": "yarn workspace @vobilela/framework-template run build",
-    "dev:actors": "yarn workspace @vobilela/actor-main run dev",
-    "build:actors": "yarn workspace @vobilela/actor-main run build",
-    "build:agents": "yarn workspaces foreach -iv --topological-dev --from '@vobilela/agent-*' --no-private run build"
+    "scaffold": "node ./framework/cli/lib/scaffold.js"
   },
-  "packageManager": "^yarn@3.1.2"
+  "packageManager": "^yarn@3.1.2",
+  "resolutions": {
+    "flexsearch": "^0.7.21",
+    "json-schema-to-ts": "2.5.3",
+    "apify-client": "^2.5.1"
+  }
 }

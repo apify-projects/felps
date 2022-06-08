@@ -1,5 +1,5 @@
 import Flow from '@usefelps/core--flow';
-import { FlowDefinition, FlowInstance, FlowNamesObject, ModelDefinition, ReallyAny, StepDefinition } from '@usefelps/types';
+import { FlowDefinition, FlowInstance, FlowNamesObject, FlowOptions, ModelDefinition, ReallyAny, StepDefinition } from '@usefelps/types';
 
 export const create = <
     F extends Record<string, FlowDefinition<string>>
@@ -9,7 +9,7 @@ export const create = <
         [name]: Flow.create<string>({
             ...(FLOWS[name] || {}),
             name,
-        }),
+        } as FlowOptions<string>),
     }), {} as Record<keyof F, FlowInstance<string>>);
 };
 

@@ -1,0 +1,40 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "lib"
+    },
+    "exclude": [
+        "node_modules",
+        "lib"
+    ],
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../core--constants"
+        },
+        {
+            "path": "../core--instance-base"
+        },
+        {
+            "path": "../core--request-meta"
+        },
+        {
+            "path": "../core--step-api"
+        },
+        {
+            "path": "../core--trail"
+        },
+        {
+            "path": "../core--trail--data-requests"
+        },
+        {
+            "path": "../helper--logger"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}

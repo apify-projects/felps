@@ -1,25 +1,22 @@
+import * as CONST from '@usefelps/core--constants';
 import Dataset from '@usefelps/core--dataset';
-import DataStore from '@usefelps/core--store--data';
 import Flow from '@usefelps/core--flow';
 import Model from '@usefelps/core--model';
 import Queue from '@usefelps/core--queue';
 import RequestMeta from '@usefelps/core--request-meta';
 import Step from '@usefelps/core--step';
 import StepApi from '@usefelps/core--step-api';
+import DataStore from '@usefelps/core--store--data';
 import Trail from '@usefelps/core--trail';
-import TrailCollection from '@usefelps/core--trail-collection';
-import { MODEL_STATUS, PREFIXED_NAME_BY_ACTOR, REQUEST_STATUS } from '@usefelps/core--constants';
-import { hash } from '@usefelps/helper--utils';
 import TrailDataModel from '@usefelps/core--trail--data-model';
 import TrailDataRequests from '@usefelps/core--trail--data-requests';
-import {
-    ActorInstance, OrchestratorInstance, QueueInstance,
-    ReallyAny, RequestContext, StepInstance
-} from '@usefelps/types';
+import TrailCollection from '@usefelps/core--trail-collection';
+import * as utils from '@usefelps/helper--utils';
+import * as FT from '@usefelps/types';
 
-export const create = (actor: ActorInstance): OrchestratorInstance => {
+export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
     return {
-        async handler(context: RequestContext): Promise<void> {
+        async handler(context: FT.RequestContext): Promise<void> {
             const trails = TrailCollection.create({ actor });
             const trail = Trail.createFrom(context?.request, { actor });
             const ingest = Trail.ingested(trail);
@@ -30,7 +27,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
 
             // const flow = meta.data.flowName ? actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, meta.data.flowName)] as FlowInstance<ReallyAny> : undefined;
 
-            const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
+            const stepApi = StepApi.create<FT.ReallyAny, FT.ReallyAny, FT.ReallyAny, FT.ReallyAny>(actor);
             const api = stepApi(context);
             const connectedModel = Model.connect({ api });
 
@@ -45,11 +42,11 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 for (const newRequest of newRequests) {
                     Trail.promote(trailInstance, newRequest);
                     const metaLocal = RequestMeta.create(newRequest.source);
-                    TrailDataRequests.setStatus(digestLocal.requests, REQUEST_STATUS.QUEUED, metaLocal.data.reference);
+                    TrailDataRequests.setStatus(digestLocal.requests, CONST.REQUEST_STATUS.QUEUED, metaLocal.data.reference);
                     try {
-                        await Queue.add(actor?.queues?.default as QueueInstance, metaLocal.request, { crawlerOptions: metaLocal.data.crawlerOptions });
+                        await Queue.add(actor?.queues?.default as FT.QueueInstance, metaLocal.request, { crawlerOptions: metaLocal.data.crawlerOptions });
                     } catch (error) {
-                        TrailDataRequests.setStatus(digest.requests, REQUEST_STATUS.CREATED, metaLocal.data.reference);
+                        TrailDataRequests.setStatus(digest.requests, CONST.REQUEST_STATUS.CREATED, metaLocal.data.reference);
                     }
                 }
             }
@@ -60,7 +57,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
             if (!mainFlowName) {
                 throw new Error(`No main flow found: ${mainFlowName}`);
             };
-            const mainFlow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, mainFlowName)];
+            const mainFlow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, mainFlowName)];
 
             const outputModels = Model.flatten(mainFlow?.output);
             for (const model of outputModels) {
@@ -78,7 +75,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                             if (listIsComplete) {
                                 stoppedReferencesHashes.add(parentRefHash);
                                 for (const entity of entitiesOrganised.valid) {
-                                    allowedReferencesHashes.add(hash(entity.reference));
+                                    allowedReferencesHashes.add(utils.hash(entity.reference));
                                 }
                                 // console.log(parentRefHash, entitiesByParentHash.get(parentRefHash))
                             }
@@ -94,10 +91,10 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 // TODO: Add filtering here
                 // ...
                 const metaLocal = RequestMeta.create(newRequest.source);
-                const flowLocal = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, metaLocal.data.flowName)];
+                const flowLocal = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, metaLocal.data.flowName)];
                 const stepIsPartofFlow = !!flowLocal && Flow.has(flowLocal, metaLocal.data.stepName);
 
-                const referenceHash = hash(metaLocal?.data?.reference);
+                const referenceHash = utils.hash(metaLocal?.data?.reference);
                 const requestIsLimited = stoppedReferencesHashes.has(referenceHash) && !allowedReferencesHashes.has(referenceHash);
                 const requestShouldBeQueued = stepIsPartofFlow && !requestIsLimited;
 
@@ -113,7 +110,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 if (requestShouldBeQueued) {
                     Trail.promote(trail, newRequest);
                 } else {
-                    TrailDataRequests.setStatus(ingest.requests, REQUEST_STATUS.DISCARDED, metaLocal.data.reference);
+                    TrailDataRequests.setStatus(ingest.requests, CONST.REQUEST_STATUS.DISCARDED, metaLocal.data.reference);
                 }
             };
 
@@ -126,11 +123,11 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 // Check if need more data or not (to avoid unnecessary requests)
 
                 if (metaLocal.data.reference) {
-                    TrailDataRequests.setStatus(digest.requests, REQUEST_STATUS.QUEUED, metaLocal.data.reference);
+                    TrailDataRequests.setStatus(digest.requests, CONST.REQUEST_STATUS.QUEUED, metaLocal.data.reference);
                     try {
-                        await Queue.add(actor?.queues?.default as QueueInstance, metaLocal.request, { crawlerOptions: metaLocal.data.crawlerOptions });
+                        await Queue.add(actor?.queues?.default as FT.QueueInstance, metaLocal.request, { crawlerOptions: metaLocal.data.crawlerOptions });
                     } catch (error) {
-                        TrailDataRequests.setStatus(digest.requests, REQUEST_STATUS.CREATED, metaLocal.data.reference);
+                        TrailDataRequests.setStatus(digest.requests, CONST.REQUEST_STATUS.CREATED, metaLocal.data.reference);
                     }
                 }
             };
@@ -141,7 +138,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
 
             if (trailEnded) {
                 // Run FLOW_ENDED hook
-                await Step.run(actor?.hooks?.[PREFIXED_NAME_BY_ACTOR(actorKey, 'FLOW_ENDED') as 'FLOW_ENDED'] as StepInstance, actor, context);
+                await Step.run(actor?.hooks?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, 'FLOW_ENDED') as 'FLOW_ENDED'] as FT.StepInstance, actor, context);
 
                 // MODELS ------------------------------------------------------------
 
@@ -159,7 +156,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                         };
 
                         for (const invalidItem of filteredAs.invalid) {
-                            TrailDataModel.setStatus(ingest.models[modelName], MODEL_STATUS.DISCARDED, invalidItem.reference);
+                            TrailDataModel.setStatus(ingest.models[modelName], CONST.MODEL_STATUS.DISCARDED, invalidItem.reference);
                         }
                     }
                 }
@@ -168,7 +165,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
                 for (const modelName of Object.keys(actor?.models)) {
                     const newItems = TrailDataModel.getItemsListByStatus(digest.models[modelName], ['CREATED']);
                     for (const newItem of newItems) {
-                        TrailDataModel.setStatus(digest.models[modelName], MODEL_STATUS.PUSHED, newItem.reference);
+                        TrailDataModel.setStatus(digest.models[modelName], CONST.MODEL_STATUS.PUSHED, newItem.reference);
                     }
                 };
 
@@ -189,7 +186,7 @@ export const create = (actor: ActorInstance): OrchestratorInstance => {
     };
 };
 
-export const run = async (orchestrator: OrchestratorInstance, context: RequestContext, api: ReallyAny) => {
+export const run = async (orchestrator: FT.OrchestratorInstance, context: FT.RequestContext, api: FT.ReallyAny) => {
     await orchestrator.handler(context, api);
 };
 

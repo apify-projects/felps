@@ -1,50 +1,44 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { PlaywrightCrawlerOptions, PlaywrightHook, RequestQueue } from 'apify';
-import Base from '@usefelps/core--instance-base';
-import Input from '@usefelps/core--input';
-import Flow from '@usefelps/core--flow';
-import Step from '@usefelps/core--step';
-import Queue from '@usefelps/core--queue';
+import * as CONST from '@usefelps/core--constants';
+import crawler from '@usefelps/core--crawler';
+// import useHandleFailedRequestFunction from '@usefelps/core--crawler/lib/use-handle-failed-request-function';
+// import useHandlePageFunction from '@usefelps/core--crawler/lib/use-handle-page-function';
+// import usePostNavigationHooks from '@usefelps/core--crawler/lib/use-post-navigation-hooks';
+// import usePreNavigationHooks from '@usefelps/core--crawler/lib/use-pre-navigation-hooks';
 import DatasetCollection from '@usefelps/core--dataset-collection';
+import Flow from '@usefelps/core--flow';
 import FlowCollection from '@usefelps/core--flow-collection';
-import HookCollection from '@usefelps/core--hook-collection';
+import HookCollection, { globalHookNames } from '@usefelps/core--hook-collection';
+import Input from '@usefelps/core--input';
+import Base from '@usefelps/core--instance-base';
 import ModelCollection from '@usefelps/core--model-collection';
+import Queue from '@usefelps/core--queue';
 import QueueCollection from '@usefelps/core--queue-collection';
+import RequestMeta from '@usefelps/core--request-meta';
+import Step from '@usefelps/core--step';
 import StepCollection from '@usefelps/core--step-collection';
 import StoreCollection from '@usefelps/core--store-collection';
-import RequestMeta from '@usefelps/core--request-meta';
 import Logger from '@usefelps/helper--logger';
-import { merge } from '@usefelps/helper--utils';
+import * as utils from '@usefelps/helper--utils';
+import * as FT from '@usefelps/types';
+import { PlaywrightCrawlerOptions, PlaywrightHook, RequestQueue } from 'apify';
 
-import { PREFIXED_NAME_BY_ACTOR, UNPREFIXED_NAME_BY_ACTOR } from '@usefelps/core--constants';
-import crawler from '@usefelps/core--crawler';
-import useHandleFailedRequestFunction from './crawler/use-handle-failed-request-function';
-import useHandlePageFunction from './crawler/use-handle-page-function';
-import usePostNavigationHooks from './crawler/use-post-navigation-hooks';
-import usePreNavigationHooks from './crawler/use-pre-navigation-hooks';
-import { globalHookNames } from '@usefelps/core--hook-collection';
-import {
-    ActorInput, ActorInstance, ActorOptions, CrawlerInstance,
-    QueueInstance, ReallyAny, RequestCrawlerOptions, StepInstance, StoreCollectionInstance
-} from '@usefelps/types';
-
-export const create = (options: ActorOptions): ActorInstance => {
+export const create = (options: FT.ActorOptions): FT.ActorInstance => {
     return {
         ...Base.create({ key: 'actor', name: options.name }),
-        ...extend({} as ActorInstance, options),
+        ...extend({} as FT.ActorInstance, options),
     };
 };
 
-export const extend = (actor: ActorInstance, options: Partial<ActorOptions> = {}): ActorInstance => {
+export const extend = (actor: FT.ActorInstance, options: Partial<FT.ActorOptions> = {}): FT.ActorInstance => {
     const instance = {
         ...actor,
         name: options.name || actor.name,
         input: options?.input || Input.create({ INPUT: { schema: { type: 'object' } } }),
-        crawlerOptions: merge({ mode: 'http' }, options?.crawlerOptions || {}) as RequestCrawlerOptions,
+        crawlerOptions: utils.merge({ mode: 'http' }, options?.crawlerOptions || {}) as FT.RequestCrawlerOptions,
         crawler: options?.crawler || actor.crawler || crawler.create(),
-        steps: (options?.steps || actor.steps || StepCollection.create({ STEPS: {}, INPUT: { schema: { type: 'object' } } })) as ReallyAny,
+        steps: (options?.steps || actor.steps || StepCollection.create({ STEPS: {}, INPUT: { schema: { type: 'object' } } })) as FT.ReallyAny,
         stepApiOptions: (options?.stepApiOptions || {}),
-        flows: (options?.flows || actor.flows || FlowCollection.create({ FLOWS: {} })) as ReallyAny,
+        flows: (options?.flows || actor.flows || FlowCollection.create({ FLOWS: {} })) as FT.ReallyAny,
         models: options?.models || actor.models || ModelCollection.create({ MODELS: {} }),
         stores: options?.stores || actor.stores || StoreCollection.create(),
         queues: options?.queues || actor.queues || QueueCollection.create(),
@@ -59,7 +53,7 @@ export const extend = (actor: ActorInstance, options: Partial<ActorOptions> = {}
     return instance;
 };
 
-export const combine = (actor: ActorInstance, ...actors: ActorInstance[]): ActorInstance => {
+export const combine = (actor: FT.ActorInstance, ...actors: FT.ActorInstance[]): FT.ActorInstance => {
     for (const other of actors) {
         actor.flows = { ...actor.flows, ...other.flows };
         actor.steps = { ...actor.steps, ...other.steps };
@@ -69,12 +63,12 @@ export const combine = (actor: ActorInstance, ...actors: ActorInstance[]): Actor
     const mainHookCollection = Object
         .keys(actor.hooks)
         .filter((key) => key.startsWith(prefix(actor, '')) && globalHookNames.some((name) => key.endsWith(name)))
-        .map((key) => (actor.hooks as ReallyAny)[key]) as StepInstance[];
+        .map((key) => (actor.hooks as FT.ReallyAny)[key]) as FT.StepInstance[];
 
     const otherHookCollection = Object
         .keys(actor.hooks)
         .filter((key) => !key.startsWith(prefix(actor, '')) && globalHookNames.some((name) => key.endsWith(name)))
-        .map((key) => (actor.hooks as ReallyAny)[key]) as StepInstance[];
+        .map((key) => (actor.hooks as FT.ReallyAny)[key]) as FT.StepInstance[];
 
     // Propagate hooks to other actors
     for (const hook of mainHookCollection) {
@@ -83,7 +77,7 @@ export const combine = (actor: ActorInstance, ...actors: ActorInstance[]): Actor
             for (const otherHook of otherHookCollection) {
                 if (
                     !otherHook.name.startsWith(prefix(actor, ''))
-                    && otherHook.name.endsWith(UNPREFIXED_NAME_BY_ACTOR(hook.name))
+                    && otherHook.name.endsWith(CONST.UNPREFIXED_NAME_BY_ACTOR(hook.name))
                 ) {
                     hooksPromises.push(Step.run(otherHook, actor, RequestMeta.cloneContext(context)));
                 }
@@ -95,23 +89,23 @@ export const combine = (actor: ActorInstance, ...actors: ActorInstance[]): Actor
     return actor;
 };
 
-export const makeCrawlerOptions = async (actor: ActorInstance, options: PlaywrightCrawlerOptions): Promise<PlaywrightCrawlerOptions> => {
+export const makeCrawlerOptions = async (actor: FT.ActorInstance, options: PlaywrightCrawlerOptions): Promise<PlaywrightCrawlerOptions> => {
     // const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
     const proxyConfiguration = undefined;
 
-    const preNavigationHooksList = usePreNavigationHooks(actor);
-    const postNavigationHooksList = usePostNavigationHooks();
+    // const preNavigationHooksList = usePreNavigationHooks(actor);
+    // const postNavigationHooksList = usePostNavigationHooks();
 
     // VALIDATE INPUT
 
     const preNavigationHooks = [
-        preNavigationHooksList.flowHook,
-        preNavigationHooksList.requestHook,
-        preNavigationHooksList.trailHook,
+        // preNavigationHooksList.flowHook,
+        // preNavigationHooksList.requestHook,
+        // preNavigationHooksList.trailHook,
     ] as unknown as PlaywrightHook[];
 
     const postNavigationHooks = [
-        postNavigationHooksList.trailHook,
+        // postNavigationHooksList.trailHook,
     ];
 
     const defaultOptions = {
@@ -119,9 +113,9 @@ export const makeCrawlerOptions = async (actor: ActorInstance, options: Playwrig
         navigationTimeoutSecs: 60,
         maxConcurrency: 40,
         maxRequestRetries: 3,
-        requestQueue: (await Queue.load(actor?.queues?.default as QueueInstance))?.resource as RequestQueue,
-        handlePageFunction: useHandlePageFunction(actor) as any,
-        handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
+        requestQueue: (await Queue.load(actor?.queues?.default as FT.QueueInstance))?.resource as RequestQueue,
+        // handlePageFunction: useHandlePageFunction(actor) as any,
+        // handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
         launchContext: {
             launchOptions: {
                 headless: false,
@@ -143,14 +137,14 @@ export const makeCrawlerOptions = async (actor: ActorInstance, options: Playwrig
     //     },
     // }
 
-    return merge(defaultOptions, options) as PlaywrightCrawlerOptions;
+    return utils.merge(defaultOptions, options) as PlaywrightCrawlerOptions;
 };
 
-export const prefix = (actor: ActorInstance, text: string): string => {
-    return PREFIXED_NAME_BY_ACTOR(actor.name, text);
+export const prefix = (actor: FT.ActorInstance, text: string): string => {
+    return CONST.PREFIXED_NAME_BY_ACTOR(actor.name, text);
 };
 
-export const prefixStepCollection = (actor: ActorInstance): ActorInstance['steps'] => {
+export const prefixStepCollection = (actor: FT.ActorInstance): FT.ActorInstance['steps'] => {
     return Object.keys(actor.steps).reduce((acc, key) => {
         const name = prefix(actor, actor.steps[key].name);
         acc[name] = Step.create({
@@ -159,10 +153,10 @@ export const prefixStepCollection = (actor: ActorInstance): ActorInstance['steps
             actorKey: actor.name,
         });
         return acc;
-    }, {} as ActorInstance['steps']);
+    }, {} as FT.ActorInstance['steps']);
 };
 
-export const prefixFlowCollection = (actor: ActorInstance): ActorInstance['flows'] => {
+export const prefixFlowCollection = (actor: FT.ActorInstance): FT.ActorInstance['flows'] => {
     return Object.keys(actor.flows).reduce((acc, key) => {
         const name = prefix(actor, actor.flows[key].name);
         acc[name] = Flow.create({
@@ -171,26 +165,26 @@ export const prefixFlowCollection = (actor: ActorInstance): ActorInstance['flows
             actorKey: actor.name,
         });
         return acc;
-    }, {} as ActorInstance['flows']);
+    }, {} as FT.ActorInstance['flows']);
 };
 
-export const prefixHookCollection = (actor: ActorInstance): ActorInstance['hooks'] => {
+export const prefixHookCollection = (actor: FT.ActorInstance): FT.ActorInstance['hooks'] => {
     return Object.keys(actor.hooks).reduce((acc, key) => {
-        const name = prefix(actor, (actor.hooks as ReallyAny)[key].name);
-        (acc as ReallyAny)[name] = Step.create({
-            ...(actor.hooks as ReallyAny)[key],
+        const name = prefix(actor, (actor.hooks as FT.ReallyAny)[key].name);
+        (acc as FT.ReallyAny)[name] = Step.create({
+            ...(actor.hooks as FT.ReallyAny)[key],
             name,
             actorKey: actor.name,
         });
         return acc;
-    }, {} as ActorInstance['hooks']);
+    }, {} as FT.ActorInstance['hooks']);
 };
 
-export const run = async (actor: ActorInstance, input: ActorInput, crawlerOptions?: PlaywrightCrawlerOptions): Promise<void> => {
+export const run = async (actor: FT.ActorInstance, input: FT.ActorInput, crawlerOptions?: PlaywrightCrawlerOptions): Promise<void> => {
     const startedAt = new Date().getTime();
     try {
         // Initialize actor
-        actor.stores = await StoreCollection.load(actor?.stores as StoreCollectionInstance);
+        actor.stores = await StoreCollection.load(actor?.stores as FT.StoreCollectionInstance);
         StoreCollection.listen(actor.stores);
 
         actor.input.data = input;
@@ -198,23 +192,23 @@ export const run = async (actor: ActorInstance, input: ActorInput, crawlerOption
         // Hook to help with preparing the queue
         // Given a polyfilled requestQueue and the input data
         // User can add to the queue the starting requests to be crawled
-        await Step.run(actor?.hooks?.[prefix(actor, 'ACTOR_STARTED') as 'ACTOR_STARTED'] as StepInstance, actor, undefined);
+        await Step.run(actor?.hooks?.[prefix(actor, 'ACTOR_STARTED') as 'ACTOR_STARTED'] as FT.StepInstance, actor, undefined);
 
-        await Step.run(actor?.hooks?.[prefix(actor, 'QUEUE_STARTED') as 'QUEUE_STARTED'] as StepInstance, actor, undefined);
+        await Step.run(actor?.hooks?.[prefix(actor, 'QUEUE_STARTED') as 'QUEUE_STARTED'] as FT.StepInstance, actor, undefined);
 
         /*
        * Run async requests
        */
         const crawlerOptionsComplete = await makeCrawlerOptions(actor, (crawlerOptions || {}) as PlaywrightCrawlerOptions);
-        await crawler.run(actor.crawler as CrawlerInstance, crawlerOptionsComplete);
+        await crawler.run(actor.crawler as FT.CrawlerInstance, crawlerOptionsComplete);
 
         // TODO: Provider functionnalities to the end hook
-        await Step.run(actor?.hooks?.[prefix(actor, 'QUEUE_ENDED') as 'QUEUE_ENDED'] as StepInstance, actor, undefined);
+        await Step.run(actor?.hooks?.[prefix(actor, 'QUEUE_ENDED') as 'QUEUE_ENDED'] as FT.StepInstance, actor, undefined);
 
         // TODO: Provider functionnalities to the end hook
-        await Step.run(actor?.hooks?.[prefix(actor, 'ACTOR_ENDED') as 'ACTOR_ENDED'] as StepInstance, actor, undefined);
+        await Step.run(actor?.hooks?.[prefix(actor, 'ACTOR_ENDED') as 'ACTOR_ENDED'] as FT.StepInstance, actor, undefined);
     } catch (error) {
-        Logger.error(Logger.create(actor), `Actor ${actor.name} failed`, { error } as ReallyAny);
+        Logger.error(Logger.create(actor), `Actor ${actor.name} failed`, { error } as FT.ReallyAny);
     } finally {
         // Closing..
         await StoreCollection.persist(actor.stores);

@@ -2,7 +2,7 @@ import StepApiFlow from '@usefelps/core--step-api--flow';
 import StepApiMeta from '@usefelps/core--step-api--meta';
 import StepApiModel from '@usefelps/core--step-api--model';
 import StepApiHelpers from '@usefelps/core--step-api--helpers';
-import { ActorInstance, FlowDefinition, InputDefinition, ModelDefinition, RequestContext, StepApiInstance } from './types';
+import { ActorInstance, FlowDefinition, InputDefinition, ModelDefinition, RequestContext, StepApiInstance } from '@usefelps/types';
 
 export const create = <
     F extends Record<string, FlowDefinition<keyof S>>,

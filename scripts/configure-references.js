@@ -29,13 +29,14 @@ config.references = [];
         const location = path.resolve(process.cwd(), workspace.location);
         const tsconfigPath = path.resolve(location, 'tsconfig.json');
         if (fs.existsSync(tsconfigPath)) {
-            config.references.push({
-                path: workspace.location,
-            });
+            const reference = { path: workspace.location };
+            if (reference.path !== ".") config.references.push(reference);
+
             const workspaceConfig = JSON.parse(
                 fs.readFileSync(tsconfigPath).toString(),
             );
-            workspaceConfig.compilerOptions.composite = true;
+            // workspaceConfig.compilerOptions ||= {};
+            // workspaceConfig.compilerOptions.composite = true;
             workspaceConfig.references = [];
             for (const dependency of workspace.workspaceDependencies) {
                 const dependecyLocation = path.resolve(
@@ -47,9 +48,10 @@ config.references = [];
                         path.resolve(dependecyLocation, 'tsconfig.json'),
                     )
                 ) {
-                    workspaceConfig.references.push({
+                    const reference = {
                         path: path.relative(location, dependecyLocation),
-                    });
+                    };
+                    if (reference.path !== ".") workspaceConfig.references.push(reference);
                 }
             }
             fs.writeFileSync(

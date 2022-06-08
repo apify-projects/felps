@@ -1,0 +1,67 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "lib"
+    },
+    "exclude": [
+        "node_modules",
+        "lib"
+    ],
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../core--constants"
+        },
+        {
+            "path": "../core--crawler"
+        },
+        {
+            "path": "../core--dataset-collection"
+        },
+        {
+            "path": "../core--flow"
+        },
+        {
+            "path": "../core--flow-collection"
+        },
+        {
+            "path": "../core--hook-collection"
+        },
+        {
+            "path": "../core--input"
+        },
+        {
+            "path": "../core--instance-base"
+        },
+        {
+            "path": "../core--model-collection"
+        },
+        {
+            "path": "../core--queue"
+        },
+        {
+            "path": "../core--request-meta"
+        },
+        {
+            "path": "../core--step"
+        },
+        {
+            "path": "../core--step-collection"
+        },
+        {
+            "path": "../core--store-collection"
+        },
+        {
+            "path": "../helper--logger"
+        },
+        {
+            "path": "../helper--utils"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}

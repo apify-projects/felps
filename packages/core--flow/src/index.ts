@@ -1,9 +1,9 @@
-import { UNPREFIXED_NAME_BY_ACTOR } from '@usefelps/core--constants';
+import * as CONST from '@usefelps/core--constants';
 import Base from '@usefelps/core--instance-base';
 import Model from '@usefelps/core--model';
-import { FlowInstance, FlowOptions, JSONSchema, ModelDefinition } from '@usefelps/types';
+import * as FT from '@usefelps/types';
 
-export const create = <StepNames = string>(options: FlowOptions<StepNames>): FlowInstance<StepNames> => {
+export const create = <StepNames = string>(options: FT.FlowOptions<StepNames>): FT.FlowInstance<StepNames> => {
     const { name, crawlerOptions, steps = [], flows = [], input, output, actorKey } = options || {};
 
     return {
@@ -11,14 +11,14 @@ export const create = <StepNames = string>(options: FlowOptions<StepNames>): Flo
         crawlerOptions,
         steps,
         flows,
-        input: Model.create(input as ModelDefinition<JSONSchema>),
-        output: Model.create(output as ModelDefinition<JSONSchema>),
+        input: Model.create(input as FT.ModelDefinition<FT.JSONSchema>),
+        output: Model.create(output as FT.ModelDefinition<FT.JSONSchema>),
         actorKey,
     };
 };
 
-export const has = <StepNames = unknown>(flow: FlowInstance<StepNames>, stepName: StepNames): boolean => {
-    return (flow.steps || []).some((name) => UNPREFIXED_NAME_BY_ACTOR(name as unknown as string) === UNPREFIXED_NAME_BY_ACTOR(stepName as unknown as string));
+export const has = <StepNames = unknown>(flow: FT.FlowInstance<StepNames>, stepName: StepNames): boolean => {
+    return (flow.steps || []).some((name: any) => CONST.UNPREFIXED_NAME_BY_ACTOR(name) === CONST.UNPREFIXED_NAME_BY_ACTOR(stepName as unknown as string));
 };
 
 export default { create, has };

@@ -17,7 +17,7 @@ export const parse = (urlPattern: UrlPatternInstance, url: string): UrlPatternPa
     try {
         const link = new URL(url);
         const matched = urlPattern.resource.match(link.pathname) as Record<string, string | number>;
-        if (!matched) return;
+        if (!matched) return undefined;
         return {
             origin: link.origin,
             pathParams: matched || {},

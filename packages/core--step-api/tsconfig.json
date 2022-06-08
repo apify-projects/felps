@@ -1,0 +1,31 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "lib"
+    },
+    "exclude": [
+        "node_modules",
+        "lib"
+    ],
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../core--step-api--flow"
+        },
+        {
+            "path": "../core--step-api--helpers"
+        },
+        {
+            "path": "../core--step-api--meta"
+        },
+        {
+            "path": "../core--step-api--model"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}
