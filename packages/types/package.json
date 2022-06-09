@@ -1,34 +1,33 @@
 {
-  "name": "@usefelps/types",
-  "version": "0.0.1",
-  "private": true,
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "dependencies": {
-    "apify-client": "*",
-    "flexsearch": "*",
-    "json-schema-to-ts": "*"
-  },
-  "devDependencies": {
-    "@types/flexsearch": "^0.7.3",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.7.2"
-  },
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
-  "scripts": {
-    "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
-    "prepack": "yarn build",
-    "compile": "tsc",
-    "build": "yarn clean && yarn compile",
-    "dev": "yarn clean && tsc --watch",
-    "lint": "eslint ./src --ext .ts,.js,.jsx",
-    "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
-  },
-  "license": "ISC"
+    "name": "@usefelps/types",
+    "version": "1.0.314",
+    "main": "lib/index.js",
+    "typings": "lib/index.d.ts",
+    "dependencies": {
+        "apify-client": "workspace:*",
+        "flexsearch": "workspace:*",
+        "json-schema-to-ts": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/flexsearch": "^0.7.3",
+        "rimraf": "^3.0.2",
+        "typescript": "^4.7.2"
+    },
+    "directories": {
+        "lib": "lib",
+        "test": "__tests__"
+    },
+    "files": [
+        "lib"
+    ],
+    "scripts": {
+        "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
+        "prepack": "yarn build",
+        "compile": "tsc",
+        "build": "yarn clean && yarn compile",
+        "dev": "yarn clean && tsc --watch",
+        "lint": "eslint ./src --ext .ts,.js,.jsx",
+        "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
+    },
+    "license": "ISC"
 }

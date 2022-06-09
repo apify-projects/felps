@@ -1,32 +1,31 @@
 {
-  "name": "@usefelps/helper--search",
-  "version": "0.0.1",
-  "private": true,
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "peerDependencies": {
-    "@usefelps/core--instance-base": "*",
-    "@usefelps/types": "*"
-  },
-  "devDependencies": {
-    "@usefelps/core--instance-base": "*",
-    "@usefelps/types": "*",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.7.2"
-  },
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
-  "scripts": {
-    "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
-    "dev": "npm run clean && tsc --watch",
-    "build": "tsc --build",
-    "lint": "eslint ./src --ext .ts,.js,.jsx",
-    "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
-  },
-  "license": "ISC"
+    "name": "@usefelps/helper--search",
+    "version": "1.0.314",
+    "main": "lib/index.js",
+    "typings": "lib/index.d.ts",
+    "peerDependencies": {
+        "@usefelps/core--instance-base": "workspace:*",
+        "@usefelps/types": "workspace:*"
+    },
+    "devDependencies": {
+        "@usefelps/core--instance-base": "workspace:*",
+        "@usefelps/types": "workspace:*",
+        "rimraf": "^3.0.2",
+        "typescript": "^4.7.2"
+    },
+    "directories": {
+        "lib": "lib",
+        "test": "__tests__"
+    },
+    "files": [
+        "lib"
+    ],
+    "scripts": {
+        "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
+        "dev": "npm run clean && tsc --watch",
+        "build": "tsc --build",
+        "lint": "eslint ./src --ext .ts,.js,.jsx",
+        "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
+    },
+    "license": "ISC"
 }

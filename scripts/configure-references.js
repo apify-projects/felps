@@ -19,6 +19,7 @@ config.references = [];
         return;
     }
 
+
     const { stdout, stderr } = await exec('yarn workspaces list --json -v');
 
     const lines = `[${stdout.split('\n').filter(Boolean).join(',')}]`;
@@ -31,7 +32,7 @@ config.references = [];
         if (fs.existsSync(tsconfigPath)) {
             const reference = { path: workspace.location };
             if (reference.path !== ".") config.references.push(reference);
-
+            // console.log('tsconfigPath',tsconfigPath)
             const workspaceConfig = JSON.parse(
                 fs.readFileSync(tsconfigPath).toString(),
             );
@@ -43,15 +44,17 @@ config.references = [];
                     process.cwd(),
                     workspaces.find(ws => ws.location === dependency).location,
                 );
-                if (
-                    fs.existsSync(
-                        path.resolve(dependecyLocation, 'tsconfig.json'),
-                    )
-                ) {
-                    const reference = {
-                        path: path.relative(location, dependecyLocation),
-                    };
-                    if (reference.path !== ".") workspaceConfig.references.push(reference);
+                const tsconfigPath = path.resolve(dependecyLocation, 'tsconfig.json');
+                try {
+                    if (fs.existsSync(tsconfigPath)) {
+                        const reference = {
+                            path: path.relative(location, dependecyLocation),
+                        };
+                        if (reference.path !== ".") workspaceConfig.references.push(reference);
+                    }
+                } catch (error) {
+                    console.error(tsconfigPath);
+                    console.error(error);
                 }
             }
             fs.writeFileSync(

@@ -1,50 +1,49 @@
 {
-  "name": "@usefelps/core--crawler",
-  "version": "0.0.1",
-  "private": true,
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "peerDependencies": {
-    "@usefelps/core--constants": "*",
-    "@usefelps/core--events": "*",
-    "@usefelps/core--instance-base": "*",
-    "@usefelps/core--orchestrator": "*",
-    "@usefelps/core--request-meta": "*",
-    "@usefelps/core--step": "*",
-    "@usefelps/core--step-api": "*",
-    "@usefelps/core--trail": "*",
-    "@usefelps/crawler-playwright": "*",
-    "@usefelps/helper--logger": "*",
-    "@usefelps/types": "*"
-  },
-  "devDependencies": {
-    "@usefelps/core--constants": "*",
-    "@usefelps/core--events": "*",
-    "@usefelps/core--instance-base": "*",
-    "@usefelps/core--orchestrator": "*",
-    "@usefelps/core--request-meta": "*",
-    "@usefelps/core--step": "*",
-    "@usefelps/core--step-api": "*",
-    "@usefelps/core--trail": "*",
-    "@usefelps/crawler-playwright": "*",
-    "@usefelps/helper--logger": "*",
-    "@usefelps/types": "*",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.7.2"
-  },
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
-  "scripts": {
-    "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
-    "dev": "npm run clean && tsc --watch",
-    "build": "tsc --build",
-    "lint": "eslint ./src --ext .ts,.js,.jsx",
-    "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
-  },
-  "license": "ISC"
+    "name": "@usefelps/core--crawler",
+    "version": "1.0.314",
+    "main": "lib/index.js",
+    "typings": "lib/index.d.ts",
+    "peerDependencies": {
+        "@usefelps/core--constants": "workspace:*",
+        "@usefelps/core--events": "workspace:*",
+        "@usefelps/core--instance-base": "workspace:*",
+        "@usefelps/core--orchestrator": "workspace:*",
+        "@usefelps/core--request-meta": "workspace:*",
+        "@usefelps/core--step": "workspace:*",
+        "@usefelps/core--step-api": "workspace:*",
+        "@usefelps/core--trail": "workspace:*",
+        "@usefelps/crawler-playwright": "workspace:*",
+        "@usefelps/helper--logger": "workspace:*",
+        "@usefelps/types": "workspace:*"
+    },
+    "devDependencies": {
+        "@usefelps/core--constants": "workspace:*",
+        "@usefelps/core--events": "workspace:*",
+        "@usefelps/core--instance-base": "workspace:*",
+        "@usefelps/core--orchestrator": "workspace:*",
+        "@usefelps/core--request-meta": "workspace:*",
+        "@usefelps/core--step": "workspace:*",
+        "@usefelps/core--step-api": "workspace:*",
+        "@usefelps/core--trail": "workspace:*",
+        "@usefelps/crawler-playwright": "workspace:*",
+        "@usefelps/helper--logger": "workspace:*",
+        "@usefelps/types": "workspace:*",
+        "rimraf": "^3.0.2",
+        "typescript": "^4.7.2"
+    },
+    "directories": {
+        "lib": "lib",
+        "test": "__tests__"
+    },
+    "files": [
+        "lib"
+    ],
+    "scripts": {
+        "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
+        "dev": "npm run clean && tsc --watch",
+        "build": "tsc --build",
+        "lint": "eslint ./src --ext .ts,.js,.jsx",
+        "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
+    },
+    "license": "ISC"
 }

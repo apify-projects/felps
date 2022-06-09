@@ -1,36 +1,35 @@
 {
-  "name": "@usefelps/custom--request-queue",
-  "version": "0.0.1",
-  "private": true,
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "peerDependencies": {
-    "@usefelps/adapter--kv-store--apify": "*",
-    "@usefelps/core--request-meta": "*",
-    "@usefelps/core--store--data": "*",
-    "@usefelps/types": "*"
-  },
-  "devDependencies": {
-    "@usefelps/adapter--kv-store--apify": "*",
-    "@usefelps/core--request-meta": "*",
-    "@usefelps/core--store--data": "*",
-    "@usefelps/types": "*",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.7.2"
-  },
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
-  "scripts": {
-    "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
-    "dev": "npm run clean && tsc --watch",
-    "build": "tsc --build",
-    "lint": "eslint ./src --ext .ts,.js,.jsx",
-    "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
-  },
-  "license": "ISC"
+    "name": "@usefelps/custom--request-queue",
+    "version": "1.0.314",
+    "main": "lib/index.js",
+    "typings": "lib/index.d.ts",
+    "peerDependencies": {
+        "@usefelps/adapter--kv-store--apify": "workspace:*",
+        "@usefelps/core--request-meta": "workspace:*",
+        "@usefelps/core--store--data": "workspace:*",
+        "@usefelps/types": "workspace:*"
+    },
+    "devDependencies": {
+        "@usefelps/adapter--kv-store--apify": "workspace:*",
+        "@usefelps/core--request-meta": "workspace:*",
+        "@usefelps/core--store--data": "workspace:*",
+        "@usefelps/types": "workspace:*",
+        "rimraf": "^3.0.2",
+        "typescript": "^4.7.2"
+    },
+    "directories": {
+        "lib": "lib",
+        "test": "__tests__"
+    },
+    "files": [
+        "lib"
+    ],
+    "scripts": {
+        "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
+        "dev": "npm run clean && tsc --watch",
+        "build": "tsc --build",
+        "lint": "eslint ./src --ext .ts,.js,.jsx",
+        "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
+    },
+    "license": "ISC"
 }

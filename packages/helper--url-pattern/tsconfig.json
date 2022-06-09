@@ -1,12 +1,13 @@
 {
     "extends": "../../tsconfig.json",
-
-
-      "compilerOptions": {
-    "outDir": "./lib"
-  },
-  "include": ["src/**/*"],
-"references": [
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
         {
             "path": "../core--instance-base"
         }

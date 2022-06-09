@@ -15,3 +15,5 @@ package-lock.json
 
 apify_storage/*
 !apify_storage/key_value_stores/default/INPUT.json
+
+lib

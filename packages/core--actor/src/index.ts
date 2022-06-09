@@ -180,12 +180,16 @@ export const prefixHookCollection = (actor: FT.ActorInstance): FT.ActorInstance[
     }, {} as FT.ActorInstance['hooks']);
 };
 
+export const load = async (actor: FT.ActorInstance) => {
+    // Initialize actor
+    actor.stores = await StoreCollection.load(actor?.stores as FT.StoreCollectionInstance);
+    StoreCollection.listen(actor.stores);
+};
+
 export const run = async (actor: FT.ActorInstance, input: FT.ActorInput, crawlerOptions?: PlaywrightCrawlerOptions): Promise<void> => {
     const startedAt = new Date().getTime();
     try {
-        // Initialize actor
-        actor.stores = await StoreCollection.load(actor?.stores as FT.StoreCollectionInstance);
-        StoreCollection.listen(actor.stores);
+        await load(actor);
 
         actor.input.data = input;
 
@@ -219,4 +223,4 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput, crawler
     }
 };
 
-export default { create, extend, run, prefix, combine };
+export default { create, load, extend, run, prefix, combine };
