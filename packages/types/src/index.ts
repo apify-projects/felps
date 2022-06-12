@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Apify, { Request } from 'apify';
 import { ApifyClient } from 'apify-client';
-import type { LogLevel } from 'apify/build/utils_log';
 import type EventEmitter from 'eventemitter3';
 import type { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
 import type { JSONSchema7 as $JSONSchema7 } from 'json-schema';
@@ -9,6 +8,8 @@ import type { FromSchema } from 'json-schema-to-ts';
 import type { Readonly } from 'json-schema-to-ts/lib/utils';
 import type Queue from 'queue';
 import type Route from 'route-parser';
+import type { LeveledLogMethod, Logger } from 'winston';
+import * as Transport from 'winston-transport';
 // import MultiCrawler from './sdk/multi-crawler';
 // import RequestQueue from './sdk/request-queue';
 
@@ -770,20 +771,23 @@ export type CrawlerOptions = {
     launcher?: ReallyAny, //  MultiCrawler |
 }
 
+export type LogMethods = 'emerg' | 'alert' | 'crit' | 'error' | 'warning' | 'notice' | 'info' | 'debug';
+export type LogLevels<LevelNames extends string = LogMethods> = Record<LevelNames, number>;
+
 // logger.ts ------------------------------------------------------------
 export type LoggerOptions = {
     suffix?: string,
-    level?: LogLevel,
+    level?: LogMethods,
+    levels?: LogLevels,
+    transports?: Transport[] | Transport
 }
 
-export type LogMethods = 'info' | 'warning' | 'error' | 'debug' | 'perf';
+export type LoggerResource<LevelNames extends string = LogMethods> = Record<LevelNames, LeveledLogMethod>;
 
 export type LoggerInstance = {
-    elementId: string,
-    suffix?: string,
-    level?: LogLevel,
-    apifyLogger: import('@apify/log/log').Log,
-}
+    parent: { id: string },
+    resource: Logger
+} & LoggerOptions;
 
 // apify-client.ts ------------------------------------------------------------
 export type ApifyClientInstance = {
@@ -884,4 +888,17 @@ export type KVStoreAdapterOptions<T = ReallyAny> = {
 export type KVStoreAdapterListResult = {
     keys: { key: string, size?: number }[],
     cursor?: string,
+}
+
+// logger-adapter.ts
+export type LoggerAdapterInstance = LoggerAdapterOptions & BaseInstance;
+
+export type LoggerAdapterOptions = {
+    name: string,
+    adapter: Transport,
+}
+
+// playwright-crawler.ts
+export type PlaywrightCrawlerOptions = {
+
 }

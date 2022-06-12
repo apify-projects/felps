@@ -1,55 +1,66 @@
-import Apify from 'apify';
-import EventEmitter from 'events';
 import * as FT from '@usefelps/types';
+import { createLogger, format, transports as defaultTransports } from 'winston';
 
-const loggerEvents = new EventEmitter();
-loggerEvents.setMaxListeners(8000);
+export const defaultLevels = {
+    emerg: 0,
+    alert: 1,
+    crit: 2,
+    error: 3,
+    warning: 4,
+    notice: 5,
+    info: 6,
+    debug: 7
+};
 
-export const create = (element: { id: string }, options?: FT.LoggerOptions): FT.LoggerInstance => {
-    const { suffix, level = Apify.utils.log.LEVELS.INFO } = options || {};
+export const create = (parent: { id: string }, options?: FT.LoggerOptions): FT.LoggerInstance => {
+    const { suffix, level = 'info', levels = defaultLevels } = options || {};
+    let { transports } = options || {};
 
-    const logger = Apify.utils.log;
-    logger.setLevel(level);
-    loggerEvents.on('mode', (newLevel) => { logger.setLevel(newLevel); });
+    transports ||= [new defaultTransports.Console({ level: 'info', format: format.combine(format.colorize(), format.simple()) })]
+
+    const resource = createLogger({
+        level,
+        levels,
+        // format: format.json(),
+        transports,
+    });
 
     return {
-        elementId: element.id,
+        parent,
         suffix,
+        levels,
         level,
-        apifyLogger: logger,
+        resource,
     };
 };
 
-export const setLevel = (level: 'ERROR' | 'DEBUG' | 'INFO') => {
-    loggerEvents.emit('mode', Apify.utils.log.LEVELS[level]);
+export const setLevel = (logger: FT.LoggerInstance, level: keyof typeof logger.levels) => {
+    logger.resource.level = level;
 };
 
-export const createPrefix = (logger: FT.LoggerInstance, icon: string, id: string) => {
-    return `[${icon} ${id}${logger.suffix ? `:${logger.suffix}` : ''}]`;
-};
+export const log = (logger: FT.LoggerInstance, level: keyof typeof logger.levels, message: string, ...meta: any[]) => {
+    logger.resource?.[level]?.(message, ...meta);
+}
 
-export const createLog = (method: string, icon: string) => (logger: FT.LoggerInstance, messages?: string | string[], data?: Record<string, any>) => {
-    const prefix = createPrefix(logger, icon, logger.elementId);
-    const text = (Array.isArray(messages) ? messages : [messages]).filter(Boolean).map((message) => `      -- ${message}`).join('\n');
-    logger.apifyLogger[method as FT.LogMethods](`${prefix}${text ? `\n ${text}` : ''}`, data);
-};
-
-export const debug = createLog('debug', '?!');
-
-export const start = createLog('info', '>');
-
-export const end = createLog('info', '<');
-
-export const info = createLog('info', 'i');
-
-export const error = createLog('error', '!');
+export const emerg = (logger: FT.LoggerInstance, message: string, ...meta: any[]) => log(logger, 'emerg', message, meta);
+export const alert = (logger: FT.LoggerInstance, message: string, ...meta: any[]) => log(logger, 'alert', message, meta);
+export const crit = (logger: FT.LoggerInstance, message: string, ...meta: any[]) => log(logger, 'crit', message, meta);
+export const error = (logger: FT.LoggerInstance, message: string, ...meta: any[]) => log(logger, 'error', message, meta);
+export const warning = (logger: FT.LoggerInstance, message: string, ...meta: any[]) => log(logger, 'warning', message, meta);
+export const notice = (logger: FT.LoggerInstance, message: string, ...meta: any[]) => log(logger, 'notice', message, meta);
+export const info = (logger: FT.LoggerInstance, message: string, ...meta: any[]) => log(logger, 'info', message, meta);
+export const debug = (logger: FT.LoggerInstance, message: string, ...meta: any[]) => log(logger, 'debug', message, meta);
 
 export default {
     create,
     setLevel,
-    debug,
-    start,
-    end,
-    info,
+    log,
+    emerg,
+    alert,
+    crit,
     error,
+    warning,
+    notice,
+    info,
+    debug,
 };

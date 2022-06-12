@@ -15,8 +15,8 @@ import ModelCollection from '@usefelps/core--model-collection';
 import DataStore from '@usefelps/core--store--data';
 import FileStore from '@usefelps/core--store--file';
 import StoreCollection from '@usefelps/core--store-collection';
-import Queue from '@usefelps/core--queue';
-import QueueCollection from '@usefelps/core--queue-collection';
+import Queue from '@usefelps/core--request-queue';
+import QueueCollection from '@usefelps/core--request-queue-collection';
 import Dataset from '@usefelps/core--dataset';
 import DatasetCollection from '@usefelps/core--dataset-collection';
 import HookCollection from '@usefelps/core--hook-collection';
@@ -35,9 +35,9 @@ import Logger from '@usefelps/helper--logger';
 import Mutable from '@usefelps/helper--mutable';
 import CustomRequestQueue from '@usefelps/custom--request-queue';
 import CustomPlaywrightCrawler from '@usefelps/custom--crawler--playwright';
-import KvStoreAdapter from '@usefelps/adapter--kv-store';
-import ApifyKvStoreAdapter from '@usefelps/adapter--kv-store--apify';
-import InMemoryKvStoreAdapter from '@usefelps/adapter--kv-store--in-memory';
+import KvStoreAdapter from '@usefelps/kv-store--adapter';
+import ApifyKvStoreAdapter from '@usefelps/kv-store--adapter--apify';
+import InMemoryKvStoreAdapter from '@usefelps/kv-store--adapter--in-memory';
 
 export {
     Base,

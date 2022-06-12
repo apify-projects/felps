@@ -22,24 +22,6 @@
     },
     "references": [
         {
-            "path": "packages/adapter--kv-store"
-        },
-        {
-            "path": "packages/adapter--kv-store--apify"
-        },
-        {
-            "path": "packages/adapter--kv-store--in-memory"
-        },
-        {
-            "path": "packages/adapter--request-queue"
-        },
-        {
-            "path": "packages/adapter--request-queue--apify"
-        },
-        {
-            "path": "packages/adapter--request-queue--in-memory"
-        },
-        {
             "path": "packages/apify--client"
         },
         {
@@ -88,13 +70,13 @@
             "path": "packages/core--orchestrator"
         },
         {
-            "path": "packages/core--queue"
-        },
-        {
-            "path": "packages/core--queue-collection"
-        },
-        {
             "path": "packages/core--request-meta"
+        },
+        {
+            "path": "packages/core--request-queue"
+        },
+        {
+            "path": "packages/core--request-queue-collection"
         },
         {
             "path": "packages/core--step"
@@ -157,6 +139,12 @@
             "path": "packages/helper--logger"
         },
         {
+            "path": "packages/helper--logger--adapter"
+        },
+        {
+            "path": "packages/helper--logger--adapter--apify"
+        },
+        {
             "path": "packages/helper--mutable"
         },
         {
@@ -169,7 +157,28 @@
             "path": "packages/helper--utils"
         },
         {
+            "path": "packages/kv-store--adapter"
+        },
+        {
+            "path": "packages/kv-store--adapter--apify"
+        },
+        {
+            "path": "packages/kv-store--adapter--in-memory"
+        },
+        {
             "path": "packages/lib--felps"
+        },
+        {
+            "path": "packages/request-queue--adapter"
+        },
+        {
+            "path": "packages/request-queue--adapter--apify"
+        },
+        {
+            "path": "packages/request-queue--adapter--in-memory"
+        },
+        {
+            "path": "packages/test-run"
         },
         {
             "path": "packages/types"

@@ -57,11 +57,9 @@ config.references = [];
                     console.error(error);
                 }
             }
-            fs.writeFileSync(
-                tsconfigPath,
-                JSON.stringify(workspaceConfig, undefined, 4),
-            );
+            fs.writeFileSync(tsconfigPath, JSON.stringify(workspaceConfig, undefined, 4));
         }
     }
-    fs.writeFileSync('tsconfig.json', JSON.stringify(config, undefined, 4));
+
+    fs.writeFileSync(path.resolve(__dirname, '../tsconfig.json'), JSON.stringify(config, undefined, 4));
 })();

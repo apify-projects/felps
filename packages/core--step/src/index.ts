@@ -1,7 +1,6 @@
 import { ACTOR_KEY_PROP } from '@usefelps/core--constants';
 import Base from '@usefelps/core--instance-base';
 import Logger from '@usefelps/helper--logger';
-// import Orchestrator from '@usefelps/core--orchestrator';
 import RequestMeta from '@usefelps/core--request-meta';
 import StepApi from '@usefelps/core--step-api';
 import Trail from '@usefelps/core--trail';
@@ -32,22 +31,6 @@ export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepI
     };
 };
 
-export const on = (step: StepInstance, handler: () => void) => {
-    return {
-        ...step,
-        handler,
-    };
-};
-
-export const extend = <Methods = unknown>(step: StepInstance, options: StepOptions<Methods>) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { name, ...otherOptions } = options || {};
-    return {
-        ...step,
-        ...otherOptions,
-    };
-};
-
 export const run = async (step: StepInstance | undefined, actor: ActorInstance, context: RequestContext | undefined): Promise<void> => {
     if (!step) return;
 
@@ -63,9 +46,8 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
     const digest = Trail.digested(trail);
     const meta = RequestMeta.create(ctx.request);
 
-    if (!meta.data.isHook) {
-        // CONDITIONALLY DISPLAY IT FOR HOOK AS WELL
-        Logger.start(logger, context?.request?.url ? `at ${context.request.url}` : '');
+    if (!meta.data.isHook && context?.request?.url) {
+        Logger.info(logger, `at ${context.request.url}`);
     }
 
     try {
@@ -75,17 +57,13 @@ export const run = async (step: StepInstance | undefined, actor: ActorInstance, 
         TrailDataRequests.setStatus(digest.requests, 'SUCCEEDED', meta.data.reference);
 
         await step?.afterHandler?.(ctx, stepApi(ctx));
+
     } catch (error) {
         TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
+        await step?.errorHandler?.(ctx, stepApi(ctx));
         throw error;
-    } finally {
-        // TODO: Better filter which hooks should fire the orchestrator
-        // Can trigger a false push to dataset otherwise
-        // && (!meta.data.isHook || !meta.data.stepName.includes('STEP_STARTED'))
-        if (step?.handler) {
-            // await Orchestrator.run(Orchestrator.create(actor), ctx, stepApi(ctx));
-        };
+
     }
 };
 
-export default { create, on, extend, run };
+export default { create, run };

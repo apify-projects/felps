@@ -2,10 +2,10 @@
 import * as CONST from '@usefelps/core--constants';
 import RequestMeta from '@usefelps/core--request-meta';
 import Step from '@usefelps/core--step';
-import StepApi from '@usefelps/core--step-api';
+// import StepApi from '@usefelps/core--step-api';
 import Trail from '@usefelps/core--trail';
 import TrailDataRequests from '@usefelps/core--trail--data-requests';
-import Logger from '@usefelps/helper--logger';
+// import Logger from '@usefelps/helper--logger';
 import * as FT from '@usefelps/types';
 
 export default (actor: FT.ActorInstance) => {
@@ -30,11 +30,12 @@ export default (actor: FT.ActorInstance) => {
             return;
         }
 
-        try {
-            TrailDataRequests.setStatus(digest.requests, 'DISCARDED', meta.data.reference);
-            await stepInstance?.errorHandler?.(context, StepApi.create<FT.ReallyAny, FT.ReallyAny, FT.ReallyAny, FT.ReallyAny>(actor)(context));
-        } catch (err) {
-            Logger.error(Logger.create(stepInstance), `Error happened within step errorHandler: ${meta.data.stepName}`, { err });
-        };
+        TrailDataRequests.setStatus(digest.requests, 'DISCARDED', meta.data.reference);
+
+        // try {
+        //     await stepInstance?.errorHandler?.(context, StepApi.create<FT.ReallyAny, FT.ReallyAny, FT.ReallyAny, FT.ReallyAny>(actor)(context));
+        // } catch (err) {
+        //     Logger.error(Logger.create(stepInstance), `Error happened within step errorHandler: ${meta.data.stepName}`, { err });
+        // };
     };
 };

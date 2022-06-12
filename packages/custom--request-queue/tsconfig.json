@@ -9,13 +9,13 @@
     ],
     "references": [
         {
-            "path": "../adapter--kv-store--apify"
-        },
-        {
             "path": "../core--request-meta"
         },
         {
             "path": "../core--store--data"
+        },
+        {
+            "path": "../kv-store--adapter--apify"
         },
         {
             "path": "../types"

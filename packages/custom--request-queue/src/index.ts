@@ -2,7 +2,7 @@ import { QueueOperationInfo, Request } from 'apify';
 import { RequestQueue as ApifyRequestQueue } from 'apify/build/storages/request_queue';
 import DataStore from '@usefelps/core--store--data';
 import RequestMeta from '@usefelps/core--request-meta';
-import ApifyKvStore from '@usefelps/adapter--kv-store--apify';
+import ApifyKvStore from '@usefelps/kv-store--adapter--apify';
 import { DataStoreInstance, ReallyAny, RequestOptionalOptions, RequestSource } from '@usefelps/types';
 
 export default class RequestQueue extends ApifyRequestQueue {

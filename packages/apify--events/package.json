@@ -6,11 +6,7 @@
     "dependencies": {
         "lodash.throttle": "^4.0.1"
     },
-    "peerDependencies": {
-        "apify": "^2.3.2"
-    },
     "devDependencies": {
-        "apify": "^2.3.2",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"
     },

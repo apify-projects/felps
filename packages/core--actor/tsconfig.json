@@ -36,10 +36,10 @@
             "path": "../core--model-collection"
         },
         {
-            "path": "../core--queue"
+            "path": "../core--request-meta"
         },
         {
-            "path": "../core--request-meta"
+            "path": "../core--request-queue"
         },
         {
             "path": "../core--step"

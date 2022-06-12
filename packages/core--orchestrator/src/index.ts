@@ -2,7 +2,7 @@ import * as CONST from '@usefelps/core--constants';
 import Dataset from '@usefelps/core--dataset';
 import Flow from '@usefelps/core--flow';
 import Model from '@usefelps/core--model';
-import Queue from '@usefelps/core--queue';
+import Queue from '@usefelps/core--request-queue';
 import RequestMeta from '@usefelps/core--request-meta';
 import Step from '@usefelps/core--step';
 import StepApi from '@usefelps/core--step-api';

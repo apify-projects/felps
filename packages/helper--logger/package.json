@@ -27,5 +27,8 @@
         "lint": "eslint ./src --ext .ts,.js,.jsx",
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
-    "license": "ISC"
+    "license": "ISC",
+    "dependencies": {
+        "winston": "^3.7.2"
+    }
 }

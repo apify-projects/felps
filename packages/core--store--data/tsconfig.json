@@ -9,9 +9,6 @@
     ],
     "references": [
         {
-            "path": "../adapter--kv-store"
-        },
-        {
             "path": "../apify--events"
         },
         {
@@ -22,6 +19,9 @@
         },
         {
             "path": "../helper--utils"
+        },
+        {
+            "path": "../kv-store--adapter"
         },
         {
             "path": "../types"

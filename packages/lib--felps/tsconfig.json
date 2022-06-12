@@ -9,15 +9,6 @@
     ],
     "references": [
         {
-            "path": "../adapter--kv-store"
-        },
-        {
-            "path": "../adapter--kv-store--apify"
-        },
-        {
-            "path": "../adapter--kv-store--in-memory"
-        },
-        {
             "path": "../core--actor"
         },
         {
@@ -57,13 +48,13 @@
             "path": "../core--orchestrator"
         },
         {
-            "path": "../core--queue"
-        },
-        {
-            "path": "../core--queue-collection"
-        },
-        {
             "path": "../core--request-meta"
+        },
+        {
+            "path": "../core--request-queue"
+        },
+        {
+            "path": "../core--request-queue-collection"
         },
         {
             "path": "../core--step"
@@ -127,6 +118,15 @@
         },
         {
             "path": "../helper--url-pattern"
+        },
+        {
+            "path": "../kv-store--adapter"
+        },
+        {
+            "path": "../kv-store--adapter--apify"
+        },
+        {
+            "path": "../kv-store--adapter--in-memory"
         },
         {
             "path": "../types"

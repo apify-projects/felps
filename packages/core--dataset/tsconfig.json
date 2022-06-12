@@ -7,5 +7,21 @@
     "include": [
         "src"
     ],
-    "references": []
+    "references": [
+        {
+            "path": "../core--instance-base"
+        },
+        {
+            "path": "../core--request-meta"
+        },
+        {
+            "path": "../helper--logger"
+        },
+        {
+            "path": "../helper--utils"
+        },
+        {
+            "path": "../types"
+        }
+    ]
 }

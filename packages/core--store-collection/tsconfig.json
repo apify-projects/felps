@@ -9,16 +9,16 @@
     ],
     "references": [
         {
-            "path": "../adapter--kv-store"
-        },
-        {
-            "path": "../adapter--kv-store--apify"
-        },
-        {
             "path": "../core--store--data"
         },
         {
             "path": "../core--store--file"
+        },
+        {
+            "path": "../kv-store--adapter"
+        },
+        {
+            "path": "../kv-store--adapter--apify"
         },
         {
             "path": "../types"

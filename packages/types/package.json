@@ -4,9 +4,12 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
+        "@types/winston": "^2.4.4",
         "apify-client": "workspace:*",
         "flexsearch": "workspace:*",
-        "json-schema-to-ts": "workspace:*"
+        "json-schema-to-ts": "workspace:*",
+        "winston": "^3.7.2",
+        "winston-transport": "^4.5.0"
     },
     "devDependencies": {
         "@types/flexsearch": "^0.7.3",

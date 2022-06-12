@@ -11,8 +11,8 @@ import HookCollection, { globalHookNames } from '@usefelps/core--hook-collection
 import Input from '@usefelps/core--input';
 import Base from '@usefelps/core--instance-base';
 import ModelCollection from '@usefelps/core--model-collection';
-import Queue from '@usefelps/core--queue';
-import QueueCollection from '@usefelps/core--queue-collection';
+import Queue from '@usefelps/core--request-queue';
+import QueueCollection from '@usefelps/core--request-queue-collection';
 import RequestMeta from '@usefelps/core--request-meta';
 import Step from '@usefelps/core--step';
 import StepCollection from '@usefelps/core--step-collection';

@@ -7,5 +7,15 @@
     "include": [
         "src"
     ],
-    "references": []
+    "references": [
+        {
+            "path": "../apify--events"
+        },
+        {
+            "path": "../core--instance-base"
+        },
+        {
+            "path": "../types"
+        }
+    ]
 }

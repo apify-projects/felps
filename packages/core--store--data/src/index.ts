@@ -1,6 +1,6 @@
 import ApifyEvents from '@usefelps/apify--events';
 import Base from '@usefelps/core--instance-base';
-import KvStoreAdapter from '@usefelps/adapter--kv-store';
+import KvStoreAdapter from '@usefelps/kv-store--adapter';
 import Logger from '@usefelps/helper--logger';
 import { DataStoreInstance, DataStoreOptions, ReallyAny } from '@usefelps/types';
 import * as utils from '@usefelps/helper--utils';
@@ -119,7 +119,7 @@ export const update = <T = ReallyAny>(dataStore: DataStoreInstance, path: string
 
 export const load = async (dataStore: DataStoreInstance): Promise<DataStoreInstance> => {
     if (!dataStore.initialized) {
-        Logger.start(Logger.create(dataStore), 'Loading...');
+        // Logger.start(Logger.create(dataStore), 'Loading...');
         let state: Record<string, ReallyAny> = {};
         const connected = await KvStoreAdapter.load(dataStore.adapter);
 

@@ -4,17 +4,17 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "peerDependencies": {
-        "@usefelps/adapter--kv-store": "workspace:*",
-        "@usefelps/adapter--kv-store--apify": "workspace:*",
         "@usefelps/core--store--data": "workspace:*",
         "@usefelps/core--store--file": "workspace:*",
+        "@usefelps/kv-store--adapter": "workspace:*",
+        "@usefelps/kv-store--adapter--apify": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
-        "@usefelps/adapter--kv-store": "workspace:*",
-        "@usefelps/adapter--kv-store--apify": "workspace:*",
         "@usefelps/core--store--data": "workspace:*",
         "@usefelps/core--store--file": "workspace:*",
+        "@usefelps/kv-store--adapter": "workspace:*",
+        "@usefelps/kv-store--adapter--apify": "workspace:*",
         "@usefelps/types": "workspace:*",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"

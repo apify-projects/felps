@@ -1,4 +1,4 @@
-import ApifyKvStore from '@usefelps/adapter--kv-store--apify';
+import ApifyKvStore from '@usefelps/kv-store--adapter--apify';
 import DataStore from '@usefelps/core--store--data';
 import FileStore from '@usefelps/core--store--file';
 import { DataStoreInstance, FileStoreInstance, ReallyAny, StoreCollectionInstance, StoreCollectionOptions, StoreInstance } from '@usefelps/types';

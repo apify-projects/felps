@@ -7,7 +7,11 @@
     "include": [
         "src"
     ],
-    "references": [],
+    "references": [
+        {
+            "path": "../types"
+        }
+    ],
     "exclude": [
         "node_modules",
         "lib"

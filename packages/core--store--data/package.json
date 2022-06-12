@@ -4,19 +4,19 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "peerDependencies": {
-        "@usefelps/adapter--kv-store": "workspace:*",
         "@usefelps/apify--events": "workspace:*",
         "@usefelps/core--instance-base": "workspace:*",
         "@usefelps/helper--logger": "workspace:*",
         "@usefelps/helper--utils": "workspace:*",
+        "@usefelps/kv-store--adapter": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
-        "@usefelps/adapter--kv-store": "workspace:*",
         "@usefelps/apify--events": "workspace:*",
         "@usefelps/core--instance-base": "workspace:*",
         "@usefelps/helper--logger": "workspace:*",
         "@usefelps/helper--utils": "workspace:*",
+        "@usefelps/kv-store--adapter": "workspace:*",
         "@usefelps/types": "workspace:*",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"

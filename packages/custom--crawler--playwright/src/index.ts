@@ -1,14 +1,33 @@
 import { addTimeoutToPromise, tryCancel } from '@apify/timeout';
-import { BrowserCrawler, BrowserPlugin, PlaywrightCrawler, PlaywrightCrawlerOptions, PlaywrightLaunchContext } from 'apify';
-import { PlaywrightLauncher } from 'apify/build/browser_launchers/playwright_launcher';
-import { gotoExtended } from 'apify/build/puppeteer_utils';
-import * as cheerio from 'cheerio';
-import EventEmitter from 'eventemitter3';
-import HttpsProxyAgent from 'https-proxy-agent';
+import { BrowserCrawler } from '@crawlee/browser';
+import { BrowserPlugin, CommonPage } from '@crawlee/browser-pool';
+import { Request } from '@crawlee/core';
+import { CrawlingContext, EnqueueLinksOptions, mergeCookies, PlaywrightCookie, PlaywrightCrawlerOptions, PlaywrightCrawlingContext, PlaywrightLaunchContext, PlaywrightLauncher, Session } from '@crawlee/playwright';
+import { Dictionary } from '@crawlee/types';
+import { CheerioRoot } from '@crawlee/utils';
+import { ReallyAny, RequestCrawlerMode } from '@usefelps/types';
+import { gotScraping, Method, OptionsInit, Request as GotRequest, TimeoutError } from 'got-scraping';
+import { IncomingMessage } from 'http';
 import getPath from 'lodash.get';
-import nodeFetch from 'node-fetch';
-import ow from 'ow';
 import { chromium, firefox, webkit } from 'playwright';
+import { Cookie } from 'tough-cookie';
+
+export interface RequestFunctionOptions {
+    request: Request;
+    session?: Session;
+    proxyUrl?: string;
+    gotOptions: OptionsInit;
+}
+
+export type CheerioCrawlerEnqueueLinksOptions = Omit<EnqueueLinksOptions, 'urls' | 'requestQueue'>;
+
+export interface CheerioCrawlingContext extends CrawlingContext<Dictionary> {
+    $: CheerioRoot;
+    body: (string | Buffer);
+    json: Dictionary;
+    contentType: { type: string; encoding: string };
+    response: IncomingMessage;
+}
 
 const getBrowserPlugin = (browser: string, launchContext: PlaywrightLaunchContext): BrowserPlugin => {
     let launcher;
@@ -31,24 +50,22 @@ const getBrowserPlugin = (browser: string, launchContext: PlaywrightLaunchContex
     return new PlaywrightLauncher({ ...launchContext, launcher }).createBrowserPlugin();
 };
 
-export default class MultiCrawler extends BrowserCrawler {
-    browserPlugins: { [browser: string]: BrowserPlugin } = {};
-    crawlerModePath: string;
-    events: EventEmitter
+export type CustomPlaywrightCrawlerOptions = PlaywrightCrawlerOptions & {
+    mode: RequestCrawlerMode,
+};
 
-    static override optionsShape = {
-        ...BrowserCrawler.optionsShape,
-        browserPoolOptions: ow.optional.object,
-        launcher: ow.optional.object,
-        launchContext: ow.optional.object,
-    };
+export const CONST = {
+    CRAWLER_OPTIONS: '__crawlerOptions'
+};
 
-    launchContext: PlaywrightLaunchContext;
+export default class CustomPlaywrightCrawler extends BrowserCrawler {
+    protected browserPlugins: { [browser: string]: BrowserPlugin } = {};
+    protected requestTimeoutMillis: number;
+    protected ignoreSslErrors: boolean;
+    // events: EventEmitter
 
     constructor(options: PlaywrightCrawlerOptions) {
-        ow(options, 'PlaywrightCrawlerOptions', ow.object.exactShape(PlaywrightCrawler.optionsShape));
-
-        const { launchContext = {}, browserPoolOptions = {}, ...browserCrawlerOptions } = options as any;
+        const { launchContext = {}, browserPoolOptions = {}, ...browserCrawlerOptions } = options;
 
         const browserPlugins = {
             http: getBrowserPlugin('http', launchContext),
@@ -58,38 +75,194 @@ export default class MultiCrawler extends BrowserCrawler {
         };
 
         browserPoolOptions.browserPlugins = Object.values(browserPlugins);
+        // browserPoolOptions.prePageCreateHooks = [
+        //     (pageId, browserController, pageOptions) => {
+        //         // Change page configuration here based on request
+        //     },
+        // ],
 
-        super({ ...browserCrawlerOptions, browserPoolOptions });
+        super({ ...browserCrawlerOptions, browserPoolOptions } as ReallyAny);
 
-        this.crawlerModePath = `crawlerOptions.mode`;
         this.browserPlugins = browserPlugins;
         this.launchContext = launchContext;
-        this.events = new EventEmitter();
+        // this.events = new EventEmitter();
     }
 
-    override async _navigationHandler(context: any, nextOptions: any): Promise<any> {
-        return gotoExtended(context.page, context.request, nextOptions);
+
+    protected override async _applyCookies({ session, request, page }: PlaywrightCrawlingContext, preHooksCookies: string, postHooksCookies: string, gotOptions?: OptionsInit) {
+        if (page) {
+            const sessionCookie = session?.getPuppeteerCookies(request.url) ?? [];
+            const parsedPreHooksCookies = preHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as PlaywrightCookie | undefined);
+            const parsedPostHooksCookies = postHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as PlaywrightCookie | undefined);
+
+            await page.context().addCookies(
+                [
+                    ...sessionCookie,
+                    ...parsedPreHooksCookies,
+                    ...parsedPostHooksCookies,
+                ].filter((c): c is PlaywrightCookie => c !== undefined),
+            );
+        } else {
+            const sessionCookie = session?.getCookieString(request.url) ?? '';
+            const alteredGotOptionsCookies = (gotOptions.headers?.Cookie ?? gotOptions.headers?.cookie ?? '') as string;
+
+            const mergedCookie = mergeCookies(request.url, [sessionCookie, preHooksCookies, alteredGotOptionsCookies, postHooksCookies]);
+
+            gotOptions.headers ??= {};
+            gotOptions.headers.Cookie = mergedCookie;
+        }
     }
 
-    override async _handleRequestFunction(context: any): Promise<any> {
-        const crawlerMode = getPath(context?.request?.userData || {}, this.crawlerModePath) || 'http';
+    protected _getRequestOptions(request: Request, session?: Session, proxyUrl?: string, gotOptions?: OptionsInit) {
+        const requestOptions: OptionsInit & { isStream: true } = {
+            url: request.url,
+            method: request.method as Method,
+            proxyUrl,
+            timeout: { request: this.requestTimeoutMillis },
+            sessionToken: session,
+            ...gotOptions,
+            headers: { ...request.headers, ...gotOptions?.headers },
+            https: {
+                ...gotOptions?.https,
+                rejectUnauthorized: !this.ignoreSslErrors,
+            },
+            isStream: true,
+        };
 
-        const newPageOptions = {
+        if (this.proxyConfiguration && this.proxyConfiguration.isManInTheMiddle) {
+            requestOptions.https = {
+                ...requestOptions.https,
+                rejectUnauthorized: false,
+            };
+        }
+
+        if (/PATCH|POST|PUT/.test(request.method)) requestOptions.body = request.payload;
+
+        return requestOptions;
+    }
+
+    private _requestAsBrowser = (options: OptionsInit & { isStream: true }) => {
+        return new Promise<IncomingMessage>((resolve, reject) => {
+            const stream = gotScraping(options);
+
+            stream.on('error', reject);
+            stream.on('response', () => {
+                resolve(addResponsePropertiesToStream(stream));
+            });
+        });
+    };
+
+    protected _handleRequestTimeout(session?: Session) {
+        session?.markBad();
+        throw new Error(`request timed out after ${this.requestHandlerTimeoutMillis / 1000} seconds.`);
+    }
+
+    override async _navigationHandler(context: PlaywrightCrawlingContext, gotoOptions?: ReallyAny): Promise<any> {
+
+        const crawlerOptions = getPath(context?.request?.userData || {}, CONST.CRAWLER_OPTIONS) as CustomPlaywrightCrawlerOptions;
+        const { mode = 'http' } = crawlerOptions || {};
+
+        console.log('_navigationHandler', { mode });
+
+        if (mode === 'http') {
+            const { session, request, proxyUrl, gotOptions } = context as unknown as RequestFunctionOptions;
+            const opts = this._getRequestOptions(request, session, proxyUrl, gotOptions);
+
+            await addTimeoutToPromise(
+                async () => {
+                    try {
+                        return await this._requestAsBrowser(opts);
+                    } catch (e) {
+                        if (e instanceof TimeoutError) {
+                            this._handleRequestTimeout(session);
+                            return undefined as unknown as IncomingMessage;
+                        }
+
+                        throw e;
+                    }
+                },
+                this.requestTimeoutMillis,
+                `request timed out after ${this.requestTimeoutMillis / 1000} seconds.`,
+            );
+        }
+
+        return (context as PlaywrightCrawlingContext).page.goto(context.request.url, gotoOptions);
+    }
+
+
+    override async _handleNavigation(crawlingContext: ReallyAny) {
+        console.log('_handleNavigation');
+
+        if ('page' in crawlingContext) {
+            const gotoOptions = { timeout: this.navigationTimeoutMillis } as Dictionary;
+
+            const preNavigationHooksCookies = this._getCookieHeaderFromRequest(crawlingContext.request);
+
+            await this._executeHooks(this.preNavigationHooks, crawlingContext as ReallyAny, gotoOptions);
+            tryCancel();
+
+            const postNavigationHooksCookies = this._getCookieHeaderFromRequest(crawlingContext.request);
+
+            await this._applyCookies(crawlingContext as ReallyAny, preNavigationHooksCookies, postNavigationHooksCookies);
+
+            try {
+                crawlingContext.response = await this._navigationHandler(crawlingContext as ReallyAny, gotoOptions) ?? undefined;
+            } catch (error) {
+                this._handleNavigationTimeout(crawlingContext as ReallyAny, error as Error);
+
+                throw error;
+            }
+
+            tryCancel();
+            await this._executeHooks(this.postNavigationHooks, crawlingContext as ReallyAny, gotoOptions);
+
+        } else if ('$' in crawlingContext) {
+            const gotOptions = {} as OptionsInit;
+            const { request } = crawlingContext as CheerioCrawlingContext;
+            const preNavigationHooksCookies = this._getCookieHeaderFromRequest(request);
+
+            // Execute pre navigation hooks before applying session pool cookies,
+            // as they may also set cookies in the session
+            await this._executeHooks(this.preNavigationHooks, crawlingContext as ReallyAny, gotOptions);
+            tryCancel();
+
+            const postNavigationHooksCookies = this._getCookieHeaderFromRequest(request);
+
+            this._applyCookies(crawlingContext as ReallyAny, preNavigationHooksCookies, postNavigationHooksCookies, gotOptions);
+
+            crawlingContext.response = await this._navigationHandler(crawlingContext as ReallyAny) ?? undefined;
+            tryCancel();
+
+            await this._executeHooks(this.postNavigationHooks, crawlingContext as ReallyAny, gotOptions);
+            tryCancel();
+        }
+    }
+
+    override async _runRequestHandler(context: PlaywrightCrawlingContext) {
+        console.log('_runRequestHandler');
+
+        // registerUtilsToContext(context);
+
+        const crawlerOptions = getPath(context?.request?.userData || {}, '__crawlerOptions') as CustomPlaywrightCrawlerOptions;
+        const { mode = 'http' } = crawlerOptions || {};
+
+        const newPageOptions: Dictionary = {
             id: context.id,
-            browserPlugin: this.browserPlugins[crawlerMode] || this.browserPlugins.http,
-        } as any;
+            browserPlugin: this.browserPlugins[mode] || this.browserPlugins.http,
+            pageOptions: {},
+            proxyUrl: undefined
+        };
 
-        const useIncognitoPages = this.launchContext && this.launchContext.useIncognitoPages as boolean;
+        const useIncognitoPages = this.launchContext?.useIncognitoPages;
+
         if (this.proxyConfiguration && useIncognitoPages) {
             const { session } = context;
 
-            const proxyInfo = this.proxyConfiguration.newProxyInfo(session && session.id);
-            context.session = session;
+            const proxyInfo = await this.proxyConfiguration.newProxyInfo(session?.id);
             context.proxyInfo = proxyInfo;
 
             newPageOptions.proxyUrl = proxyInfo.url;
 
-            // Disable SSL verification for MITM proxies
             if (this.proxyConfiguration.isManInTheMiddle) {
                 newPageOptions.pageOptions = {
                     ignoreHTTPSErrors: true,
@@ -97,113 +270,77 @@ export default class MultiCrawler extends BrowserCrawler {
             }
         }
 
-        const { url, payload, headers, method = 'GET' } = context.request;
+        // const { url, payload, headers, method = 'GET' } = context.request;
         let page;
-        let session;
 
-        if (crawlerMode === 'http') {
-            // Handle HTTP requests
-            // LOTS TO BE DONE HERE
-            const proxyUrl = this.proxyConfiguration?.newUrl?.();
-            const agent = proxyUrl ? HttpsProxyAgent(proxyUrl) : undefined;
-            try {
-                const gotoOptions = { ...this.defaultGotoOptions };
-
-                context.response = await nodeFetch(
-                    url,
-                    {
-                        method,
-                        headers,
-                        body: payload,
-                        agent,
-                    },
-                );
-
-                await this._executeHooks(this.preNavigationHooks, context, gotoOptions);
-                tryCancel();
-
-                const contentType = Object.fromEntries(context.response.headers.entries())['content-type'] || '';
-
-                if (contentType.includes('application/json')) {
-                    try {
-                        context.json = await context.response.json();
-                    } catch (error) {
-                        // silent
-                    };
-                } else if (contentType.includes('text/html')) {
-                    try {
-                        const html = await context.response.text();
-
-                        context.body = html;
-                        context.$ = cheerio.load(html);
-                    } catch (error) {
-                        // silent
-                    };
-                };
-
-                tryCancel();
-                await this._executeHooks(this.postNavigationHooks, context, gotoOptions);
-            } catch (error) {
-                this._handleNavigationTimeout(context, error as any);
-                throw error;
-            }
-        } else {
-            page = await this.browserPool.newPage(newPageOptions) as any;
+        if (mode !== 'http') {
+            page = await this.browserPool.newPage(newPageOptions) as CommonPage;
             tryCancel();
 
             this._enhanceCrawlingContextWithPageInfo?.(context, page, useIncognitoPages);
-
-            // DO NOT MOVE THIS LINE ABOVE!
-            // `enhancecontextWithPageInfo` gives us a valid session.
-            // For example, `sessionPoolOptions.sessionOptions.maxUsageCount` can be `1`.
-            // So we must not save the session prior to making sure it was used only once, otherwise we would use it twice.
-            const { request } = context;
-            ({ session } = context);
-
-            if (this.useSessionPool) {
-                const sessionCookies = session.getPuppeteerCookies(request.url);
-                if (sessionCookies.length) {
-                    await context.browserController.setCookies(page, sessionCookies);
-                    tryCancel();
-                }
-            }
         }
 
+        const { request, session } = context;
+
         try {
-            if (page) {
+            if (!request.skipNavigation) {
                 await this._handleNavigation(context);
                 tryCancel();
 
                 await this._responseHandler(context);
                 tryCancel();
 
-                try {
-                    context.$ = cheerio.load(await page.content());
-                } catch (error) {
-                    // silent
-                };
-            }
-
-            // save cookies
-            // @TODO: Should we save the cookies also after/only the handle page?
-            if (session && this.persistCookiesPerSession) {
-                const cookies = await context.browserController.getCookies(page);
-                tryCancel();
-                session.setPuppeteerCookies(cookies, context.request.loadedUrl);
+                // save cookies
+                // TODO: Should we save the cookies also after/only the handle page?
+                if (this.persistCookiesPerSession) {
+                    const cookies = await context.browserController.getCookies(page);
+                    tryCancel();
+                    session?.setPuppeteerCookies(cookies, request.loadedUrl!);
+                }
             }
 
             await addTimeoutToPromise(
-                () => this.handlePageFunction(context),
-                this.handlePageTimeoutMillis,
-                `handlePageFunction timed out after ${this.handlePageTimeoutMillis / 1000} seconds.`,
+                () => Promise.resolve(this.userProvidedRequestHandler(context)),
+                this.requestHandlerTimeoutMillis,
+                `requestHandler timed out after ${this.requestHandlerTimeoutMillis / 1000} seconds.`,
             );
             tryCancel();
 
             if (session) session.markGood();
         } finally {
             if (page) {
-                page.close().catch((error: any) => this.log.debug('Error while closing page', { error }));
+                page.close().catch((error: Error) => this.log.debug('Error while closing page', { error }));
             }
         }
     }
+
+}
+
+function addResponsePropertiesToStream(stream: GotRequest) {
+    const properties = [
+        'statusCode', 'statusMessage', 'headers',
+        'complete', 'httpVersion', 'rawHeaders',
+        'rawTrailers', 'trailers', 'url',
+        'request',
+    ];
+
+    const response = stream.response!;
+
+    response.on('end', () => {
+        // @ts-expect-error
+        Object.assign(stream.rawTrailers, response.rawTrailers);
+        // @ts-expect-error
+        Object.assign(stream.trailers, response.trailers);
+
+        // @ts-expect-error
+        stream.complete = response.complete;
+    });
+
+    for (const prop of properties) {
+        if (!(prop in stream)) {
+            stream[prop] = response[prop as keyof IncomingMessage];
+        }
+    }
+
+    return stream as unknown as IncomingMessage;
 }
