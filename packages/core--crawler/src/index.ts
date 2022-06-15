@@ -1,11 +1,11 @@
 import * as CONST from '@usefelps/core--constants';
 import Events from "@usefelps/core--events";
 import Base from '@usefelps/core--instance-base';
-import PlaywrightCrawler from '@usefelps/crawler-playwright';
+import PlaywrightCrawler from '@usefelps/core--crawler--playwright';
 import * as FT from '@usefelps/types';
-import { PlaywrightCrawlerOptions, PlaywrightHook } from 'apify';
+// import { PlaywrightCrawlerOptions, PlaywrightHook } from 'apify';
 
-export const PRE_NAVIGATION_HOOKS: Record<string, PlaywrightHook> = {
+export const PRE_NAVIGATION_HOOKS: Record<string, FT.ReallyAny> = {
     async excludeResources({ page }) {
         const RESOURCE_EXCLUSTIONS = ['image', 'stylesheet', 'media', 'font', 'other'];
         await page?.route?.('**/*', (route) => {
@@ -30,7 +30,7 @@ export const create = (options?: FT.CrawlerOptions): FT.CrawlerInstance => {
     };
 };
 
-export const run = async (crawler: FT.CrawlerInstance, crawlerOptions?: PlaywrightCrawlerOptions): Promise<FT.CrawlerInstance> => {
+export const run = async (crawler: FT.CrawlerInstance, crawlerOptions?: FT.ReallyAny): Promise<FT.CrawlerInstance> => {
     // eslint-disable-next-line new-cap
     crawler.resource = new crawler.launcher({
         ...crawlerOptions,

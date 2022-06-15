@@ -20,7 +20,8 @@ import StoreCollection from '@usefelps/core--store-collection';
 import Logger from '@usefelps/helper--logger';
 import * as utils from '@usefelps/helper--utils';
 import * as FT from '@usefelps/types';
-import { PlaywrightCrawlerOptions, PlaywrightHook, RequestQueue } from 'apify';
+import { RequestQueue } from '@crawlee/core';
+import { PlaywrightCrawlerOptions, PlaywrightHook } from '@crawlee/playwright';
 
 export const create = (options: FT.ActorOptions): FT.ActorInstance => {
     return {

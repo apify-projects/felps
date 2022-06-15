@@ -1,11 +1,11 @@
 [
 	{
-		"id": "e2Hd517QWfF4tVh",
-		"json": "{\"id\":\"e2Hd517QWfF4tVh\",\"url\":\"https://www.iana.org\",\"uniqueKey\":\"https://www.iana.org\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":3,\"errorMessages\":[\"TypeError: Cannot read properties of undefined (reading 'url')\\n    at CustomPlaywrightCrawler._responseHandler (/Users/gabin/Code/apify/felps/node_modules/@crawlee/browser/internals/browser-crawler.js:298:40)\\n    at CustomPlaywrightCrawler._runRequestHandler (/Users/gabin/Code/apify/felps/packages/custom--crawler--playwright/lib/index.js:205:28)\\n    at processTicksAndRejections (node:internal/process/task_queues:96:5)\\n    at async wrap (/Users/gabin/Code/apify/felps/node_modules/@apify/timeout/index.js:73:27)\",\"TypeError: Cannot read properties of undefined (reading 'url')\\n    at CustomPlaywrightCrawler._responseHandler (/Users/gabin/Code/apify/felps/node_modules/@crawlee/browser/internals/browser-crawler.js:298:40)\\n    at CustomPlaywrightCrawler._runRequestHandler (/Users/gabin/Code/apify/felps/packages/custom--crawler--playwright/lib/index.js:205:28)\\n    at async wrap (/Users/gabin/Code/apify/felps/node_modules/@apify/timeout/index.js:73:27)\",\"TypeError: Cannot read properties of undefined (reading 'url')\\n    at CustomPlaywrightCrawler._responseHandler (/Users/gabin/Code/apify/felps/node_modules/@crawlee/browser/internals/browser-crawler.js:298:40)\\n    at CustomPlaywrightCrawler._runRequestHandler (/Users/gabin/Code/apify/felps/packages/custom--crawler--playwright/lib/index.js:205:28)\\n    at async wrap (/Users/gabin/Code/apify/felps/node_modules/@apify/timeout/index.js:73:27)\",\"TypeError: Cannot read properties of undefined (reading 'url')\\n    at CustomPlaywrightCrawler._responseHandler (/Users/gabin/Code/apify/felps/node_modules/@crawlee/browser/internals/browser-crawler.js:298:40)\\n    at CustomPlaywrightCrawler._runRequestHandler (/Users/gabin/Code/apify/felps/packages/custom--crawler--playwright/lib/index.js:205:28)\\n    at async wrap (/Users/gabin/Code/apify/felps/node_modules/@apify/timeout/index.js:73:27)\"],\"headers\":{},\"userData\":{},\"handledAt\":\"2022-06-12T22:22:31.101Z\"}",
+		"id": "7R37ec5G62ZfQHW",
+		"json": "{\"id\":\"7R37ec5G62ZfQHW\",\"url\":\"https://www.apify.com\",\"loadedUrl\":\"https://www.apify.com\",\"uniqueKey\":\"https://www.apify.com\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{},\"handledAt\":\"2022-06-15T14:35:15.334Z\"}",
 		"method": "GET",
 		"orderNo": null,
-		"retryCount": 3,
-		"uniqueKey": "https://www.iana.org",
-		"url": "https://www.iana.org"
+		"retryCount": 0,
+		"uniqueKey": "https://www.apify.com",
+		"url": "https://www.apify.com"
 	}
 ]

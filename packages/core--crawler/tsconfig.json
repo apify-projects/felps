@@ -12,6 +12,9 @@
             "path": "../core--constants"
         },
         {
+            "path": "../core--crawler--playwright"
+        },
+        {
             "path": "../core--events"
         },
         {
@@ -31,9 +34,6 @@
         },
         {
             "path": "../core--trail"
-        },
-        {
-            "path": "../crawler-playwright"
         },
         {
             "path": "../helper--logger"

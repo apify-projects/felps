@@ -9,16 +9,14 @@
     ],
     "references": [
         {
-            "path": "../core--constants"
+            "path": "../custom--crawler--playwright"
         },
         {
-            "path": "../core--instance-base"
-        },
-        {
-            "path": "../helper--logger"
-        },
-        {
-            "path": "../helper--utils"
+            "path": "../types"
         }
+    ],
+    "exclude": [
+        "node_modules",
+        "lib"
     ]
 }

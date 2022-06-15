@@ -4,14 +4,14 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "apify": "^2.3.2",
+        "apify": "*",
         "cheerio": "^1.0.0-rc.10",
         "playwright": "^1.19.2",
         "playwright-core": "^1.19.2",
         "puppeteer": "10.4.0"
     },
     "peerDependencies": {
-        "apify": "^2.3.2",
+        "apify": "*",
         "cheerio": "^1.0.0-rc.10",
         "playwright": "^1.19.2",
         "playwright-core": "^1.19.2",

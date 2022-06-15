@@ -1,5 +1,4 @@
-import { QueueOperationInfo, Request } from 'apify';
-import { RequestQueue as ApifyRequestQueue } from 'apify/build/storages/request_queue';
+import { QueueOperationInfo, Request, RequestQueue as ApifyRequestQueue } from '@crawlee/core';
 import DataStore from '@usefelps/core--store--data';
 import RequestMeta from '@usefelps/core--request-meta';
 import ApifyKvStore from '@usefelps/kv-store--adapter--apify';

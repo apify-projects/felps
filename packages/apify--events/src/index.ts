@@ -1,4 +1,4 @@
-import Apify from 'apify';
+import { Actor } from 'apify';
 import throttle from 'lodash.throttle';
 
 /**
@@ -12,15 +12,15 @@ const throttleListener = (handler: () => void): () => void => {
 };
 
 export const onMigrating = (handler: () => void): void => {
-    Apify.events.on('migrating', throttleListener(handler));
+    Actor.on('migrating', throttleListener(handler));
 };
 
 export const onAborting = (handler: () => void): void => {
-    Apify.events.on('aborting', throttleListener(handler));
+    Actor.on('aborting', throttleListener(handler));
 };
 
 export const onPersistState = (handler: () => void): void => {
-    Apify.events.on('persistState', ({ isMigrating }) => {
+    Actor.on('persistState', ({ isMigrating }) => {
         if (!isMigrating) throttleListener(handler);
     });
 };

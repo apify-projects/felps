@@ -4,6 +4,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "peerDependencies": {
+    "@crawlee/core": "*",
     "@usefelps/core--instance-base": "workspace:*",
     "@usefelps/core--request-meta": "workspace:*",
     "@usefelps/custom--request-queue": "workspace:*",
@@ -12,6 +13,7 @@
     "@usefelps/types": "workspace:*"
   },
   "devDependencies": {
+    "@crawlee/core": "*",
     "@usefelps/core--instance-base": "workspace:*",
     "@usefelps/core--request-meta": "workspace:*",
     "@usefelps/custom--request-queue": "workspace:*",

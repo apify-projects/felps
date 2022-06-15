@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Apify from 'apify';
+import { Dataset } from '@crawlee/core';
 import Events from '@usefelps/core--events';
 import base from '@usefelps/core--instance-base';
 import { DatasetInstance, DatasetOptions, ReallyAny } from '@usefelps/types';
@@ -19,7 +19,7 @@ export const load = async (dataset: DatasetInstance): Promise<DatasetInstance> =
 
     return {
         ...dataset,
-        resource: await Apify.openDataset(dataset.name !== 'default' ? dataset.name : undefined),
+        resource: await Dataset.open(dataset.name !== 'default' ? dataset.name : undefined),
     };
 };
 

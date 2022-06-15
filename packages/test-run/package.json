@@ -3,9 +3,10 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@crawlee/core": "next",
+        "@crawlee/core": "*",
         "@usefelps/custom--crawler--playwright": "workspace:*",
         "@usefelps/types": "workspace:*",
+        "apify": "*",
         "cheerio": "^1.0.0-rc.10",
         "playwright": "^1.19.2"
     },

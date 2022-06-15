@@ -1,5 +1,4 @@
-import { QueueOperationInfo } from 'apify';
-import { StorageManager } from 'apify/build/storages/storage_manager';
+import { QueueOperationInfo, StorageManager } from '@crawlee/core';
 import Base from '@usefelps/core--instance-base';
 import Logger from '@usefelps/helper--logger';
 import RequestQueue from '@usefelps/custom--request-queue';
@@ -15,11 +14,11 @@ export const create = (options?: QueueOptions): QueueInstance => {
     };
 };
 
-export const load = async (queue: QueueInstance, options?: { forceCloud?: boolean; }): Promise<QueueInstance> => {
+export const load = async (queue: QueueInstance): Promise<QueueInstance> => {
     if (queue.resource) return queue;
 
     const manager = new StorageManager(RequestQueue);
-    const resource = await manager.openStorage(queue.name, options) as unknown as RequestQueue;
+    const resource = await manager.openStorage(queue.name) as unknown as RequestQueue;
 
     return {
         ...queue,

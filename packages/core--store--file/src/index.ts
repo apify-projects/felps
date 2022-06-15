@@ -1,4 +1,4 @@
-import Apify from 'apify';
+import { KeyValueStore } from '@crawlee/core';
 import Base from '@usefelps/core--instance-base';
 import { FileStoreInstance, FileStoreOptions, ReallyAny } from '@usefelps/types';
 
@@ -20,7 +20,7 @@ export const load = async (fileStore: FileStoreInstance): Promise<FileStoreInsta
     return {
         ...fileStore,
         initialized: true,
-        resource: await Apify.openKeyValueStore(fileStore.kvKey),
+        resource: await KeyValueStore.open(fileStore.kvKey),
     };
 };
 

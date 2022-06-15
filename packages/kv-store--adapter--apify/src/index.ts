@@ -1,9 +1,9 @@
-import Apify, { KeyValueStore } from 'apify';
+import { KeyValueStore } from '@crawlee/core';
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
 
 export default () => KvStoreAdapter.create({
     async init(adapter) {
-        return Apify.openKeyValueStore(adapter?.name === 'default' ? undefined : adapter?.name);
+        return KeyValueStore.open(adapter?.name === 'default' ? undefined : adapter?.name);
     },
     async get(connectedKv, key) {
         return (connectedKv.resource as KeyValueStore).getValue(key);
@@ -11,12 +11,14 @@ export default () => KvStoreAdapter.create({
     async set(connectedKv, key, value) {
         return (connectedKv.resource as KeyValueStore).setValue(key, value);
     },
-    async list(connectedKv, prefix, options) {
-        const listed = await (connectedKv.resource as KeyValueStore).client.listKeys({ exclusiveStartKey: prefix, ...(options || {}) });
+    async list() {
+        // async list(connectedKv, prefix, options) {
+        // const listed = await (connectedKv.resource as KeyValueStore).client.listKeys({ exclusiveStartKey: prefix, ...(options || {}) });
 
         return {
-            keys: listed.items,
-            cursor: listed.nextExclusiveStartKey,
+            keys: []
+            // keys: listed.items,
+            // cursor: listed.nextExclusiveStartKey,
         };
     },
 });

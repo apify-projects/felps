@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Apify, { Request } from 'apify';
+import { CheerioCrawlingContext } from '@crawlee/cheerio';
+import { CrawlingContext, Dataset, KeyValueStore, Request, RequestOptions } from '@crawlee/core';
+import { PlaywrightCrawlingContext } from '@crawlee/playwright';
 import { ApifyClient } from 'apify-client';
 import type EventEmitter from 'eventemitter3';
 import type { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
@@ -120,9 +122,9 @@ export type ExtractFlowsWithStep<
 }, 'not this'>;
 
 // apify --------------------------------------------------
-export type RequestSource = import('apify').Request | import('apify').RequestOptions
+export type RequestSource = Request | RequestOptions
 export type RequestOptionalOptions = { priority?: number, crawlerOptions?: RequestCrawlerOptions, forefront?: boolean | undefined } | undefined
-export type RequestContext = Apify.CheerioHandlePageInputs & Apify.PlaywrightHandlePageFunctionParam & Apify.BrowserCrawlingContext & Apify.CrawlingContext
+export type RequestContext = CrawlingContext & PlaywrightCrawlingContext & CheerioCrawlingContext
 
 // base.ts ------------------------------------------------------------
 export type BaseInstance = {
@@ -494,7 +496,7 @@ export type DataStoreOptions = {
 export type FileStoreInstance = {
     type: 'file-store',
     kvKey: string,
-    resource: Apify.KeyValueStore | undefined,
+    resource: KeyValueStore | undefined,
     initialized: boolean,
     stats: StorageStatistics;
 } & BaseInstance;
@@ -659,7 +661,7 @@ export type DefaultQueueNames = ['default'];
 // dataset.ts ------------------------------------------------------------
 export type DatasetInstance = {
     name: string;
-    resource: Apify.Dataset | undefined;
+    resource: Dataset | undefined;
     events: EventsInstance;
 } & BaseInstance;
 
@@ -896,9 +898,4 @@ export type LoggerAdapterInstance = LoggerAdapterOptions & BaseInstance;
 export type LoggerAdapterOptions = {
     name: string,
     adapter: Transport,
-}
-
-// playwright-crawler.ts
-export type PlaywrightCrawlerOptions = {
-
 }

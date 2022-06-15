@@ -37,6 +37,9 @@
             "path": "packages/core--crawler"
         },
         {
+            "path": "packages/core--crawler--playwright"
+        },
+        {
             "path": "packages/core--dataset"
         },
         {
@@ -125,9 +128,6 @@
         },
         {
             "path": "packages/core--validator"
-        },
-        {
-            "path": "packages/crawler-playwright"
         },
         {
             "path": "packages/custom--crawler--playwright"

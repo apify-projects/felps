@@ -5,11 +5,11 @@
     "typings": "lib/index.d.ts",
     "peerDependencies": {
         "@usefelps/types": "workspace:*",
-        "apify": "^2.3.2"
+        "apify": "*"
     },
     "devDependencies": {
         "@usefelps/types": "workspace:*",
-        "apify": "^2.3.2",
+        "apify": "*",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"
     },

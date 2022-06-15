@@ -5,6 +5,7 @@
     "typings": "lib/index.d.ts",
     "peerDependencies": {
         "@usefelps/core--constants": "workspace:*",
+        "@usefelps/core--crawler--playwright": "workspace:*",
         "@usefelps/core--events": "workspace:*",
         "@usefelps/core--instance-base": "workspace:*",
         "@usefelps/core--orchestrator": "workspace:*",
@@ -12,12 +13,12 @@
         "@usefelps/core--step": "workspace:*",
         "@usefelps/core--step-api": "workspace:*",
         "@usefelps/core--trail": "workspace:*",
-        "@usefelps/crawler-playwright": "workspace:*",
         "@usefelps/helper--logger": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
         "@usefelps/core--constants": "workspace:*",
+        "@usefelps/core--crawler--playwright": "workspace:*",
         "@usefelps/core--events": "workspace:*",
         "@usefelps/core--instance-base": "workspace:*",
         "@usefelps/core--orchestrator": "workspace:*",
@@ -25,7 +26,6 @@
         "@usefelps/core--step": "workspace:*",
         "@usefelps/core--step-api": "workspace:*",
         "@usefelps/core--trail": "workspace:*",
-        "@usefelps/crawler-playwright": "workspace:*",
         "@usefelps/helper--logger": "workspace:*",
         "@usefelps/types": "workspace:*",
         "rimraf": "^3.0.2",

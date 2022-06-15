@@ -32,7 +32,7 @@ export default (actor: FT.ActorInstance) => {
                 }
             });
 
-            if (context?.response && context?.response?.status !== 200) {
+            if (context?.response && context?.response?.statusCode !== 200) {
                 await useHandleRequestErrorFunction(actor)(context);
             }
         },

@@ -10,11 +10,13 @@
     "peerDependencies": {
         "@usefelps/core--constants": "workspace:*",
         "@usefelps/core--instance-base": "workspace:*",
+        "@usefelps/helper--logger": "workspace:*",
         "@usefelps/helper--utils": "workspace:*"
     },
     "devDependencies": {
         "@usefelps/core--constants": "workspace:*",
         "@usefelps/core--instance-base": "workspace:*",
+        "@usefelps/helper--logger": "workspace:*",
         "@usefelps/helper--utils": "workspace:*",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"

@@ -12,6 +12,7 @@
     },
     "devDependencies": {
         "@usefelps/core--instance-base": "workspace:*",
+        "@usefelps/types": "workspace:*",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"
     },

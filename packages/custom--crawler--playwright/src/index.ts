@@ -5,9 +5,9 @@ import { Request } from '@crawlee/core';
 import { CrawlingContext, EnqueueLinksOptions, mergeCookies, PlaywrightCookie, PlaywrightCrawlerOptions, PlaywrightCrawlingContext, PlaywrightLaunchContext, PlaywrightLauncher, Session } from '@crawlee/playwright';
 import { Dictionary } from '@crawlee/types';
 import { CheerioRoot } from '@crawlee/utils';
-import { ReallyAny, RequestCrawlerMode } from '@usefelps/types';
+import * as FT from '@usefelps/types';
 import { gotScraping, Method, OptionsInit, Request as GotRequest, TimeoutError } from 'got-scraping';
-import { IncomingMessage } from 'http';
+import type { IncomingMessage } from 'http';
 import getPath from 'lodash.get';
 import { chromium, firefox, webkit } from 'playwright';
 import { Cookie } from 'tough-cookie';
@@ -51,7 +51,7 @@ const getBrowserPlugin = (browser: string, launchContext: PlaywrightLaunchContex
 };
 
 export type CustomPlaywrightCrawlerOptions = PlaywrightCrawlerOptions & {
-    mode: RequestCrawlerMode,
+    mode: FT.RequestCrawlerMode,
 };
 
 export const CONST = {
@@ -81,7 +81,7 @@ export default class CustomPlaywrightCrawler extends BrowserCrawler {
         //     },
         // ],
 
-        super({ ...browserCrawlerOptions, browserPoolOptions } as ReallyAny);
+        super({ ...browserCrawlerOptions, launchContext, browserPoolOptions } as FT.ReallyAny);
 
         this.browserPlugins = browserPlugins;
         this.launchContext = launchContext;
@@ -90,6 +90,8 @@ export default class CustomPlaywrightCrawler extends BrowserCrawler {
 
 
     protected override async _applyCookies({ session, request, page }: PlaywrightCrawlingContext, preHooksCookies: string, postHooksCookies: string, gotOptions?: OptionsInit) {
+        console.log('_applyCookies');
+
         if (page) {
             const sessionCookie = session?.getPuppeteerCookies(request.url) ?? [];
             const parsedPreHooksCookies = preHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as PlaywrightCookie | undefined);
@@ -114,6 +116,8 @@ export default class CustomPlaywrightCrawler extends BrowserCrawler {
     }
 
     protected _getRequestOptions(request: Request, session?: Session, proxyUrl?: string, gotOptions?: OptionsInit) {
+        console.log('_getRequestOptions');
+
         const requestOptions: OptionsInit & { isStream: true } = {
             url: request.url,
             method: request.method as Method,
@@ -142,6 +146,8 @@ export default class CustomPlaywrightCrawler extends BrowserCrawler {
     }
 
     private _requestAsBrowser = (options: OptionsInit & { isStream: true }) => {
+        console.log('_requestAsBrowser');
+
         return new Promise<IncomingMessage>((resolve, reject) => {
             const stream = gotScraping(options);
 
@@ -157,7 +163,7 @@ export default class CustomPlaywrightCrawler extends BrowserCrawler {
         throw new Error(`request timed out after ${this.requestHandlerTimeoutMillis / 1000} seconds.`);
     }
 
-    override async _navigationHandler(context: PlaywrightCrawlingContext, gotoOptions?: ReallyAny): Promise<any> {
+    override async _navigationHandler(context: PlaywrightCrawlingContext, gotoOptions?: FT.ReallyAny): Promise<any> {
 
         const crawlerOptions = getPath(context?.request?.userData || {}, CONST.CRAWLER_OPTIONS) as CustomPlaywrightCrawlerOptions;
         const { mode = 'http' } = crawlerOptions || {};
@@ -190,53 +196,70 @@ export default class CustomPlaywrightCrawler extends BrowserCrawler {
     }
 
 
-    override async _handleNavigation(crawlingContext: ReallyAny) {
+    override async _handleNavigation(crawlingContext: FT.RequestContext) {
         console.log('_handleNavigation');
+        console.log(crawlingContext);
 
         if ('page' in crawlingContext) {
             const gotoOptions = { timeout: this.navigationTimeoutMillis } as Dictionary;
 
             const preNavigationHooksCookies = this._getCookieHeaderFromRequest(crawlingContext.request);
 
-            await this._executeHooks(this.preNavigationHooks, crawlingContext as ReallyAny, gotoOptions);
+            await this._executeHooks(this.preNavigationHooks, crawlingContext as FT.ReallyAny, gotoOptions);
             tryCancel();
 
             const postNavigationHooksCookies = this._getCookieHeaderFromRequest(crawlingContext.request);
 
-            await this._applyCookies(crawlingContext as ReallyAny, preNavigationHooksCookies, postNavigationHooksCookies);
+            await this._applyCookies(crawlingContext as FT.ReallyAny, preNavigationHooksCookies, postNavigationHooksCookies);
 
             try {
-                crawlingContext.response = await this._navigationHandler(crawlingContext as ReallyAny, gotoOptions) ?? undefined;
+                crawlingContext.response = await this._navigationHandler(crawlingContext as FT.ReallyAny, gotoOptions) ?? undefined;
             } catch (error) {
-                this._handleNavigationTimeout(crawlingContext as ReallyAny, error as Error);
+                this._handleNavigationTimeout(crawlingContext as FT.ReallyAny, error as Error);
 
                 throw error;
             }
 
             tryCancel();
-            await this._executeHooks(this.postNavigationHooks, crawlingContext as ReallyAny, gotoOptions);
+            await this._executeHooks(this.postNavigationHooks, crawlingContext as FT.ReallyAny, gotoOptions);
 
-        } else if ('$' in crawlingContext) {
+        } else {
             const gotOptions = {} as OptionsInit;
             const { request } = crawlingContext as CheerioCrawlingContext;
             const preNavigationHooksCookies = this._getCookieHeaderFromRequest(request);
 
             // Execute pre navigation hooks before applying session pool cookies,
             // as they may also set cookies in the session
-            await this._executeHooks(this.preNavigationHooks, crawlingContext as ReallyAny, gotOptions);
+            await this._executeHooks(this.preNavigationHooks, crawlingContext as FT.ReallyAny, gotOptions);
             tryCancel();
 
             const postNavigationHooksCookies = this._getCookieHeaderFromRequest(request);
 
-            this._applyCookies(crawlingContext as ReallyAny, preNavigationHooksCookies, postNavigationHooksCookies, gotOptions);
+            this._applyCookies(crawlingContext as FT.ReallyAny, preNavigationHooksCookies, postNavigationHooksCookies, gotOptions);
 
-            crawlingContext.response = await this._navigationHandler(crawlingContext as ReallyAny) ?? undefined;
+            crawlingContext.response = await this._navigationHandler(crawlingContext as FT.ReallyAny) ?? undefined;
             tryCancel();
 
-            await this._executeHooks(this.postNavigationHooks, crawlingContext as ReallyAny, gotOptions);
+            await this._executeHooks(this.postNavigationHooks, crawlingContext as FT.ReallyAny, gotOptions);
             tryCancel();
         }
     }
+
+    override async _responseHandler(crawlingContext: FT.ReallyAny): Promise<void> {
+        const { response, session, request, page } = crawlingContext;
+
+        if (this.sessionPool && response && session) {
+            if (typeof response === 'object' && typeof response.status === 'function') {
+                this._throwOnBlockedRequest(session, response.status());
+            } else {
+                this.log.debug('Got a malformed Browser response.', { request, response });
+            }
+        }
+
+        if (page) request.loadedUrl = await page.url();
+        else request.loadedUrl = request.url;
+    }
+
 
     override async _runRequestHandler(context: PlaywrightCrawlingContext) {
         console.log('_runRequestHandler');
@@ -293,9 +316,12 @@ export default class CustomPlaywrightCrawler extends BrowserCrawler {
                 // save cookies
                 // TODO: Should we save the cookies also after/only the handle page?
                 if (this.persistCookiesPerSession) {
-                    const cookies = await context.browserController.getCookies(page);
-                    tryCancel();
-                    session?.setPuppeteerCookies(cookies, request.loadedUrl!);
+                    if (page) {
+                        //TODO: Handle it when no page
+                        const cookies = await context.browserController.getCookies(page);
+                        tryCancel();
+                        session?.setPuppeteerCookies(cookies, request.loadedUrl!);
+                    }
                 }
             }
 

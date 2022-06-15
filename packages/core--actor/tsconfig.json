@@ -42,6 +42,9 @@
             "path": "../core--request-queue"
         },
         {
+            "path": "../core--request-queue-collection"
+        },
+        {
             "path": "../core--step"
         },
         {
