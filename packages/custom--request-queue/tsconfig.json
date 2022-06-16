@@ -1,0 +1,24 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../core--request-meta"
+        },
+        {
+            "path": "../core--store--data"
+        },
+        {
+            "path": "../kv-store--adapter--apify"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}

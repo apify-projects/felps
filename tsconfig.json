@@ -1,33 +1,188 @@
 {
     "extends": "@apify/tsconfig",
     "compilerOptions": {
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "incremental": false,
         "target": "esnext",
         "module": "commonjs",
         "moduleResolution": "node",
-        "allowJs": true,
         "strict": true,
-        "noImplicitAny": true,
-        "strictNullChecks": true,
+        "noImplicitAny": false,
+        "strictNullChecks": false,
         "lib": [
-             "DOM",
-             "DOM.Iterable",
-             "ES2015",
-             "ES2016",
-             "ES2018",
-             "ES2019.Object",
-             "ES2018.AsyncIterable",
-             "ES2020.String",
-             "ES2019.Array"
+            "DOM",
+            "DOM.Iterable",
+            "ES2015",
+            "ES2016",
+            "ES2018",
+            "ES2019.Object",
+            "ES2018.AsyncIterable",
+            "ES2020.String",
+            "ES2019.Array"
         ],
-        "rootDir": "src",
-        "outDir": "lib",
+        "composite": true
     },
-    "exclude": [
-        "node_modules",
-        "examples",
-        "lib"
-    ]
+    "references": [
+        {
+            "path": "packages/apify--client"
+        },
+        {
+            "path": "packages/apify--events"
+        },
+        {
+            "path": "packages/constants"
+        },
+        {
+            "path": "packages/core--actor"
+        },
+        {
+            "path": "packages/core--crawler"
+        },
+        {
+            "path": "packages/core--crawler--playwright"
+        },
+        {
+            "path": "packages/core--dataset"
+        },
+        {
+            "path": "packages/core--dataset-collection"
+        },
+        {
+            "path": "packages/core--events"
+        },
+        {
+            "path": "packages/core--flow"
+        },
+        {
+            "path": "packages/core--flow-collection"
+        },
+        {
+            "path": "packages/core--hook-collection"
+        },
+        {
+            "path": "packages/core--input"
+        },
+        {
+            "path": "packages/core--instance-base"
+        },
+        {
+            "path": "packages/core--model"
+        },
+        {
+            "path": "packages/core--model-collection"
+        },
+        {
+            "path": "packages/core--orchestrator"
+        },
+        {
+            "path": "packages/core--request-meta"
+        },
+        {
+            "path": "packages/core--request-queue"
+        },
+        {
+            "path": "packages/core--request-queue-collection"
+        },
+        {
+            "path": "packages/core--step"
+        },
+        {
+            "path": "packages/core--step-api"
+        },
+        {
+            "path": "packages/core--step-api--flow"
+        },
+        {
+            "path": "packages/core--step-api--helpers"
+        },
+        {
+            "path": "packages/core--step-api--meta"
+        },
+        {
+            "path": "packages/core--step-api--model"
+        },
+        {
+            "path": "packages/core--step-collection"
+        },
+        {
+            "path": "packages/core--store--data"
+        },
+        {
+            "path": "packages/core--store--file"
+        },
+        {
+            "path": "packages/core--store-collection"
+        },
+        {
+            "path": "packages/core--trail"
+        },
+        {
+            "path": "packages/core--trail--data"
+        },
+        {
+            "path": "packages/core--trail--data-model"
+        },
+        {
+            "path": "packages/core--trail--data-requests"
+        },
+        {
+            "path": "packages/core--trail-collection"
+        },
+        {
+            "path": "packages/core--validator"
+        },
+        {
+            "path": "packages/custom--crawler--aio-playwright"
+        },
+        {
+            "path": "packages/custom--request-queue"
+        },
+        {
+            "path": "packages/example--crawler--aio-playwright"
+        },
+        {
+            "path": "packages/helper--logger"
+        },
+        {
+            "path": "packages/helper--logger--adapter"
+        },
+        {
+            "path": "packages/helper--logger--adapter--apify"
+        },
+        {
+            "path": "packages/helper--mutable"
+        },
+        {
+            "path": "packages/helper--search"
+        },
+        {
+            "path": "packages/helper--url-pattern"
+        },
+        {
+            "path": "packages/helper--utils"
+        },
+        {
+            "path": "packages/kv-store--adapter"
+        },
+        {
+            "path": "packages/kv-store--adapter--apify"
+        },
+        {
+            "path": "packages/kv-store--adapter--in-memory"
+        },
+        {
+            "path": "packages/lib--felps"
+        },
+        {
+            "path": "packages/request-queue--adapter"
+        },
+        {
+            "path": "packages/request-queue--adapter--apify"
+        },
+        {
+            "path": "packages/request-queue--adapter--in-memory"
+        },
+        {
+            "path": "packages/types"
+        }
+    ],
+    "files": []
 }

@@ -1,0 +1,30 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../apify--events"
+        },
+        {
+            "path": "../core--instance-base"
+        },
+        {
+            "path": "../helper--logger"
+        },
+        {
+            "path": "../helper--utils"
+        },
+        {
+            "path": "../kv-store--adapter"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}

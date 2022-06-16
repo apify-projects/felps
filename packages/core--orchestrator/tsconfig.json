@@ -1,0 +1,60 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../constants"
+        },
+        {
+            "path": "../core--dataset"
+        },
+        {
+            "path": "../core--flow"
+        },
+        {
+            "path": "../core--model"
+        },
+        {
+            "path": "../core--request-meta"
+        },
+        {
+            "path": "../core--request-queue"
+        },
+        {
+            "path": "../core--step"
+        },
+        {
+            "path": "../core--step-api"
+        },
+        {
+            "path": "../core--store--data"
+        },
+        {
+            "path": "../core--trail"
+        },
+        {
+            "path": "../core--trail--data"
+        },
+        {
+            "path": "../core--trail--data-model"
+        },
+        {
+            "path": "../core--trail--data-requests"
+        },
+        {
+            "path": "../core--trail-collection"
+        },
+        {
+            "path": "../helper--utils"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}
