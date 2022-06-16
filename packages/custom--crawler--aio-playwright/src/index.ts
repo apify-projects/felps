@@ -60,7 +60,7 @@ const getBrowserPlugin = (browser: string, launchContext: PlaywrightLaunchContex
     return new PlaywrightLauncher({ ...launchContext, launcher }).createBrowserPlugin();
 };
 
-export type CustomPlaywrightCrawlerOptions = PlaywrightCrawlerOptions & {
+export type AIOPlaywrightCrawlerOptions = PlaywrightCrawlerOptions & {
     mode: FT.RequestCrawlerMode,
 };
 
@@ -68,7 +68,7 @@ export const CONST = {
     CRAWLER_OPTIONS: '__crawlerOptions'
 };
 
-export default class CustomPlaywrightCrawler extends BrowserCrawler {
+export default class AIOPlaywrightCrawler extends BrowserCrawler {
     protected browserPlugins: { [browser: string]: BrowserPlugin } = {};
     protected ignoreSslErrors: boolean;
     // events: EventEmitter
@@ -174,7 +174,7 @@ export default class CustomPlaywrightCrawler extends BrowserCrawler {
 
     override async _navigationHandler(context: PlaywrightCrawlingContext, gotoOptions?: FT.ReallyAny): Promise<any> {
 
-        const crawlerOptions = getPath(context?.request?.userData || {}, CONST.CRAWLER_OPTIONS) as CustomPlaywrightCrawlerOptions;
+        const crawlerOptions = getPath(context?.request?.userData || {}, CONST.CRAWLER_OPTIONS) as AIOPlaywrightCrawlerOptions;
         const { mode = 'http' } = crawlerOptions || {};
 
         // console.log('_navigationHandler', { mode });
@@ -380,8 +380,13 @@ export default class CustomPlaywrightCrawler extends BrowserCrawler {
             });
         }
 
-        if(page) {
+        if (page) {
             crawlingContext.body = await page.content();
+            try {
+                crawlingContext.$ = cheerio.load(crawlingContext.body);
+            } catch (error) {
+                // silent
+            }
         }
 
         if (this.sessionPool && response && session) {
@@ -401,7 +406,7 @@ export default class CustomPlaywrightCrawler extends BrowserCrawler {
 
         // registerUtilsToContext(context);
 
-        const crawlerOptions = getPath(context?.request?.userData || {}, '__crawlerOptions') as CustomPlaywrightCrawlerOptions;
+        const crawlerOptions = getPath(context?.request?.userData || {}, '__crawlerOptions') as AIOPlaywrightCrawlerOptions;
         const { mode = 'http' } = crawlerOptions || {};
 
         const newPageOptions: Dictionary = {
