@@ -102,7 +102,7 @@
             "path": "../core--trail-collection"
         },
         {
-            "path": "../custom--crawler--playwright"
+            "path": "../custom--crawler--aio-playwright"
         },
         {
             "path": "../custom--request-queue"

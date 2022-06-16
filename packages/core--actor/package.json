@@ -6,7 +6,7 @@
     "peerDependencies": {
         "@crawlee/core": "*",
         "@crawlee/playwright": "*",
-        "@usefelps/core--constants": "workspace:*",
+        "@usefelps/constants": "workspace:*",
         "@usefelps/core--crawler": "workspace:*",
         "@usefelps/core--dataset-collection": "workspace:*",
         "@usefelps/core--flow": "workspace:*",
@@ -28,7 +28,7 @@
     "devDependencies": {
         "@crawlee/core": "*",
         "@crawlee/playwright": "*",
-        "@usefelps/core--constants": "workspace:*",
+        "@usefelps/constants": "workspace:*",
         "@usefelps/core--crawler": "workspace:*",
         "@usefelps/core--dataset-collection": "workspace:*",
         "@usefelps/core--flow": "workspace:*",
@@ -57,6 +57,7 @@
         "lib"
     ],
     "scripts": {
+        "publish": "yarn npm publish --access public",
         "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
         "dev": "npm run clean && tsc --watch",
         "build": "tsc --build",

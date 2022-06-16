@@ -28,10 +28,10 @@
             "path": "packages/apify--events"
         },
         {
-            "path": "packages/core--actor"
+            "path": "packages/constants"
         },
         {
-            "path": "packages/core--constants"
+            "path": "packages/core--actor"
         },
         {
             "path": "packages/core--crawler"
@@ -130,7 +130,7 @@
             "path": "packages/core--validator"
         },
         {
-            "path": "packages/custom--crawler--playwright"
+            "path": "packages/custom--crawler--aio-playwright"
         },
         {
             "path": "packages/custom--request-queue"

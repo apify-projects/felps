@@ -1,6 +1,6 @@
 import { Actor } from 'apify';
 import { RequestQueue } from '@crawlee/core';
-import CustomPlaywrightCrawler from '@usefelps/custom--crawler--playwright';
+import CustomPlaywrightCrawler from '../../custom--crawler--aio-playwright-playwright/lib';
 import * as FT from '@usefelps/types';
 
 (async () => {

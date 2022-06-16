@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as CONST from '@usefelps/core--constants';
+import * as CONST from '@usefelps/constants';
 import RequestMeta from '@usefelps/core--request-meta';
 import Step from '@usefelps/core--step';
 // import StepApi from '@usefelps/core--step-api';

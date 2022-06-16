@@ -3,7 +3,7 @@ import Model from '@usefelps/core--model';
 import Trail from '@usefelps/core--trail';
 import RequestMeta from '@usefelps/core--request-meta';
 import Base from '@usefelps/core--instance-base';
-import { FLOW_KEY_PROP, PREFIXED_NAME_BY_ACTOR, TRAIL_KEY_PROP, UNPREFIXED_NAME_BY_ACTOR } from '@usefelps/core--constants';
+import { FLOW_KEY_PROP, PREFIXED_NAME_BY_ACTOR, TRAIL_KEY_PROP, UNPREFIXED_NAME_BY_ACTOR } from '@usefelps/constants';
 import TrailDataRequests from '@usefelps/core--trail--data-requests';
 import {
     ActorInstance, FlowDefinition, FlowInstance, ModelDefinition,

@@ -9,7 +9,7 @@
     ],
     "references": [
         {
-            "path": "../custom--crawler--playwright"
+            "path": "../custom--crawler--aio-playwright"
         },
         {
             "path": "../types"

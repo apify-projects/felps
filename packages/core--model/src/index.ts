@@ -1,4 +1,4 @@
-import * as CONST from '@usefelps/core--constants';
+import * as CONST from '@usefelps/constants';
 import Base from '@usefelps/core--instance-base';
 import Validator from '@usefelps/core--validator';
 import * as utils from '@usefelps/helper--utils';

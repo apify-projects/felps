@@ -1,4 +1,4 @@
-import { ACTOR_KEY_PROP } from '@usefelps/core--constants';
+import { ACTOR_KEY_PROP } from '@usefelps/constants';
 import Base from '@usefelps/core--instance-base';
 import Logger from '@usefelps/helper--logger';
 import RequestMeta from '@usefelps/core--request-meta';

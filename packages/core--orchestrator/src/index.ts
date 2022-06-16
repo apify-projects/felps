@@ -1,4 +1,4 @@
-import * as CONST from '@usefelps/core--constants';
+import * as CONST from '@usefelps/constants';
 import Dataset from '@usefelps/core--dataset';
 import Flow from '@usefelps/core--flow';
 import Model from '@usefelps/core--model';

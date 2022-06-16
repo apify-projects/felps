@@ -1,4 +1,4 @@
-import { FLOW_KEY_PROP } from '@usefelps/core--constants';
+import { FLOW_KEY_PROP } from '@usefelps/constants';
 import Base from '@usefelps/core--instance-base';
 import RequestMeta from '@usefelps/core--request-meta';
 import Trail from '@usefelps/core--trail';

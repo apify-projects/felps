@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import RequestMeta from '@usefelps/core--request-meta';
 import StepApi from '@usefelps/core--step-api';
-import * as CONST from '@usefelps/core--constants';
+import * as CONST from '@usefelps/constants';
 import * as FT from '@usefelps/types';
 import useHandleRequestErrorFunction from './use-handle-request-error-function';
 

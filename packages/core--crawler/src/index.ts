@@ -1,4 +1,4 @@
-import * as CONST from '@usefelps/core--constants';
+import * as CONST from '@usefelps/constants';
 import Events from "@usefelps/core--events";
 import Base from '@usefelps/core--instance-base';
 import PlaywrightCrawler from '@usefelps/core--crawler--playwright';

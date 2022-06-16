@@ -1,5 +1,5 @@
 import Base from '@usefelps/core--instance-base';
-import * as CONST from '@usefelps/core--constants';
+import * as CONST from '@usefelps/constants';
 import * as FT from '@usefelps/types';
 import * as utils from '@usefelps/helper--utils';
 

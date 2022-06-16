@@ -18,7 +18,7 @@
         "object-hash": "^3.0.0"
     },
     "peerDependencies": {
-        "@usefelps/core--constants": "workspace:*",
+        "@usefelps/constants": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
@@ -29,7 +29,7 @@
         "@types/lodash.pick": "^4.4.7",
         "@types/lodash.set": "^4.3.7",
         "@types/lodash.unset": "^4.5.7",
-        "@usefelps/core--constants": "workspace:*",
+        "@usefelps/constants": "workspace:*",
         "@usefelps/types": "workspace:*",
         "rimraf": "^3.0.2"
     },
@@ -41,6 +41,7 @@
         "lib"
     ],
     "scripts": {
+        "publish": "yarn npm publish --access public",
         "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
         "dev": "npm run clean && tsc --watch",
         "build": "tsc --build",

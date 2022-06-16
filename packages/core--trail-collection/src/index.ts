@@ -1,4 +1,4 @@
-import * as CONST from '@usefelps/core--constants';
+import * as CONST from '@usefelps/constants';
 import Base from '@usefelps/core--instance-base';
 import DataStore from '@usefelps/core--store--data';
 import Trail from '@usefelps/core--trail';

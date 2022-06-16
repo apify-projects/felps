@@ -9,7 +9,7 @@ import setByPath from 'lodash.set';
 import unsetByPath from 'lodash.unset';
 import isMatchLodash from 'lodash.ismatch';
 import { URL } from 'node:url';
-import { UID_KEY_PREFIX, UID_KEY_LENGTH } from '@usefelps/core--constants';
+import { UID_KEY_PREFIX, UID_KEY_LENGTH } from '@usefelps/constants';
 import { ReallyAny } from '@usefelps/types';
 import hashMethod from 'object-hash';
 import mergeDeep from 'merge-deep';

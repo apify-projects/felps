@@ -1,4 +1,4 @@
-import * as CONST from '@usefelps/core--constants';
+import * as CONST from '@usefelps/constants';
 import crawler from '@usefelps/core--crawler';
 // import useHandleFailedRequestFunction from '@usefelps/core--crawler/lib/use-handle-failed-request-function';
 // import useHandlePageFunction from '@usefelps/core--crawler/lib/use-handle-page-function';

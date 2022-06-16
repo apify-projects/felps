@@ -4,7 +4,7 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "peerDependencies": {
-        "@usefelps/core--constants": "workspace:*",
+        "@usefelps/constants": "workspace:*",
         "@usefelps/core--dataset": "workspace:*",
         "@usefelps/core--flow": "workspace:*",
         "@usefelps/core--model": "workspace:*",
@@ -22,7 +22,7 @@
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
-        "@usefelps/core--constants": "workspace:*",
+        "@usefelps/constants": "workspace:*",
         "@usefelps/core--dataset": "workspace:*",
         "@usefelps/core--flow": "workspace:*",
         "@usefelps/core--model": "workspace:*",
@@ -49,6 +49,7 @@
         "lib"
     ],
     "scripts": {
+        "publish": "yarn npm publish --access public",
         "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
         "dev": "npm run clean && tsc --watch",
         "build": "tsc --build",

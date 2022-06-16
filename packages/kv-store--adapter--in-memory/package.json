@@ -19,6 +19,7 @@
         "lib"
     ],
     "scripts": {
+        "publish": "yarn npm publish --access public",
         "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
         "dev": "npm run clean && tsc --watch",
         "build": "tsc --build",

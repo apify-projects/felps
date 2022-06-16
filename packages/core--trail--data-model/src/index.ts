@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import Model from '@usefelps/core--model';
 import Base from '@usefelps/core--instance-base';
-import { MODEL_STATUS, MODEL_UID_KEY, REFERENCE_KEY } from '@usefelps/core--constants';
+import { MODEL_STATUS, MODEL_UID_KEY, REFERENCE_KEY } from '@usefelps/constants';
 import dataStore from '@usefelps/core--store--data';
 import { getPath } from '@usefelps/core--trail--data';
 import { ModelReference, ReallyAny, TrailDataModelInstance, TrailDataModelItem, TrailDataModelItemStatus, TrailDataModelOperation, TrailDataModelOptions } from '@usefelps/types';

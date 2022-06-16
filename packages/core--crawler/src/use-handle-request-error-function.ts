@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { PREFIXED_NAME_BY_ACTOR } from '@usefelps/core--constants';
+import { PREFIXED_NAME_BY_ACTOR } from '@usefelps/constants';
 import RequestMeta from '@usefelps/core--request-meta';
 import Orchestrator from '@usefelps/core--orchestrator';
 import Step from '@usefelps/core--step';

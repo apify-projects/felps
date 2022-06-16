@@ -1684,59 +1684,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@usefelps/core--actor@workspace:*, @usefelps/core--actor@workspace:packages/core--actor":
+"@usefelps/constants@workspace:*, @usefelps/constants@workspace:packages/constants":
   version: 0.0.0-use.local
-  resolution: "@usefelps/core--actor@workspace:packages/core--actor"
-  dependencies:
-    "@crawlee/core": "*"
-    "@crawlee/playwright": "*"
-    "@usefelps/core--constants": "workspace:*"
-    "@usefelps/core--crawler": "workspace:*"
-    "@usefelps/core--dataset-collection": "workspace:*"
-    "@usefelps/core--flow": "workspace:*"
-    "@usefelps/core--flow-collection": "workspace:*"
-    "@usefelps/core--hook-collection": "workspace:*"
-    "@usefelps/core--input": "workspace:*"
-    "@usefelps/core--instance-base": "workspace:*"
-    "@usefelps/core--model-collection": "workspace:*"
-    "@usefelps/core--request-meta": "workspace:*"
-    "@usefelps/core--request-queue": "workspace:*"
-    "@usefelps/core--request-queue-collection": "workspace:*"
-    "@usefelps/core--step": "workspace:*"
-    "@usefelps/core--step-collection": "workspace:*"
-    "@usefelps/core--store-collection": "workspace:*"
-    "@usefelps/helper--logger": "workspace:*"
-    "@usefelps/helper--utils": "workspace:*"
-    "@usefelps/types": "workspace:*"
-    rimraf: ^3.0.2
-    typescript: ^4.7.2
-  peerDependencies:
-    "@crawlee/core": "*"
-    "@crawlee/playwright": "*"
-    "@usefelps/core--constants": "workspace:*"
-    "@usefelps/core--crawler": "workspace:*"
-    "@usefelps/core--dataset-collection": "workspace:*"
-    "@usefelps/core--flow": "workspace:*"
-    "@usefelps/core--flow-collection": "workspace:*"
-    "@usefelps/core--hook-collection": "workspace:*"
-    "@usefelps/core--input": "workspace:*"
-    "@usefelps/core--instance-base": "workspace:*"
-    "@usefelps/core--model-collection": "workspace:*"
-    "@usefelps/core--request-meta": "workspace:*"
-    "@usefelps/core--request-queue": "workspace:*"
-    "@usefelps/core--request-queue-collection": "workspace:*"
-    "@usefelps/core--step": "workspace:*"
-    "@usefelps/core--step-collection": "workspace:*"
-    "@usefelps/core--store-collection": "workspace:*"
-    "@usefelps/helper--logger": "workspace:*"
-    "@usefelps/helper--utils": "workspace:*"
-    "@usefelps/types": "workspace:*"
-  languageName: unknown
-  linkType: soft
-
-"@usefelps/core--constants@workspace:*, @usefelps/core--constants@workspace:packages/core--constants":
-  version: 0.0.0-use.local
-  resolution: "@usefelps/core--constants@workspace:packages/core--constants"
+  resolution: "@usefelps/constants@workspace:packages/constants"
   dependencies:
     "@usefelps/types": "workspace:*"
     camel-case: ^4.1.2
@@ -1748,18 +1698,68 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@usefelps/core--actor@workspace:*, @usefelps/core--actor@workspace:packages/core--actor":
+  version: 0.0.0-use.local
+  resolution: "@usefelps/core--actor@workspace:packages/core--actor"
+  dependencies:
+    "@crawlee/core": "*"
+    "@crawlee/playwright": "*"
+    "@usefelps/constants": "workspace:*"
+    "@usefelps/core--crawler": "workspace:*"
+    "@usefelps/core--dataset-collection": "workspace:*"
+    "@usefelps/core--flow": "workspace:*"
+    "@usefelps/core--flow-collection": "workspace:*"
+    "@usefelps/core--hook-collection": "workspace:*"
+    "@usefelps/core--input": "workspace:*"
+    "@usefelps/core--instance-base": "workspace:*"
+    "@usefelps/core--model-collection": "workspace:*"
+    "@usefelps/core--request-meta": "workspace:*"
+    "@usefelps/core--request-queue": "workspace:*"
+    "@usefelps/core--request-queue-collection": "workspace:*"
+    "@usefelps/core--step": "workspace:*"
+    "@usefelps/core--step-collection": "workspace:*"
+    "@usefelps/core--store-collection": "workspace:*"
+    "@usefelps/helper--logger": "workspace:*"
+    "@usefelps/helper--utils": "workspace:*"
+    "@usefelps/types": "workspace:*"
+    rimraf: ^3.0.2
+    typescript: ^4.7.2
+  peerDependencies:
+    "@crawlee/core": "*"
+    "@crawlee/playwright": "*"
+    "@usefelps/constants": "workspace:*"
+    "@usefelps/core--crawler": "workspace:*"
+    "@usefelps/core--dataset-collection": "workspace:*"
+    "@usefelps/core--flow": "workspace:*"
+    "@usefelps/core--flow-collection": "workspace:*"
+    "@usefelps/core--hook-collection": "workspace:*"
+    "@usefelps/core--input": "workspace:*"
+    "@usefelps/core--instance-base": "workspace:*"
+    "@usefelps/core--model-collection": "workspace:*"
+    "@usefelps/core--request-meta": "workspace:*"
+    "@usefelps/core--request-queue": "workspace:*"
+    "@usefelps/core--request-queue-collection": "workspace:*"
+    "@usefelps/core--step": "workspace:*"
+    "@usefelps/core--step-collection": "workspace:*"
+    "@usefelps/core--store-collection": "workspace:*"
+    "@usefelps/helper--logger": "workspace:*"
+    "@usefelps/helper--utils": "workspace:*"
+    "@usefelps/types": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@usefelps/core--crawler--playwright@workspace:*, @usefelps/core--crawler--playwright@workspace:packages/core--crawler--playwright":
   version: 0.0.0-use.local
   resolution: "@usefelps/core--crawler--playwright@workspace:packages/core--crawler--playwright"
   dependencies:
-    "@usefelps/custom--crawler--playwright": "workspace:*"
+    "@usefelps/custom--crawler--aio-playwright": "workspace:*"
     "@usefelps/types": "workspace:*"
     cheerio: ^1.0.0-rc.10
     playwright: ^1.22.2
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/custom--crawler--playwright": "workspace:*"
+    "@usefelps/custom--crawler--aio-playwright": "workspace:*"
     "@usefelps/types": "workspace:*"
     cheerio: ^1.0.0-rc.10
     playwright: ^1.22.2
@@ -1772,7 +1772,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--crawler@workspace:packages/core--crawler"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--crawler--playwright": "workspace:*"
     "@usefelps/core--events": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
@@ -1786,7 +1786,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--crawler--playwright": "workspace:*"
     "@usefelps/core--events": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
@@ -1871,14 +1871,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--flow@workspace:packages/core--flow"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
     "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
     "@usefelps/types": "workspace:*"
@@ -1947,14 +1947,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--model@workspace:packages/core--model"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--validator": "workspace:*"
     "@usefelps/helper--utils": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--validator": "workspace:*"
     "@usefelps/helper--utils": "workspace:*"
@@ -1965,7 +1965,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--orchestrator@workspace:packages/core--orchestrator"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--dataset": "workspace:*"
     "@usefelps/core--flow": "workspace:*"
     "@usefelps/core--model": "workspace:*"
@@ -1984,7 +1984,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--dataset": "workspace:*"
     "@usefelps/core--flow": "workspace:*"
     "@usefelps/core--model": "workspace:*"
@@ -2007,14 +2007,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--request-meta@workspace:packages/core--request-meta"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/helper--utils": "workspace:*"
     "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/helper--utils": "workspace:*"
     "@usefelps/types": "workspace:*"
@@ -2063,7 +2063,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--step-api--flow@workspace:packages/core--step-api--flow"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
@@ -2073,7 +2073,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
@@ -2103,7 +2103,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--step-api--meta@workspace:packages/core--step-api--meta"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
     "@usefelps/core--trail": "workspace:*"
@@ -2111,7 +2111,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
     "@usefelps/core--trail": "workspace:*"
@@ -2123,7 +2123,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--step-api--model@workspace:packages/core--step-api--model"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
@@ -2133,7 +2133,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
@@ -2181,7 +2181,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--step@workspace:packages/core--step"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
     "@usefelps/core--step-api": "workspace:*"
@@ -2192,7 +2192,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
     "@usefelps/core--step-api": "workspace:*"
@@ -2265,7 +2265,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--trail--data-model@workspace:packages/core--trail--data-model"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
     "@usefelps/core--store--data": "workspace:*"
@@ -2276,7 +2276,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
     "@usefelps/core--store--data": "workspace:*"
@@ -2290,7 +2290,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--trail--data-requests@workspace:packages/core--trail--data-requests"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
     "@usefelps/core--store--data": "workspace:*"
@@ -2300,7 +2300,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
     "@usefelps/core--store--data": "workspace:*"
@@ -2328,7 +2328,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--trail-collection@workspace:packages/core--trail-collection"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--store--data": "workspace:*"
     "@usefelps/core--trail": "workspace:*"
@@ -2336,7 +2336,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--store--data": "workspace:*"
     "@usefelps/core--trail": "workspace:*"
@@ -2348,7 +2348,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--trail@workspace:packages/core--trail"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
@@ -2360,7 +2360,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
@@ -2376,7 +2376,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/core--validator@workspace:packages/core--validator"
   dependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/helper--logger": "workspace:*"
     "@usefelps/helper--utils": "workspace:*"
@@ -2385,16 +2385,16 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/helper--logger": "workspace:*"
     "@usefelps/helper--utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
-"@usefelps/custom--crawler--playwright@workspace:*, @usefelps/custom--crawler--playwright@workspace:packages/custom--crawler--playwright":
+"@usefelps/custom--crawler--aio-playwright@workspace:*, @usefelps/custom--crawler--aio-playwright@workspace:packages/custom--crawler--aio-playwright":
   version: 0.0.0-use.local
-  resolution: "@usefelps/custom--crawler--playwright@workspace:packages/custom--crawler--playwright"
+  resolution: "@usefelps/custom--crawler--aio-playwright@workspace:packages/custom--crawler--aio-playwright"
   dependencies:
     "@apify/timeout": ^0.2.1
     "@apify/utilities": "*"
@@ -2536,7 +2536,7 @@ __metadata:
     "@types/lodash.pick": ^4.4.7
     "@types/lodash.set": ^4.3.7
     "@types/lodash.unset": ^4.5.7
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/types": "workspace:*"
     fast-safe-stringify: ^2.1.1
     lodash.clonedeep: ^4.5.0
@@ -2552,7 +2552,7 @@ __metadata:
     object-hash: ^3.0.0
     rimraf: ^3.0.2
   peerDependencies:
-    "@usefelps/core--constants": "workspace:*"
+    "@usefelps/constants": "workspace:*"
     "@usefelps/types": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -2600,7 +2600,7 @@ __metadata:
   resolution: "@usefelps/test-run@workspace:packages/test-run"
   dependencies:
     "@crawlee/core": "*"
-    "@usefelps/custom--crawler--playwright": "workspace:*"
+    "@usefelps/custom--crawler--aio-playwright": "workspace:*"
     "@usefelps/types": "workspace:*"
     apify: "*"
     cheerio: ^1.0.0-rc.10
@@ -2621,9 +2621,9 @@ __metadata:
     "@crawlee/playwright": "*"
     "@types/flexsearch": ^0.7.3
     "@types/winston": ^2.4.4
-    apify-client: "workspace:*"
-    flexsearch: "workspace:*"
-    json-schema-to-ts: "workspace:*"
+    apify-client: 2.5.1
+    flexsearch: ^0.7.3
+    json-schema-to-ts: 2.5.3
     rimraf: ^3.0.2
     typescript: ^4.7.2
     winston: ^3.7.2
@@ -4496,7 +4496,7 @@ __metadata:
     "@usefelps/core--trail--data-model": "workspace:*"
     "@usefelps/core--trail--data-requests": "workspace:*"
     "@usefelps/core--trail-collection": "workspace:*"
-    "@usefelps/custom--crawler--playwright": "workspace:*"
+    "@usefelps/custom--crawler--aio-playwright": "workspace:*"
     "@usefelps/custom--request-queue": "workspace:*"
     "@usefelps/helper--logger": "workspace:*"
     "@usefelps/helper--mutable": "workspace:*"

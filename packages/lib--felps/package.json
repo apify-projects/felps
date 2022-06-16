@@ -36,7 +36,7 @@
         "@usefelps/core--trail--data-model": "workspace:*",
         "@usefelps/core--trail--data-requests": "workspace:*",
         "@usefelps/core--trail-collection": "workspace:*",
-        "@usefelps/custom--crawler--playwright": "workspace:*",
+        "@usefelps/custom--crawler--aio-playwright": "workspace:*",
         "@usefelps/custom--request-queue": "workspace:*",
         "@usefelps/helper--logger": "workspace:*",
         "@usefelps/helper--mutable": "workspace:*",
@@ -64,6 +64,7 @@
         "lib"
     ],
     "scripts": {
+        "publish": "yarn npm publish --access public",
         "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
         "dev": "npm run clean && tsc --watch",
         "build": "tsc --build",

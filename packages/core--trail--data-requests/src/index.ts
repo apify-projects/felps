@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { REQUEST_KEY_PROP, REQUEST_STATUS, REQUEST_UID_KEY } from '@usefelps/core--constants';
+import { REQUEST_KEY_PROP, REQUEST_STATUS, REQUEST_UID_KEY } from '@usefelps/constants';
 import Base from '@usefelps/core--instance-base';
 import RequestMeta from '@usefelps/core--request-meta';
 import DataStore from '@usefelps/core--store--data';

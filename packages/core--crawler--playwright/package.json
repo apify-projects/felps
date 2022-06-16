@@ -4,7 +4,7 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "peerDependencies": {
-        "@usefelps/custom--crawler--playwright": "workspace:*",
+        "@usefelps/custom--crawler--aio-playwright": "workspace:*",
         "@usefelps/types": "workspace:*",
         "cheerio": "^1.0.0-rc.10",
         "playwright": "^1.22.2",
@@ -12,7 +12,7 @@
         "typescript": "^4.7.2"
     },
     "devDependencies": {
-        "@usefelps/custom--crawler--playwright": "workspace:*",
+        "@usefelps/custom--crawler--aio-playwright": "workspace:*",
         "@usefelps/types": "workspace:*",
         "cheerio": "^1.0.0-rc.10",
         "playwright": "^1.22.2",
@@ -27,6 +27,7 @@
         "lib"
     ],
     "scripts": {
+        "publish": "yarn npm publish --access public",
         "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
         "dev": "npm run clean && tsc --watch",
         "build": "tsc",
