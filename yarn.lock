@@ -2441,6 +2441,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@usefelps/example--crawler--aio-playwright@workspace:packages/example--crawler--aio-playwright":
+  version: 0.0.0-use.local
+  resolution: "@usefelps/example--crawler--aio-playwright@workspace:packages/example--crawler--aio-playwright"
+  dependencies:
+    "@crawlee/core": "*"
+    "@usefelps/custom--crawler--aio-playwright": "workspace:*"
+    "@usefelps/types": "workspace:*"
+    apify: "*"
+    cheerio: ^1.0.0-rc.10
+    htmlparser2: 8.0.1
+    iconv-lite: 0.6.3
+    playwright: ^1.19.2
+    rimraf: ^3.0.2
+    typescript: ^4.7.2
+  languageName: unknown
+  linkType: soft
+
 "@usefelps/helper--logger--adapter--apify@workspace:packages/helper--logger--adapter--apify":
   version: 0.0.0-use.local
   resolution: "@usefelps/helper--logger--adapter--apify@workspace:packages/helper--logger--adapter--apify"
@@ -2592,23 +2609,6 @@ __metadata:
   peerDependencies:
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/types": "workspace:*"
-  languageName: unknown
-  linkType: soft
-
-"@usefelps/test-run@workspace:packages/test-run":
-  version: 0.0.0-use.local
-  resolution: "@usefelps/test-run@workspace:packages/test-run"
-  dependencies:
-    "@crawlee/core": "*"
-    "@usefelps/custom--crawler--aio-playwright": "workspace:*"
-    "@usefelps/types": "workspace:*"
-    apify: "*"
-    cheerio: ^1.0.0-rc.10
-    htmlparser2: 8.0.1
-    iconv-lite: 0.6.3
-    playwright: ^1.19.2
-    rimraf: ^3.0.2
-    typescript: ^4.7.2
   languageName: unknown
   linkType: soft
 

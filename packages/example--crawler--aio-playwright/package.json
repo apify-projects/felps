@@ -1,5 +1,6 @@
 {
-    "name": "@usefelps/test-run",
+    "private": true,
+    "name": "@usefelps/example--crawler--aio-playwright",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
@@ -24,7 +25,6 @@
         "lib"
     ],
     "scripts": {
-        "publish": "yarn npm publish --access public",
         "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
         "prepack": "yarn build",
         "compile": "tsc",

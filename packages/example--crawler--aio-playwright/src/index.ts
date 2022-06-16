@@ -1,7 +1,7 @@
-import { Actor } from 'apify';
 import { RequestQueue } from '@crawlee/core';
-import CustomPlaywrightCrawler from '../../custom--crawler--aio-playwright-playwright/lib';
+import CustomPlaywrightCrawler from '@usefelps/custom--crawler--aio-playwright';
 import * as FT from '@usefelps/types';
+import { Actor } from 'apify';
 
 (async () => {
     await Actor.init();
@@ -36,9 +36,10 @@ import * as FT from '@usefelps/types';
         requestQueue,
         async requestHandler({ request }) {
             console.log(`Processing request via ${(request.userData as FT.ReallyAny).__crawlerOptions.mode} mode`);
-        },
-        async failedRequestHandler(inputs) {
-            console.log(inputs);
+            Actor.pushData({
+                url: request.url,
+                mode: (request.userData as FT.ReallyAny).__crawlerOptions.mode,
+            })
         }
     });
 

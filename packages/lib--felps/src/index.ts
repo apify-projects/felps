@@ -34,7 +34,7 @@ import UrlPattern from '@usefelps/helper--url-pattern';
 import Logger from '@usefelps/helper--logger';
 import Mutable from '@usefelps/helper--mutable';
 import CustomRequestQueue from '@usefelps/custom--request-queue';
-import CustomPlaywrightCrawler from '../../custom--crawler--aio-playwright-playwright/lib';
+import CustomPlaywrightCrawler from '@usefelps/custom--crawler--aio-playwright';
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
 import ApifyKvStoreAdapter from '@usefelps/kv-store--adapter--apify';
 import InMemoryKvStoreAdapter from '@usefelps/kv-store--adapter--in-memory';

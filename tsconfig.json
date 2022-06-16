@@ -136,6 +136,9 @@
             "path": "packages/custom--request-queue"
         },
         {
+            "path": "packages/example--crawler--aio-playwright"
+        },
+        {
             "path": "packages/helper--logger"
         },
         {
@@ -176,9 +179,6 @@
         },
         {
             "path": "packages/request-queue--adapter--in-memory"
-        },
-        {
-            "path": "packages/test-run"
         },
         {
             "path": "packages/types"
