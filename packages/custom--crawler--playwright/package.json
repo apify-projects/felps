@@ -5,6 +5,7 @@
     "typings": "lib/index.d.ts",
     "dependencies": {
         "@apify/timeout": "^0.2.1",
+        "@apify/utilities": "*",
         "@crawlee/browser": "*",
         "@crawlee/browser-pool": "*",
         "@crawlee/core": "*",

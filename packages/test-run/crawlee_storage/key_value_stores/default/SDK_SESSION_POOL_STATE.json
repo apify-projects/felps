@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 1,
+  "usableSessionsCount": 5,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_zhLSagTq1s",
+      "id": "session_lrOGEQFkNZ",
       "cookieJar": {
         "version": "tough-cookie@4.0.0",
         "storeType": "MemoryCookieStore",
@@ -13,9 +13,237 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2022-06-15T15:25:15.329Z",
-      "createdAt": "2022-06-15T14:35:15.329Z",
+      "expiresAt": "2022-06-16T09:02:54.517Z",
+      "createdAt": "2022-06-16T08:12:54.517Z",
       "usageCount": 2,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_VoTHARptfX",
+      "cookieJar": {
+        "version": "tough-cookie@4.0.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2022-06-16T09:02:54.534Z",
+      "createdAt": "2022-06-16T08:12:54.534Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_r1y6k2uD3t",
+      "cookieJar": {
+        "version": "tough-cookie@4.0.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "cookies": [
+          {
+            "key": "kvcd",
+            "value": "1655367176415",
+            "expires": "2022-06-16T09:02:57.299Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:57.300Z",
+            "lastAccessed": "2022-06-16T08:12:57.300Z"
+          },
+          {
+            "key": "km_ai",
+            "value": "m6aKVZW7zUT3mOfWHDrNNqkZbko%3D",
+            "expires": "2027-06-15T08:12:56.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:57.300Z",
+            "lastAccessed": "2022-06-16T08:12:57.300Z"
+          },
+          {
+            "key": "km_vs",
+            "value": "1",
+            "expires": "2022-06-16T08:42:56.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:57.301Z",
+            "lastAccessed": "2022-06-16T08:12:57.301Z"
+          },
+          {
+            "key": "km_lv",
+            "value": "1655367176",
+            "expires": "2027-06-15T08:12:56.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:57.301Z",
+            "lastAccessed": "2022-06-16T08:12:57.301Z"
+          },
+          {
+            "key": "_ALGOLIA",
+            "value": "anonymous-15868dfa-4481-416e-9f1e-7829d1b9ec9e",
+            "expires": "2022-12-13T08:12:56.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:57.301Z",
+            "lastAccessed": "2022-06-16T08:12:57.301Z"
+          },
+          {
+            "key": "ApifyAcqSrc",
+            "value": "https://apify.com/",
+            "expires": "2023-06-16T08:12:56.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:57.302Z",
+            "lastAccessed": "2022-06-16T08:12:57.302Z"
+          },
+          {
+            "key": "ApifyAcqRef",
+            "expires": "2023-06-16T08:12:56.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:57.302Z",
+            "lastAccessed": "2022-06-16T08:12:57.302Z"
+          },
+          {
+            "key": "_gaexp",
+            "value": "GAX1.2.U59hPqfJT7yXX-SoNZCgjw.19251.1",
+            "expires": "2022-09-16T00:00:00.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:57.302Z",
+            "lastAccessed": "2022-06-16T08:12:57.302Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2022-06-16T09:02:54.535Z",
+      "createdAt": "2022-06-16T08:12:54.535Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_elQr2csOJc",
+      "cookieJar": {
+        "version": "tough-cookie@4.0.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2022-06-16T09:02:55.512Z",
+      "createdAt": "2022-06-16T08:12:55.512Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_cuJOmvgMyd",
+      "cookieJar": {
+        "version": "tough-cookie@4.0.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "cookies": [
+          {
+            "key": "kvcd",
+            "value": "1655367178820",
+            "expires": "2022-06-16T09:02:59.454Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:59.454Z",
+            "lastAccessed": "2022-06-16T08:12:59.454Z"
+          },
+          {
+            "key": "km_ai",
+            "value": "zUGn81u0Tkuf700HlFe1%2B%2Bf5aCE%3D",
+            "expires": "2027-06-15T08:12:58.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:59.455Z",
+            "lastAccessed": "2022-06-16T08:12:59.455Z"
+          },
+          {
+            "key": "km_vs",
+            "value": "1",
+            "expires": "2022-06-16T08:42:58.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:59.455Z",
+            "lastAccessed": "2022-06-16T08:12:59.455Z"
+          },
+          {
+            "key": "km_lv",
+            "value": "1655367179",
+            "expires": "2027-06-15T08:12:58.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:59.455Z",
+            "lastAccessed": "2022-06-16T08:12:59.455Z"
+          },
+          {
+            "key": "_ALGOLIA",
+            "value": "anonymous-1db53606-4151-4c56-a572-e99eb3313f0d",
+            "expires": "2022-12-13T08:12:58.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:59.455Z",
+            "lastAccessed": "2022-06-16T08:12:59.455Z"
+          },
+          {
+            "key": "ApifyAcqSrc",
+            "value": "https://apify.com/",
+            "expires": "2023-06-16T08:12:59.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:59.456Z",
+            "lastAccessed": "2022-06-16T08:12:59.456Z"
+          },
+          {
+            "key": "ApifyAcqRef",
+            "expires": "2023-06-16T08:12:59.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:59.456Z",
+            "lastAccessed": "2022-06-16T08:12:59.456Z"
+          },
+          {
+            "key": "_gaexp",
+            "value": "GAX1.2.U59hPqfJT7yXX-SoNZCgjw.19251.2",
+            "expires": "2022-09-16T00:00:00.000Z",
+            "domain": "apify.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2022-06-16T08:12:59.456Z",
+            "lastAccessed": "2022-06-16T08:12:59.456Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2022-06-16T09:02:55.774Z",
+      "createdAt": "2022-06-16T08:12:55.774Z",
+      "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
     }

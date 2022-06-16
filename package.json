@@ -76,6 +76,7 @@
     "@crawlee/types": "3.0.0-beta.38",
     "@crawlee/browser": "3.0.0-beta.38",
     "@crawlee/browser-pool": "3.0.0-beta.38",
-    "@crawlee/utils": "3.0.0-beta.38"
+    "@crawlee/utils": "3.0.0-beta.38",
+    "@apify/utilities": "1.2.14"
   }
 }

@@ -127,7 +127,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apify/utilities@npm:^1.2.12":
+"@apify/utilities@npm:1.2.14":
   version: 1.2.14
   resolution: "@apify/utilities@npm:1.2.14"
   dependencies:
@@ -2397,6 +2397,7 @@ __metadata:
   resolution: "@usefelps/custom--crawler--playwright@workspace:packages/custom--crawler--playwright"
   dependencies:
     "@apify/timeout": ^0.2.1
+    "@apify/utilities": "*"
     "@crawlee/browser": "*"
     "@crawlee/browser-pool": "*"
     "@crawlee/core": "*"
@@ -2603,6 +2604,8 @@ __metadata:
     "@usefelps/types": "workspace:*"
     apify: "*"
     cheerio: ^1.0.0-rc.10
+    htmlparser2: 8.0.1
+    iconv-lite: 0.6.3
     playwright: ^1.19.2
     rimraf: ^3.0.2
     typescript: ^4.7.2
@@ -5024,6 +5027,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"htmlparser2@npm:8.0.1, htmlparser2@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "htmlparser2@npm:8.0.1"
+  dependencies:
+    domelementtype: ^2.3.0
+    domhandler: ^5.0.2
+    domutils: ^3.0.1
+    entities: ^4.3.0
+  checksum: 06d5c71e8313597722bc429ae2a7a8333d77bd3ab07ccb916628384b37332027b047f8619448d8f4a3312b6609c6ea3302a4e77435d859e9e686999e6699ca39
+  languageName: node
+  linkType: hard
+
 "htmlparser2@npm:^6.1.0":
   version: 6.1.0
   resolution: "htmlparser2@npm:6.1.0"
@@ -5033,18 +5048,6 @@ __metadata:
     domutils: ^2.5.2
     entities: ^2.0.0
   checksum: 81a7b3d9c3bb9acb568a02fc9b1b81ffbfa55eae7f1c41ae0bf840006d1dbf54cb3aa245b2553e2c94db674840a9f0fdad7027c9a9d01a062065314039058c4e
-  languageName: node
-  linkType: hard
-
-"htmlparser2@npm:^8.0.1":
-  version: 8.0.1
-  resolution: "htmlparser2@npm:8.0.1"
-  dependencies:
-    domelementtype: ^2.3.0
-    domhandler: ^5.0.2
-    domutils: ^3.0.1
-    entities: ^4.3.0
-  checksum: 06d5c71e8313597722bc429ae2a7a8333d77bd3ab07ccb916628384b37332027b047f8619448d8f4a3312b6609c6ea3302a4e77435d859e9e686999e6699ca39
   languageName: node
   linkType: hard
 
@@ -5121,7 +5124,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"iconv-lite@npm:^0.6.2, iconv-lite@npm:^0.6.3":
+"iconv-lite@npm:0.6.3, iconv-lite@npm:^0.6.2, iconv-lite@npm:^0.6.3":
   version: 0.6.3
   resolution: "iconv-lite@npm:0.6.3"
   dependencies:

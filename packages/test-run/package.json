@@ -8,6 +8,8 @@
         "@usefelps/types": "workspace:*",
         "apify": "*",
         "cheerio": "^1.0.0-rc.10",
+        "htmlparser2": "8.0.1",
+        "iconv-lite": "0.6.3",
         "playwright": "^1.19.2"
     },
     "devDependencies": {
