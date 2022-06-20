@@ -1,5 +1,4 @@
 import * as CONST from '@usefelps/constants';
-import Events from "@usefelps/core--events";
 import Base from '@usefelps/core--instance-base';
 import PlaywrightCrawler from '@usefelps/core--crawler--playwright';
 import * as FT from '@usefelps/types';
@@ -26,7 +25,6 @@ export const create = (options?: FT.CrawlerOptions): FT.CrawlerInstance => {
         ...Base.create({ key: 'crawler', name: 'multi-crawler' }),
         launcher,
         resource: undefined,
-        events: Events.create({ name: 'multi-crawler' }),
     };
 };
 

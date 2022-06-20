@@ -9,9 +9,6 @@
     ],
     "references": [
         {
-            "path": "../constants"
-        },
-        {
             "path": "../core--instance-base"
         },
         {
@@ -28,6 +25,9 @@
         },
         {
             "path": "../core--trail--data-requests"
+        },
+        {
+            "path": "../constants"
         },
         {
             "path": "../helper--utils"

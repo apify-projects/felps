@@ -9,6 +9,8 @@
         "@usefelps/types": "workspace:*"
     },
     "dependencies": {
+        "@usefelps/apify--events": "workspace:*",
+        "@usefelps/core--instance-base": "workspace:*",
         "eventemitter3": "^4.0.7",
         "queue": "^6.0.2"
     },

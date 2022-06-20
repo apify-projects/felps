@@ -9,13 +9,13 @@
     ],
     "references": [
         {
-            "path": "../constants"
-        },
-        {
             "path": "../core--instance-base"
         },
         {
             "path": "../core--validator"
+        },
+        {
+            "path": "../constants"
         },
         {
             "path": "../helper--utils"

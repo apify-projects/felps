@@ -56,5 +56,19 @@
         "lint": "eslint ./src --ext .ts,.js,.jsx",
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
-    "license": "ISC"
+    "license": "ISC",
+    "dependencies": {
+        "@usefelps/core--dataset": "workspace:*",
+        "@usefelps/core--flow": "workspace:*",
+        "@usefelps/core--model": "workspace:*",
+        "@usefelps/core--request-meta": "workspace:*",
+        "@usefelps/core--request-queue": "workspace:*",
+        "@usefelps/core--step": "workspace:*",
+        "@usefelps/core--step-api": "workspace:*",
+        "@usefelps/core--store--data": "workspace:*",
+        "@usefelps/core--trail": "workspace:*",
+        "@usefelps/core--trail--data-model": "workspace:*",
+        "@usefelps/core--trail--data-requests": "workspace:*",
+        "@usefelps/core--trail-collection": "workspace:*"
+    }
 }

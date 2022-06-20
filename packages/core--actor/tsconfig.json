@@ -27,9 +27,6 @@
             "path": "../core--hook"
         },
         {
-            "path": "../core--hook-collection"
-        },
-        {
             "path": "../core--input"
         },
         {
@@ -37,6 +34,9 @@
         },
         {
             "path": "../core--model-collection"
+        },
+        {
+            "path": "../core--orchestrator"
         },
         {
             "path": "../core--request-meta"
@@ -49,6 +49,9 @@
         },
         {
             "path": "../core--step"
+        },
+        {
+            "path": "../core--step-api"
         },
         {
             "path": "../core--step-collection"

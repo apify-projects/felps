@@ -58,6 +58,7 @@
         "build:force": "tsc --build --force",
         "bump": "node ./scripts/version.js",
         "prepare": "node ./scripts/configure-references.js",
+        "deps": "node ./scripts/from-imports-to-dependencies.js",
         "clean": "yarn workspaces foreach -pti run clean",
         "test": "jest --silent",
         "test:dev": "jest --watch",
@@ -79,8 +80,5 @@
         "@crawlee/browser-pool": "3.0.0-beta.38",
         "@crawlee/utils": "3.0.0-beta.38",
         "@apify/utilities": "1.2.14"
-    },
-    "dependencies": {
-        "parse-imports": "^1.1.0"
     }
 }

@@ -9,10 +9,10 @@
     ],
     "references": [
         {
-            "path": "../core--instance-base"
+            "path": "../helper--logger--adapter"
         },
         {
-            "path": "../helper--logger--adapter"
+            "path": "../core--instance-base"
         },
         {
             "path": "../types"

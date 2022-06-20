@@ -42,5 +42,13 @@
         "lint": "eslint ./src --ext .ts,.js,.jsx",
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
-    "license": "ISC"
+    "license": "ISC",
+    "dependencies": {
+        "@usefelps/core--instance-base": "workspace:*",
+        "@usefelps/core--model": "workspace:*",
+        "@usefelps/core--request-meta": "workspace:*",
+        "@usefelps/core--store--data": "workspace:*",
+        "@usefelps/core--trail--data-model": "workspace:*",
+        "@usefelps/core--trail--data-requests": "workspace:*"
+    }
 }

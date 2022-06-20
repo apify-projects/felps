@@ -34,5 +34,11 @@
         "lint": "eslint ./src --ext .ts,.js,.jsx",
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
-    "license": "ISC"
+    "license": "ISC",
+    "dependencies": {
+        "@usefelps/core--step-api--flow": "workspace:*",
+        "@usefelps/core--step-api--helpers": "workspace:*",
+        "@usefelps/core--step-api--meta": "workspace:*",
+        "@usefelps/core--step-api--model": "workspace:*"
+    }
 }

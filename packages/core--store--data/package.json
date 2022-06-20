@@ -36,5 +36,11 @@
         "lint": "eslint ./src --ext .ts,.js,.jsx",
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
-    "license": "ISC"
+    "license": "ISC",
+    "dependencies": {
+        "@usefelps/apify--events": "workspace:*",
+        "@usefelps/core--instance-base": "workspace:*",
+        "@usefelps/helper--logger": "workspace:*",
+        "@usefelps/kv-store--adapter": "workspace:*"
+    }
 }

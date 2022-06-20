@@ -14,8 +14,4 @@ export const create = <Names extends string[] = []>(options?: FT.DatasetCollecti
     }), DefaultDatasetCollection as unknown as FT.DatasetCollectionInstance<Names>);
 };
 
-export const close = async <Names extends string[] = []>(datasets: FT.DatasetCollectionInstance<Names>) => {
-    await Promise.all(Object.values<FT.DatasetInstance>(datasets).map((d) => Dataset.close(d)));
-};
-
-export default { create, close };
+export default { create };

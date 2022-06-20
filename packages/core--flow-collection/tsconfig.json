@@ -9,6 +9,9 @@
     ],
     "references": [
         {
+            "path": "../core--flow"
+        },
+        {
             "path": "../core--step"
         },
         {

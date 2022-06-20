@@ -723,20 +723,20 @@ export type ActorOptions = {
 };
 
 export type ActorHooks = {
-    preActorStartedHook?: HookOptions,
-    postActorEndedHook?: HookOptions,
-    preCrawlerStartedHook?: HookOptions,
-    postCrawlerEndedHook?: HookOptions,
-    onCrawlerFailedHook?: HookOptions,
-    preQueueStartedHook?: HookOptions,
-    postQueueEndedHook?: HookOptions,
-    preFlowStartedHook?: HookOptions,
-    postFlowEndedHook?: HookOptions,
-    preStepStartedHook?: HookOptions,
-    postStepEndedHook?: HookOptions,
-    onStepFailedHook?: HookOptions,
-    onStepRequestFailedHook?: HookOptions,
-}
+    preActorStartedHook?: HookInstance<[actor: ActorInstance, input: ActorInput]>,
+    postActorEndedHook?: HookInstance<[actor: ActorInstance]>,
+    preCrawlerStartedHook?: HookInstance<[actor: ActorInstance]>,
+    postCrawlerEndedHook?: HookInstance<[actor: ActorInstance]>,
+    onCrawlerFailedHook?: HookInstance<[actor: ActorInstance, error: ReallyAny]>,
+    preQueueStartedHook?: HookInstance<[actor: ActorInstance]>,
+    postQueueEndedHook?: HookInstance<[actor: ActorInstance]>,
+    preFlowStartedHook?: HookInstance<[actor: ActorInstance]>,
+    postFlowEndedHook?: HookInstance<[actor: ActorInstance]>,
+    preStepStartedHook?: HookInstance<[actor: ActorInstance, context: RequestContext]>,
+    postStepEndedHook?: HookInstance<[actor: ActorInstance, context: RequestContext]>,
+    onStepFailedHook?: HookInstance<[actor: ActorInstance, error: ReallyAny]>,
+    onStepRequestFailedHook?: HookInstance<[actor: ActorInstance, error: ReallyAny]>,
+  }
 
 export type ActorInput = string | {
     [x: string]: any;
@@ -787,7 +787,6 @@ export type RequestMetaData = {
 export type CrawlerInstance = {
     launcher?: ReallyAny, // MultiCrawler |
     resource: undefined, // MultiCrawler |
-    events: EventsInstance,
 } & BaseInstance;
 
 export type CrawlerOptions = {
@@ -939,5 +938,5 @@ export type HookInstance<HookParametersSignature extends HookParametersSignature
     handlers?: HookSignature<HookParametersSignature>[],
     validationHandler?: (...args: HookParametersSignature) => Promise<boolean>,
     onErrorHook?: HookInstance,
-} & BaseInstance;
+} & Partial<BaseInstance>;
 

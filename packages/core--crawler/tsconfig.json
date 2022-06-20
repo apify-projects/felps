@@ -36,6 +36,9 @@
             "path": "../core--trail"
         },
         {
+            "path": "../core--trail--data-requests"
+        },
+        {
             "path": "../helper--logger"
         },
         {

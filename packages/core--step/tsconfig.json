@@ -15,6 +15,9 @@
             "path": "../core--events"
         },
         {
+            "path": "../core--hook"
+        },
+        {
             "path": "../core--instance-base"
         },
         {

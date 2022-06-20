@@ -15,10 +15,10 @@
             "path": "../core--store--file"
         },
         {
-            "path": "../kv-store--adapter"
+            "path": "../kv-store--adapter--apify"
         },
         {
-            "path": "../kv-store--adapter--apify"
+            "path": "../kv-store--adapter"
         },
         {
             "path": "../types"

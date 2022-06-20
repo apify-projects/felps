@@ -18,10 +18,10 @@
             "path": "../helper--logger"
         },
         {
-            "path": "../helper--utils"
+            "path": "../kv-store--adapter"
         },
         {
-            "path": "../kv-store--adapter"
+            "path": "../helper--utils"
         },
         {
             "path": "../types"

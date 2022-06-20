@@ -9,10 +9,10 @@
     ],
     "references": [
         {
-            "path": "../constants"
+            "path": "../core--instance-base"
         },
         {
-            "path": "../core--instance-base"
+            "path": "../constants"
         },
         {
             "path": "../helper--utils"

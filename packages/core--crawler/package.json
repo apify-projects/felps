@@ -13,8 +13,9 @@
         "@usefelps/core--step": "workspace:*",
         "@usefelps/core--step-api": "workspace:*",
         "@usefelps/core--trail": "workspace:*",
+        "@usefelps/core--trail--data-requests": "workspace:*",
         "@usefelps/helper--logger": "workspace:*",
-        "@usefelps/types": "workspace:*",
+        "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
         "rimraf": "^3.0.2",
