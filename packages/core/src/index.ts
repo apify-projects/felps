@@ -3,6 +3,7 @@ import Actor from '@usefelps/core--actor';
 import Crawler from '@usefelps/core--crawler';
 import Flow from '@usefelps/core--flow';
 import FlowCollection from '@usefelps/core--flow-collection';
+import Hook from '@usefelps/core--hook';
 import Step from '@usefelps/core--step';
 import StepCollection from '@usefelps/core--step-collection';
 import StepApi from '@usefelps/core--step-api';
@@ -19,7 +20,6 @@ import Queue from '@usefelps/core--request-queue';
 import QueueCollection from '@usefelps/core--request-queue-collection';
 import Dataset from '@usefelps/core--dataset';
 import DatasetCollection from '@usefelps/core--dataset-collection';
-import HookCollection from '@usefelps/core--hook-collection';
 import Events from '@usefelps/core--events';
 import Trail from '@usefelps/core--trail';
 import Trails from '@usefelps/core--trail-collection';
@@ -61,7 +61,7 @@ export {
     Queue,
     DatasetCollection,
     Dataset,
-    HookCollection,
+    Hook,
     Events,
     Trail,
     Trails,
@@ -104,7 +104,7 @@ export default {
     Queue,
     DatasetCollection,
     Dataset,
-    HookCollection,
+    Hook,
     Events,
     Trail,
     Trails,

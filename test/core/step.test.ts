@@ -1,5 +1,6 @@
 import Actor from '@usefelps/core--actor';
 import Step from '@usefelps/core--step';
+import Hook from '@usefelps/core--hook';
 
 describe('Step.create', () => {
     const actor = Actor.create({ name: 'actor' });
@@ -12,7 +13,13 @@ describe('Step.create', () => {
         let value = false;
         const step = Step.create({
             name: 'TEST',
-            async handler() { value = true; },
+            hooks: {
+                navigationHook: Hook.create({
+                    handlers: [
+                        async () => value = true,
+                    ],
+                }),
+            },
         });
 
         await Step.run(step, actor, undefined);

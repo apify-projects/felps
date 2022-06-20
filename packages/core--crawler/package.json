@@ -3,20 +3,7 @@
     "version": "1.0.315",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
-    "peerDependencies": {
-        "@usefelps/constants": "workspace:*",
-        "@usefelps/core--crawler--playwright": "workspace:*",
-        "@usefelps/core--events": "workspace:*",
-        "@usefelps/core--instance-base": "workspace:*",
-        "@usefelps/core--orchestrator": "workspace:*",
-        "@usefelps/core--request-meta": "workspace:*",
-        "@usefelps/core--step": "workspace:*",
-        "@usefelps/core--step-api": "workspace:*",
-        "@usefelps/core--trail": "workspace:*",
-        "@usefelps/helper--logger": "workspace:*",
-        "@usefelps/types": "workspace:*"
-    },
-    "devDependencies": {
+    "dependencies": {
         "@usefelps/constants": "workspace:*",
         "@usefelps/core--crawler--playwright": "workspace:*",
         "@usefelps/core--events": "workspace:*",
@@ -28,6 +15,8 @@
         "@usefelps/core--trail": "workspace:*",
         "@usefelps/helper--logger": "workspace:*",
         "@usefelps/types": "workspace:*",
+    },
+    "devDependencies": {
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"
     },

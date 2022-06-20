@@ -22,10 +22,6 @@ import * as utils from '@usefelps/helper--utils';
 import { pathify } from '@usefelps/helper--utils';
 import * as FT from '@usefelps/types';
 
-export const DEFAULTS = {
-
-},
-
 export const create = (options: FT.ActorOptions): FT.ActorInstance => {
     const base = Base.create({ key: 'actor', name: options.name });
     const { hooks = {} } = options || {};
@@ -72,7 +68,6 @@ export const create = (options: FT.ActorOptions): FT.ActorInstance => {
                 handlers: [
                     async function CLOSING(actor) {
                         await StoreCollection.persist(actor.stores);
-                        await DatasetCollection.close(actor.datasets);
                     },
                     ...(hooks?.postActorEndedHook?.handlers || []),
                 ],
@@ -94,14 +89,14 @@ export const create = (options: FT.ActorOptions): FT.ActorInstance => {
                 ],
             }),
 
-            postCrawlerFailedHook: Hook.create<[actor: FT.ActorInstance, error: FT.ReallyAny]>({
-                name: pathify(base.name, 'postCrawlerFailedHook'),
+            onCrawlerFailedHook: Hook.create<[actor: FT.ActorInstance, error: FT.ReallyAny]>({
+                name: pathify(base.name, 'onCrawlerFailedHook'),
                 validationHandler,
                 handlers: [
                     async function LOGGING(actor, error) {
                         Logger.error(Logger.create(actor), `Actor ${actor.name} failed`, { error } as FT.ReallyAny);
                     },
-                    ...(hooks?.postCrawlerFailedHook?.handlers || []),
+                    ...(hooks?.onCrawlerFailedHook?.handlers || []),
                 ],
             }),
 
@@ -156,19 +151,19 @@ export const create = (options: FT.ActorOptions): FT.ActorInstance => {
                 ],
             }),
 
-            postStepFailedHook: Hook.create({
-                name: pathify(base.name, 'postStepFailedHook'),
+            onStepFailedHook: Hook.create({
+                name: pathify(base.name, 'onStepFailedHook'),
                 validationHandler,
                 handlers: [
-                    ...(hooks?.postStepFailedHook?.handlers || []),
+                    ...(hooks?.onStepFailedHook?.handlers || []),
                 ],
             }),
 
-            postStepRequestFailedHook: Hook.create({
-                name: pathify(base.name, 'postStepRequestFailedHook'),
+            onStepRequestFailedHook: Hook.create({
+                name: pathify(base.name, 'onStepRequestFailedHook'),
                 validationHandler,
                 handlers: [
-                    ...(hooks?.postStepRequestFailedHook?.handlers || []),
+                    ...(hooks?.onStepRequestFailedHook?.handlers || []),
                 ],
             }),
         }
@@ -337,7 +332,7 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
          * By default:
          *  - Logs to the console
          */
-        await Hook.run(actor?.hooks?.postCrawlerFailedHook, actor, error);
+        await Hook.run(actor?.hooks?.onCrawlerFailedHook, actor, error);
 
         throw error;
 

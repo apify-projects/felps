@@ -208,17 +208,17 @@ export type StepInstance<Methods = unknown> = {
     reference?: ModelReference,
 } & BaseInstance;
 
-export type StepHooks<Methods = unknown> = {
-    navigationHook?: HookInstance<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
-    postNavigationHook?: HookInstance<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
-    preNavigationHook?: HookInstance<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
-    errorHook?: HookInstance<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
-    requestErrorHook?: HookInstance<StepOptionsHandlerParameters<Methods & GeneralStepApi>>
+export type StepHooks<Methods = any> = {
+    navigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
+    postNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
+    preNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
+    onErrorHook?: HookOptions<[context: RequestContext, api: Methods & GeneralStepApi, error: ReallyAny]>,
+    onRequestErrorHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralStepApi>>
 };
 
-export type StepOptions<Methods = unknown> = StepInstance<Methods>
+export type StepOptions<Methods = any> = StepInstance<Methods>
 
-export type StepOptionsHandlerParameters<Methods = unknown> = [context: RequestContext, api: Methods]
+export type StepOptionsHandlerParameters<Methods = any> = [context: RequestContext, api: Methods]
 export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
 
 // step-api.ts -----------------------------------------------------------------
@@ -661,12 +661,19 @@ export type DefaultQueueNames = ['default'];
 // dataset.ts ------------------------------------------------------------
 export type DatasetInstance = {
     name: string;
+    hooks: DatasetHooks;
     resource: Dataset | undefined;
-    events: EventsInstance;
 } & BaseInstance;
+
+export type DatasetHooks = {
+    preDataPushedHook: HookInstance<[dataset: DatasetInstance, data: ReallyAny | ReallyAny[]]>
+    onDataPushFailedHook: HookInstance<[dataset: DatasetInstance, data: ReallyAny | ReallyAny[], error: ReallyAny]>
+    postDataPushedHook: HookInstance<[dataset: DatasetInstance, data: ReallyAny | ReallyAny[]]>
+};
 
 export type DatasetOptions = {
     name?: string,
+    hooks?: DatasetHooks
 }
 
 // datasets.ts ------------------------------------------------------------
@@ -716,19 +723,19 @@ export type ActorOptions = {
 };
 
 export type ActorHooks = {
-    preActorStartedHook?: HookInstance,
-    postActorEndedHook?: HookInstance,
-    preCrawlerStartedHook?: HookInstance,
-    postCrawlerEndedHook?: HookInstance,
-    postCrawlerFailedHook?: HookInstance,
-    preQueueStartedHook?: HookInstance,
-    postQueueEndedHook?: HookInstance,
-    preFlowStartedHook?: HookInstance,
-    postFlowEndedHook?: HookInstance,
-    preStepStartedHook?: HookInstance,
-    postStepEndedHook?: HookInstance,
-    postStepFailedHook?: HookInstance,
-    postStepRequestFailedHook?: HookInstance,
+    preActorStartedHook?: HookOptions,
+    postActorEndedHook?: HookOptions,
+    preCrawlerStartedHook?: HookOptions,
+    postCrawlerEndedHook?: HookOptions,
+    onCrawlerFailedHook?: HookOptions,
+    preQueueStartedHook?: HookOptions,
+    postQueueEndedHook?: HookOptions,
+    preFlowStartedHook?: HookOptions,
+    postFlowEndedHook?: HookOptions,
+    preStepStartedHook?: HookOptions,
+    postStepEndedHook?: HookOptions,
+    onStepFailedHook?: HookOptions,
+    onStepRequestFailedHook?: HookOptions,
 }
 
 export type ActorInput = string | {
@@ -925,12 +932,12 @@ export type HookOptions<HookParametersSignature extends HookParametersSignatureD
     name?: string,
     handlers?: HookSignature<HookParametersSignature>[],
     validationHandler?: (...args: HookParametersSignature) => Promise<boolean>,
-    errorHook?: HookInstance,
+    onErrorHook?: HookInstance,
 };
 
 export type HookInstance<HookParametersSignature extends HookParametersSignatureDefault = HookParametersSignatureDefault> = {
     handlers?: HookSignature<HookParametersSignature>[],
     validationHandler?: (...args: HookParametersSignature) => Promise<boolean>,
-    errorHook?: HookInstance,
+    onErrorHook?: HookInstance,
 } & BaseInstance;
 

@@ -1,16 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Dataset } from '@crawlee/core';
-import Events from '@usefelps/core--events';
-import base from '@usefelps/core--instance-base';
+import BaseInstance from '@usefelps/core--instance-base';
+import Hook from '@usefelps/core--hook';
 import { DatasetInstance, DatasetOptions, ReallyAny } from '@usefelps/types';
+import { pathify } from '@usefelps/helper--utils';
 
 export const create = (options: DatasetOptions): DatasetInstance => {
-    const { name } = options || {};
+    const { name, hooks } = options || {};
+
+    const base = BaseInstance.create({ key: 'dataset', name });
 
     return {
-        ...base.create({ key: 'dataset', name: name as string }),
+        ...base,
         resource: undefined,
-        events: Events.create({ name: name as string }),
+        hooks: {
+            preDataPushedHook: Hook.create({
+                name: pathify(base.name, 'preDataPushedHook'),
+                handlers: [
+                    ...(hooks?.preDataPushedHook?.handlers || []),
+                ],
+            }),
+            onDataPushFailedHook: Hook.create({
+                name: pathify(base.name, 'onDataPushFailedHook'),
+                handlers: [
+                    ...(hooks?.onDataPushFailedHook?.handlers || []),
+                ],
+            }),
+            postDataPushedHook: Hook.create({
+                name: pathify(base.name, 'postDataPushedHook'),
+                handlers: [
+                    ...(hooks?.postDataPushedHook?.handlers || []),
+                ],
+            }),
+        }
     };
 };
 
@@ -26,13 +48,34 @@ export const load = async (dataset: DatasetInstance): Promise<DatasetInstance> =
 export const push = async (dataset: DatasetInstance, data: ReallyAny | ReallyAny[]) => {
     const loaded = await load(dataset);
     if (loaded.resource) {
-        Events.emit(dataset.events, 'push', data);
-        return loaded.resource.pushData(data);
+
+        /**
+         * Run any logic before data is pushed to the dataset
+         * Ex: Logging, etc.
+         * By default: (does nothing for now)
+         */
+        Hook.run(loaded.hooks.preDataPushedHook, dataset, data);
+
+        try {
+            await loaded.resource.pushData(data);
+
+        } catch (error) {
+            /**
+             * Run any logic after data is successfully pushed to the dataset
+             * Ex: Logging, etc.
+             * By default: (does nothing for now)
+             */
+             Hook.run(loaded.hooks.onDataPushFailedHook, dataset, data, error);
+
+        } finally {
+            /**
+             * Run any logic after data is successfully pushed to the dataset
+             * Ex: Logging, etc.
+             * By default: (does nothing for now)
+             */
+            Hook.run(loaded.hooks.postDataPushedHook, dataset, data);
+        }
     }
 };
 
-export const close = async (dataset: DatasetInstance) => {
-    await Events.close(dataset.events);
-};
-
-export default { create, load, push, close };
+export default { create, load, push };

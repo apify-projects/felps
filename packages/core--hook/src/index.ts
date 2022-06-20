@@ -7,7 +7,7 @@ export const create = <HookParametersSignature extends FT.HookParametersSignatur
         ...BaseInstance.create({ key: 'hook', name: options?.name || 'default' }),
         handlers: options.handlers.filter(Boolean),
         validationHandler: options?.validationHandler || async function () { return true },
-        errorHook: 'errorHook' in options ? create({ ...(options.errorHook || {}), name: 'errorHook' }) : undefined,
+        onErrorHook: 'onErrorHook' in options ? create({ ...(options.onErrorHook || {}), name: 'onErrorHook' }) : undefined,
     };
 };
 
@@ -23,8 +23,8 @@ export const run = async <HookParametersSignature extends FT.HookParametersSigna
         try {
             await Promise.resolve(handler(...(args as FT.ReallyAny)));
         } catch (error) {
-            if (hook.errorHook) {
-                await run(hook.errorHook)
+            if (hook.onErrorHook) {
+                await run(hook.onErrorHook)
             }
         }
     }

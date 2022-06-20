@@ -12,7 +12,7 @@
         "@usefelps/core--events": "workspace:*",
         "@usefelps/core--flow": "workspace:*",
         "@usefelps/core--flow-collection": "workspace:*",
-        "@usefelps/core--hook-collection": "workspace:*",
+        "@usefelps/core--hook": "workspace:*",
         "@usefelps/core--input": "workspace:*",
         "@usefelps/core--instance-base": "workspace:*",
         "@usefelps/core--model": "workspace:*",

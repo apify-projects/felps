@@ -3,13 +3,11 @@
     "version": "1.0.315",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
-    "peerDependencies": {
+    "dependencies": {
         "@usefelps/core--dataset": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
-        "@usefelps/core--dataset": "workspace:*",
-        "@usefelps/types": "workspace:*",
         "rimraf": "^3.0.2"
     },
     "directories": {

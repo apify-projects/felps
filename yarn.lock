@@ -1798,20 +1798,13 @@ __metadata:
   resolution: "@usefelps/core--dataset@workspace:packages/core--dataset"
   dependencies:
     "@crawlee/core": "*"
+    "@usefelps/core--hook": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
     "@usefelps/helper--logger": "workspace:*"
     "@usefelps/helper--utils": "workspace:*"
     "@usefelps/types": "workspace:*"
-    rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@crawlee/core": "*"
-    "@usefelps/core--instance-base": "workspace:*"
-    "@usefelps/core--request-meta": "workspace:*"
-    "@usefelps/helper--logger": "workspace:*"
-    "@usefelps/helper--utils": "workspace:*"
-    "@usefelps/types": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -3934,6 +3927,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"es-module-lexer@npm:0.4.1":
+  version: 0.4.1
+  resolution: "es-module-lexer@npm:0.4.1"
+  checksum: c33ee30390812df875e419783cf37f3a32b73daabbb1f8a08fe9282fe0777b0a8064a219a34a253cb954b3308bbd4227e17da9e8ec253d309a83b4c90b2e9388
+  languageName: node
+  linkType: hard
+
 "es-shim-unscopables@npm:^1.0.0":
   version: 1.0.0
   resolution: "es-shim-unscopables@npm:1.0.0"
@@ -4451,7 +4451,7 @@ __metadata:
     "@usefelps/core--events": "workspace:*"
     "@usefelps/core--flow": "workspace:*"
     "@usefelps/core--flow-collection": "workspace:*"
-    "@usefelps/core--hook-collection": "workspace:*"
+    "@usefelps/core--hook": "workspace:*"
     "@usefelps/core--input": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--model": "workspace:*"
@@ -7044,6 +7044,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"parse-imports@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "parse-imports@npm:1.1.0"
+  dependencies:
+    es-module-lexer: 0.4.1
+    slashes: 2.0.2
+  checksum: 8618435cc1cc53cfff70358291114ac0d69a3dcdcdf98954752b6825c1f3263348894c8fd6685353ca98ad7b815d533e4425d448da2bb882997172839a85d385
+  languageName: node
+  linkType: hard
+
 "parse-json@npm:^5.2.0":
   version: 5.2.0
   resolution: "parse-json@npm:5.2.0"
@@ -7576,6 +7586,7 @@ __metadata:
     husky: ^8.0.1
     is-ci: ^3.0.1
     jest: ^28.1.1
+    parse-imports: ^1.1.0
     rimraf: ^3.0.2
     ts-jest: ^28.0.4
     typescript: ^4.7.2
@@ -7719,6 +7730,13 @@ __metadata:
   version: 3.0.0
   resolution: "slash@npm:3.0.0"
   checksum: 94a93fff615f25a999ad4b83c9d5e257a7280c90a32a7cb8b4a87996e4babf322e469c42b7f649fd5796edd8687652f3fb452a86dc97a816f01113183393f11c
+  languageName: node
+  linkType: hard
+
+"slashes@npm:2.0.2":
+  version: 2.0.2
+  resolution: "slashes@npm:2.0.2"
+  checksum: d596044ec6bd4ec5d9cabc1d4125a0322b4dcc94d65ad58dd4ab4aeea9e83d87943d4afa75c70136a3fd506f536bb30fe01f63bf7eaafdd64ecda8718079dfe6
   languageName: node
   linkType: hard
 
