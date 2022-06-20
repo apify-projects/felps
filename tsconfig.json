@@ -58,6 +58,9 @@
             "path": "packages/core--flow-collection"
         },
         {
+            "path": "packages/core--hook"
+        },
+        {
             "path": "packages/core--hook-collection"
         },
         {

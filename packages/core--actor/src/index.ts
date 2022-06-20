@@ -1,227 +1,355 @@
 import * as CONST from '@usefelps/constants';
 import crawler from '@usefelps/core--crawler';
+import Hook from '@usefelps/core--hook';
+import Logger from '@usefelps/helper--logger';
 // import useHandleFailedRequestFunction from '@usefelps/core--crawler/lib/use-handle-failed-request-function';
 // import useHandlePageFunction from '@usefelps/core--crawler/lib/use-handle-page-function';
 // import usePostNavigationHooks from '@usefelps/core--crawler/lib/use-post-navigation-hooks';
 // import usePreNavigationHooks from '@usefelps/core--crawler/lib/use-pre-navigation-hooks';
 import DatasetCollection from '@usefelps/core--dataset-collection';
-import Flow from '@usefelps/core--flow';
 import FlowCollection from '@usefelps/core--flow-collection';
-import HookCollection, { globalHookNames } from '@usefelps/core--hook-collection';
 import Input from '@usefelps/core--input';
 import Base from '@usefelps/core--instance-base';
 import ModelCollection from '@usefelps/core--model-collection';
-import Queue from '@usefelps/core--request-queue';
-import QueueCollection from '@usefelps/core--request-queue-collection';
+import Orchestrator from '@usefelps/core--orchestrator';
 import RequestMeta from '@usefelps/core--request-meta';
+import QueueCollection from '@usefelps/core--request-queue-collection';
 import Step from '@usefelps/core--step';
+import StepApi from '@usefelps/core--step-api';
 import StepCollection from '@usefelps/core--step-collection';
 import StoreCollection from '@usefelps/core--store-collection';
-import Logger from '@usefelps/helper--logger';
 import * as utils from '@usefelps/helper--utils';
+import { pathify } from '@usefelps/helper--utils';
 import * as FT from '@usefelps/types';
-import { RequestQueue } from '@crawlee/core';
-import { PlaywrightCrawlerOptions, PlaywrightHook } from '@crawlee/playwright';
+
+export const DEFAULTS = {
+
+},
 
 export const create = (options: FT.ActorOptions): FT.ActorInstance => {
-    return {
-        ...Base.create({ key: 'actor', name: options.name }),
-        ...extend({} as FT.ActorInstance, options),
-    };
-};
+    const base = Base.create({ key: 'actor', name: options.name });
+    const { hooks = {} } = options || {};
 
-export const extend = (actor: FT.ActorInstance, options: Partial<FT.ActorOptions> = {}): FT.ActorInstance => {
+    const validationHandler = async (actor?: FT.ActorInstance) => actor.name === base.name;
+
     const instance = {
-        ...actor,
-        name: options.name || actor.name,
-        input: options?.input || Input.create({ INPUT: { schema: { type: 'object' } } }),
-        crawlerOptions: utils.merge({ mode: 'http' }, options?.crawlerOptions || {}) as FT.RequestCrawlerOptions,
-        crawler: options?.crawler || actor.crawler || crawler.create(),
-        steps: (options?.steps || actor.steps || StepCollection.create({ STEPS: {}, INPUT: { schema: { type: 'object' } } })) as FT.ReallyAny,
-        stepApiOptions: (options?.stepApiOptions || {}),
-        flows: (options?.flows || actor.flows || FlowCollection.create({ FLOWS: {} })) as FT.ReallyAny,
-        models: options?.models || actor.models || ModelCollection.create({ MODELS: {} }),
-        stores: options?.stores || actor.stores || StoreCollection.create(),
-        queues: options?.queues || actor.queues || QueueCollection.create(),
-        datasets: options?.datasets || actor.datasets || DatasetCollection.create(),
-        hooks: options?.hooks || actor.hooks || HookCollection.create({ MODELS: {}, STEPS: {}, FLOWS: {}, INPUT: { schema: { type: 'object' } } }),
-    };
+        ...base,
 
-    instance.steps = prefixStepCollection(instance);
-    instance.flows = prefixFlowCollection(instance);
-    instance.hooks = prefixHookCollection(instance);
+        input: options?.input || Input.create({ INPUT: { schema: { type: 'object' } } }),
+        models: options?.models || ModelCollection.create({ MODELS: {} }),
+        stores: options?.stores || StoreCollection.create(),
+        datasets: options?.datasets || DatasetCollection.create(),
+
+        crawler: options?.crawler || crawler.create({}),
+        crawlerOptions: utils.merge({ mode: 'http' }, options?.crawlerOptions || {}) as FT.RequestCrawlerOptions,
+
+        queues: options?.queues || QueueCollection.create({}),
+
+        flows: (options?.flows || FlowCollection.create({ FLOWS: {} })) as FT.ReallyAny,
+
+        steps: (options?.steps || StepCollection.create({ STEPS: {}, INPUT: { schema: { type: 'object' } } })) as FT.ReallyAny,
+        stepApiOptions: (options?.stepApiOptions || {}),
+
+        hooks: {
+            preActorStartedHook: Hook.create<[actor?: FT.ActorInstance, input?: FT.ActorInput]>({
+                name: pathify(base.name, 'preActorStartedHook'),
+                validationHandler,
+                handlers: [
+                    async function EXPAND_STATE(actor, input) {
+                        actor.input.data = input;
+                    },
+                    async function LOAD_STORES(actor) {
+                        // Load stores
+                        actor.stores = await StoreCollection.load(actor?.stores as FT.StoreCollectionInstance);
+                        StoreCollection.listen(actor.stores);
+                    },
+                    ...(hooks?.preActorStartedHook?.handlers || []),
+                ],
+            }),
+            postActorEndedHook: Hook.create({
+                name: pathify(base.name, 'postActorEndedHook'),
+                validationHandler,
+                handlers: [
+                    async function CLOSING(actor) {
+                        await StoreCollection.persist(actor.stores);
+                        await DatasetCollection.close(actor.datasets);
+                    },
+                    ...(hooks?.postActorEndedHook?.handlers || []),
+                ],
+            }),
+
+            preCrawlerStartedHook: Hook.create<[actor?: FT.ActorInstance]>({
+                name: pathify(base.name, 'preCrawlerStartedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.preCrawlerStartedHook?.handlers || []),
+                ],
+            }),
+
+            postCrawlerEndedHook: Hook.create({
+                name: pathify(base.name, 'postCrawlerEndedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.postCrawlerEndedHook?.handlers || []),
+                ],
+            }),
+
+            postCrawlerFailedHook: Hook.create<[actor: FT.ActorInstance, error: FT.ReallyAny]>({
+                name: pathify(base.name, 'postCrawlerFailedHook'),
+                validationHandler,
+                handlers: [
+                    async function LOGGING(actor, error) {
+                        Logger.error(Logger.create(actor), `Actor ${actor.name} failed`, { error } as FT.ReallyAny);
+                    },
+                    ...(hooks?.postCrawlerFailedHook?.handlers || []),
+                ],
+            }),
+
+            preQueueStartedHook: Hook.create({
+                name: pathify(base.name, 'preQueueStartedHook'),
+                validationHandler,
+                handlers: [
+                    async function LOAD_QUEUES(actor) {
+                        actor.queues = await QueueCollection.load(actor?.queues as FT.QueueCollectionInstance<FT.ReallyAny>);
+                    },
+                    ...(hooks?.preQueueStartedHook?.handlers || []),
+                ],
+            }),
+
+            postQueueEndedHook: Hook.create({
+                name: pathify(base.name, 'postQueueEndedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.postQueueEndedHook?.handlers || []),
+                ],
+            }),
+
+            preFlowStartedHook: Hook.create({
+                name: pathify(base.name, 'preFlowStartedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.preFlowStartedHook?.handlers || []),
+                ],
+            }),
+
+            postFlowEndedHook: Hook.create({
+                name: pathify(base.name, 'postFlowEndedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.postFlowEndedHook?.handlers || []),
+                ],
+            }),
+
+            preStepStartedHook: Hook.create({
+                name: pathify(base.name, 'preStepStartedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.preStepStartedHook?.handlers || []),
+                ],
+            }),
+
+            postStepEndedHook: Hook.create({
+                name: pathify(base.name, 'postStepEndedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.postStepEndedHook?.handlers || []),
+                ],
+            }),
+
+            postStepFailedHook: Hook.create({
+                name: pathify(base.name, 'postStepFailedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.postStepFailedHook?.handlers || []),
+                ],
+            }),
+
+            postStepRequestFailedHook: Hook.create({
+                name: pathify(base.name, 'postStepRequestFailedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.postStepRequestFailedHook?.handlers || []),
+                ],
+            }),
+        }
+    };
 
     return instance;
 };
 
 export const combine = (actor: FT.ActorInstance, ...actors: FT.ActorInstance[]): FT.ActorInstance => {
-    for (const other of actors) {
-        actor.flows = { ...actor.flows, ...other.flows };
-        actor.steps = { ...actor.steps, ...other.steps };
-        actor.hooks = { ...actor.hooks, ...other.hooks };
+    for (const otherActor of actors) {
+        actor.flows = { ...actor.flows, ...otherActor.flows };
+        actor.steps = { ...actor.steps, ...otherActor.steps };
     }
 
-    const mainHookCollection = Object
-        .keys(actor.hooks)
-        .filter((key) => key.startsWith(prefix(actor, '')) && globalHookNames.some((name) => key.endsWith(name)))
-        .map((key) => (actor.hooks as FT.ReallyAny)[key]) as FT.StepInstance[];
+    actor.hooks = Object.keys(actor.hooks).reduce((acc, key) => {
+        acc[key] = Hook.create({
+            name: pathify(actor.name, key),
+            handlers: [
+                async (...args) => {
+                    await Hook.run(actor.hooks[key], ...args);
 
-    const otherHookCollection = Object
-        .keys(actor.hooks)
-        .filter((key) => !key.startsWith(prefix(actor, '')) && globalHookNames.some((name) => key.endsWith(name)))
-        .map((key) => (actor.hooks as FT.ReallyAny)[key]) as FT.StepInstance[];
-
-    // Propagate hooks to other actors
-    for (const hook of mainHookCollection) {
-        hook.afterHandler = async (context) => {
-            const hooksPromises = [];
-            for (const otherHook of otherHookCollection) {
-                if (
-                    !otherHook.name.startsWith(prefix(actor, ''))
-                    && otherHook.name.endsWith(CONST.UNPREFIXED_NAME_BY_ACTOR(hook.name))
-                ) {
-                    hooksPromises.push(Step.run(otherHook, actor, RequestMeta.cloneContext(context)));
+                    for (const otherActor of actors) {
+                        await Hook.run(otherActor.hooks[key], ...args);
+                    }
                 }
-            }
-            await Promise.allSettled(hooksPromises);
-        };
-    }
+            ],
+        });
+
+        return acc;
+    }, {});
 
     return actor;
 };
 
-export const makeCrawlerOptions = async (actor: FT.ActorInstance, options: PlaywrightCrawlerOptions): Promise<PlaywrightCrawlerOptions> => {
-    // const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
-    const proxyConfiguration = undefined;
+// export const makeCrawlerOptions = async (actor: FT.ActorInstance, options: PlaywrightCrawlerOptions): Promise<PlaywrightCrawlerOptions> => {
+//     // const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
+//     const proxyConfiguration = undefined;
 
-    // const preNavigationHooksList = usePreNavigationHooks(actor);
-    // const postNavigationHooksList = usePostNavigationHooks();
+//     // const preNavigationHooksList = usePreNavigationHooks(actor);
+//     // const postNavigationHooksList = usePostNavigationHooks();
 
-    // VALIDATE INPUT
+//     // VALIDATE INPUT
 
-    const preNavigationHooks = [
-        // preNavigationHooksList.flowHook,
-        // preNavigationHooksList.requestHook,
-        // preNavigationHooksList.trailHook,
-    ] as unknown as PlaywrightHook[];
+//     const preNavigationHooks = [
+//         // preNavigationHooksList.flowHook,
+//         // preNavigationHooksList.requestHook,
+//         // preNavigationHooksList.trailHook,
+//     ] as unknown as PlaywrightHook[];
 
-    const postNavigationHooks = [
-        // postNavigationHooksList.trailHook,
-    ];
+//     const postNavigationHooks = [
+//         // postNavigationHooksList.trailHook,
+//     ];
 
-    const defaultOptions = {
-        handlePageTimeoutSecs: 120,
-        navigationTimeoutSecs: 60,
-        maxConcurrency: 40,
-        maxRequestRetries: 3,
-        requestQueue: (await Queue.load(actor?.queues?.default as FT.QueueInstance))?.resource as RequestQueue,
-        // handlePageFunction: useHandlePageFunction(actor) as any,
-        // handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
-        launchContext: {
-            launchOptions: {
-                headless: false,
-            },
+//     const defaultOptions = {
+//         handlePageTimeoutSecs: 120,
+//         navigationTimeoutSecs: 60,
+//         maxConcurrency: 40,
+//         maxRequestRetries: 3,
+//         requestQueue: (await Queue.load(actor?.queues?.default as FT.QueueInstance))?.resource as RequestQueue,
+//         // handlePageFunction: useHandlePageFunction(actor) as any,
+//         // handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
+//         launchContext: {
+//             launchOptions: {
+//                 headless: false,
+//             },
 
-        },
-        proxyConfiguration,
-        preNavigationHooks,
-        postNavigationHooks,
-    };
+//         },
+//         proxyConfiguration,
+//         preNavigationHooks,
+//         postNavigationHooks,
+//     };
 
-    // const enforcedOptions = {
-    //     browserPoolOptions: {
-    //         postLaunchHooks: [
-    //             async (pageId, browserController) => {
-
-    //             }
-    //         ],
-    //     },
-    // }
-
-    return utils.merge(defaultOptions, options) as PlaywrightCrawlerOptions;
-};
+//     return utils.merge(defaultOptions, options) as PlaywrightCrawlerOptions;
+// };
 
 export const prefix = (actor: FT.ActorInstance, text: string): string => {
     return CONST.PREFIXED_NAME_BY_ACTOR(actor.name, text);
 };
 
-export const prefixStepCollection = (actor: FT.ActorInstance): FT.ActorInstance['steps'] => {
-    return Object.keys(actor.steps).reduce((acc, key) => {
-        const name = prefix(actor, actor.steps[key].name);
-        acc[name] = Step.create({
-            ...actor.steps[key],
-            name,
-            actorKey: actor.name,
-        });
-        return acc;
-    }, {} as FT.ActorInstance['steps']);
-};
+export const getStep = (actor: FT.ActorInstance, actorName: string, stepName: string): FT.StepInstance => {
+    return actor.steps?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, CONST.UNPREFIXED_NAME_BY_ACTOR(stepName))];
+}
 
-export const prefixFlowCollection = (actor: FT.ActorInstance): FT.ActorInstance['flows'] => {
-    return Object.keys(actor.flows).reduce((acc, key) => {
-        const name = prefix(actor, actor.flows[key].name);
-        acc[name] = Flow.create({
-            ...actor.flows[key],
-            name,
-            actorKey: actor.name,
-        });
-        return acc;
-    }, {} as FT.ActorInstance['flows']);
-};
+export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promise<void> => {
 
-export const prefixHookCollection = (actor: FT.ActorInstance): FT.ActorInstance['hooks'] => {
-    return Object.keys(actor.hooks).reduce((acc, key) => {
-        const name = prefix(actor, (actor.hooks as FT.ReallyAny)[key].name);
-        (acc as FT.ReallyAny)[name] = Step.create({
-            ...(actor.hooks as FT.ReallyAny)[key],
-            name,
-            actorKey: actor.name,
-        });
-        return acc;
-    }, {} as FT.ActorInstance['hooks']);
-};
+    const crawlerOptions = {
+        async requestHandler(context: FT.RequestContext) {
+            const meta = RequestMeta.create(context);
+            const metaHook = RequestMeta.extend(meta, { isHook: true });
+            const contextHook = {
+                ...context,
+                request: metaHook.request,
+            } as FT.RequestContext;
 
-export const load = async (actor: FT.ActorInstance) => {
-    // Initialize actor
-    actor.stores = await StoreCollection.load(actor?.stores as FT.StoreCollectionInstance);
-    StoreCollection.listen(actor.stores);
-};
+            const actorKey = meta.data.reference.fActorKey as string;
 
-export const run = async (actor: FT.ActorInstance, input: FT.ActorInput, crawlerOptions?: PlaywrightCrawlerOptions): Promise<void> => {
-    const startedAt = new Date().getTime();
+            const step = getStep(actor, actorKey, meta.data.stepName);
+
+            if (!step) {
+                return;
+            }
+
+            const stepApi = StepApi.create(actor);
+
+            if (!meta.data.stepStop) {
+
+                /**
+                 * Run any logic before the step logic is executed.
+                 * Ex: can be used for logging, anti-bot detection, catpatcha, etc.
+                 * By default: (does nothing for now)
+                 */
+                await Hook.run(actor?.hooks?.preStepStartedHook, actor, contextHook);
+
+                await Step.run(step, actor, context);
+
+                /**
+                 * Run any logic after the step logic has been executed.
+                 * Ex: can be used for checking up data this would have been made ready to push to the dataset in KV.
+                 * By default: (does nothing for now)
+                 */
+                await Hook.run(actor?.hooks?.postStepEndedHook, actor, contextHook);
+            }
+
+            await Orchestrator.run(Orchestrator.create(actor), context, stepApi(context));
+        },
+    };
+
     try {
-        await load(actor);
+        /**
+         * Run any logic before the actor starts
+         * By default:
+         *  - Load the stores
+         */
+        await Hook.run(actor?.hooks?.preActorStartedHook, actor, input);
 
-        actor.input.data = input;
+        /**
+         * Run any logic before the crawler starts
+         * By default: (does nothing for now)
+         */
+        await Hook.run(actor?.hooks?.preCrawlerStartedHook, actor);
 
-        // Hook to help with preparing the queue
-        // Given a polyfilled requestQueue and the input data
-        // User can add to the queue the starting requests to be crawled
-        await Step.run(actor?.hooks?.[prefix(actor, 'ACTOR_STARTED') as 'ACTOR_STARTED'] as FT.StepInstance, actor, undefined);
+        /**
+         * Run any logic before the queue starts
+         * By default:
+         *  - Load the queues
+         */
+        await Hook.run(actor?.hooks?.preQueueStartedHook, actor);
 
-        await Step.run(actor?.hooks?.[prefix(actor, 'QUEUE_STARTED') as 'QUEUE_STARTED'] as FT.StepInstance, actor, undefined);
+        await crawler.run(actor.crawler as FT.CrawlerInstance, crawlerOptions);
 
-        /*
-       * Run async requests
-       */
-        const crawlerOptionsComplete = await makeCrawlerOptions(actor, (crawlerOptions || {}) as PlaywrightCrawlerOptions);
-        await crawler.run(actor.crawler as FT.CrawlerInstance, crawlerOptionsComplete);
+        /**
+         * Run any logic once the queue ended
+         * By default: (does nothing for now)
+         */
+        await Hook.run(actor?.hooks?.postQueueEndedHook, actor);
 
-        // TODO: Provider functionnalities to the end hook
-        await Step.run(actor?.hooks?.[prefix(actor, 'QUEUE_ENDED') as 'QUEUE_ENDED'] as FT.StepInstance, actor, undefined);
+        /**
+         * Run any logic once the crawler ended
+         * By default: (does nothing for now)
+         */
+        await Hook.run(actor?.hooks?.postCrawlerEndedHook, actor);
 
-        // TODO: Provider functionnalities to the end hook
-        await Step.run(actor?.hooks?.[prefix(actor, 'ACTOR_ENDED') as 'ACTOR_ENDED'] as FT.StepInstance, actor, undefined);
     } catch (error) {
-        Logger.error(Logger.create(actor), `Actor ${actor.name} failed`, { error } as FT.ReallyAny);
+        /**
+         * Run any logic once the actor failed
+         * By default:
+         *  - Logs to the console
+         */
+        await Hook.run(actor?.hooks?.postCrawlerFailedHook, actor, error);
+
+        throw error;
+
     } finally {
-        // Closing..
-        await StoreCollection.persist(actor.stores);
-        await DatasetCollection.close(actor.datasets);
-        const duration = new Date().getTime() - startedAt;
-        Logger.info(Logger.create(actor), `Actor ${actor.name} finished in ${duration}ms`);
-        // Logger.info(Logger.create(actor), `Actor ${actor.name} finished in ${duration}ms (${duration / (3600 * 1000)} CUs)`);
+        /**
+         * Run any logic once the actor ended
+         * By default:
+         *  - Persist the stores
+         *  - Close datasets
+         */
+        await Hook.run(actor?.hooks?.postActorEndedHook, actor);
     }
 };
 
-export default { create, load, extend, run, prefix, combine };
+export default { create, run, prefix, combine };

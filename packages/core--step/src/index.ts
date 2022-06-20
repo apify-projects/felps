@@ -1,68 +1,105 @@
-import { ACTOR_KEY_PROP } from '@usefelps/constants';
+import Hook from '@usefelps/core--hook';
 import Base from '@usefelps/core--instance-base';
-import Logger from '@usefelps/helper--logger';
 import RequestMeta from '@usefelps/core--request-meta';
 import StepApi from '@usefelps/core--step-api';
-import Trail from '@usefelps/core--trail';
-import TrailDataRequests from '@usefelps/core--trail--data-requests';
-import { ActorInstance, ReallyAny, RequestContext, StepInstance, StepOptions } from '@usefelps/types';
+// import Trail from '@usefelps/core--trail';
+// import TrailDataRequests from '@usefelps/core--trail--data-requests';
+import { pathify } from '@usefelps/helper--utils';
+import * as FT from '@usefelps/types';
+import { GeneralStepApi, StepOptionsHandlerParameters } from '@usefelps/types';
 
-export const create = <Methods = unknown>(options?: StepOptions<Methods>): StepInstance<Methods> => {
+// export const HOOKS = {
+//     postNavigationHook: [
+//         function logStepContent(context: FT.ReallyAny, api: FT.ReallyAny) {
+//             const meta = RequestMeta.create(context.request);
+
+//             if (!meta.data.isHook && context?.request?.url) {
+//                 Logger.info(Logger.create(api.getStep()), `at ${context.request.url}`);
+//             }
+//         },
+//         // function setTrailStatus(context: FT.ReallyAny, api: FT.ReallyAny) {
+//         //     // const trail = Trail.createFrom(context.request, { actor });
+//         //     // const digest = Trail.digested(trail);
+//         //     // const meta = RequestMeta.create(context.request);
+
+//         //     // TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
+//         // }
+//     ],
+//     errorHook: [
+//         // function setTrailStatus(context: FT.ReallyAny, api: FT.ReallyAny) {
+//         //     // const trail = Trail.createFrom(context.request, { actor });
+//         //     // const digest = Trail.digested(trail);
+//         //     // const meta = RequestMeta.create(context.request);
+
+//         //     // TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
+//         // }
+//     ]
+// }
+
+export const create = <Methods = unknown>(options?: FT.StepOptions<Methods>): FT.StepInstance<Methods> => {
     const {
         name,
         crawlerOptions,
-        handler,
-        errorHandler,
-        requestErrorHandler,
-        afterHandler,
-        beforeHandler,
-        actorKey,
+        hooks = {},
+        reference,
     } = options || {};
 
+    const base = Base.create({ key: 'step', name: pathify(reference.fActorKey, name) });
+
+    const validationHandler = async (...[_, api]: StepOptionsHandlerParameters<Methods & GeneralStepApi>) => {
+        return reference?.fActorKey ? api.getActorName() === reference.fActorKey : true;
+    }
+
     return {
-        ...Base.create({ key: 'step', name: name as string }),
+        ...base,
         crawlerOptions,
-        handler,
-        errorHandler,
-        requestErrorHandler,
-        afterHandler,
-        beforeHandler,
-        actorKey,
+        hooks: {
+            navigationHook: Hook.create<StepOptionsHandlerParameters<Methods & GeneralStepApi>>({
+                ...(hooks?.navigationHook || {}) as FT.ReallyAny,
+                name: pathify(base.name, 'navigationHook'),
+                validationHandler
+            }),
+            postNavigationHook: Hook.create<StepOptionsHandlerParameters<Methods & GeneralStepApi>>({
+                ...(hooks?.postNavigationHook || {}) as FT.ReallyAny,
+                name: pathify(base.name, 'postNavigationHook'),
+                validationHandler
+            }),
+            preNavigationHook: Hook.create<StepOptionsHandlerParameters<Methods & GeneralStepApi>>({
+                ...(hooks?.preNavigationHook || {}) as FT.ReallyAny,
+                name: pathify(base.name, 'preNavigationHook'),
+                validationHandler
+            }),
+            errorHook: Hook.create<StepOptionsHandlerParameters<Methods & GeneralStepApi>>({
+                ...(hooks?.errorHook || {}) as FT.ReallyAny,
+                name: pathify(base.name, 'errorHook'),
+                validationHandler
+            }),
+            requestErrorHook: Hook.create<StepOptionsHandlerParameters<Methods & GeneralStepApi>>({
+                ...(hooks?.requestErrorHook || {}) as FT.ReallyAny,
+                name: pathify(base.name, 'requestErrorHook'),
+                validationHandler
+            }),
+        },
+        reference,
     };
 };
 
-export const run = async (step: StepInstance | undefined, actor: ActorInstance, context: RequestContext | undefined): Promise<void> => {
-    if (!step) return;
-
-    const logger = Logger.create(step);
-
+export const run = async (step: FT.StepInstance | undefined, actor: FT.ActorInstance, context: FT.RequestContext | undefined): Promise<void> => {
     const ctx = RequestMeta.contextDefaulted(context);
-    // Add actorKey to make sure we can identify the original actor when prefixed
-    ctx.request.userData = RequestMeta.extend(RequestMeta.create(ctx.request), { reference: { [ACTOR_KEY_PROP]: step.actorKey } }).userData;
+    ctx.request.userData = RequestMeta.extend(RequestMeta.create(ctx.request), { reference: step.reference }).userData;
 
-    const stepApi = StepApi.create<ReallyAny, ReallyAny, ReallyAny, ReallyAny>(actor);
-
-    const trail = Trail.createFrom(ctx.request, { actor });
-    const digest = Trail.digested(trail);
-    const meta = RequestMeta.create(ctx.request);
-
-    if (!meta.data.isHook && context?.request?.url) {
-        Logger.info(logger, `at ${context.request.url}`);
-    }
+    const stepApi = StepApi.create(actor);
 
     try {
-        await step?.beforeHandler?.(ctx, stepApi(ctx));
+        await Hook.run(step?.hooks?.preNavigationHook, ctx, stepApi(ctx));
 
-        await step?.handler?.(ctx, stepApi(ctx));
-        TrailDataRequests.setStatus(digest.requests, 'SUCCEEDED', meta.data.reference);
+        await Hook.run(step?.hooks?.navigationHook, ctx, stepApi(ctx));
 
-        await step?.afterHandler?.(ctx, stepApi(ctx));
+        await Hook.run(step?.hooks?.postNavigationHook, ctx, stepApi(ctx));
 
     } catch (error) {
-        TrailDataRequests.setStatus(digest.requests, 'FAILED', meta.data.reference);
-        await step?.errorHandler?.(ctx, stepApi(ctx));
+        await Hook.run(step?.hooks?.errorHook, ctx, stepApi(ctx));
         throw error;
-
     }
 };
 

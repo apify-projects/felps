@@ -27,6 +27,12 @@ export const isMatch = isMatchLodash;
 export const pick = pickLodash;
 export const stringify = safeStringify;
 
+export const deduplicateFunctions = (functions: Function[]) => {
+    const index = new Map();
+    for (const fn of functions) index.set(fn.name || fn.toString(), fn);
+    return [...index.values()];
+}
+
 export const craftUID = customAlphabet(alphabet, 4);
 // eslint-disable-next-line max-len
 export const craftUIDKey = (prefix?: string, uidLength = UID_KEY_LENGTH) => `${prefix || UID_KEY_PREFIX}_${customAlphabet(alphabet, uidLength)()}${new Date().getTime().toString(36)}`;

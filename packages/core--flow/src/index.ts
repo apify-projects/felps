@@ -1,19 +1,20 @@
 import * as CONST from '@usefelps/constants';
 import Base from '@usefelps/core--instance-base';
 import Model from '@usefelps/core--model';
+import { pathify } from '@usefelps/helper--utils';
 import * as FT from '@usefelps/types';
 
 export const create = <StepNames = string>(options: FT.FlowOptions<StepNames>): FT.FlowInstance<StepNames> => {
-    const { name, crawlerOptions, steps = [], flows = [], input, output, actorKey } = options || {};
+    const { name, crawlerOptions, steps = [], flows = [], input, output, reference } = options || {};
 
     return {
-        ...Base.create({ key: 'flow', name }),
+        ...Base.create({ key: 'flow', name: pathify(reference.fActorKey, name) }),
         crawlerOptions,
         steps,
         flows,
         input: Model.create(input as FT.ModelDefinition<FT.JSONSchema>),
         output: Model.create(output as FT.ModelDefinition<FT.JSONSchema>),
-        actorKey,
+        reference,
     };
 };
 

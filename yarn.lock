@@ -1709,6 +1709,7 @@ __metadata:
     "@usefelps/core--dataset-collection": "workspace:*"
     "@usefelps/core--flow": "workspace:*"
     "@usefelps/core--flow-collection": "workspace:*"
+    "@usefelps/core--hook": "workspace:*"
     "@usefelps/core--hook-collection": "workspace:*"
     "@usefelps/core--input": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
@@ -1724,27 +1725,6 @@ __metadata:
     "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@crawlee/core": "*"
-    "@crawlee/playwright": "*"
-    "@usefelps/constants": "workspace:*"
-    "@usefelps/core--crawler": "workspace:*"
-    "@usefelps/core--dataset-collection": "workspace:*"
-    "@usefelps/core--flow": "workspace:*"
-    "@usefelps/core--flow-collection": "workspace:*"
-    "@usefelps/core--hook-collection": "workspace:*"
-    "@usefelps/core--input": "workspace:*"
-    "@usefelps/core--instance-base": "workspace:*"
-    "@usefelps/core--model-collection": "workspace:*"
-    "@usefelps/core--request-meta": "workspace:*"
-    "@usefelps/core--request-queue": "workspace:*"
-    "@usefelps/core--request-queue-collection": "workspace:*"
-    "@usefelps/core--step": "workspace:*"
-    "@usefelps/core--step-collection": "workspace:*"
-    "@usefelps/core--store-collection": "workspace:*"
-    "@usefelps/helper--logger": "workspace:*"
-    "@usefelps/helper--utils": "workspace:*"
-    "@usefelps/types": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -1895,6 +1875,15 @@ __metadata:
     typescript: ^4.7.2
   peerDependencies:
     "@usefelps/core--step": "workspace:*"
+    "@usefelps/types": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@usefelps/core--hook@workspace:*, @usefelps/core--hook@workspace:packages/core--hook":
+  version: 0.0.0-use.local
+  resolution: "@usefelps/core--hook@workspace:packages/core--hook"
+  dependencies:
+    "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/types": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -2182,17 +2171,7 @@ __metadata:
   resolution: "@usefelps/core--step@workspace:packages/core--step"
   dependencies:
     "@usefelps/constants": "workspace:*"
-    "@usefelps/core--instance-base": "workspace:*"
-    "@usefelps/core--request-meta": "workspace:*"
-    "@usefelps/core--step-api": "workspace:*"
-    "@usefelps/core--trail": "workspace:*"
-    "@usefelps/core--trail--data-requests": "workspace:*"
-    "@usefelps/helper--logger": "workspace:*"
-    "@usefelps/types": "workspace:*"
-    rimraf: ^3.0.2
-    typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/constants": "workspace:*"
+    "@usefelps/core--events": "workspace:*"
     "@usefelps/core--instance-base": "workspace:*"
     "@usefelps/core--request-meta": "workspace:*"
     "@usefelps/core--step-api": "workspace:*"

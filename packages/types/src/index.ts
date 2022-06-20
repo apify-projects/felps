@@ -72,6 +72,8 @@ export type ArrayElementType<T> = T extends (infer E)[] ? E : T;
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export type DeepPartial<T> = Partial<{ [P in keyof T]: DeepPartial<T[P]> }>;
 
+export type ArgumentTypes<F extends Function> = F extends (...args: infer A) => any ? A : never;
+
 export type SnakeToCamelCase<S extends string> =
     S extends `${infer T}_${infer U}` ?
     `${Lowercase<T>}${Capitalize<SnakeToCamelCase<Lowercase<U>>>}` :
@@ -91,6 +93,8 @@ export type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
 export type GeneralKeyedObject<N extends Record<string, string>, T> = { [K in Extract<keyof N, string>]: T };
 export type GenerateObject<N extends string[], T> = { [K in N[number]]: T };
 export type ValueOf<T> = T[keyof T];
+
+export type HookifyHandler<Handler> = Handler | Handler[];
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type ExtractSchemaModelNames<N> = N extends (ReadonlyArray<ReallyAny> | Array<ReallyAny> | Function) ? never :
@@ -152,7 +156,7 @@ export type FlowInstance<StepNames> = {
     flows: string[] | readonly Readonly<string>[],
     input: ModelInstance<JSONSchema>,
     output: ModelInstance<JSONSchema>,
-    actorKey?: UniqueyKey | undefined,
+    reference?: ModelReference,
 } & BaseInstance;
 
 export type FlowDefinitionRaw<StepNames = string> = {
@@ -162,7 +166,7 @@ export type FlowDefinitionRaw<StepNames = string> = {
     flows?: string[],
     input: ModelDefinition<JSONSchemaWithMethods>,
     output: ModelDefinition<JSONSchemaWithMethods>,
-    actorKey?: UniqueyKey,
+    reference?: ModelReference,
 };
 
 export type FlowDefinition<StepNames = string> = FlowDefinitionRaw<StepNames> | Readonly<FlowDefinitionRaw<StepNames>>;
@@ -200,25 +204,21 @@ export type StepNamesSignature = Record<string, string>
 export type StepInstance<Methods = unknown> = {
     name: string,
     crawlerOptions?: RequestCrawlerOptions,
-    handler?: StepOptionsHandler<Methods & GeneralStepApi>,
-    errorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
-    requestErrorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
-    afterHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
-    beforeHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
-    actorKey?: string,
+    hooks?: StepHooks<Methods>,
+    reference?: ModelReference,
 } & BaseInstance;
 
-export type StepOptions<Methods = unknown> = {
-    name: string,
-    crawlerOptions?: RequestCrawlerOptions,
-    handler?: StepOptionsHandler<Methods & GeneralStepApi>,
-    errorHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
-    requestErrorHandler?: StepOptionsHandler<Methods & GeneralStepApi>
-    afterHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
-    beforeHandler?: StepOptionsHandler<Methods & GeneralStepApi>,
-    actorKey?: string,
-}
+export type StepHooks<Methods = unknown> = {
+    navigationHook?: HookInstance<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
+    postNavigationHook?: HookInstance<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
+    preNavigationHook?: HookInstance<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
+    errorHook?: HookInstance<StepOptionsHandlerParameters<Methods & GeneralStepApi>>,
+    requestErrorHook?: HookInstance<StepOptionsHandlerParameters<Methods & GeneralStepApi>>
+};
 
+export type StepOptions<Methods = unknown> = StepInstance<Methods>
+
+export type StepOptionsHandlerParameters<Methods = unknown> = [context: RequestContext, api: Methods]
 export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
 
 // step-api.ts -----------------------------------------------------------------
@@ -650,10 +650,10 @@ export type QueueOptions = {
 }
 
 // queues.ts ------------------------------------------------------------
-export type QueueCollectionInstance<Names extends string[] = []> = GenerateObject<Names | DefaultQueueNames, StepInstance>;
+export type QueueCollectionInstance<Names extends string[] = []> = Partial<GenerateObject<Names | DefaultQueueNames, StepInstance>>;
 
-export type QueueCollectionOptions<Names> = {
-    names?: Extract<ValueOf<Names>, string>[],
+export type QueueCollectionOptions = {
+    names?: string[],
 }
 
 export type DefaultQueueNames = ['default'];
@@ -694,8 +694,7 @@ export type ActorInstance = {
     stores: StoreCollectionInstance;
     queues: QueueCollectionInstance;
     datasets: DatasetCollectionInstance;
-    hooks: ReallyAny;
-    // hooks: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    hooks?: ActorHooks;
 } & BaseInstance;
 
 export type ActorOptions = {
@@ -713,8 +712,23 @@ export type ActorOptions = {
     stores?: StoreCollectionInstance;
     queues?: QueueCollectionInstance;
     datasets?: DatasetCollectionInstance;
-    hooks?: ReallyAny;
-    // hooks?: HooksInstance<ReallyAny, ReallyAny, ReallyAny, ReallyAny>;
+    hooks?: ActorHooks;
+};
+
+export type ActorHooks = {
+    preActorStartedHook?: HookInstance,
+    postActorEndedHook?: HookInstance,
+    preCrawlerStartedHook?: HookInstance,
+    postCrawlerEndedHook?: HookInstance,
+    postCrawlerFailedHook?: HookInstance,
+    preQueueStartedHook?: HookInstance,
+    postQueueEndedHook?: HookInstance,
+    preFlowStartedHook?: HookInstance,
+    postFlowEndedHook?: HookInstance,
+    preStepStartedHook?: HookInstance,
+    postStepEndedHook?: HookInstance,
+    postStepFailedHook?: HookInstance,
+    postStepRequestFailedHook?: HookInstance,
 }
 
 export type ActorInput = string | {
@@ -864,6 +878,8 @@ export type UrlPatternParsed = {
 // events.ts
 export type EventsOptions = {
     name?: string,
+    resource?: EventEmitter,
+    queues: Queue[],
     batchSize?: number,
     batchMinIntervals?: number,
 };
@@ -899,3 +915,22 @@ export type LoggerAdapterOptions = {
     name: string,
     adapter: Transport,
 }
+
+// hook.ts
+
+export type HookParametersSignatureDefault = ReallyAny[];
+export type HookSignature<P extends any[], O = void> = (...args: P) => Promise<O>;
+
+export type HookOptions<HookParametersSignature extends HookParametersSignatureDefault = HookParametersSignatureDefault> = {
+    name?: string,
+    handlers?: HookSignature<HookParametersSignature>[],
+    validationHandler?: (...args: HookParametersSignature) => Promise<boolean>,
+    errorHook?: HookInstance,
+};
+
+export type HookInstance<HookParametersSignature extends HookParametersSignatureDefault = HookParametersSignatureDefault> = {
+    handlers?: HookSignature<HookParametersSignature>[],
+    validationHandler?: (...args: HookParametersSignature) => Promise<boolean>,
+    errorHook?: HookInstance,
+} & BaseInstance;
+

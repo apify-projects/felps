@@ -12,6 +12,9 @@
             "path": "../constants"
         },
         {
+            "path": "../core--events"
+        },
+        {
             "path": "../core--instance-base"
         },
         {

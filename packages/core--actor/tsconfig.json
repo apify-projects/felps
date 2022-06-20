@@ -24,6 +24,9 @@
             "path": "../core--flow-collection"
         },
         {
+            "path": "../core--hook"
+        },
+        {
             "path": "../core--hook-collection"
         },
         {
