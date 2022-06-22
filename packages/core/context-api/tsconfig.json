@@ -1,0 +1,27 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../context-api--flow"
+        },
+        {
+            "path": "../context-api--meta"
+        },
+        {
+            "path": "../context-api--model"
+        },
+        {
+            "path": "../context-api--helpers"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}

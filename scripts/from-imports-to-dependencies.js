@@ -44,6 +44,8 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
         return;
     }
 
+    console.log('Running from-imports-to-dependencies.js');
+
     const { stdout, stderr } = await exec('yarn workspaces list --json -v');
 
     const lines = `[${stdout.split('\n').filter(Boolean).join(',')}]`;
@@ -54,11 +56,11 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
         const location = path.resolve(__dirname, '../', workspace.location);
 
         const subPkgPath = path.resolve(location, 'package.json');
-        console.log('subPkgPath', subPkgPath)
+        // console.log('subPkgPath', subPkgPath)
         if (!fs.existsSync(subPkgPath)) continue;
 
         const subPkg = JSON.parse(fs.readFileSync(subPkgPath).toString());
-        console.log('path', path.resolve(location, 'src'))
+        // console.log('path', path.resolve(location, 'src'))
         if (!fs.existsSync(path.resolve(location, 'src'))) continue;
 
         const srcFiles = getAllFiles(path.resolve(location, 'src'));
@@ -78,7 +80,7 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
             return acc;
         }, {});
 
-        console.log(JSON.stringify(foundDependencies, null, 2))
+        // console.log(JSON.stringify(foundDependencies, null, 2))
 
         subPkg.dependencies = {
             ...foundDependencies,

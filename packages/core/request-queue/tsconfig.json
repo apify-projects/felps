@@ -1,0 +1,30 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../instance-base"
+        },
+        {
+            "path": "../../helpers/logger"
+        },
+        {
+            "path": "../../crawlee/request-queue"
+        },
+        {
+            "path": "../request-meta"
+        },
+        {
+            "path": "../types"
+        },
+        {
+            "path": "../../helpers/utils"
+        }
+    ]
+}

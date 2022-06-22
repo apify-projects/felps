@@ -1,0 +1,24 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../instance-base"
+        },
+        {
+            "path": "../model"
+        },
+        {
+            "path": "../constants"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}

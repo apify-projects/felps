@@ -19,6 +19,7 @@ config.references = [];
         return;
     }
 
+    console.log('Running configure-references.js');
 
     const { stdout, stderr } = await exec('yarn workspaces list --json -v');
 

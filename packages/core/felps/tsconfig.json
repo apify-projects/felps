@@ -1,0 +1,108 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../actor"
+        },
+        {
+            "path": "../crawler"
+        },
+        {
+            "path": "../dataset"
+        },
+        {
+            "path": "../dataset-collection"
+        },
+        {
+            "path": "../events"
+        },
+        {
+            "path": "../flow"
+        },
+        {
+            "path": "../hook"
+        },
+        {
+            "path": "../input"
+        },
+        {
+            "path": "../instance-base"
+        },
+        {
+            "path": "../model"
+        },
+        {
+            "path": "../orchestrator"
+        },
+        {
+            "path": "../request-meta"
+        },
+        {
+            "path": "../request-queue"
+        },
+        {
+            "path": "../request-queue-collection"
+        },
+        {
+            "path": "../step"
+        },
+        {
+            "path": "../context-api"
+        },
+        {
+            "path": "../context-api--flow"
+        },
+        {
+            "path": "../context-api--helpers"
+        },
+        {
+            "path": "../context-api--meta"
+        },
+        {
+            "path": "../context-api--model"
+        },
+        {
+            "path": "../state"
+        },
+        {
+            "path": "../store--file"
+        },
+        {
+            "path": "../../helpers/logger"
+        },
+        {
+            "path": "../../helpers/mutable"
+        },
+        {
+            "path": "../../helpers/search"
+        },
+        {
+            "path": "../../helpers/url-pattern"
+        },
+        {
+            "path": "../../adapters/kv-store--adapter"
+        },
+        {
+            "path": "../../adapters/kv-store--adapter--apify"
+        },
+        {
+            "path": "../../adapters/kv-store--adapter--in-memory"
+        },
+        {
+            "path": "../../crawlee/crawler--aio-playwright"
+        },
+        {
+            "path": "../../crawlee/request-queue"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}
