@@ -53,7 +53,7 @@ export const reduce = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path
     return absolutePath;
 }
 
-export const set = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P, dataOrReducer: FT.PathValue<T, P> | ((previous: FT.PathValue<T, P>) => FT.PathValue<T, P>)): FT.DataPath => {
+export const set = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P | string, dataOrReducer: (FT.PathValue<T, P> & FT.ReallyAny) | ((previous: FT.PathValue<T, P> & FT.ReallyAny) => FT.PathValue<T, P> & FT.ReallyAny)): FT.DataPath => {
     mustBeLoaded(state);
     const absolutePath = getPath(state, path);
     return reduce(state, absolutePath as FT.ReallyAny, dataOrReducer);

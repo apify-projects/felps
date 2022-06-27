@@ -58,7 +58,7 @@
     "dev": "tsc --build --watch",
     "build": "tsc --build",
     "build:force": "tsc --build --force",
-    "bump": "node ./scripts/version.js",
+    "use-version": "node ./scripts/version.js",
     "prepare": "yarn from-imports-to-dependencies && yarn configure-references",
     "configure-references": "node ./scripts/configure-references.js",
     "from-imports-to-dependencies": "node ./scripts/from-imports-to-dependencies.js",
