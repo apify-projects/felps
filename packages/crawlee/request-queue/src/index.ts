@@ -21,8 +21,8 @@ export default class RequestQueue extends ApifyRequestQueue {
             key: 'request-queue-history',
             adapter: ApifyKvStore(),
         });
-        State.listen(this._requestQueueStore);
-        State.listen(this._requestQueueHistoryStore);
+        // State.listen(this._requestQueueStore);
+        // State.listen(this._requestQueueHistoryStore);
     }
 
     override async addRequest(request: RequestSource, options?: RequestOptionalOptions): Promise<QueueOperationInfo> {

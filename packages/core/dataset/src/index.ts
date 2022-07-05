@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Dataset } from '@crawlee/core';
-import BaseInstance from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import Hook from '@usefelps/hook';
 import { DatasetInstance, DatasetOptions, ReallyAny } from '@usefelps/types';
 import { pathify } from '@usefelps/utils';
@@ -8,7 +8,7 @@ import { pathify } from '@usefelps/utils';
 export const create = (options: DatasetOptions): DatasetInstance => {
     const { name, hooks } = options || {};
 
-    const base = BaseInstance.create({ key: 'dataset', name });
+    const base = InstanceBase.create({ key: 'dataset', name });
 
     return {
         ...base,

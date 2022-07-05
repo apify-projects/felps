@@ -3,23 +3,14 @@
     "version": "1.0.315",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
-    "peerDependencies": {
-        "@usefelps/constants": "workspace:*",
+    "dependencies": {
         "@usefelps/instance-base": "workspace:*",
-        "@usefelps/model": "workspace:*",
         "@usefelps/request-meta": "workspace:*",
-        "@usefelps/trail": "workspace:*",
-        "@usefelps/trail--data-requests": "workspace:*",
-        "@usefelps/types": "workspace:*"
+        "@usefelps/constants": "workspace:*",
+        "@usefelps/types": "workspace:*",
+        "merge-deep": "*"
     },
     "devDependencies": {
-        "@usefelps/constants": "workspace:*",
-        "@usefelps/instance-base": "workspace:*",
-        "@usefelps/model": "workspace:*",
-        "@usefelps/request-meta": "workspace:*",
-        "@usefelps/trail": "workspace:*",
-        "@usefelps/trail--data-requests": "workspace:*",
-        "@usefelps/types": "workspace:*",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"
     },
@@ -38,13 +29,5 @@
         "lint": "eslint ./src --ext .ts,.js,.jsx",
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
-    "license": "ISC",
-    "dependencies": {
-        "merge-deep": "*",
-        "@usefelps/model": "workspace:*",
-        "@usefelps/trail": "workspace:*",
-        "@usefelps/request-meta": "workspace:*",
-        "@usefelps/instance-base": "workspace:*",
-        "@usefelps/trail--data-requests": "workspace:*"
-    }
+    "license": "ISC"
 }

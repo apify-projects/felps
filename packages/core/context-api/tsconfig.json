@@ -9,13 +9,7 @@
     ],
     "references": [
         {
-            "path": "../context-api--flow"
-        },
-        {
             "path": "../context-api--meta"
-        },
-        {
-            "path": "../context-api--model"
         },
         {
             "path": "../context-api--helpers"

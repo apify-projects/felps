@@ -18,9 +18,6 @@
             "path": "../dataset"
         },
         {
-            "path": "../dataset-collection"
-        },
-        {
             "path": "../events"
         },
         {
@@ -30,25 +27,13 @@
             "path": "../hook"
         },
         {
-            "path": "../input"
-        },
-        {
             "path": "../instance-base"
-        },
-        {
-            "path": "../model"
-        },
-        {
-            "path": "../orchestrator"
         },
         {
             "path": "../request-meta"
         },
         {
             "path": "../request-queue"
-        },
-        {
-            "path": "../request-queue-collection"
         },
         {
             "path": "../step"
@@ -66,13 +51,10 @@
             "path": "../context-api--meta"
         },
         {
-            "path": "../context-api--model"
-        },
-        {
             "path": "../state"
         },
         {
-            "path": "../store--file"
+            "path": "../../crawlee/crawler--aio-playwright"
         },
         {
             "path": "../../helpers/logger"
@@ -94,15 +76,6 @@
         },
         {
             "path": "../../adapters/kv-store--adapter--in-memory"
-        },
-        {
-            "path": "../../crawlee/crawler--aio-playwright"
-        },
-        {
-            "path": "../../crawlee/request-queue"
-        },
-        {
-            "path": "../types"
         }
     ]
 }

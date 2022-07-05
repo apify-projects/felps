@@ -35,7 +35,7 @@ export const create = <T>(options: FT.StateOptions): FT.StateInstance<T> => {
     };
 };
 
-export const getPath = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P): string => {
+export const getPath = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P ): string => {
     mustBeLoaded(state);
     return [state.pathRoot, path].filter(Boolean).join('.');
 };
@@ -55,7 +55,7 @@ export const reduce = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path
 
 export const set = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P | string, dataOrReducer: (FT.PathValue<T, P> & FT.ReallyAny) | ((previous: FT.PathValue<T, P> & FT.ReallyAny) => FT.PathValue<T, P> & FT.ReallyAny)): FT.DataPath => {
     mustBeLoaded(state);
-    const absolutePath = getPath(state, path);
+    const absolutePath = getPath<T, P>(state, path as unknown as P);
     return reduce(state, absolutePath as FT.ReallyAny, dataOrReducer);
 };
 

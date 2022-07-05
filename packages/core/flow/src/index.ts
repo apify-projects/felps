@@ -1,30 +1,28 @@
 import * as CONST from '@usefelps/constants';
 import Base from '@usefelps/instance-base';
-import Model from '@usefelps/model';
 import { pathify } from '@usefelps/utils';
 import * as FT from '@usefelps/types';
 
-export const create =(options: FT.FlowOptions): FT.FlowInstance => {
-    const { name, crawlerOptions, steps = [], flows = [], input, output, reference } = options || {};
+export const create = <
+    FlowNames extends string = string,
+    StepNames extends string = string,
+>(options: FT.FlowOptions<FlowNames, StepNames>): FT.FlowInstance<FlowNames, StepNames> => {
+    const { name, crawlerMode, crawlerOptions, steps = [], context } = options || {};
+
+    const base = Base.create({ key: 'flow', name: pathify(context.actorKey, name) });
 
     return {
-        ...Base.create({ key: 'flow', name: pathify(reference.fActorKey, name) }),
+        ...base,
+        name: base.name as FlowNames,
+        crawlerMode,
         crawlerOptions,
         steps,
-        flows,
-        input: Model.create(input as FT.ModelDefinition<FT.JSONSchema>),
-        output: Model.create(output as FT.ModelDefinition<FT.JSONSchema>),
-        reference,
+        context,
     };
-};
-
-export const createKeyed = (options: FT.FlowOptions): { [name: FT.FlowOptions['name']]: FT.FlowInstance } => {
-    const instance = create(options);
-    return { [instance.name]: instance };
 };
 
 export const has = (flow: FT.FlowInstance, stepName: string): boolean => {
     return (flow.steps || []).some((name: any) => CONST.UNPREFIXED_NAME_BY_ACTOR(name) === CONST.UNPREFIXED_NAME_BY_ACTOR(stepName));
 };
 
-export default { create, createKeyed, has };
+export default { create, has };

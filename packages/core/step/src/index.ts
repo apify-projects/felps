@@ -2,30 +2,32 @@ import Hook from '@usefelps/hook';
 import Base from '@usefelps/instance-base';
 import RequestMeta from '@usefelps/request-meta';
 import ContextApi from '@usefelps/context-api';
-// import Trail from '@usefelps/trail';
-// import TrailDataRequests from '@usefelps/trail--data-requests';
 import { pathify } from '@usefelps/utils';
 import Logger from '@usefelps/logger';
 import * as FT from '@usefelps/types';
 import { GeneralContextApi, StepOptionsHandlerParameters } from '@usefelps/types';
 
-export const create = <Methods = unknown>(options?: FT.StepOptions<Methods>): FT.StepInstance<Methods> => {
+export const create = <StepNames extends string = string>(options?: FT.StepOptions<StepNames>): FT.StepInstance<StepNames> => {
     const {
         name,
+        crawlerMode,
         crawlerOptions,
         hooks = {},
-        reference,
+        context,
     } = options || {};
 
-    const base = Base.create({ key: 'step', name: pathify(reference.fActorKey, name) });
+    const base = Base.create({ key: 'step', name: pathify(context.actorKey, name) });
 
-    const validationHandler = async (...[_, api]: StepOptionsHandlerParameters<Methods & GeneralContextApi>) => {
-        return reference?.fActorKey ? api.getActorName() === reference.fActorKey : true;
+    const validationHandler = async (...[_, api]: StepOptionsHandlerParameters<GeneralContextApi>) => {
+        return context?.actorKey ? api.getActorName() === context.actorKey : true;
     }
 
     return {
         ...base,
+        name: base.name as StepNames,
+        crawlerMode,
         crawlerOptions,
+        context,
         hooks: {
             navigationHook: Hook.create({
                 name: pathify(base.name, 'navigationHook'),
@@ -85,50 +87,43 @@ export const create = <Methods = unknown>(options?: FT.StepOptions<Methods>): FT
                 ],
             }),
         },
-        reference,
     };
 };
 
-export const createKeyed = <Methods = unknown>(options: FT.StepOptions<Methods>): { [name: FT.StepOptions<Methods>['name']]: FT.StepInstance<Methods> } => {
-    const instance = create(options);
-    return { [instance.name]: instance };
-};
-
-export const run = async (step: FT.StepInstance | undefined, actor: FT.ActorInstance, context: FT.RequestContext | undefined): Promise<void> => {
+export const run = async (step: FT.StepInstance | undefined, _: FT.ActorInstance, context: FT.RequestContext | undefined): Promise<void> => {
     const ctx = RequestMeta.contextDefaulted(context);
-    ctx.request.userData = RequestMeta.extend(RequestMeta.create(ctx.request), { reference: step.reference }).userData;
 
-    const stepApi = ContextApi.create(actor);
+    const contextApi = ContextApi.create();
 
     try {
         /**
          * Run any logic before the navigation occurs
          * By default: (does nothing for now)
          */
-        await Hook.run(step?.hooks?.preNavigationHook, ctx, stepApi(ctx));
+        await Hook.run(step?.hooks?.preNavigationHook, ctx, contextApi(ctx));
 
         /**
          * Run any logic for the navigation
          * By default: (does nothing for now)
          */
-        await Hook.run(step?.hooks?.navigationHook, ctx, stepApi(ctx));
+        await Hook.run(step?.hooks?.navigationHook, ctx, contextApi(ctx));
 
         /**
          * Run any logic after the navigation occurs
          * By default: (does nothing for now)
          */
-        await Hook.run(step?.hooks?.postNavigationHook, ctx, stepApi(ctx));
+        await Hook.run(step?.hooks?.postNavigationHook, ctx, contextApi(ctx));
 
     } catch (error) {
         /**
          * Run any logic when an error occurs during the navigation
          * By default: (does nothing for now)
          */
-        await Hook.run(step?.hooks?.onErrorHook, ctx, stepApi(ctx), error);
+        await Hook.run(step?.hooks?.onErrorHook, ctx, contextApi(ctx), error);
 
         throw error;
 
     }
 };
 
-export default { create, createKeyed, run };
+export default { create, run };

@@ -2,107 +2,166 @@ import * as CONST from '@usefelps/constants';
 import crawler from '@usefelps/crawler';
 import Hook from '@usefelps/hook';
 import Base from '@usefelps/instance-base';
-import Orchestrator from '@usefelps/orchestrator';
-import RequestMeta from '@usefelps/request-meta';
-import QueueCollection from '@usefelps/request-queue-collection';
-import Step from '@usefelps/step';
-import ContextApi from '@usefelps/context-api';
-import StoreCollection from '@usefelps/store-collection';
 import Logger from '@usefelps/logger';
-import * as utils from '@usefelps/utils';
-import { pathify } from '@usefelps/utils';
+import RequestMeta from '@usefelps/request-meta';
+import Step from '@usefelps/step';
 import * as FT from '@usefelps/types';
+import * as utils from '@usefelps/utils';
 
 export const create = <
-    ITInput extends FT.InputInstance,
     ITCrawler extends FT.CrawlerInstance,
-    ITModels extends Record<string, FT.ModelDefinition>,
-    ITStores extends FT.StoreCollectionInstance,
-    ITQueues extends FT.QueueCollectionInstance,
-    ITDatasets extends FT.DatasetCollectionInstance,
-    ITFlows extends FT.ReallyAny,
-    ITSteps extends FT.StepCollectionInstance<ITModels, FT.ReallyAny, FT.ReallyAny, ITInput>,
->(options: FT.ActorOptions<ITInput, ITCrawler, ITModels, ITStores, ITQueues, ITDatasets, ITFlows, ITSteps>): FT.ActorInstance<ITInput, ITCrawler, ITModels, ITStores, ITQueues, ITDatasets, ITFlows, ITSteps> => {
+    ITStores extends Array<FT.AnyStoreLike>,
+    ITQueues extends Array<FT.RequestQueueInstance>,
+    ITDatasets extends Array<FT.DatasetInstance>,
+    ITFlows extends Array<FT.FlowInstance>,
+    ITSteps extends Array<FT.StepInstance>,
+    ITContextApi extends Array<FT.GeneralContextApi>,
+    LocalActorInstance extends FT.ActorInstance<
+        ITCrawler,
+        ITStores,
+        ITQueues,
+        ITDatasets,
+        ITFlows,
+        ITSteps,
+        ITContextApi
+    > = FT.ActorInstance<
+        ITCrawler,
+        ITStores,
+        ITQueues,
+        ITDatasets,
+        ITFlows,
+        ITSteps,
+        ITContextApi
+    >
+>(options: FT.ActorOptions<
+    ITCrawler,
+    ITStores,
+    ITQueues,
+    ITDatasets,
+    ITFlows,
+    ITSteps,
+    ITContextApi
+>
+): LocalActorInstance => {
 
     const base = Base.create({ key: 'actor', name: options.name });
 
     return {
         ...base,
 
-        input: options?.input,
-
-        models: options?.models,
         stores: options?.stores,
         datasets: options?.datasets,
-
-        crawler: options?.crawler,
-        crawlerOptions: utils.merge({ mode: 'http' }, options?.crawlerOptions || {}) as FT.RequestCrawlerOptions,
-
         queues: options?.queues,
 
         flows: options?.flows,
-
         steps: options?.steps,
-        stepApiOptions: (options?.stepApiOptions || {}),
 
-        hooks: options?.hooks || createHooks<ITInput, ITCrawler, ITModels, ITStores, ITQueues, ITDatasets, ITFlows, ITSteps>(options),
-    };
+        contextApi: options?.contextApi,
+
+        crawler: options?.crawler,
+        crawlerMode: options?.crawlerMode || 'http',
+        crawlerOptions: options?.crawlerOptions,
+
+        hooks: options?.hooks || createHooks<
+            ITCrawler,
+            ITStores,
+            ITQueues,
+            ITDatasets,
+            ITFlows,
+            ITSteps,
+            ITContextApi
+        >(options),
+    } as LocalActorInstance;
 };
 
 export const createHooks = <
-    ITInput extends FT.InputInstance,
     ITCrawler extends FT.CrawlerInstance,
-    ITModels extends Record<string, FT.ModelDefinition>,
-    ITStores extends FT.StoreCollectionInstance,
-    ITQueues extends FT.QueueCollectionInstance,
-    ITDatasets extends FT.DatasetCollectionInstance,
-    ITFlows extends FT.ReallyAny,
-    ITSteps extends FT.StepCollectionInstance<ITModels, FT.ReallyAny, FT.ReallyAny, ITInput>,
->(options: FT.ActorOptions<ITInput, ITCrawler, ITModels, ITStores, ITQueues, ITDatasets, ITFlows, ITSteps>): FT.ActorInstance<ITInput, ITCrawler, ITModels, ITStores, ITQueues, ITDatasets, ITFlows, ITSteps>['hooks'] => {
+    ITStores extends Array<FT.AnyStoreLike>,
+    ITQueues extends Array<FT.RequestQueueInstance>,
+    ITDatasets extends Array<FT.DatasetInstance>,
+    ITFlows extends Array<FT.FlowInstance>,
+    ITSteps extends Array<FT.StepInstance>,
+    ITContextApi extends Array<FT.GeneralContextApi>,
+    LocalActorInstance extends FT.ActorInstance<
+        ITCrawler,
+        ITStores,
+        ITQueues,
+        ITDatasets,
+        ITFlows,
+        ITSteps,
+        ITContextApi
+    > = FT.ActorInstance<
+        ITCrawler,
+        ITStores,
+        ITQueues,
+        ITDatasets,
+        ITFlows,
+        ITSteps,
+        ITContextApi
+    >
+>(options: FT.ActorOptions<
+    ITCrawler,
+    ITStores,
+    ITQueues,
+    ITDatasets,
+    ITFlows,
+    ITSteps,
+    ITContextApi
+>): FT.ActorHooks<
+    ITCrawler,
+    ITStores,
+    ITQueues,
+    ITDatasets,
+    ITFlows,
+    ITSteps,
+    ITContextApi,
+    LocalActorInstance
+> => {
     const { hooks } = options || {};
-
-    type LocalActorInstance = FT.ActorInstance<ITInput, ITCrawler, ITModels, ITStores, ITQueues, ITDatasets, ITFlows, ITSteps>;
 
     const base = Base.create({ key: 'actor', name: options.name });
     const validationHandler = async (actor?: LocalActorInstance) => actor.name === base.name;
 
     return {
         preActorStartedHook: Hook.create<[actor?: LocalActorInstance, input?: FT.ActorInput]>({
-            name: pathify(base.name, 'preActorStartedHook'),
+            name: utils.pathify(base.name, 'preActorStartedHook'),
             validationHandler,
             handlers: [
-                async function EXPAND_STATE(actor, input) {
-                    actor.input.data = input;
+                async function EXPAND_STATE() {
+                    // actor, input
+                    // actor.input.data = input;
                 },
-                async function LOAD_STORES(actor) {
+                async function LOAD_STORES() {
+                    // actor
                     // Load stores
-                    actor.stores = await StoreCollection.load(actor?.stores as FT.StoreCollectionInstance);
-                    StoreCollection.listen(actor.stores);
+                    // actor.stores = await StoreCollection.load(actor?.stores as FT.StoreCollectionInstance);
+                    // StoreCollection.listen(actor.stores);
                 },
                 ...(hooks?.preActorStartedHook?.handlers || []),
             ],
         }),
-        postActorEndedHook: Hook.create({
-            name: pathify(base.name, 'postActorEndedHook'),
+        postActorEndedHook: Hook.create<[actor: LocalActorInstance]>({
+            name: utils.pathify(base.name, 'postActorEndedHook'),
             validationHandler,
             handlers: [
-                async function CLOSING(actor) {
-                    await StoreCollection.persist(actor.stores);
+                async function CLOSING() {
+                    // actor
+                    // await StoreCollection.persist(actor.stores);
                 },
                 ...(hooks?.postActorEndedHook?.handlers || []),
             ],
         }),
 
         preCrawlerStartedHook: Hook.create<[actor?: LocalActorInstance]>({
-            name: pathify(base.name, 'preCrawlerStartedHook'),
+            name: utils.pathify(base.name, 'preCrawlerStartedHook'),
             validationHandler,
             handlers: [
                 ...(hooks?.preCrawlerStartedHook?.handlers || []),
             ],
         }),
 
-        postCrawlerEndedHook: Hook.create({
-            name: pathify(base.name, 'postCrawlerEndedHook'),
+        postCrawlerEndedHook: Hook.create<[actor: LocalActorInstance]>({
+            name: utils.pathify(base.name, 'postCrawlerEndedHook'),
             validationHandler,
             handlers: [
                 ...(hooks?.postCrawlerEndedHook?.handlers || []),
@@ -110,7 +169,7 @@ export const createHooks = <
         }),
 
         onCrawlerFailedHook: Hook.create<[actor: LocalActorInstance, error: FT.ReallyAny]>({
-            name: pathify(base.name, 'onCrawlerFailedHook'),
+            name: utils.pathify(base.name, 'onCrawlerFailedHook'),
             validationHandler,
             handlers: [
                 async function LOGGING(actor, error) {
@@ -120,67 +179,68 @@ export const createHooks = <
             ],
         }),
 
-        preQueueStartedHook: Hook.create({
-            name: pathify(base.name, 'preQueueStartedHook'),
+        preQueueStartedHook: Hook.create<[actor: LocalActorInstance]>({
+            name: utils.pathify(base.name, 'preQueueStartedHook'),
             validationHandler,
             handlers: [
-                async function LOAD_QUEUES(actor) {
-                    actor.queues = await QueueCollection.load(actor?.queues as FT.QueueCollectionInstance<FT.ReallyAny>);
+                async function LOAD_QUEUES() {
+                    // actor
+                    // actor.queues = await QueueCollection.load(actor?.queues as FT.QueueCollectionInstance<FT.ReallyAny>);
                 },
                 ...(hooks?.preQueueStartedHook?.handlers || []),
             ],
         }),
 
-        postQueueEndedHook: Hook.create({
-            name: pathify(base.name, 'postQueueEndedHook'),
+        postQueueEndedHook: Hook.create<[actor: LocalActorInstance]>({
+            name: utils.pathify(base.name, 'postQueueEndedHook'),
             validationHandler,
             handlers: [
                 ...(hooks?.postQueueEndedHook?.handlers || []),
             ],
         }),
 
-        preFlowStartedHook: Hook.create({
-            name: pathify(base.name, 'preFlowStartedHook'),
+        preFlowStartedHook: Hook.create<[actor: LocalActorInstance]>({
+            name: utils.pathify(base.name, 'preFlowStartedHook'),
             validationHandler,
             handlers: [
                 ...(hooks?.preFlowStartedHook?.handlers || []),
             ],
         }),
 
-        postFlowEndedHook: Hook.create({
-            name: pathify(base.name, 'postFlowEndedHook'),
+        postFlowEndedHook: Hook.create<[actor: LocalActorInstance]>({
+            name: utils.pathify(base.name, 'postFlowEndedHook'),
             validationHandler,
             handlers: [
                 ...(hooks?.postFlowEndedHook?.handlers || []),
             ],
         }),
 
-        preStepStartedHook: Hook.create({
-            name: pathify(base.name, 'preStepStartedHook'),
+        preStepStartedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext]>({
+            name: utils.pathify(base.name, 'preStepStartedHook'),
             validationHandler,
             handlers: [
                 ...(hooks?.preStepStartedHook?.handlers || []),
             ],
         }),
 
-        postStepEndedHook: Hook.create({
-            name: pathify(base.name, 'postStepEndedHook'),
+        postStepEndedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext]>({
+            name: utils.pathify(base.name, 'postStepEndedHook'),
             validationHandler,
             handlers: [
                 ...(hooks?.postStepEndedHook?.handlers || []),
             ],
         }),
 
-        onStepFailedHook: Hook.create({
-            name: pathify(base.name, 'onStepFailedHook'),
+        onStepFailedHook: Hook.create<[actor: LocalActorInstance, error: FT.ReallyAny]>({
+            name: utils.pathify(base.name, 'onStepFailedHook'),
             validationHandler,
             handlers: [
                 ...(hooks?.onStepFailedHook?.handlers || []),
             ],
         }),
 
-        onStepRequestFailedHook: Hook.create({
-            name: pathify(base.name, 'onStepRequestFailedHook'),
+        onStepRequestFailedHook: Hook.create<[actor: LocalActorInstance, error: FT.ReallyAny]>({
+            name: utils.pathify(base.name, 'onStepRequestFailedHook'),
             validationHandler,
             handlers: [
                 ...(hooks?.onStepRequestFailedHook?.handlers || []),
@@ -197,7 +257,7 @@ export const combine = (actor: FT.ActorInstance, ...actors: FT.ActorInstance[]):
 
     actor.hooks = Object.keys(actor.hooks).reduce((acc, key) => {
         acc[key] = Hook.create({
-            name: pathify(actor.name, key),
+            name: utils.pathify(actor.name, key),
             handlers: [
                 async (...args) => {
                     await Hook.run(actor.hooks[key], ...args);
@@ -239,7 +299,7 @@ export const combine = (actor: FT.ActorInstance, ...actors: FT.ActorInstance[]):
 //         navigationTimeoutSecs: 60,
 //         maxConcurrency: 40,
 //         maxRequestRetries: 3,
-//         requestQueue: (await Queue.load(actor?.queues?.default as FT.QueueInstance))?.resource as RequestQueue,
+//         requestQueue: (await Queue.load(actor?.queues?.default as FT.RequestRequestQueueInstance))?.resource as RequestQueue,
 //         // handlePageFunction: useHandlePageFunction(actor) as any,
 //         // handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
 //         launchContext: {
@@ -275,15 +335,15 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
                 request: metaHook.request,
             } as FT.RequestContext;
 
-            const actorKey = meta.data.reference.fActorKey as string;
+            const actorKey = meta.data.context.actorKey as string;
 
-            const step = getStep(actor, actorKey, meta.data.stepName);
+            const step = getStep(actor, actorKey, meta.data.context.stepName);
 
             if (!step) {
                 return;
             }
 
-            const stepApi = ContextApi.create(actor);
+            // const contextApi = ContextApi.create();
 
             if (!meta.data.stepStop) {
 
@@ -304,7 +364,7 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
                 await Hook.run(actor?.hooks?.postStepEndedHook, actor, contextHook);
             }
 
-            await Orchestrator.run(Orchestrator.create(actor), context, stepApi(context));
+            // await Orchestrator.run(Orchestrator.create(actor), context, contextApi(context));
         },
     };
 

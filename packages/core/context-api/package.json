@@ -3,19 +3,12 @@
     "version": "1.0.315",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
-    "peerDependencies": {
-        "@usefelps/context-api--flow": "workspace:*",
-        "@usefelps/context-api--helpers": "workspace:*",
+    "dependencies": {
         "@usefelps/context-api--meta": "workspace:*",
-        "@usefelps/context-api--model": "workspace:*",
+        "@usefelps/context-api--helpers": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
-        "@usefelps/context-api--flow": "workspace:*",
-        "@usefelps/context-api--helpers": "workspace:*",
-        "@usefelps/context-api--meta": "workspace:*",
-        "@usefelps/context-api--model": "workspace:*",
-        "@usefelps/types": "workspace:*",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"
     },
@@ -34,11 +27,5 @@
         "lint": "eslint ./src --ext .ts,.js,.jsx",
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
-    "license": "ISC",
-    "dependencies": {
-        "@usefelps/context-api--flow": "workspace:*",
-        "@usefelps/context-api--meta": "workspace:*",
-        "@usefelps/context-api--model": "workspace:*",
-        "@usefelps/context-api--helpers": "workspace:*"
-    }
+    "license": "ISC"
 }

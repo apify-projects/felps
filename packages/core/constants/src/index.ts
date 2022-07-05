@@ -1,22 +1,15 @@
 import { camelCase } from 'camel-case';
-import { TrailDataRequestItemStatus, TrailDataModelItemStatus } from '@usefelps/types';
 
 export const UID_KEY_PREFIX = 'uk';
 export const UID_KEY_LENGTH = 2;
 
-export const REQUEST_STATUS: Record<TrailDataRequestItemStatus, TrailDataRequestItemStatus> = {
+export const REQUEST_STATUS = {
     CREATED: 'CREATED',
     DISCARDED: 'DISCARDED',
     QUEUED: 'QUEUED',
     STARTED: 'STARTED',
     SUCCEEDED: 'SUCCEEDED',
     FAILED: 'FAILED',
-};
-
-export const MODEL_STATUS: Record<TrailDataModelItemStatus, TrailDataModelItemStatus> = {
-    CREATED: 'CREATED',
-    PUSHED: 'PUSHED',
-    DISCARDED: 'DISCARDED',
 };
 
 export const UNPREFIXED_NAME_BY_ACTOR = (name = '') => name.split(/:/g).reverse()[0];
@@ -30,9 +23,9 @@ export const REQUEST_UID_KEY = `req`;
 export const METADATA_KEY = '___felps';
 export const SCHEMA_MODEL_NAME_KEY = 'modelName';
 
-export const REQUEST_KEY_PROP = <const>'fRequestKey';
-export const TRAIL_KEY_PROP = <const>'fTrailKey';
-export const FLOW_KEY_PROP = <const>'fFlowKey';
-export const ACTOR_KEY_PROP = <const>'fActorKey';
+export const REQUEST_KEY_PROP = <const>'requestKey';
+export const TRAIL_KEY_PROP = <const>'trailKey';
+export const FLOW_KEY_PROP = <const>'flowKey';
+export const ACTOR_KEY_PROP = <const>'actorKey';
 
 export const TRAIL_UID_PREFIX = 'trail';

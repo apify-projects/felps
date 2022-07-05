@@ -5,7 +5,6 @@
     "typings": "lib/index.d.ts",
     "dependencies": {
         "@usefelps/instance-base": "workspace:*",
-        "@usefelps/model": "workspace:*",
         "@usefelps/constants": "workspace:*",
         "@usefelps/types": "workspace:*"
     },

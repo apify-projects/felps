@@ -12,8 +12,8 @@ export const create = (requestOrRequestContext?: FT.RequestSource | FT.RequestCo
                 flowStart: false,
                 flowName: undefined,
                 stepName: undefined,
+                trailId: undefined,
                 crawlerOptions: { mode: 'http' },
-                reference: {},
             },
             request?.userData?.[CONST.METADATA_KEY] || {},
         ),
@@ -35,21 +35,19 @@ export const contextDefaulted = (context?: FT.RequestContext): FT.RequestContext
         request: {
             userData: {
                 [CONST.METADATA_KEY]: {
-                    reference: {
-                        [CONST.TRAIL_KEY_PROP]: utils.craftUIDKey('trail'),
-                    },
+                    [CONST.TRAIL_KEY_PROP]: utils.craftUIDKey('trail'),
                 },
             },
         },
     }) as unknown as FT.RequestContext;
 };
 
-export const extend = (requestMeta: FT.RequestMetaInstance, ...metadata: Partial<FT.RequestMetaData>[]): FT.RequestMetaInstance => {
+export const extend = (RequestMeta: FT.RequestMetaInstance, ...metadata: Partial<FT.RequestMetaData>[]): FT.RequestMetaInstance => {
     return create({
-        ...requestMeta.request,
+        ...RequestMeta.request,
         userData: {
-            ...(requestMeta.userData || {}),
-            [CONST.METADATA_KEY]: (metadata || []).reduce((acc, data) => utils.merge(acc, data), requestMeta.data),
+            ...(RequestMeta.userData || {}),
+            [CONST.METADATA_KEY]: (metadata || []).reduce((acc, data) => utils.merge(acc, data), RequestMeta.data),
         },
     });
 };

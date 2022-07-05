@@ -18,34 +18,22 @@
             "path": "../instance-base"
         },
         {
-            "path": "../orchestrator"
+            "path": "../../helpers/logger"
         },
         {
             "path": "../request-meta"
         },
         {
-            "path": "../request-queue-collection"
-        },
-        {
             "path": "../step"
-        },
-        {
-            "path": "../context-api"
-        },
-        {
-            "path": "../../helpers/logger"
         },
         {
             "path": "../constants"
         },
         {
-            "path": "../dataset-collection"
+            "path": "../context-api"
         },
         {
             "path": "../flow"
-        },
-        {
-            "path": "../input"
         },
         {
             "path": "../request-queue"

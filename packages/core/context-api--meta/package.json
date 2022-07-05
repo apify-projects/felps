@@ -3,19 +3,13 @@
     "version": "1.0.315",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
-    "peerDependencies": {
-        "@usefelps/constants": "workspace:*",
+    "dependencies": {
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/request-meta": "workspace:*",
-        "@usefelps/trail": "workspace:*",
+        "@usefelps/constants": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
-        "@usefelps/constants": "workspace:*",
-        "@usefelps/instance-base": "workspace:*",
-        "@usefelps/request-meta": "workspace:*",
-        "@usefelps/trail": "workspace:*",
-        "@usefelps/types": "workspace:*",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"
     },
@@ -34,10 +28,5 @@
         "lint": "eslint ./src --ext .ts,.js,.jsx",
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
-    "license": "ISC",
-    "dependencies": {
-        "@usefelps/instance-base": "workspace:*",
-        "@usefelps/request-meta": "workspace:*",
-        "@usefelps/trail": "workspace:*"
-    }
+    "license": "ISC"
 }

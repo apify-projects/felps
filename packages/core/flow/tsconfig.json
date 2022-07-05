@@ -12,9 +12,6 @@
             "path": "../instance-base"
         },
         {
-            "path": "../model"
-        },
-        {
             "path": "../constants"
         },
         {

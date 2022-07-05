@@ -64,16 +64,10 @@
             "path": "packages/core/context-api--meta"
         },
         {
-            "path": "packages/core/context-api--model"
-        },
-        {
             "path": "packages/core/crawler"
         },
         {
             "path": "packages/core/dataset"
-        },
-        {
-            "path": "packages/core/dataset-collection"
         },
         {
             "path": "packages/core/events"
@@ -88,16 +82,7 @@
             "path": "packages/core/hook"
         },
         {
-            "path": "packages/core/input"
-        },
-        {
             "path": "packages/core/instance-base"
-        },
-        {
-            "path": "packages/core/model"
-        },
-        {
-            "path": "packages/core/orchestrator"
         },
         {
             "path": "packages/core/request-meta"
@@ -106,16 +91,10 @@
             "path": "packages/core/request-queue"
         },
         {
-            "path": "packages/core/request-queue-collection"
-        },
-        {
             "path": "packages/core/state"
         },
         {
             "path": "packages/core/step"
-        },
-        {
-            "path": "packages/core/store--file"
         },
         {
             "path": "packages/core/types"
@@ -128,6 +107,9 @@
         },
         {
             "path": "packages/crawlee/request-queue"
+        },
+        {
+            "path": "packages/examples/basic"
         },
         {
             "path": "packages/examples/crawler--aio-playwright"

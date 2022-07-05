@@ -8,8 +8,6 @@
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/request-meta": "workspace:*",
         "@usefelps/context-api": "workspace:*",
-        "@usefelps/trail": "workspace:*",
-        "@usefelps/trail--data-requests": "workspace:*",
         "@usefelps/logger": "workspace:*",
         "@usefelps/constants": "workspace:*",
         "@usefelps/events": "workspace:*",

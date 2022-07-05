@@ -1,0 +1,38 @@
+[
+	{
+		"id": "a4ayc80OGda4BO1",
+		"json": "{\"id\":\"a4ayc80OGda4BO1\",\"url\":\"https://www.apify.com\",\"loadedUrl\":\"https://www.apify.com\",\"uniqueKey\":\"1\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlerOptions\":{\"mode\":\"http\"}},\"handledAt\":\"2022-06-16T09:18:51.167Z\"}",
+		"method": "GET",
+		"orderNo": null,
+		"retryCount": 0,
+		"uniqueKey": "1",
+		"url": "https://www.apify.com"
+	},
+	{
+		"id": "1HNeOiZeFu7gP1l",
+		"json": "{\"id\":\"1HNeOiZeFu7gP1l\",\"url\":\"https://www.apify.com\",\"loadedUrl\":\"https://apify.com/\",\"uniqueKey\":\"2\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlerOptions\":{\"mode\":\"chromium\"}},\"handledAt\":\"2022-06-16T09:18:53.324Z\"}",
+		"method": "GET",
+		"orderNo": null,
+		"retryCount": 0,
+		"uniqueKey": "2",
+		"url": "https://www.apify.com"
+	},
+	{
+		"id": "TgdAhWK24tgzgXB",
+		"json": "{\"id\":\"TgdAhWK24tgzgXB\",\"url\":\"https://www.apify.com\",\"loadedUrl\":\"https://apify.com/\",\"uniqueKey\":\"3\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlerOptions\":{\"mode\":\"firefox\"}},\"handledAt\":\"2022-06-16T09:18:55.888Z\"}",
+		"method": "GET",
+		"orderNo": null,
+		"retryCount": 0,
+		"uniqueKey": "3",
+		"url": "https://www.apify.com"
+	},
+	{
+		"id": "SyJ3d9TdH8Ycb4h",
+		"json": "{\"id\":\"SyJ3d9TdH8Ycb4h\",\"url\":\"https://www.apify.com\",\"loadedUrl\":\"https://apify.com/\",\"uniqueKey\":\"4\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlerOptions\":{\"mode\":\"webkit\"}},\"handledAt\":\"2022-06-16T09:18:58.143Z\"}",
+		"method": "GET",
+		"orderNo": null,
+		"retryCount": 0,
+		"uniqueKey": "4",
+		"url": "https://www.apify.com"
+	}
+]

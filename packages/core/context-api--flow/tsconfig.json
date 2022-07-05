@@ -9,13 +9,10 @@
     ],
     "references": [
         {
-            "path": "../model"
+            "path": "../instance-base"
         },
         {
             "path": "../request-meta"
-        },
-        {
-            "path": "../instance-base"
         },
         {
             "path": "../constants"

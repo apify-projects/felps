@@ -1,7 +1,7 @@
-import { BaseInstance, BaseOptions } from '@usefelps/types';
+import { InstanceBase, InstanceBaseOptions } from '@usefelps/types';
 import { craftUIDKey } from '@usefelps/utils';
 
-export const create = (options: BaseOptions): BaseInstance => {
+export const create = (options: InstanceBaseOptions): InstanceBase => {
     const {
         key,
         name = 'default',

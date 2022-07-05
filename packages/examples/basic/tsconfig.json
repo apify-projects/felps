@@ -1,0 +1,24 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../../core/actor"
+        },
+        {
+            "path": "../../core/step"
+        },
+        {
+            "path": "../../core/flow"
+        },
+        {
+            "path": "../../core/types"
+        }
+    ]
+}

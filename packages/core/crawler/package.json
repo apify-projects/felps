@@ -9,11 +9,8 @@
         "@usefelps/context-api": "workspace:*",
         "@usefelps/events": "workspace:*",
         "@usefelps/logger": "workspace:*",
-        "@usefelps/orchestrator": "workspace:*",
         "@usefelps/request-meta": "workspace:*",
         "@usefelps/step": "workspace:*",
-        "@usefelps/trail": "workspace:*",
-        "@usefelps/trail--data-requests": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {

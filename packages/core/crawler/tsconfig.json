@@ -24,9 +24,6 @@
             "path": "../../helpers/logger"
         },
         {
-            "path": "../orchestrator"
-        },
-        {
             "path": "../request-meta"
         },
         {
