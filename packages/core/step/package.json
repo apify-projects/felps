@@ -4,13 +4,13 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
+        "@usefelps/constants": "workspace:*",
+        "@usefelps/context-api": "workspace:*",
+        "@usefelps/events": "workspace:*",
         "@usefelps/hook": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
-        "@usefelps/request-meta": "workspace:*",
-        "@usefelps/context-api": "workspace:*",
         "@usefelps/logger": "workspace:*",
-        "@usefelps/constants": "workspace:*",
-        "@usefelps/events": "workspace:*",
+        "@usefelps/request-meta": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "directories": {

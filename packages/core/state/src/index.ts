@@ -1,4 +1,4 @@
-// import ApifyEvents from '@usefelps/apify-events';
+import ApifyEvents from '@usefelps/apify-events';
 import Base from '@usefelps/instance-base';
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
 import InMemoryKvStoreAdapter from '@usefelps/kv-store--adapter--in-memory';
@@ -35,17 +35,17 @@ export const create = <T>(options: FT.StateOptions): FT.StateInstance<T> => {
     };
 };
 
-export const getPath = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P ): string => {
+export const getPath = (state: FT.StateInstance, path: string): string => {
     mustBeLoaded(state);
     return [state.pathRoot, path].filter(Boolean).join('.');
 };
 
-export const get = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path?: P): FT.PathValue<T, P> => {
+export const get = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path?: string): T => {
     mustBeLoaded(state);
     return utils.clone<FT.ReallyAny>(path ? utils.get(state.storage, getPath(state, path)) : state.storage);
 };
 
-export const reduce = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P, valueOrReducer: FT.PathValue<T, P> | ((previous: FT.PathValue<T, P>) => FT.PathValue<T, P>)): FT.ReallyAny => {
+export const reduce = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string, valueOrReducer: FT.ReallyAny | ((previous: FT.ReallyAny) => FT.ReallyAny)): FT.ReallyAny => {
     mustBeLoaded(state);
     const absolutePath = getPath(state, path);
     const previous = utils.get(state.storage, absolutePath);
@@ -53,51 +53,51 @@ export const reduce = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path
     return absolutePath;
 }
 
-export const set = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P | string, dataOrReducer: (FT.PathValue<T, P> & FT.ReallyAny) | ((previous: FT.PathValue<T, P> & FT.ReallyAny) => FT.PathValue<T, P> & FT.ReallyAny)): FT.DataPath => {
+export const set = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string, dataOrReducer: (FT.ReallyAny & FT.ReallyAny) | ((previous: FT.ReallyAny & FT.ReallyAny) => FT.ReallyAny & FT.ReallyAny)): FT.DataPath => {
     mustBeLoaded(state);
-    const absolutePath = getPath<T, P>(state, path as unknown as P);
+    const absolutePath = getPath(state, path);
     return reduce(state, absolutePath as FT.ReallyAny, dataOrReducer);
 };
 
-export const remove = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P): void => {
+export const remove = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string): void => {
     mustBeLoaded(state);
     const absolutePath = getPath(state, path);
     utils.unset(state.storage, absolutePath.split('.'));
 };
 
-export const has = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P): boolean => {
+export const has = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string): boolean => {
     mustBeLoaded(state);
     return utils.has(state.storage, getPath(state, path));
 };
 
-export const entries = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path?: P): [string, T][] => {
+export const entries = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path?: string): [string, T][] => {
     mustBeLoaded(state);
     return Object.entries(get(state, path) as Record<string, T>);
 };
 
-export const values = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path?: P): T[] => {
+export const values = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path?: string): T[] => {
     mustBeLoaded(state);
     return Object.values(get(state, path) as Record<string, T>);
 };
 
-export const keys = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path?: P): string[] => {
+export const keys = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path?: string): string[] => {
     mustBeLoaded(state);
     return Object.keys(get(state, path) as Record<string, T>);
 };
 
-export const increment = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P, stepNumber = 1): number => {
+export const increment = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string, stepNumber = 1): number => {
     mustBeLoaded(state);
     const nextIncrement: number = +(get(state, getPath(state, path as FT.ReallyAny) as FT.ReallyAny) || 0) + stepNumber;
     set(state, getPath(state, path) as FT.ReallyAny, nextIncrement as FT.ReallyAny);
     return +get(state, getPath(state, path) as FT.ReallyAny);
 };
 
-export const decrement = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P, stepNumber = 1): number => {
+export const decrement = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string, stepNumber = 1): number => {
     mustBeLoaded(state);
     return increment(state, path, -stepNumber);
 };
 
-export const pop = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P): T => {
+export const pop = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string): T => {
     mustBeLoaded(state);
     const items = get(state, getPath(state, path as FT.ReallyAny) as FT.ReallyAny) as FT.ReallyAny[] || [];
     const item = items.pop();
@@ -105,7 +105,7 @@ export const pop = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P
     return item;
 };
 
-export const shift = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P): T => {
+export const shift = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string): T => {
     mustBeLoaded(state);
     const items = get(state, getPath(state, path) as FT.ReallyAny) as FT.ReallyAny[] || [];
     const item = items.shift();
@@ -113,12 +113,12 @@ export const shift = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path:
     return item;
 };
 
-export const push = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P, ...data: T[]): FT.DataPath => {
+export const push = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string, ...data: T[]): FT.DataPath => {
     mustBeLoaded(state);
     return set(state, getPath(state, path) as FT.ReallyAny, [...(get(state, getPath(state, path) as FT.ReallyAny) as FT.ReallyAny[] || []), ...data] as FT.ReallyAny);
 };
 
-export const unshift = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P, ...data: T[]): FT.DataPath => {
+export const unshift = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string, ...data: T[]): FT.DataPath => {
     mustBeLoaded(state);
     return set(state, getPath(state, path) as FT.ReallyAny, [...data, ...(get(state, getPath(state, path) as FT.ReallyAny) as FT.ReallyAny[] || [])] as FT.ReallyAny);
 };
@@ -130,7 +130,7 @@ export const setAndGetKey = <T, D>(state: FT.StateInstance<T>, data: D): FT.Data
     return set(state, absolutePath, data as FT.ReallyAny);
 };
 
-export const update = <T, P extends FT.Path<T>>(state: FT.StateInstance<T>, path: P, data: T): FT.DataPath => {
+export const update = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string, data: T): FT.DataPath => {
     mustBeLoaded(state);
 
     const absolutePath = getPath(state, path);
@@ -180,10 +180,10 @@ export const persist = async <T>(state: FT.StateInstance<T>): Promise<void> => {
     Logger.info(Logger.create(state), 'Persisting store...', { stats: state.stats });
 };
 
-// export const listen = (state: FT.StateInstance<T>): void => {
-//     ApifyEvents.onAll(async () => {
-//         await persist(state);
-//     });
-// };
+export const listen = <T>(state: FT.StateInstance<T>): void => {
+    ApifyEvents.onAll(async () => {
+        await persist(state);
+    });
+};
 
-export default { create, get, set, remove, has, entries, values, keys, increment, decrement, pop, shift, push, unshift, setAndGetKey, update, load, persist, reduce };
+export default { create, get, set, remove, has, entries, values, keys, increment, decrement, pop, shift, push, unshift, setAndGetKey, update, load, persist, reduce, listen };

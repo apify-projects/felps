@@ -1,15 +1,14 @@
 import * as CONST from '@usefelps/constants';
 import Base from '@usefelps/instance-base';
-import { pathify } from '@usefelps/utils';
 import * as FT from '@usefelps/types';
 
 export const create = <
     FlowNames extends string = string,
     StepNames extends string = string,
 >(options: FT.FlowOptions<FlowNames, StepNames>): FT.FlowInstance<FlowNames, StepNames> => {
-    const { name, crawlerMode, crawlerOptions, steps = [], context } = options || {};
+    const { name, crawlerMode, crawlerOptions, steps = [], meta = {} } = options || {};
 
-    const base = Base.create({ key: 'flow', name: pathify(context.actorKey, name) });
+    const base = Base.create({ key: 'flow', name });
 
     return {
         ...base,
@@ -17,7 +16,7 @@ export const create = <
         crawlerMode,
         crawlerOptions,
         steps,
-        context,
+        meta,
     };
 };
 

@@ -22,8 +22,8 @@ export type JSONSchema = MakeSchema<_JSONSchema7>;
 export type JSONSchemaWithMethods = MakeSchema<_JSONSchema7<JSONSchemaMethods>>;
 export type JSONSchemaMethods = {
     resolveList?: (ref: ModelReference, methods: { getEntities: (modelName: string, ref?: ModelReference) => TrailDataModelItem[]; }) => TrailDataModelItem[],
-    organizeList?: (items: TrailDataModelItem<ReallyAny>[], api: GeneralContextApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
-    isListComplete?: (items: TrailDataModelItem[], api: GeneralContextApi) => boolean | Promise<boolean>,
+    organizeList?: (items: TrailDataModelItem<ReallyAny>[], api: ContextApi) => TrailDataModelItem[] | Promise<TrailDataModelItem[]>,
+    isListComplete?: (items: TrailDataModelItem[], api: ContextApi) => boolean | Promise<boolean>,
     isItemMatch?: (existingItem: TrailDataModelItem<ReallyAny>, newItem: TrailDataModelItem<ReallyAny>) => boolean,
 };
 
@@ -243,11 +243,11 @@ export type StepInstance = {
 } & Partial<BaseInstance>;
 
 export type StepHooks<Methods = any> = {
-    navigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralContextApi>>,
-    postNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralContextApi>>,
-    preNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralContextApi>>,
-    onErrorHook?: HookOptions<[context: RequestContext, api: Methods & GeneralContextApi, error: ReallyAny]>,
-    onRequestErrorHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralContextApi>>
+    navigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
+    postNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
+    preNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
+    onErrorHook?: HookOptions<[context: RequestContext, api: Methods & ContextApi, error: ReallyAny]>,
+    onRequestErrorHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>
 };
 
 export type StepOptions = StepInstance
@@ -262,11 +262,11 @@ export type ContextApiInstance<
     M extends Record<string, ModelDefinition>,
     I extends InputDefinition,
     StepName extends string = 'NO_STEPNAME'
-> = GeneralContextApi<I>
+> = ContextApi<I>
     & ContextApiFlowsAPI<F, S, M>
     & ContextApiModelAPI<M, S, F, StepName>;
 
-export type GeneralContextApi<I extends InputDefinition = InputDefinition> = ContextApiMetaAPI<I> & ContextApiHelpersAPI;
+export type ContextApi<I extends InputDefinition = InputDefinition> = ContextApiMetaAPI<I> & ContextApiHelpersAPI;
 
 export type ContextApiOptions = {
     extend?: (context: RequestContext, api: ReallyAny, actor: ActorInstance) => Record<string, ReallyAny>

@@ -36,8 +36,8 @@
     },
     "license": "ISC",
     "dependencies": {
-        "@usefelps/state": "workspace:*",
+        "@usefelps/kv-store--adapter--apify": "workspace:*",
         "@usefelps/request-meta": "workspace:*",
-        "@usefelps/kv-store--adapter--apify": "workspace:*"
+        "@usefelps/state": "workspace:*"
     }
 }

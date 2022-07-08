@@ -9,6 +9,9 @@
     ],
     "references": [
         {
+            "path": "../../core/multi-crawler"
+        },
+        {
             "path": "../../core/actor"
         },
         {
@@ -16,6 +19,9 @@
         },
         {
             "path": "../../core/flow"
+        },
+        {
+            "path": "../../core/state"
         },
         {
             "path": "../../core/types"

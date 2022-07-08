@@ -15,6 +15,9 @@
             "path": "../context-api--helpers"
         },
         {
+            "path": "../context-api--flow"
+        },
+        {
             "path": "../types"
         }
     ]

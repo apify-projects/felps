@@ -1,9 +1,10 @@
+import { TrailDataRequestItemStatus } from '@usefelps/types';
 import { camelCase } from 'camel-case';
 
 export const UID_KEY_PREFIX = 'uk';
 export const UID_KEY_LENGTH = 2;
 
-export const REQUEST_STATUS = {
+export const REQUEST_STATUS: Record<TrailDataRequestItemStatus, TrailDataRequestItemStatus> = {
     CREATED: 'CREATED',
     DISCARDED: 'DISCARDED',
     QUEUED: 'QUEUED',
@@ -21,6 +22,7 @@ export const MODEL_UID_KEY = (modelName: string): string => `mod_${camelCase(mod
 export const REQUEST_UID_KEY = `req`;
 
 export const METADATA_KEY = '___felps';
+export const METADATA_CRAWLER_MODE_PATH = `${METADATA_KEY}.crawlerMode`;
 export const SCHEMA_MODEL_NAME_KEY = 'modelName';
 
 export const REQUEST_KEY_PROP = <const>'requestKey';

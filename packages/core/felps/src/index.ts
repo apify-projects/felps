@@ -12,6 +12,7 @@ import ContextApi from '@usefelps/context-api';
 import ContextApiFlow from '@usefelps/context-api--flow';
 import ContextApiHelpers from '@usefelps/context-api--helpers';
 import ContextApiMeta from '@usefelps/context-api--meta';
+import MultiCrawler from '@usefelps/multi-crawler';
 import State from '@usefelps/state';
 import AIOPlaywrightCrawler from '@usefelps/crawlee--crawler--aio-playwright';
 import CustomRequestQueue from '@usefelps/request-queue';
@@ -27,6 +28,7 @@ export {
     Base,
     Actor,
     Crawler,
+    MultiCrawler,
     Flow,
     Step,
     ContextApi,
@@ -54,6 +56,7 @@ export default {
     Base,
     Actor,
     Crawler,
+    MultiCrawler,
     Flow,
     Step,
     ContextApi,

@@ -2,20 +2,19 @@ import Base from '@usefelps/instance-base';
 import RequestMeta from '@usefelps/request-meta';
 import * as FT from '@usefelps/types';
 
-// actor: ActorInstance
-export const create = (): FT.ContextApiMetaInstance => {
+export const create = (actor: FT.ActorInstance): FT.ContextApiMetaInstance => {
     return {
         ...Base.create({ key: 'context-api-meta', name: 'context-api-meta' }),
         handler(context) {
             const meta = RequestMeta.create(context);
 
             return {
-                getActorName: () => meta.data.context.actorKey,
-                getActorInput: () => { }, // actor.input.data ||
+                getActorName: () => meta.data.actorName,
+                getActorInput: () => actor.input,
                 getUserData: () => meta.userData || {},
                 getMetaData: () => meta.data || {},
-                getFlowName: () => meta.data.context.flowName,
-                getStepName: () => meta.data.context.stepName,
+                getFlowName: () => meta.data.flowName,
+                getStepName: () => meta.data.stepName,
                 getFlowInput: () => {
                 },
             } as FT.ContextApiMetaAPI;

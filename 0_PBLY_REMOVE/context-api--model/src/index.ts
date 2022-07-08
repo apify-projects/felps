@@ -7,7 +7,7 @@ import TrailDataModel from '@usefelps/trail--data-model';
 import * as FT from '@usefelps/types';
 
 // eslint-disable-next-line max-len
-export const create = <M extends Record<string, FT.ModelDefinition>>(actor: FT.ActorInstance): FT.ContextApiModelInstance<M> => {
+export const create = <M extends Record<string, FT.ModelDefinition>>(actor: FT.ActorInstance): FT.TContextApiModelInstance<M> => {
     return {
         ...Base.create({ key: 'context-api-model', name: 'default' }),
         handler(context) {
@@ -107,12 +107,12 @@ export const create = <M extends Record<string, FT.ModelDefinition>>(actor: FT.A
                     TrailDataModel.updatePartial<FT.ReallyAny>(modelInstance, value, modelRef as FT.ReallyAny);
                     return modelRef as FT.ModelReference<FT.ReallyAny>;
                 },
-            } as FT.ContextApiModelByFlowAPI<M>;
+            } as FT.TContextApiModelByFlowAPI<M>;
 
             return {
                 ...modelApi,
                 inFlow: () => modelApi as FT.ReallyAny,
-            } as unknown as FT.ContextApiModelAPI<M>;
+            } as unknown as FT.TContextApiModelAPI<M>;
         },
     };
 };

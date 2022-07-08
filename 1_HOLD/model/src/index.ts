@@ -151,7 +151,7 @@ export const find = (
     return undefined;
 };
 
-export const connect = ({ api }: { api: FT.GeneralContextApi }) => ({
+export const connect = ({ api }: { api: FT.TContextApi }) => ({
     async organizeList(model: FT.ModelInstance, items: FT.TrailDataModelItem<FT.ReallyAny>[]): Promise<{ valid: FT.TrailDataModelItem[], invalid: FT.TrailDataModelItem[] }> {
         const valid = await Promise.resolve((model.schema as FT.JSONSchemaMethods)?.organizeList?.(items, api)) || items;
         const invalid = items.filter((item) => !valid.includes(item));

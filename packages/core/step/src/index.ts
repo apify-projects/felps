@@ -5,7 +5,7 @@ import ContextApi from '@usefelps/context-api';
 import { pathify } from '@usefelps/utils';
 import Logger from '@usefelps/logger';
 import * as FT from '@usefelps/types';
-import { GeneralContextApi, StepOptionsHandlerParameters } from '@usefelps/types';
+import { TContextApi, StepOptionsHandlerParameters } from '@usefelps/types';
 
 export const create = <StepNames extends string = string>(options?: FT.StepOptions<StepNames>): FT.StepInstance<StepNames> => {
     const {
@@ -13,13 +13,13 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
         crawlerMode,
         crawlerOptions,
         hooks = {},
-        context,
+        meta = {},
     } = options || {};
 
-    const base = Base.create({ key: 'step', name: pathify(context.actorKey, name) });
+    const base = Base.create({ key: 'step', name });
 
-    const validationHandler = async (...[_, api]: StepOptionsHandlerParameters<GeneralContextApi>) => {
-        return context?.actorKey ? api.getActorName() === context.actorKey : true;
+    const validationHandler = async (...[_, api]: StepOptionsHandlerParameters<TContextApi>) => {
+        return meta?.actorName ? api.getActorName() === meta.actorName : true;
     }
 
     return {
@@ -27,7 +27,7 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
         name: base.name as StepNames,
         crawlerMode,
         crawlerOptions,
-        context,
+        meta,
         hooks: {
             navigationHook: Hook.create({
                 name: pathify(base.name, 'navigationHook'),
@@ -90,10 +90,10 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
     };
 };
 
-export const run = async (step: FT.StepInstance | undefined, _: FT.ActorInstance, context: FT.RequestContext | undefined): Promise<void> => {
+export const run = async (step: FT.StepInstance | undefined, actor: FT.ActorInstance, context: FT.RequestContext | undefined): Promise<void> => {
     const ctx = RequestMeta.contextDefaulted(context);
 
-    const contextApi = ContextApi.create();
+    const contextApi = ContextApi.create(actor);
 
     try {
         /**

@@ -4,27 +4,36 @@ import * as FT from '@usefelps/types';
 import * as utils from '@usefelps/utils';
 
 export const create = (requestOrRequestContext?: FT.RequestSource | FT.RequestContext | FT.RequestContext): FT.RequestMetaInstance => {
-    const request = utils.clone((requestOrRequestContext as FT.RequestContext)?.request || (requestOrRequestContext as FT.RequestSource));
+    const request = utils.clone((requestOrRequestContext as FT.RequestContext)?.request || (requestOrRequestContext as FT.RequestSource) || { userData: {} });
     const userData = {
         ...(request?.userData || {}),
         [CONST.METADATA_KEY]: utils.merge(
             {
-                flowStart: false,
+                isHook: false,
+                startFlow: false,
+                stopFlow: false,
+                stopStep: false,
+
+                actorName: undefined,
                 flowName: undefined,
                 stepName: undefined,
-                trailId: undefined,
-                crawlerOptions: { mode: 'http' },
+
+                trailKey: undefined,
+                flowKey: undefined,
+                requestKey: undefined,
+
+                crawlerMode: 'http',
             },
             request?.userData?.[CONST.METADATA_KEY] || {},
         ),
     };
 
     request.userData = userData;
-    const data = request.userData[CONST.METADATA_KEY];
+    const data = Reflect.get(request.userData, CONST.METADATA_KEY);
 
     return {
         ...Base.create({ key: 'request-meta', name: 'request-meta' }),
-        request,
+        request: request as FT.RequestSource,
         userData,
         data,
     };

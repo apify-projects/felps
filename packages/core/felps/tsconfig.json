@@ -51,6 +51,9 @@
             "path": "../context-api--meta"
         },
         {
+            "path": "../multi-crawler"
+        },
+        {
             "path": "../state"
         },
         {

@@ -9,7 +9,7 @@ import { craftUIDKey, getUIDKeyTime } from '@usefelps/utils';
 export const create = (options?: RequestQueueOptions): RequestQueueInstance => {
     const { name } = options || {};
     return {
-        ...Base.create({ key: 'queue', name: name as string }),
+        ...Base.create({ key: 'queue', name }),
         resource: undefined,
     };
 };
@@ -31,8 +31,8 @@ export const add = async (queue: RequestQueueInstance, request: RequestSource, o
     const meta = RequestMeta.create(request);
     const loaded = await load(queue);
     if (!loaded?.resource) throw new Error('Queue not loaded');
-    Logger.info(Logger.create(queue), `Queueing ${request.url} request for: ${meta.data.context.stepName}.`);
-    const priority = meta.data.context.trailKey ? getUIDKeyTime(meta.data.context.trailKey) : undefined;
+    Logger.info(Logger.create(queue), `Queueing ${request.url} request for: ${meta.data.stepName}.`);
+    const priority = meta.data.trailKey ? getUIDKeyTime(meta.data.trailKey) : undefined;
     return loaded.resource.addRequest({ uniqueKey: craftUIDKey('req', 6), ...request }, { priority, ...options });
 };
 

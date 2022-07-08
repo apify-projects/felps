@@ -7,6 +7,7 @@ import { BrowserPlugin, CommonPage } from '@crawlee/browser-pool';
 import { Request } from '@crawlee/core';
 import { CrawlingContext, EnqueueLinksOptions, mergeCookies, PlaywrightCookie, PlaywrightCrawlerOptions, PlaywrightCrawlingContext, PlaywrightLaunchContext, PlaywrightLauncher, Session } from '@crawlee/playwright';
 import { Dictionary } from '@crawlee/types';
+import { METADATA_CRAWLER_MODE_PATH } from '@usefelps/constants';
 import { CheerioRoot, parseContentTypeFromResponse } from '@crawlee/utils';
 import * as FT from '@usefelps/types';
 import { gotScraping, Method, OptionsInit, Request as GotRequest, TimeoutError } from 'got-scraping';
@@ -65,7 +66,7 @@ export type AIOPlaywrightCrawlerOptions = PlaywrightCrawlerOptions & {
 };
 
 export const CONST = {
-    CRAWLER_OPTIONS: '__crawlerOptions'
+    CRAWLER_MODE: '__crawlerMode'
 };
 
 export default class AIOPlaywrightCrawler extends BrowserCrawler {
@@ -100,9 +101,8 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
 
     protected override async _applyCookies({ session, request, page }: PlaywrightCrawlingContext, preHooksCookies: string, postHooksCookies: string, gotOptions?: OptionsInit) {
         // console.log('_applyCookies');
-
         if (page) {
-            const sessionCookie = session?.getPuppeteerCookies(request.url) ?? [];
+            const sessionCookie = session?.getCookies(request.url) ?? [];
             const parsedPreHooksCookies = preHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as PlaywrightCookie | undefined);
             const parsedPostHooksCookies = postHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as PlaywrightCookie | undefined);
 
@@ -174,12 +174,9 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
 
     override async _navigationHandler(context: PlaywrightCrawlingContext, gotoOptions?: FT.ReallyAny): Promise<any> {
 
-        const crawlerOptions = getPath(context?.request?.userData || {}, CONST.CRAWLER_OPTIONS) as AIOPlaywrightCrawlerOptions;
-        const { mode = 'http' } = crawlerOptions || {};
+        const crawlerMode = getPath(context?.request?.userData || {}, CONST.CRAWLER_MODE) || getPath(context?.request?.userData, METADATA_CRAWLER_MODE_PATH) || 'http';
 
-        // console.log('_navigationHandler', { mode });
-
-        if (mode === 'http') {
+        if (crawlerMode === 'http') {
             const { session, request, proxyUrl, gotOptions } = context as unknown as RequestFunctionOptions;
             const opts = this._getRequestOptions(request, session, proxyUrl, gotOptions);
 
@@ -402,16 +399,11 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
     }
 
     override async _runRequestHandler(context: FT.RequestContext) {
-        // console.log('_runRequestHandler');
-
-        // registerUtilsToContext(context);
-
-        const crawlerOptions = getPath(context?.request?.userData || {}, '__crawlerOptions') as AIOPlaywrightCrawlerOptions;
-        const { mode = 'http' } = crawlerOptions || {};
+        const crawlerMode = getPath(context?.request?.userData || {}, CONST.CRAWLER_MODE) || getPath(context?.request?.userData, METADATA_CRAWLER_MODE_PATH) || 'http';
 
         const newPageOptions: Dictionary = {
             id: context.id,
-            browserPlugin: this.browserPlugins[mode] || this.browserPlugins.http,
+            browserPlugin: this.browserPlugins[crawlerMode] || this.browserPlugins.http,
             pageOptions: {},
             proxyUrl: undefined
         };
@@ -436,7 +428,7 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
         // const { url, payload, headers, method = 'GET' } = context.request;
         let page;
 
-        if (mode !== 'http') {
+        if (crawlerMode !== 'http') {
             page = await this.browserPool.newPage(newPageOptions) as CommonPage;
             tryCancel();
 
@@ -460,7 +452,7 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
                         //TODO: Handle it when no page
                         const cookies = await context.browserController.getCookies(page);
                         tryCancel();
-                        session?.setPuppeteerCookies(cookies, request.loadedUrl!);
+                        session?.setCookies(cookies, request.loadedUrl!);
                     } else {
                         session!.setCookiesFromResponse(context.response);
                     }

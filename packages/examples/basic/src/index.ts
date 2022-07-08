@@ -1,55 +1,72 @@
+import MultiCrawler from '@usefelps/multi-crawler';
 import Actor from '@usefelps/actor';
 import Step from '@usefelps/step';
 import Flow from '@usefelps/flow';
+import RequestQueue from '@usefelps/request-queue';
+import Orchestrator from '@usefelps/orchestrator';
+import ContextApi from '@usefelps/context-api';
+import * as FT from '@usefelps/types';
 
 (async () => {
-    type FlowNames = 'INDEXER' | 'HOST_URL_FINDER'
+    type FlowNames = 'MAIN'
 
     type StepNames =
-        'HANDLE_SEARCH_RESULTS' |
-        'HANDLE_RESULT_PAGE' |
-        'HANDLE_HOSTING_URLS' |
-        'HANDLE_HOSTING_URL_PAGE' |
-        'HANDLE_PAGE' |
-        'HANDLE_SEASON' |
-        'HANDLE_EPISODE' |
-        'HANDLE_EPISODE_HOSTING_URLS';
+        'HANDLE_RESULTS' |
+        'HANDLE_PAGE';
 
+    const hooks = Actor.prepareHooks({
+        preActorStartedHook: {
+            handlers: [
+                async (_, api) => {
+                    console.log('preActorStartedHook');
+                    api.start('MAIN', { url: 'https://www.icann.org/' });
 
-    const hooks = Actor.createHooks({
-
+                    await Orchestrator.run(Orchestrator.create(api.currentActor()), {} as FT.ReallyAny, ContextApi.create(api.currentActor())({} as FT.ReallyAny));
+                }
+            ],
+            async onErrorHook(error) {
+                console.log(error)
+            }
+        }
     });
 
-    const steps = [
-        Step.create<StepNames>({
-            name: 'HANDLE_PAGE',
+    const queues = {
+        default: RequestQueue.create()
+    }
+
+    const steps = {
+        HANDLE_RESULTS: Step.create<StepNames>({
+            name: 'HANDLE_RESULTS',
             hooks: {
                 navigationHook: {
                     handlers: [
-                        // async (context, api) => {
-
-                        // }
+                        async ({ $ }) => {
+                            console.log($('title').text())
+                        }
                     ]
                 }
 
             }
         })
-    ];
+    };
 
-    const flows = [
-        Flow.create<FlowNames, StepNames>({
-            name: 'INDEXER',
+    const flows = {
+        MAIN: Flow.create<FlowNames, StepNames>({
+            name: 'MAIN',
+            crawlerMode: 'http',
             steps: [
-                'HANDLE_HOSTING_URLS'
+                'HANDLE_RESULTS'
             ],
         })
-    ];
+    };
 
     const template = Actor.create({
         name: 'template',
+        crawler: MultiCrawler.create(),
         steps,
         flows,
         hooks,
+        queues,
     });
 
     await Actor.run(template, {});

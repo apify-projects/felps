@@ -9,6 +9,9 @@
     ],
     "references": [
         {
+            "path": "../context-api"
+        },
+        {
             "path": "../crawler"
         },
         {
@@ -21,16 +24,19 @@
             "path": "../../helpers/logger"
         },
         {
+            "path": "../orchestrator"
+        },
+        {
             "path": "../request-meta"
+        },
+        {
+            "path": "../state"
         },
         {
             "path": "../step"
         },
         {
             "path": "../constants"
-        },
-        {
-            "path": "../context-api"
         },
         {
             "path": "../flow"

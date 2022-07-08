@@ -85,6 +85,12 @@
             "path": "packages/core/instance-base"
         },
         {
+            "path": "packages/core/multi-crawler"
+        },
+        {
+            "path": "packages/core/orchestrator"
+        },
+        {
             "path": "packages/core/request-meta"
         },
         {
@@ -95,6 +101,12 @@
         },
         {
             "path": "packages/core/step"
+        },
+        {
+            "path": "packages/core/trail"
+        },
+        {
+            "path": "packages/core/trail--data-requests"
         },
         {
             "path": "packages/core/types"

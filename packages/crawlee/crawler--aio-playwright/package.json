@@ -4,8 +4,6 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "iconv-lite": "*",
-        "util": "*",
         "@apify/timeout": "^0.2.1",
         "@apify/utilities": "*",
         "@crawlee/browser": "*",
@@ -14,13 +12,16 @@
         "@crawlee/playwright": "*",
         "@crawlee/types": "*",
         "@crawlee/utils": "*",
+        "@usefelps/constants": "workspace:*",
+        "@usefelps/types": "workspace:*",
         "eventemitter3": "^4.0.7",
         "https-proxy-agent": "^5.0.1",
+        "iconv-lite": "*",
         "lodash.get": "^4.4.2",
-        "node-fetch": "2"
+        "node-fetch": "2",
+        "util": "*"
     },
     "peerDependencies": {
-        "@usefelps/types": "workspace:*",
         "cheerio": "^1.0.0-rc.10",
         "playwright": "^1.19.2"
     },

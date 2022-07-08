@@ -126,7 +126,7 @@ export type ExcludeKeysWithTypeOf<T, V> = Pick<T, { [K in keyof T]: Exclude<T[K]
 
 // apify --------------------------------------------------
 export type RequestSource = Request | RequestOptions
-export type RequestOptionalOptions = { priority?: number, crawlerOptions?: RequestCrawlerOptions, forefront?: boolean | undefined } | undefined
+export type RequestOptionalOptions = { priority?: number, crawlerMode?: RequestCrawlerMode, forefront?: boolean | undefined } | undefined
 export type RequestContext = CrawlingContext & PlaywrightCrawlingContext & CheerioCrawlingContext
 
 // shared --------------------------------------------------
@@ -135,15 +135,6 @@ export type RequestCrawlerMode = 'http' | 'chromium' | 'firefox' | 'webkit';
 export type RequestCrawlerOptions = {
     mode: RequestCrawlerMode
 };
-
-export type SharedMetaContext = {
-    flowName?: string,
-    stepName?: string,
-    actorKey?: string,
-    trailKey?: string,
-    flowKey?: string,
-    requestKey?: string,
-}
 
 export type SharedCustomCrawlerOptions = {
     crawlerMode?: RequestCrawlerMode,
@@ -173,7 +164,7 @@ export type FlowInstance<
 > = {
     name: FlowNames,
     steps: StepNames[],
-    context?: SharedMetaContext,
+    meta?: RequestMetaData,
 } & SharedCustomCrawlerOptions & Omit<InstanceBase, 'name'>;
 
 export type FlowOptions<
@@ -182,14 +173,14 @@ export type FlowOptions<
 > = {
     name: FlowNames,
     steps?: StepNames[],
-    context?: SharedMetaContext,
+    meta?: RequestMetaData,
 } & SharedCustomCrawlerOptions
 
 // @usefelps/step ------------------------------------------------------------
 export type StepInstance<StepNames extends string = string> = {
     name: StepNames,
     hooks?: StepHooks,
-    context?: SharedMetaContext,
+    meta?: RequestMetaData,
 }
     & SharedCustomCrawlerOptions
     & Omit<InstanceBase, 'name'>;
@@ -197,17 +188,17 @@ export type StepInstance<StepNames extends string = string> = {
 export type StepOptions<StepNames extends string = string> = Omit<StepInstance<StepNames>, keyof InstanceBase> & { name: StepNames };
 
 export type StepHooks<Methods = any> = {
-    navigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralContextApi>>,
-    postNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralContextApi>>,
-    preNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralContextApi>>,
-    onErrorHook?: HookOptions<[context: RequestContext, api: Methods & GeneralContextApi, error: ReallyAny]>,
-    onRequestErrorHook?: HookOptions<StepOptionsHandlerParameters<Methods & GeneralContextApi>>
+    navigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & TContextApi>>,
+    postNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & TContextApi>>,
+    preNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & TContextApi>>,
+    onErrorHook?: HookOptions<[context: RequestContext, api: Methods & TContextApi, error: ReallyAny]>,
+    onRequestErrorHook?: HookOptions<StepOptionsHandlerParameters<Methods & TContextApi>>
 };
 export type StepOptionsHandlerParameters<Methods = any> = [context: RequestContext, api: Methods]
 export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
 
 // @usefelps/context-api ------------------------------------------------------------
-export type GeneralContextApi = ContextApiMetaAPI & ContextApiHelpersAPI;
+export type TContextApi = ContextApiMetaAPI & ContextApiHelpersAPI & ContextApiFlowsAPI;
 
 
 // @usefelps/context-flow ------------------------------------------------------------
@@ -216,6 +207,7 @@ export type ContextApiFlowsInstance = {
 };
 
 export type ContextApiFlowsAPI = {
+    currentActor(): ActorInstance,
     currentStep(): string,
     currentFlow(): string,
     isCurrentStep: (stepName: string) => boolean,
@@ -233,7 +225,7 @@ export type ContextApiFlowsAPI = {
         input?: ReallyAny,
         options?: {
             stepName?: string,
-            crawlerOptions?: RequestCrawlerOptions | undefined,
+            crawlerMode?: RequestCrawlerMode,
             useNewTrail?: boolean
         }
     ) => void;
@@ -333,88 +325,80 @@ export type BucketOptions = {
     key?: string,
 }
 
-// trail.ts ------------------------------------------------------------
-// export type TrailInstance = {
-//     id: string;
-//     store: StateInstance;
-//     models: ModelsInstance<ReallyAny>;
+// @usefelps/trail ------------------------------------------------------------
+export type TrailInstance = {
+    id: string;
+    state: StateInstance;
+};
+
+export type TrailOptions = {
+    id?: string;
+    state?: StateInstance;
+}
+
+export type TrailFlowState = {
+    name: string,
+    input: any,
+    output?: any,
+} & SharedCustomCrawlerOptions;
+
+export type TrailState = {
+    id: string,
+    flows: {
+        [flowKey: string]: TrailFlowState,
+    },
+    stats: {
+        startedAt: string,
+        endedAt: string,
+        retries: number,
+        sizeInKb: number,
+        aggregatedDurationInMs: number,
+    },
+    ingested: TrailDataStage,
+    digested: TrailDataStage,
+    output: any,
+}
+
+// // @usefelps/trail-collection ------------------------------------------------------------
+// export type TrailCollectionOptions = {
+//     state?: StateInstance,
 // };
 
-// export type TrailOptions = {
-//     id?: string;
-//     store?: StateInstance;
-//     actor?: ActorInstance;
-// }
-
-// export type TrailFlowState = {
-//     name: string,
-//     input: any,
-//     reference: ModelReference<ReallyAny> | undefined,
-//     crawlerOptions?: RequestCrawlerOptions,
-//     output?: any,
-// }
-
-// export type TrailState = {
-//     id: string,
-//     flows: {
-//         [flowKey: string]: TrailFlowState,
-//     },
-//     stats: {
-//         startedAt: string,
-//         endedAt: string,
-//         retries: number,
-//         sizeInKb: number,
-//         aggregatedDurationInMs: number,
-//     },
-//     ingested: TrailDataStage,
-//     digested: TrailDataStage,
-//     output: any,
-// }
-
-// // trails.ts
-// export type TrailsOptions = {
-//     actor: ActorInstance,
-//     store?: StateInstance,
-// };
-
-// export type TrailsInstance = {
-//     actor: ActorInstance,
-//     store: StateInstance,
+// export type TrailCollectionInstance = {
+//     state: StateInstance,
 // } & InstanceBase;
 
 // // trail-data.ts
-// export type TrailDataStages = 'digested' | 'ingested';
+export type TrailDataStages = 'digested' | 'ingested';
 
-// export type TrailDataStage = {
-//     models: Record<string, TrailDataModelInstance>,
-//     requests: TrailDataRequestsInstance,
-// }
+export type TrailDataStage = {
+    requests: TrailDataRequestsInstance,
+}
 
-// export type TrailDataInstance = TrailDataModelInstance | TrailDataRequestsInstance;
+export type TrailDataInstance = TrailDataRequestsInstance; // TrailDataModelInstance |
 
-// // trail-data-requests.ts
-// export type TrailDataRequestsInstance = {
-//     id: UniqueyKey,
-//     referenceKey: ReferenceKey;
-//     store: StateInstance;
-//     path: string;
-// } & InstanceBase;
+// trail-data-requests.ts
+export type TrailDataRequestsInstance = {
+    id: UniqueyKey,
+    state: StateInstance;
+    path: string;
+} & InstanceBase;
 
-// export type TrailDataRequestsOptions = {
-//     id: UniqueyKey,
-//     type: TrailDataStages,
-//     store: StateInstance;
-// }
+export type TrailDataRequestsOptions = {
+    id: UniqueyKey,
+    type: TrailDataStages,
+    state: StateInstance;
+}
 
-// export type TrailDataRequestItemStatus = 'CREATED' | 'DISCARDED' | 'QUEUED' | 'STARTED' | 'SUCCEEDED' | 'FAILED';
+export type TrailDataRequestItemStatus = 'CREATED' | 'DISCARDED' | 'QUEUED' | 'STARTED' | 'SUCCEEDED' | 'FAILED';
 // export type TrailDataModelItemStatus = 'CREATED' | 'PUSHED' | 'DISCARDED';
 
-// export type TrailDataRequestItem = {
-//     id: UniqueyKey,
-//     source: RequestSource,
-//     snapshot: RequestSource | undefined,
-//     status: TrailDataRequestItemStatus,
-// }
+export type TrailDataRequestItem = {
+    id: UniqueyKey,
+    source: RequestSource,
+    snapshot: RequestSource | undefined,
+    status: TrailDataRequestItemStatus,
+}
 
 // @usefelps/request-queue ------------------------------------------------------------
 export type RequestQueueInstance = {
@@ -446,12 +430,12 @@ export type DatasetOptions = {
 // @usefelps/actor ------------------------------------------------------------
 export type ActorInstance<
     ITCrawler extends CrawlerInstance = ReallyAny,
-    ITStores extends Array<AnyStoreLike> = ReallyAny,
-    ITQueues extends Array<RequestQueueInstance> = ReallyAny,
-    ITDatasets extends Array<DatasetInstance> = ReallyAny,
-    ITFlows extends Array<FlowInstance> = ReallyAny,
-    ITSteps extends Array<StepInstance> = ReallyAny,
-    ITContextApi extends Array<GeneralContextApi> = ReallyAny,
+    ITStores extends Record<string, AnyStoreLike> = Record<string, AnyStoreLike>,
+    ITQueues extends Record<string, RequestQueueInstance> = Record<string, RequestQueueInstance>,
+    ITDatasets extends Record<string, DatasetInstance> = Record<string, DatasetInstance>,
+    ITFlows extends Record<string, FlowInstance> = Record<string, FlowInstance>,
+    ITSteps extends Record<string, StepInstance> = Record<string, StepInstance>,
+    ITContextApi extends TContextApi = TContextApi,
 > = ActorInstanceBase<
     ITCrawler,
     ITStores,
@@ -463,15 +447,16 @@ export type ActorInstance<
 > & InstanceBase;
 
 export type ActorInstanceBase<
-    ITCrawler extends CrawlerInstance,
-    ITStores extends Array<AnyStoreLike>,
-    ITQueues extends Array<RequestQueueInstance>,
-    ITDatasets extends Array<DatasetInstance>,
-    ITFlows extends Array<FlowInstance>,
-    ITSteps extends Array<StepInstance>,
-    ITContextApi extends Array<GeneralContextApi>,
+    ITCrawler extends CrawlerInstance = ReallyAny,
+    ITStores extends Record<string, AnyStoreLike> = Record<string, AnyStoreLike>,
+    ITQueues extends Record<string, RequestQueueInstance> = Record<string, RequestQueueInstance>,
+    ITDatasets extends Record<string, DatasetInstance> = Record<string, DatasetInstance>,
+    ITFlows extends Record<string, FlowInstance> = Record<string, FlowInstance>,
+    ITSteps extends Record<string, StepInstance> = Record<string, StepInstance>,
+    ITContextApi extends TContextApi = TContextApi,
 > = {
     name: string,
+    input: ReallyAny,
     crawler: ITCrawler,
     steps: ITSteps;
     contextApi: ITContextApi,
@@ -491,13 +476,13 @@ export type ActorInstanceBase<
 } & SharedCustomCrawlerOptions;
 
 export type ActorOptions<
-    ITCrawler extends CrawlerInstance,
-    ITStores extends Array<AnyStoreLike>,
-    ITQueues extends Array<RequestQueueInstance>,
-    ITDatasets extends Array<DatasetInstance>,
-    ITFlows extends Array<FlowInstance>,
-    ITSteps extends Array<StepInstance>,
-    ITContextApi extends Array<GeneralContextApi>,
+    ITCrawler extends CrawlerInstance = ReallyAny,
+    ITStores extends Record<string, AnyStoreLike> = Record<string, AnyStoreLike>,
+    ITQueues extends Record<string, RequestQueueInstance> = Record<string, RequestQueueInstance>,
+    ITDatasets extends Record<string, DatasetInstance> = Record<string, DatasetInstance>,
+    ITFlows extends Record<string, FlowInstance> = Record<string, FlowInstance>,
+    ITSteps extends Record<string, StepInstance> = Record<string, StepInstance>,
+    ITContextApi extends TContextApi = TContextApi,
 > = Partial<
     ActorInstanceBase<
         ITCrawler,
@@ -508,16 +493,36 @@ export type ActorOptions<
         ITSteps,
         ITContextApi
     >
->;
+> & {
+    hooks?: Partial<
+        ActorInstanceBase<
+            ITCrawler,
+            ITStores,
+            ITQueues,
+            ITDatasets,
+            ITFlows,
+            ITSteps,
+            ITContextApi
+        >
+    >['hooks'] | ((actor: Partial<ActorInstance>) => ActorHooks<
+        ITCrawler,
+        ITStores,
+        ITQueues,
+        ITDatasets,
+        ITFlows,
+        ITSteps,
+        ITContextApi
+    >);
+}
 
 export type ActorHooks<
-    ITCrawler extends CrawlerInstance,
-    ITStores extends Array<AnyStoreLike>,
-    ITQueues extends Array<RequestQueueInstance>,
-    ITDatasets extends Array<DatasetInstance>,
-    ITFlows extends Array<FlowInstance>,
-    ITSteps extends Array<StepInstance>,
-    ITContextApi extends Array<GeneralContextApi>,
+    ITCrawler extends CrawlerInstance = ReallyAny,
+    ITStores extends Record<string, AnyStoreLike> = Record<string, AnyStoreLike>,
+    ITQueues extends Record<string, RequestQueueInstance> = Record<string, RequestQueueInstance>,
+    ITDatasets extends Record<string, DatasetInstance> = Record<string, DatasetInstance>,
+    ITFlows extends Record<string, FlowInstance> = Record<string, FlowInstance>,
+    ITSteps extends Record<string, StepInstance> = Record<string, StepInstance>,
+    ITContextApi extends TContextApi = TContextApi,
     LocalActorInstance = ActorInstance<
         ITCrawler,
         ITStores,
@@ -527,14 +532,14 @@ export type ActorHooks<
         ITSteps,
         ITContextApi>
 > = {
-    preActorStartedHook?: HookInstance<[actor: LocalActorInstance, input: ActorInput]>,
+    preActorStartedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
     postActorEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preCrawlerStartedHook?: HookInstance<[actor: LocalActorInstance]>,
     postCrawlerEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     onCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
     preQueueStartedHook?: HookInstance<[actor: LocalActorInstance]>,
     postQueueEndedHook?: HookInstance<[actor: LocalActorInstance]>,
-    preFlowStartedHook?: HookInstance<[actor: LocalActorInstance]>,
+    prestartFlowedHook?: HookInstance<[actor: LocalActorInstance]>,
     postFlowEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preStepStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
     postStepEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
@@ -554,21 +559,30 @@ export type RequestMetaInstance = {
 } & InstanceBase;
 
 export type RequestMetaData = {
-    isHook: boolean,
-    stepStop: boolean,
-    flowStop: boolean,
-    flowStart: boolean,
-    context: SharedMetaContext,
-    crawlerOptions?: RequestCrawlerOptions,
+    isHook?: boolean,
+    stopStep?: boolean,
+    stopFlow?: boolean,
+    startFlow?: boolean,
+
+    actorName?: string,
+    flowName?: string,
+    stepName?: string,
+
+    trailKey?: string,
+    flowKey?: string,
+    requestKey?: string,
+
+    crawlerMode?: RequestCrawlerMode,
 }
 
 // crawler.ts ------------------------------------------------------------
 export type CrawlerInstance = {
     launcher?: ReallyAny, // MultiCrawler |
-    resource: undefined, // MultiCrawler |
+    resource: ReallyAny, // MultiCrawler |
 } & InstanceBase;
 
 export type CrawlerOptions = {
+    name?: string,
     launcher?: ReallyAny, //  MultiCrawler |
 }
 
@@ -705,12 +719,18 @@ export type HookOptions<HookParametersSignature extends HookParametersSignatureD
     name?: string,
     handlers?: HookSignature<HookParametersSignature>[],
     validationHandler?: (...args: HookParametersSignature) => Promise<boolean>,
-    onErrorHook?: HookInstance,
+    onErrorHook?: (error: ReallyAny) => Promise<void>,
 };
 
 export type HookInstance<HookParametersSignature extends HookParametersSignatureDefault = HookParametersSignatureDefault> = {
     handlers?: HookSignature<HookParametersSignature>[],
     validationHandler?: (...args: HookParametersSignature) => Promise<boolean>,
-    onErrorHook?: HookInstance,
+    onErrorHook?: (error: ReallyAny) => Promise<void>,
 } & Partial<InstanceBase>;
 
+
+// @usefelps/orchestrator ------------------------------------------------------------
+
+export type OrchestratorInstance = {
+    handler: (context: RequestContext, api: unknown) => Promise<void>,
+}

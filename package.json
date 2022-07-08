@@ -74,14 +74,14 @@
     "json-schema-to-ts": "2.5.3",
     "apify-client": "^2.5.1",
     "cheerio": "1.0.0-rc.10",
-    "apify": "3.0.0-beta.38",
-    "@crawlee/cheerio": "3.0.0-beta.38",
-    "@crawlee/playwright": "3.0.0-beta.38",
-    "@crawlee/core": "3.0.0-beta.38",
-    "@crawlee/types": "3.0.0-beta.38",
-    "@crawlee/browser": "3.0.0-beta.38",
-    "@crawlee/browser-pool": "3.0.0-beta.38",
-    "@crawlee/utils": "3.0.0-beta.38",
+    "apify": "3.0.0-beta.67",
+    "@crawlee/cheerio": "3.0.0-beta.67",
+    "@crawlee/playwright": "3.0.0-beta.67",
+    "@crawlee/core": "3.0.0-beta.67",
+    "@crawlee/types": "3.0.0-beta.67",
+    "@crawlee/browser": "3.0.0-beta.67",
+    "@crawlee/browser-pool": "3.0.0-beta.67",
+    "@crawlee/utils": "3.0.0-beta.67",
     "@apify/utilities": "1.2.14"
   }
 }
