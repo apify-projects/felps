@@ -1911,6 +1911,8 @@ __metadata:
     "@usefelps/actor": "workspace:*"
     "@usefelps/flow": "workspace:*"
     "@usefelps/multi-crawler": "workspace:*"
+    "@usefelps/orchestrator": "workspace:*"
+    "@usefelps/request-queue": "workspace:*"
     "@usefelps/state": "workspace:*"
     "@usefelps/step": "workspace:*"
     "@usefelps/types": "workspace:*"

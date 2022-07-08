@@ -130,7 +130,7 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                 },
                 retry() {
                     throw new Error('Retry this step');
-                },
+                }
             } as FT.ContextApiFlowsAPI;
         },
     };

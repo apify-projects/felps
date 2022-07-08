@@ -27,6 +27,9 @@
             "path": "../orchestrator"
         },
         {
+            "path": "../request-queue"
+        },
+        {
             "path": "../request-meta"
         },
         {
@@ -40,9 +43,6 @@
         },
         {
             "path": "../flow"
-        },
-        {
-            "path": "../request-queue"
         },
         {
             "path": "../types"

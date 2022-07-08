@@ -9,16 +9,22 @@
     ],
     "references": [
         {
+            "path": "../../core/actor"
+        },
+        {
+            "path": "../../core/flow"
+        },
+        {
             "path": "../../core/multi-crawler"
         },
         {
-            "path": "../../core/actor"
+            "path": "../../core/request-queue"
         },
         {
             "path": "../../core/step"
         },
         {
-            "path": "../../core/flow"
+            "path": "../../core/orchestrator"
         },
         {
             "path": "../../core/state"

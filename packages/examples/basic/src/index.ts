@@ -1,11 +1,10 @@
-import MultiCrawler from '@usefelps/multi-crawler';
 import Actor from '@usefelps/actor';
-import Step from '@usefelps/step';
 import Flow from '@usefelps/flow';
+import MultiCrawler from '@usefelps/multi-crawler';
 import RequestQueue from '@usefelps/request-queue';
+import Step from '@usefelps/step';
 import Orchestrator from '@usefelps/orchestrator';
-import ContextApi from '@usefelps/context-api';
-import * as FT from '@usefelps/types';
+import { ReallyAny } from '@usefelps/types';
 
 (async () => {
     type FlowNames = 'MAIN'
@@ -20,8 +19,7 @@ import * as FT from '@usefelps/types';
                 async (_, api) => {
                     console.log('preActorStartedHook');
                     api.start('MAIN', { url: 'https://www.icann.org/' });
-
-                    await Orchestrator.run(Orchestrator.create(api.currentActor()), {} as FT.ReallyAny, ContextApi.create(api.currentActor())({} as FT.ReallyAny));
+                    await Orchestrator.run(Orchestrator.create(api.currentActor()), {} as ReallyAny, {});
                 }
             ],
             async onErrorHook(error) {
