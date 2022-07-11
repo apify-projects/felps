@@ -398,7 +398,7 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
         else request.loadedUrl = request.url;
     }
 
-    override async _runRequestHandler(context: FT.RequestContext) {
+    override async _runRequestHandler(context: PlaywrightCrawlingContext<Dictionary<any>>) {
         const crawlerMode = getPath(context?.request?.userData || {}, CONST.CRAWLER_MODE) || getPath(context?.request?.userData, METADATA_CRAWLER_MODE_PATH) || 'http';
 
         const newPageOptions: Dictionary = {

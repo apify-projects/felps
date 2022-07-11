@@ -1,3 +1,4 @@
+import { Dictionary, PlaywrightCrawlingContext } from '@crawlee/playwright';
 import * as CONST from '@usefelps/constants';
 import ContextApi from '@usefelps/context-api';
 import Crawler from '@usefelps/crawler';
@@ -5,8 +6,8 @@ import Hook from '@usefelps/hook';
 import Base from '@usefelps/instance-base';
 import Logger from '@usefelps/logger';
 import Orchestrator from '@usefelps/orchestrator';
-import RequestQueue from '@usefelps/request-queue';
 import RequestMeta from '@usefelps/request-meta';
+import RequestQueue from '@usefelps/request-queue';
 import State from '@usefelps/state';
 import Step from '@usefelps/step';
 import * as FT from '@usefelps/types';
@@ -268,6 +269,22 @@ export const prepareHooks = <
                 onErrorHook: hooks?.postStepEndedHook?.onErrorHook,
             }),
 
+            preNavigationHook: Hook.create<[actor: LocalActorInstance, context: PlaywrightCrawlingContext<Dictionary<any>>, goToOptions: Record<PropertyKey, any>]>({
+                name: utils.pathify(base.name, 'preNavigationHook'),
+                handlers: [
+                    ...(hooks?.preNavigationHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.preNavigationHook?.onErrorHook,
+            }),
+
+            postNavigationHook: Hook.create<[actor: LocalActorInstance, context: PlaywrightCrawlingContext<Dictionary<any>>, goToOptions: Record<PropertyKey, any>]>({
+                name: utils.pathify(base.name, 'postNavigationHook'),
+                handlers: [
+                    ...(hooks?.postNavigationHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.postNavigationHook?.onErrorHook,
+            }),
+
             onStepFailedHook: Hook.create<[actor: LocalActorInstance, error: FT.ReallyAny]>({
                 name: utils.pathify(base.name, 'onStepFailedHook'),
                 validationHandler,
@@ -314,46 +331,38 @@ export const combine = (actor: FT.ActorInstance, ...actors: FT.ActorInstance[]):
     return actor;
 };
 
-// export const makeCrawlerOptions = async (actor: FT.ActorInstance, options: PlaywrightCrawlerOptions): Promise<PlaywrightCrawlerOptions> => {
-//     // const proxyConfiguration = proxy ? await Apify.createProxyConfiguration(proxy) : undefined;
-//     const proxyConfiguration = undefined;
+export const makeCrawlerOptions = async (actor: FT.ActorInstance, options: FT.AnyCrawlerOptions): Promise<FT.AnyCrawlerOptions> => {
 
-//     // const preNavigationHooksList = usePreNavigationHooks(actor);
-//     // const postNavigationHooksList = usePostNavigationHooks();
+    const defaultOptions = {
+        handlePageTimeoutSecs: 120,
+        navigationTimeoutSecs: 60,
+        maxConcurrency: 40,
+        maxRequestRetries: 3,
+        requestQueue: (await RequestQueue.load(actor?.queues?.default))?.resource,
 
-//     // VALIDATE INPUT
+        launchContext: {
+            launchOptions: {
+                headless: false,
+                args: [
+                    '--disable-web-security',
+                    '--disable-features=IsolateOrigins,site-per-process',
+                ],
+            },
+        },
+        preNavigationHooks: [
+            async (context, goToOptions) => {
+                await Hook.run(actor?.hooks?.preNavigationHook, actor, context, goToOptions);
+            }
+        ],
+        postNavigationHooks: [
+            async (context, goToOptions) => {
+                await Hook.run(actor?.hooks?.postNavigationHook, actor, context, goToOptions);
+            }
+        ]
+    } as FT.AnyCrawlerOptions;
 
-//     const preNavigationHooks = [
-//         // preNavigationHooksList.flowHook,
-//         // preNavigationHooksList.requestHook,
-//         // preNavigationHooksList.trailHook,
-//     ] as unknown as PlaywrightHook[];
-
-//     const postNavigationHooks = [
-//         // postNavigationHooksList.trailHook,
-//     ];
-
-//     const defaultOptions = {
-//         handlePageTimeoutSecs: 120,
-//         navigationTimeoutSecs: 60,
-//         maxConcurrency: 40,
-//         maxRequestRetries: 3,
-//         requestQueue: (await Queue.load(actor?.queues?.default as FT.RequestRequestQueueInstance))?.resource as RequestQueue,
-//         // handlePageFunction: useHandlePageFunction(actor) as any,
-//         // handleFailedRequestFunction: useHandleFailedRequestFunction(actor) as any,
-//         launchContext: {
-//             launchOptions: {
-//                 headless: false,
-//             },
-
-//         },
-//         proxyConfiguration,
-//         preNavigationHooks,
-//         postNavigationHooks,
-//     };
-
-//     return utils.merge(defaultOptions, options) as PlaywrightCrawlerOptions;
-// };
+    return utils.merge(defaultOptions, options);
+};
 
 export const prefix = (actor: Pick<FT.ActorInstance, 'name'>, name: string): string => {
     return CONST.PREFIXED_NAME_BY_ACTOR(actor.name, CONST.UNPREFIXED_NAME_BY_ACTOR(name));
@@ -404,7 +413,10 @@ export const load = async (actor: FT.ActorInstance): Promise<FT.ActorInstance> =
     ) as FT.AnyStoreLike[];
 
     const queuesLoaded = await Promise.all(
-        Object.values(actor.queues as Record<string, FT.RequestQueueInstance>).map(async (queue) => {
+        Object.values({
+            default: RequestQueue.create({}),
+            ...actor.queues,
+        } as Record<string, FT.RequestQueueInstance>).map(async (queue) => {
             return RequestQueue.load(queue as FT.RequestQueueInstance);
         }));
 
@@ -469,6 +481,14 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
             }
 
             await Orchestrator.run(Orchestrator.create(actor), context, contextApi(context));
+        },
+        async failedRequestHandler() {
+            // This function is called when the crawling of a request failed too many times
+            // await Dataset.pushData({
+            //     url: request.url,
+            //     succeeded: false,
+            //     errors: request.errorMessages,
+            // })
         },
     };
 

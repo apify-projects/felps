@@ -1,9 +1,11 @@
 import AIOPlaywright from '@usefelps/crawlee--crawler--aio-playwright';
+import { PlaywrightCrawlerOptions } from '@crawlee/playwright'
 import Crawler from '@usefelps/crawler';
 import * as FT from '@usefelps/types';
 
-export const create = (): FT.CrawlerInstance => {
+export const create = (options?: PlaywrightCrawlerOptions): FT.CrawlerInstance => {
     return Crawler.create({
+        ...(options || {}),
         name: 'multi-crawler',
         launcher: AIOPlaywright,
     });

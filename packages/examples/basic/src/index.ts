@@ -1,10 +1,11 @@
 import Actor from '@usefelps/actor';
 import Flow from '@usefelps/flow';
 import MultiCrawler from '@usefelps/multi-crawler';
-import RequestQueue from '@usefelps/request-queue';
-import Step from '@usefelps/step';
 import Orchestrator from '@usefelps/orchestrator';
+import Step from '@usefelps/step';
+import * as utils from '@usefelps/utils';
 import { ReallyAny } from '@usefelps/types';
+import { ProxyConfiguration } from 'apify';
 
 (async () => {
     type FlowNames = 'MAIN'
@@ -28,13 +29,22 @@ import { ReallyAny } from '@usefelps/types';
         }
     });
 
-    const queues = {
-        default: RequestQueue.create()
-    }
-
-    const steps = {
-        HANDLE_RESULTS: Step.create<StepNames>({
+    const steps = utils.arrayToKeyedObject([
+        Step.create<StepNames>({
             name: 'HANDLE_RESULTS',
+            hooks: {
+                navigationHook: {
+                    handlers: [
+                        async (_, api) => {
+                            api.next('HANDLE_PAGE', { url: 'https://www.icann.org/get-started' });
+                        }
+                    ]
+                }
+
+            }
+        }),
+        Step.create<StepNames>({
+            name: 'HANDLE_PAGE',
             hooks: {
                 navigationHook: {
                     handlers: [
@@ -45,26 +55,31 @@ import { ReallyAny } from '@usefelps/types';
                 }
 
             }
-        })
-    };
+        }),
+    ], 'name');
 
-    const flows = {
-        MAIN: Flow.create<FlowNames, StepNames>({
+
+    const flows = utils.arrayToKeyedObject([
+        Flow.create<FlowNames, StepNames>({
             name: 'MAIN',
-            crawlerMode: 'http',
+            crawlerMode: 'chromium',
             steps: [
-                'HANDLE_RESULTS'
+                'HANDLE_RESULTS',
+                'HANDLE_PAGE'
             ],
-        })
-    };
+        }),
+    ], 'name');
 
     const template = Actor.create({
         name: 'template',
-        crawler: MultiCrawler.create(),
+        crawler: MultiCrawler.create({
+            proxyConfiguration: new ProxyConfiguration({
+                apifyProxyGroups: ['SHADER']
+            })
+        }),
         steps,
         flows,
         hooks,
-        queues,
     });
 
     await Actor.run(template, {});

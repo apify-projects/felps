@@ -1,6 +1,6 @@
 import Base from '@usefelps/instance-base';
 import * as FT from '@usefelps/types';
-// import { PlaywrightCrawlerOptions, PlaywrightHook } from 'apify';
+import * as utils from '@usefelps/utils';
 
 export const PRE_NAVIGATION_HOOKS: Record<string, FT.ReallyAny> = {
     async excludeResources({ page }) {
@@ -18,45 +18,30 @@ export const PRE_NAVIGATION_HOOKS: Record<string, FT.ReallyAny> = {
 
 export const create = (options?: FT.CrawlerOptions): FT.CrawlerInstance => {
     const { launcher } = options || {};
-    // const { launcher = PlaywrightCrawler as FT.ReallyAny } = options || {};
 
     return {
         ...Base.create({ key: 'crawler', name: 'crawler' }),
         launcher,
         resource: undefined,
+        options: options?.options,
     };
 };
 
-export const run = async (crawler: FT.CrawlerInstance, crawlerOptions?: FT.ReallyAny): Promise<FT.CrawlerInstance> => {
-    // eslint-disable-next-line new-cap
-    crawler.resource = new crawler.launcher({
-        ...crawlerOptions,
-        // handlePageTimeoutSecs: 120,
-        // navigationTimeoutSecs: 60,
-        // maxConcurrency: 40,
-        // maxRequestRetries: 3,
-        launchContext: {
-            launchOptions: {
-                headless: false,
-                args: [
-                    '--disable-web-security',
-                    '--disable-features=IsolateOrigins,site-per-process',
-                ],
-            },
+export const run = async (crawler: FT.CrawlerInstance, crawlerOptions?: FT.ReallyAny): Promise<FT.ReallyAny> => {
+    crawler.resource = new crawler.launcher(
+        utils.merge({
+            ...crawlerOptions,
+            ...(crawler?.options || {}),
         },
-    });
+            crawlerOptions || {},
+        )
+    );
 
-    if (crawler.resource) {
-        // crawler.resource.events.on('', () => { });
-
-        // const resource = new crawler.launcher(mergeDeepRight(crawlerOptions || {}, crawler.crawlerOptions || {}));
-        // if ('crawlerModePath' in crawler.resource) {
-        //     (crawler as FT.ReallyAny).resource.crawlerModePath = `${CONST.METADATA_KEY}.crawlerOptions.mode`;
-        // }
-        await (crawler as FT.ReallyAny).resource.run();
+    if (!crawler.resource) {
+        throw new Error('Crawler not initialized. Cannot run.');
     }
 
-    return crawler;
+    return (crawler as FT.ReallyAny).resource.run();
 };
 
 export default { create, run };

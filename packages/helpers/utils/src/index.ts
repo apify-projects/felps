@@ -40,9 +40,9 @@ export const getUIDKeyTime = (key: string) => parseInt(key.split('_').reverse()[
 export const compareUIDKeysFromFirst = (a: string, b: string) => getUIDKeyTime(a) - getUIDKeyTime(b);
 export const compareUIDKeysFromLast = (a: string, b: string) => getUIDKeyTime(b) - getUIDKeyTime(a);
 
-export const arrayToKeyedObject = (arr: any[]) => arr
+export const arrayToKeyedObject = (arr: any[], key?: string) => arr
     .reduce((acc, item) => {
-        acc[craftUIDKey()] = item;
+        acc[acc[key] || craftUIDKey()] = item;
         return acc;
     }, {});
 

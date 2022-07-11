@@ -11,6 +11,7 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
         handler(context) {
             const currentMeta = RequestMeta.create(context);
             const currentTrail = Trail.createFrom(context?.request, { state: actor?.stores?.trails as FT.StateInstance });
+            const ingested = Trail.ingested(currentTrail);
 
             const actorName = currentMeta.data.actorName || actor.name;
 
@@ -68,7 +69,7 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
 
                     const inputCompleted = { ...(input || {}), flow: CONST.UNPREFIXED_NAME_BY_ACTOR(flowName) };
 
-                    crawlerMode = actor?.crawlerMode || flow?.crawlerMode || step?.crawlerMode || crawlerMode || 'http';
+                    crawlerMode = crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode || 'http';
 
                     const flowKey = Trail.setFlow(localTrail, {
                         name: flowNamePrefixed,
@@ -98,32 +99,28 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                 paginate(request, options) {
                     return this.next(this.currentStep() as FT.ReallyAny, request, options);
                 },
-                next() {
-                    // stepName, request, options
-                    // let { crawlerOptions } = options || {};
+                next(stepName, request, options) {
+                    let { crawlerMode } = options || {};
 
+                    const flow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, currentMeta.data.flowName)];
+                    const step = actor.steps?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, stepName)];
 
-                    // const flow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, currentMeta.data.flowName)];
-                    // const step = actor.steps?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, stepName)];
+                    crawlerMode = step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode || 'http';
 
-                    // crawlerOptions = mergeDeep(actor?.crawlerOptions || {}, flow?.crawlerOptions || {}, step?.crawlerOptions || {}, crawlerOptions || {});
+                    const meta = RequestMeta.extend(
+                        RequestMeta.create(request),
+                        currentMeta.data,
+                        {
+                            startFlow: false,
+                            stepName,
+                            crawlerMode,
+                            trailKey: currentTrail.id,
+                        },
+                    );
 
-                    // const meta = RequestMeta.extend(
-                    //     RequestMeta.create(request),
-                    //     currentMeta.data,
-                    //     {
-                    //         startFlow: false,
-                    //         stepName,
-                    //         crawlerOptions,
-                    //         reference: {
-                    //             ...(reference || {}),
-                    //             [CONST.TRAIL_KEY_PROP]: currentTrail.id,
-                    //         },
-                    //     },
-                    // );
+                    const requestId = TrailDataRequests.set(ingested.requests, meta.request);
 
-                    // TrailDataRequests.set(ingest.requests, meta.request);
-                    // return meta.data.reference;
+                    return requestId;
                 },
                 stop() {
                     context.request.userData = RequestMeta.extend(currentMeta, { stopStep: true }).userData;

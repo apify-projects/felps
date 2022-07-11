@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CheerioCrawlingContext } from '@crawlee/cheerio';
-import { CrawlingContext, Dataset, KeyValueStore, Request, RequestOptions } from '@crawlee/core';
-import { PlaywrightCrawlingContext } from '@crawlee/playwright';
+import { Dataset, Dictionary, KeyValueStore, Request, RequestOptions } from '@crawlee/core';
+import { PlaywrightCrawlerOptions, PlaywrightCrawlingContext } from '@crawlee/playwright';
 import { ApifyClient } from 'apify-client';
 import type EventEmitter from 'eventemitter3';
 import type { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
@@ -11,8 +11,6 @@ import type Queue from 'queue';
 import type Route from 'route-parser';
 import type { LeveledLogMethod, Logger } from 'winston';
 import * as Transport from 'winston-transport';
-// import MultiCrawler from './sdk/multi-crawler';
-// import RequestQueue from './sdk/request-queue';
 
 export type { JSONSchemaType } from 'ajv';
 
@@ -127,7 +125,6 @@ export type ExcludeKeysWithTypeOf<T, V> = Pick<T, { [K in keyof T]: Exclude<T[K]
 // apify --------------------------------------------------
 export type RequestSource = Request | RequestOptions
 export type RequestOptionalOptions = { priority?: number, crawlerMode?: RequestCrawlerMode, forefront?: boolean | undefined } | undefined
-export type RequestContext = CrawlingContext & PlaywrightCrawlingContext & CheerioCrawlingContext
 
 // shared --------------------------------------------------
 export type RequestCrawlerMode = 'http' | 'chromium' | 'firefox' | 'webkit';
@@ -229,8 +226,8 @@ export type ContextApiFlowsAPI = {
             useNewTrail?: boolean
         }
     ) => void;
-    paginate: (request: RequestSource, options?: { crawlerOptions?: RequestCrawlerOptions }) => void;
-    next: (stepName: Extract<string, string>, request: RequestSource, options?: { crawlerOptions?: RequestCrawlerOptions }) => void;
+    paginate: (request: RequestSource, options?: { crawlerMode?: RequestCrawlerMode }) => void;
+    next: (stepName: Extract<string, string>, request: RequestSource, options?: { crawlerMode?: RequestCrawlerMode }) => void;
     stop: () => void;
     retry: () => void;
 };
@@ -543,6 +540,8 @@ export type ActorHooks<
     postFlowEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preStepStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
     postStepEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
+    preNavigationHook?: HookInstance<[actor: LocalActorInstance, context: PlaywrightCrawlingContext<Dictionary<any>>, goToOptions: Record<PropertyKey, any>]>,
+    postNavigationHook?: HookInstance<[actor: LocalActorInstance, context: PlaywrightCrawlingContext<Dictionary<any>>, goToOptions: Record<PropertyKey, any>]>,
     onStepFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
     onStepRequestFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
 }
@@ -579,11 +578,13 @@ export type RequestMetaData = {
 export type CrawlerInstance = {
     launcher?: ReallyAny, // MultiCrawler |
     resource: ReallyAny, // MultiCrawler |
+    options?: ReallyAny,
 } & InstanceBase;
 
 export type CrawlerOptions = {
     name?: string,
-    launcher?: ReallyAny, //  MultiCrawler |
+    launcher?: ReallyAny,
+    options?: ReallyAny,
 }
 
 export type LogMethods = 'emerg' | 'alert' | 'crit' | 'error' | 'warning' | 'notice' | 'info' | 'debug';
@@ -734,3 +735,8 @@ export type HookInstance<HookParametersSignature extends HookParametersSignature
 export type OrchestratorInstance = {
     handler: (context: RequestContext, api: unknown) => Promise<void>,
 }
+
+// Crawlers options
+
+export type AnyCrawlerOptions = PlaywrightCrawlerOptions;
+export type RequestContext = CheerioCrawlingContext<Dictionary<any>> & PlaywrightCrawlingContext<Dictionary<any>>
