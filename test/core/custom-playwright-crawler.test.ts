@@ -1,6 +1,6 @@
-import CustomPlaywrightCrawler from '@usefelps/custom--crawler--aio-playwright';
+import AIOPlaywrightCrawler from '@usefelps/crawlee--crawler--aio-playwright';
 
-describe('CustomPlaywrightCrawler', () => {
+describe('AIOPlaywrightCrawler', () => {
     it('should run a request through http mode', async () => {
         expect(value).toBeTruthy();
     });

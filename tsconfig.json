@@ -22,166 +22,130 @@
     },
     "references": [
         {
-            "path": "packages/apify--client"
+            "path": "packages/adapters/kv-store--adapter"
         },
         {
-            "path": "packages/apify--events"
+            "path": "packages/adapters/kv-store--adapter--apify"
         },
         {
-            "path": "packages/constants"
+            "path": "packages/adapters/kv-store--adapter--in-memory"
         },
         {
-            "path": "packages/core"
+            "path": "packages/adapters/request-queue--adapter"
         },
         {
-            "path": "packages/core--actor"
+            "path": "packages/adapters/request-queue--adapter--apify"
         },
         {
-            "path": "packages/core--crawler"
+            "path": "packages/adapters/request-queue--adapter--in-memory"
         },
         {
-            "path": "packages/core--crawler--playwright"
+            "path": "packages/apify/apify-client"
         },
         {
-            "path": "packages/core--dataset"
+            "path": "packages/apify/apify-events"
         },
         {
-            "path": "packages/core--dataset-collection"
+            "path": "packages/core/actor"
         },
         {
-            "path": "packages/core--events"
+            "path": "packages/core/constants"
         },
         {
-            "path": "packages/core--flow"
+            "path": "packages/core/context-api"
         },
         {
-            "path": "packages/core--flow-collection"
+            "path": "packages/core/context-api--flow"
         },
         {
-            "path": "packages/core--hook-collection"
+            "path": "packages/core/context-api--helpers"
         },
         {
-            "path": "packages/core--input"
+            "path": "packages/core/context-api--meta"
         },
         {
-            "path": "packages/core--instance-base"
+            "path": "packages/core/crawler"
         },
         {
-            "path": "packages/core--model"
+            "path": "packages/core/dataset"
         },
         {
-            "path": "packages/core--model-collection"
+            "path": "packages/core/events"
         },
         {
-            "path": "packages/core--orchestrator"
+            "path": "packages/core/felps"
         },
         {
-            "path": "packages/core--request-meta"
+            "path": "packages/core/flow"
         },
         {
-            "path": "packages/core--request-queue"
+            "path": "packages/core/hook"
         },
         {
-            "path": "packages/core--request-queue-collection"
+            "path": "packages/core/instance-base"
         },
         {
-            "path": "packages/core--step"
+            "path": "packages/core/multi-crawler"
         },
         {
-            "path": "packages/core--step-api"
+            "path": "packages/core/orchestrator"
         },
         {
-            "path": "packages/core--step-api--flow"
+            "path": "packages/core/request-meta"
         },
         {
-            "path": "packages/core--step-api--helpers"
+            "path": "packages/core/request-queue"
         },
         {
-            "path": "packages/core--step-api--meta"
+            "path": "packages/core/state"
         },
         {
-            "path": "packages/core--step-api--model"
+            "path": "packages/core/step"
         },
         {
-            "path": "packages/core--step-collection"
+            "path": "packages/core/trail"
         },
         {
-            "path": "packages/core--store--data"
+            "path": "packages/core/trail--data-requests"
         },
         {
-            "path": "packages/core--store--file"
+            "path": "packages/core/types"
         },
         {
-            "path": "packages/core--store-collection"
+            "path": "packages/core/validator"
         },
         {
-            "path": "packages/core--trail"
+            "path": "packages/crawlee/crawler--aio-playwright"
         },
         {
-            "path": "packages/core--trail--data"
+            "path": "packages/crawlee/request-queue"
         },
         {
-            "path": "packages/core--trail--data-model"
+            "path": "packages/examples/basic"
         },
         {
-            "path": "packages/core--trail--data-requests"
+            "path": "packages/examples/crawler--aio-playwright"
         },
         {
-            "path": "packages/core--trail-collection"
+            "path": "packages/helpers/logger"
         },
         {
-            "path": "packages/core--validator"
+            "path": "packages/helpers/logger--adapter"
         },
         {
-            "path": "packages/custom--crawler--aio-playwright"
+            "path": "packages/helpers/logger--adapter--apify"
         },
         {
-            "path": "packages/custom--request-queue"
+            "path": "packages/helpers/mutable"
         },
         {
-            "path": "packages/example--crawler--aio-playwright"
+            "path": "packages/helpers/search"
         },
         {
-            "path": "packages/helper--logger"
+            "path": "packages/helpers/url-pattern"
         },
         {
-            "path": "packages/helper--logger--adapter"
-        },
-        {
-            "path": "packages/helper--logger--adapter--apify"
-        },
-        {
-            "path": "packages/helper--mutable"
-        },
-        {
-            "path": "packages/helper--search"
-        },
-        {
-            "path": "packages/helper--url-pattern"
-        },
-        {
-            "path": "packages/helper--utils"
-        },
-        {
-            "path": "packages/kv-store--adapter"
-        },
-        {
-            "path": "packages/kv-store--adapter--apify"
-        },
-        {
-            "path": "packages/kv-store--adapter--in-memory"
-        },
-        {
-            "path": "packages/request-queue--adapter"
-        },
-        {
-            "path": "packages/request-queue--adapter--apify"
-        },
-        {
-            "path": "packages/request-queue--adapter--in-memory"
-        },
-        {
-            "path": "packages/types"
+            "path": "packages/helpers/utils"
         }
     ],
     "files": []

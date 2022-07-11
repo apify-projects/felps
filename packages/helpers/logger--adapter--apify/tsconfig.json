@@ -1,0 +1,21 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../logger--adapter"
+        },
+        {
+            "path": "../../core/instance-base"
+        },
+        {
+            "path": "../../core/types"
+        }
+    ]
+}

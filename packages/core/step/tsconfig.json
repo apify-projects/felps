@@ -1,0 +1,36 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../hook"
+        },
+        {
+            "path": "../instance-base"
+        },
+        {
+            "path": "../request-meta"
+        },
+        {
+            "path": "../context-api"
+        },
+        {
+            "path": "../../helpers/logger"
+        },
+        {
+            "path": "../constants"
+        },
+        {
+            "path": "../events"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}

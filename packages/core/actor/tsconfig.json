@@ -1,0 +1,54 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../context-api"
+        },
+        {
+            "path": "../crawler"
+        },
+        {
+            "path": "../hook"
+        },
+        {
+            "path": "../instance-base"
+        },
+        {
+            "path": "../../helpers/logger"
+        },
+        {
+            "path": "../orchestrator"
+        },
+        {
+            "path": "../request-queue"
+        },
+        {
+            "path": "../request-meta"
+        },
+        {
+            "path": "../state"
+        },
+        {
+            "path": "../step"
+        },
+        {
+            "path": "../constants"
+        },
+        {
+            "path": "../flow"
+        },
+        {
+            "path": "../types"
+        },
+        {
+            "path": "../../helpers/utils"
+        }
+    ]
+}

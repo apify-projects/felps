@@ -1,0 +1,36 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../../core/actor"
+        },
+        {
+            "path": "../../core/flow"
+        },
+        {
+            "path": "../../core/multi-crawler"
+        },
+        {
+            "path": "../../core/request-queue"
+        },
+        {
+            "path": "../../core/step"
+        },
+        {
+            "path": "../../core/orchestrator"
+        },
+        {
+            "path": "../../core/state"
+        },
+        {
+            "path": "../../core/types"
+        }
+    ]
+}

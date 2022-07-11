@@ -1,83 +1,87 @@
 {
-    "private": true,
-    "version": "1.0.315",
-    "author": {
-        "name": "Apify",
-        "email": "support@apify.com",
-        "url": "https://apify.com"
-    },
-    "contributors": [
-        "Gabin Desserprit <gabin.desserprit@apify.com>"
-    ],
-    "license": "Apache-2.0",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/apify-projects/felps"
-    },
-    "bugs": {
-        "url": "https://github.com/apify-projects/felps/issues"
-    },
-    "homepage": "https://github.com/apify-projects/felps",
-    "devDependencies": {
-        "@apify/eslint-config-ts": "^0.2.3",
-        "@apify/tsconfig": "^0.1.0",
-        "@types/jest": "^28.1.1",
-        "@types/node": "^17.0.40",
-        "@typescript-eslint/eslint-plugin": "^5.4.0",
-        "@typescript-eslint/parser": "^5.4.0",
-        "eslint": "^7.0.0",
-        "eslint-plugin-import": "^2.25.3",
-        "husky": "^8.0.1",
-        "is-ci": "^3.0.1",
-        "jest": "^28.1.1",
-        "rimraf": "^3.0.2",
-        "ts-jest": "^28.0.4",
-        "typescript": "^4.7.2"
-    },
-    "workspaces": {
-        "packages": [
-            "packages/*"
-        ]
-    },
-    "keywords": [
-        "apify",
-        "flow",
-        "framework",
-        "headless",
-        "chrome",
-        "puppeteer",
-        "crawler",
-        "scraper"
-    ],
-    "scripts": {
-        "publish": "yarn workspaces foreach -pti run publish",
-        "setup": "npm i yarn apify-cli -g && yarn set version 3.2.1 && yarn && yarn clean && yarn build",
-        "postinstall": "npx husky install",
-        "dev": "tsc --build --watch",
-        "build": "tsc --build",
-        "build:force": "tsc --build --force",
-        "bump": "node ./scripts/version.js",
-        "prepare": "node ./scripts/configure-references.js",
-        "clean": "yarn workspaces foreach -pti run clean",
-        "test": "jest --silent",
-        "test:dev": "jest --watch",
-        "test:e2e": "node test/e2e/run.js",
-        "coverage": "jest --coverage"
-    },
-    "packageManager": "^yarn@3.1.2",
-    "resolutions": {
-        "flexsearch": "^0.7.21",
-        "json-schema-to-ts": "2.5.3",
-        "apify-client": "^2.5.1",
-        "cheerio": "1.0.0-rc.10",
-        "apify": "3.0.0-beta.38",
-        "@crawlee/cheerio": "3.0.0-beta.38",
-        "@crawlee/playwright": "3.0.0-beta.38",
-        "@crawlee/core": "3.0.0-beta.38",
-        "@crawlee/types": "3.0.0-beta.38",
-        "@crawlee/browser": "3.0.0-beta.38",
-        "@crawlee/browser-pool": "3.0.0-beta.38",
-        "@crawlee/utils": "3.0.0-beta.38",
-        "@apify/utilities": "1.2.14"
-    }
+  "private": true,
+  "version": "1.0.315",
+  "author": {
+    "name": "Apify",
+    "email": "support@apify.com",
+    "url": "https://apify.com"
+  },
+  "contributors": [
+    "Gabin Desserprit <gabin.desserprit@apify.com>"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apify-projects/felps"
+  },
+  "bugs": {
+    "url": "https://github.com/apify-projects/felps/issues"
+  },
+  "homepage": "https://github.com/apify-projects/felps",
+  "devDependencies": {
+    "@apify/eslint-config-ts": "^0.2.3",
+    "@apify/tsconfig": "^0.1.0",
+    "@types/jest": "^28.1.1",
+    "@types/node": "^17.0.40",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^7.0.0",
+    "eslint-plugin-import": "^2.25.3",
+    "husky": "^8.0.1",
+    "is-ci": "^3.0.1",
+    "jest": "^28.1.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^28.0.4",
+    "typescript": "^4.7.2"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/**"
+    ]
+  },
+  "keywords": [
+    "apify",
+    "crawlee",
+    "flow",
+    "framework",
+    "headless",
+    "chrome",
+    "puppeteer",
+    "crawler",
+    "scraper"
+  ],
+  "scripts": {
+    "refresh": "yarn prepare && yarn",
+    "publish": "yarn workspaces foreach -pti run publish",
+    "setup": "npm i yarn apify-cli -g && yarn set version 3.2.1 && yarn && yarn clean && yarn build",
+    "postinstall": "npx husky install",
+    "dev": "tsc --build --watch",
+    "build": "tsc --build",
+    "build:force": "tsc --build --force",
+    "use-version": "node ./scripts/version.js",
+    "prepare": "yarn from-imports-to-dependencies && yarn configure-references",
+    "configure-references": "node ./scripts/configure-references.js",
+    "from-imports-to-dependencies": "node ./scripts/from-imports-to-dependencies.js",
+    "clean": "yarn workspaces foreach -pti run clean",
+    "test": "jest --silent",
+    "test:dev": "jest --watch",
+    "test:e2e": "node test/e2e/run.js",
+    "coverage": "jest --coverage"
+  },
+  "packageManager": "^yarn@3.1.2",
+  "resolutions": {
+    "flexsearch": "^0.7.21",
+    "json-schema-to-ts": "2.5.3",
+    "apify-client": "^2.5.1",
+    "cheerio": "1.0.0-rc.10",
+    "apify": "3.0.0-beta.67",
+    "@crawlee/cheerio": "3.0.0-beta.67",
+    "@crawlee/playwright": "3.0.0-beta.67",
+    "@crawlee/core": "3.0.0-beta.67",
+    "@crawlee/types": "3.0.0-beta.67",
+    "@crawlee/browser": "3.0.0-beta.67",
+    "@crawlee/browser-pool": "3.0.0-beta.67",
+    "@crawlee/utils": "3.0.0-beta.67",
+    "@apify/utilities": "1.2.14"
+  }
 }

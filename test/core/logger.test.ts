@@ -1,4 +1,4 @@
-import Logger from '@usefelps/helper--logger';
+import Logger from '@usefelps/logger';
 import Transport from 'winston-transport';
 
 describe('Logger', () => {

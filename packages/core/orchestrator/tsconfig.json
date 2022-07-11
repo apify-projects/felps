@@ -1,0 +1,39 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../flow"
+        },
+        {
+            "path": "../request-meta"
+        },
+        {
+            "path": "../request-queue"
+        },
+        {
+            "path": "../state"
+        },
+        {
+            "path": "../step"
+        },
+        {
+            "path": "../trail"
+        },
+        {
+            "path": "../trail--data-requests"
+        },
+        {
+            "path": "../context-api"
+        },
+        {
+            "path": "../dataset"
+        }
+    ]
+}

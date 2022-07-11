@@ -1,0 +1,21 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "../multi-crawler/lib",
+        "rootDir": "../multi-crawler/src"
+    },
+    "include": [
+        "../multi-crawler/src"
+    ],
+    "references": [
+        {
+            "path": "../../crawlee/crawler--aio-playwright"
+        },
+        {
+            "path": "../crawler"
+        },
+        {
+            "path": "../types"
+        }
+    ]
+}
