@@ -1,4 +1,3 @@
-import ApifyEvents from '@usefelps/apify-events';
 import Base from '@usefelps/instance-base';
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
 import InMemoryKvStoreAdapter from '@usefelps/kv-store--adapter--in-memory';
@@ -188,9 +187,9 @@ export const persist = async <T>(state: FT.StateInstance<T>): Promise<void> => {
 };
 
 export const listen = <T>(state: FT.StateInstance<T>): void => {
-    ApifyEvents.onAll(async () => {
-        await persist(state);
-    });
+    // ApifyEvents.onAll(async () => {
+    //     await persist(state);
+    // });
 };
 
 export default { create, get, set, remove, has, entries, values, keys, increment, decrement, pop, shift, push, unshift, setAndGetKey, update, load, persist, reduce, listen, replace };

@@ -1,7 +1,6 @@
 import EventEmitter from 'eventemitter3';
 import Queue from 'queue';
 import Base from '@usefelps/instance-base';
-import ApifyEvents from '@usefelps/apify-events';
 import { EventsInstance, EventsOptions, ReallyAny } from '@usefelps/types';
 
 export const create = (options: EventsOptions): EventsInstance => {
@@ -11,6 +10,15 @@ export const create = (options: EventsOptions): EventsInstance => {
         queues: options?.queues || [],
         batchSize: options?.batchSize || 10,
         batchMinIntervals: options?.batchMinIntervals || 5000,
+        // hooks: {
+        //     saveHook: Hook.create({
+        //         name: 'saveHook',
+        //         handlers: [
+        //             ...(options?.hooks?.saveHook?.handlers || []),
+        //         ],
+        //         onErrorHook: options?.hooks?.saveHook?.onErrorHook,
+        //     })
+        // }
     };
 };
 
@@ -33,9 +41,9 @@ export const batch = (events: EventsInstance, eventName: string, callback: (even
     const q = new Queue({ concurrency: 1, autostart: true });
     events.queues.push(q);
 
-    ApifyEvents.onShutdown(async () => {
-        await processor(true);
-    });
+    // ApifyEvents.onShutdown(async () => {
+    //     await processor(true);
+    // });
 
     const processor = async (forceAll = false) => {
         if (forceAll) {

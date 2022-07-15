@@ -692,12 +692,17 @@ export type UrlPatternParsed = {
 }
 
 // events.ts
+export type EventsHooks = {
+    saveHook?: HookOptions<[]>,
+}
+
 export type EventsOptions = {
     name?: string,
     resource?: EventEmitter,
     queues: Queue[],
     batchSize?: number,
     batchMinIntervals?: number,
+    hooks?: EventsHooks
 };
 
 export type EventsInstance = {
@@ -705,6 +710,7 @@ export type EventsInstance = {
     queues: Queue[],
     batchSize: number,
     batchMinIntervals: number,
+    hooks: EventsHooks
 } & InstanceBase;
 
 // kv-store-adapter.ts
