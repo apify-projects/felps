@@ -2118,9 +2118,12 @@ __metadata:
     "@crawlee/playwright": "*"
     "@types/flexsearch": ^0.7.3
     "@types/winston": ^2.4.4
+    eventemitter3: 4.0.7
     flexsearch: ^0.7.3
     json-schema-to-ts: 2.5.3
+    queue: 6.0.2
     rimraf: ^3.0.2
+    route-parser: 0.0.5
     typescript: ^4.7.2
     winston: ^3.7.2
     winston-transport: ^4.5.0
@@ -3932,7 +3935,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eventemitter3@npm:^4.0.7":
+"eventemitter3@npm:4.0.7, eventemitter3@npm:^4.0.7":
   version: 4.0.7
   resolution: "eventemitter3@npm:4.0.7"
   checksum: 1875311c42fcfe9c707b2712c32664a245629b42bb0a5a84439762dd0fd637fc54d078155ea83c2af9e0323c9ac13687e03cfba79b03af9f40c89b4960099374
@@ -7053,7 +7056,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"queue@npm:^6.0.2":
+"queue@npm:6.0.2, queue@npm:^6.0.2":
   version: 6.0.2
   resolution: "queue@npm:6.0.2"
   dependencies:
@@ -7285,7 +7288,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"route-parser@npm:^0.0.5":
+"route-parser@npm:0.0.5, route-parser@npm:^0.0.5":
   version: 0.0.5
   resolution: "route-parser@npm:0.0.5"
   checksum: 81619e9857f1359405be5d2fc4be22727851cc60a55a70f92a4800fef4c22dd3c78ad55b745afa229dffdca95835186c51c6012f47d3327c8ead42f55e4920f7

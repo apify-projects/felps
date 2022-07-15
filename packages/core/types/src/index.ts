@@ -11,8 +11,6 @@ import type Route from 'route-parser';
 import type { LeveledLogMethod, Logger } from 'winston';
 import * as Transport from 'winston-transport';
 
-export type { JSONSchemaType } from 'ajv';
-
 export type MakeSchema<S> = S | Readonly<S>;
 export type JSONSchema = MakeSchema<_JSONSchema7>;
 
