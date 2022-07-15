@@ -31,15 +31,6 @@
             "path": "packages/adapters/kv-store--adapter--in-memory"
         },
         {
-            "path": "packages/adapters/request-queue--adapter"
-        },
-        {
-            "path": "packages/adapters/request-queue--adapter--apify"
-        },
-        {
-            "path": "packages/adapters/request-queue--adapter--in-memory"
-        },
-        {
             "path": "packages/apify/apify-events"
         },
         {

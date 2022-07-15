@@ -1652,66 +1652,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@usefelps/adapter--request-queue--apify@workspace:packages/adapters/request-queue--adapter--apify":
-  version: 0.0.0-use.local
-  resolution: "@usefelps/adapter--request-queue--apify@workspace:packages/adapters/request-queue--adapter--apify"
-  dependencies:
-    apify: "*"
-    cheerio: ^1.0.0-rc.10
-    playwright: ^1.19.2
-    playwright-core: ^1.19.2
-    puppeteer: 10.4.0
-    rimraf: ^3.0.2
-    typescript: ^4.7.2
-  peerDependencies:
-    apify: "*"
-    cheerio: ^1.0.0-rc.10
-    playwright: ^1.19.2
-    playwright-core: ^1.19.2
-    puppeteer: ^10.4.0
-  languageName: unknown
-  linkType: soft
-
-"@usefelps/adapter--request-queue--in-memory@workspace:packages/adapters/request-queue--adapter--in-memory":
-  version: 0.0.0-use.local
-  resolution: "@usefelps/adapter--request-queue--in-memory@workspace:packages/adapters/request-queue--adapter--in-memory"
-  dependencies:
-    apify: "*"
-    cheerio: ^1.0.0-rc.10
-    playwright: ^1.19.2
-    playwright-core: ^1.19.2
-    puppeteer: 10.4.0
-    rimraf: ^3.0.2
-    typescript: ^4.7.2
-  peerDependencies:
-    apify: "*"
-    cheerio: ^1.0.0-rc.10
-    playwright: ^1.19.2
-    playwright-core: ^1.19.2
-    puppeteer: ^10.4.0
-  languageName: unknown
-  linkType: soft
-
-"@usefelps/adapter--request-queue@workspace:packages/adapters/request-queue--adapter":
-  version: 0.0.0-use.local
-  resolution: "@usefelps/adapter--request-queue@workspace:packages/adapters/request-queue--adapter"
-  dependencies:
-    apify: "*"
-    cheerio: ^1.0.0-rc.10
-    playwright: ^1.19.2
-    playwright-core: ^1.19.2
-    puppeteer: 10.4.0
-    rimraf: ^3.0.2
-    typescript: ^4.7.2
-  peerDependencies:
-    apify: "*"
-    cheerio: ^1.0.0-rc.10
-    playwright: ^1.19.2
-    playwright-core: ^1.19.2
-    puppeteer: ^10.4.0
-  languageName: unknown
-  linkType: soft
-
 "@usefelps/apify-events@workspace:*, @usefelps/apify-events@workspace:packages/apify/apify-events":
   version: 0.0.0-use.local
   resolution: "@usefelps/apify-events@workspace:packages/apify/apify-events"
@@ -2013,13 +1953,9 @@ __metadata:
   resolution: "@usefelps/logger@workspace:packages/helpers/logger"
   dependencies:
     "@usefelps/types": "workspace:*"
-    apify: "*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
     winston: ^3.7.2
-  peerDependencies:
-    "@usefelps/types": "workspace:*"
-    apify: "*"
   languageName: unknown
   linkType: soft
 
@@ -2074,11 +2010,6 @@ __metadata:
     "@usefelps/utils": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/constants": "workspace:*"
-    "@usefelps/instance-base": "workspace:*"
-    "@usefelps/types": "workspace:*"
-    "@usefelps/utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -7096,7 +7027,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"puppeteer@npm:10.4.0, puppeteer@npm:^10.4.0":
+"puppeteer@npm:^10.4.0":
   version: 10.4.0
   resolution: "puppeteer@npm:10.4.0"
   dependencies:
