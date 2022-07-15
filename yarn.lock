@@ -1760,10 +1760,6 @@ __metadata:
     "@usefelps/utils": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/instance-base": "workspace:*"
-    "@usefelps/types": "workspace:*"
-    "@usefelps/utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -1836,12 +1832,6 @@ __metadata:
     "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@crawlee/core": "*"
-    "@usefelps/kv-store--adapter--apify": "workspace:*"
-    "@usefelps/request-meta": "workspace:*"
-    "@usefelps/state": "workspace:*"
-    "@usefelps/types": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -1888,10 +1878,6 @@ __metadata:
     queue: ^6.0.2
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/apify-events": "workspace:*"
-    "@usefelps/instance-base": "workspace:*"
-    "@usefelps/types": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -1965,9 +1951,6 @@ __metadata:
     "@usefelps/utils": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/types": "workspace:*"
-    "@usefelps/utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -1978,8 +1961,6 @@ __metadata:
     "@usefelps/kv-store--adapter": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/kv-store--adapter": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -1990,8 +1971,6 @@ __metadata:
     "@usefelps/kv-store--adapter": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/kv-store--adapter": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -2003,9 +1982,6 @@ __metadata:
     "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/instance-base": "workspace:*"
-    "@usefelps/types": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -2018,10 +1994,6 @@ __metadata:
     "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/instance-base": "workspace:*"
-    "@usefelps/logger--adapter": "workspace:*"
-    "@usefelps/types": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -2033,9 +2005,6 @@ __metadata:
     "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/instance-base": "workspace:*"
-    "@usefelps/types": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -2225,10 +2194,6 @@ __metadata:
     typescript: ^4.7.2
     winston: ^3.7.2
     winston-transport: ^4.5.0
-  peerDependencies:
-    "@crawlee/cheerio": "*"
-    "@crawlee/core": "*"
-    "@crawlee/playwright": "*"
   languageName: unknown
   linkType: soft
 
@@ -2285,11 +2250,6 @@ __metadata:
     ajv-formats: ^2.1.1
     rimraf: ^3.0.2
     typescript: ^4.7.2
-  peerDependencies:
-    "@usefelps/constants": "workspace:*"
-    "@usefelps/instance-base": "workspace:*"
-    "@usefelps/logger": "workspace:*"
-    "@usefelps/utils": "workspace:*"
   languageName: unknown
   linkType: soft
 

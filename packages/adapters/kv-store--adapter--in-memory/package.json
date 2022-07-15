@@ -1,13 +1,12 @@
 {
     "name": "@usefelps/kv-store--adapter--in-memory",
-    "version": "1.0.316",
+    "version": "1.0.317",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
-    "peerDependencies": {
+    "dependencies": {
         "@usefelps/kv-store--adapter": "workspace:*"
     },
     "devDependencies": {
-        "@usefelps/kv-store--adapter": "workspace:*",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"
     },
@@ -26,8 +25,5 @@
         "lint": "eslint ./src --ext .ts,.js,.jsx",
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
-    "license": "ISC",
-    "dependencies": {
-        "@usefelps/kv-store--adapter": "workspace:*"
-    }
+    "license": "ISC"
 }
