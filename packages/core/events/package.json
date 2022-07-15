@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/events",
-    "version": "1.0.315",
+    "version": "1.0.316",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "peerDependencies": {
@@ -9,10 +9,10 @@
         "@usefelps/types": "workspace:*"
     },
     "dependencies": {
-        "eventemitter3": "^4.0.7",
-        "queue": "^6.0.2",
+        "@usefelps/apify-events": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
-        "@usefelps/apify-events": "workspace:*"
+        "eventemitter3": "^4.0.7",
+        "queue": "^6.0.2"
     },
     "devDependencies": {
         "@usefelps/apify-events": "workspace:*",

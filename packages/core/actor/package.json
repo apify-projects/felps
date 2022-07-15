@@ -1,11 +1,15 @@
 {
     "name": "@usefelps/actor",
-    "version": "1.0.315",
+    "version": "1.0.316",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
+        "@crawlee/core": "*",
+        "@crawlee/playwright": "*",
+        "@usefelps/constants": "workspace:*",
         "@usefelps/context-api": "workspace:*",
         "@usefelps/crawler": "workspace:*",
+        "@usefelps/flow": "workspace:*",
         "@usefelps/hook": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/logger": "workspace:*",
@@ -14,10 +18,6 @@
         "@usefelps/request-queue": "workspace:*",
         "@usefelps/state": "workspace:*",
         "@usefelps/step": "workspace:*",
-        "@crawlee/core": "*",
-        "@crawlee/playwright": "*",
-        "@usefelps/constants": "workspace:*",
-        "@usefelps/flow": "workspace:*",
         "@usefelps/types": "workspace:*",
         "@usefelps/utils": "workspace:*"
     },
