@@ -52,7 +52,7 @@
     ],
     "scripts": {
         "refresh": "yarn prepare && yarn",
-        "publish": "yarn workspaces foreach -pti run publish",
+        "pub": "yarn workspaces foreach -pti run publish",
         "setup": "npm i yarn apify-cli -g && yarn set version 3.2.1 && yarn && yarn clean && yarn build",
         "postinstall": "npx husky install",
         "dev": "tsc --build --watch",
