@@ -1,14 +1,14 @@
 {
     "name": "@usefelps/events",
-    "version": "1.0.320",
+    "version": "1.0.321",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@usefelps/apify-events": "workspace:*",
-        "@usefelps/instance-base": "workspace:*",
-        "@usefelps/types": "workspace:*",
         "eventemitter3": "^4.0.7",
-        "queue": "^6.0.2"
+        "queue": "^6.0.2",
+        "@usefelps/instance-base": "workspace:*",
+        "@usefelps/apify-events": "workspace:*",
+        "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
         "rimraf": "^3.0.2",

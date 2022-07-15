@@ -1,18 +1,18 @@
 {
     "name": "@usefelps/step",
-    "version": "1.0.320",
+    "version": "1.0.321",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@usefelps/constants": "workspace:*",
         "@usefelps/context-api": "workspace:*",
-        "@usefelps/events": "workspace:*",
+        "@usefelps/trail": "workspace:*",
+        "@usefelps/trail--data-requests": "workspace:*",
         "@usefelps/hook": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/logger": "workspace:*",
         "@usefelps/request-meta": "workspace:*",
-        "@usefelps/trail": "workspace:*",
-        "@usefelps/trail--data-requests": "workspace:*",
+        "@usefelps/constants": "workspace:*",
+        "@usefelps/events": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "directories": {
