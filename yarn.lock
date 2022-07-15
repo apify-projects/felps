@@ -1744,8 +1744,6 @@ __metadata:
     "@crawlee/utils": "*"
     "@usefelps/constants": "workspace:*"
     "@usefelps/types": "workspace:*"
-    apify: "*"
-    cheerio: ^1.0.0-rc.10
     eventemitter3: ^4.0.7
     https-proxy-agent: ^5.0.1
     iconv-lite: "*"
@@ -1756,7 +1754,6 @@ __metadata:
     typescript: ^4.7.2
     util: "*"
   peerDependencies:
-    cheerio: ^1.0.0-rc.10
     playwright: ^1.19.2
   languageName: unknown
   linkType: soft
@@ -1968,6 +1965,8 @@ __metadata:
     "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
+  peerDependencies:
+    playwright: ^1.19.2
   languageName: unknown
   linkType: soft
 

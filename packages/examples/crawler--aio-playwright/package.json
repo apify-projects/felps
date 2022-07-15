@@ -4,8 +4,8 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@crawlee/core": "*",
         "@usefelps/crawlee--crawler--aio-playwright": "workspace:*",
+        "@crawlee/core": "*",
         "@usefelps/types": "workspace:*",
         "apify": "*",
         "cheerio": "^1.0.0-rc.10",
@@ -34,5 +34,5 @@
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
     "license": "ISC",
-    "version": "1.0.318"
+    "version": "1.0.319"
 }

@@ -1,8 +1,11 @@
 {
     "name": "@usefelps/multi-crawler",
-    "version": "1.0.318",
+    "version": "1.0.319",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
+    "peerDependencies": {
+        "playwright": "^1.19.2"
+    },
     "dependencies": {
         "@usefelps/crawlee--crawler--aio-playwright": "workspace:*",
         "@usefelps/crawler": "workspace:*",

@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/apify-events",
-    "version": "1.0.318",
+    "version": "1.0.319",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
