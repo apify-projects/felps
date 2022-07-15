@@ -4,9 +4,9 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@usefelps/context-api--meta": "workspace:*",
-        "@usefelps/context-api--helpers": "workspace:*",
         "@usefelps/context-api--flow": "workspace:*",
+        "@usefelps/context-api--helpers": "workspace:*",
+        "@usefelps/context-api--meta": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {

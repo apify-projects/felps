@@ -1656,9 +1656,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usefelps/apify-events@workspace:packages/apify/apify-events"
   dependencies:
+    apify: "*"
     lodash.throttle: ^4.0.1
     rimraf: ^3.0.2
     typescript: ^4.7.2
+  peerDependencies:
+    apify: "*"
   languageName: unknown
   linkType: soft
 
@@ -2366,21 +2369,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apify@npm:3.0.0":
-  version: 3.0.0
-  resolution: "apify@npm:3.0.0"
+"apify@npm:next":
+  version: 3.0.1-beta.0
+  resolution: "apify@npm:3.0.1-beta.0"
   dependencies:
     "@apify/consts": ^2.0.0
     "@apify/log": ^2.1.0
     "@apify/utilities": ^2.1.1
-    "@crawlee/core": ^3.0.0-beta.78
-    "@crawlee/types": ^3.0.0-beta.78
-    "@crawlee/utils": ^3.0.0-beta.78
+    "@crawlee/core": ^3.0.1-beta.0
+    "@crawlee/types": ^3.0.1-beta.0
+    "@crawlee/utils": ^3.0.1-beta.0
     apify-client: ^2.6.0-beta.1
     ow: ^0.28.1
     semver: ^7.3.7
     ws: ^7.5.8
-  checksum: c4a5db5e7ab6fe5627726d6397d91c6b0fddf09f73178c700c62fcd3a72cde5ca333e58f5cd7228419c689c4f3dc857755b51b31e26af9c0d6e98b5777d9c6ab
+  checksum: 56bd99fea7e2158d04d0682e2d437efa9432b135da8261bef7731ff24414ee86d6f41e273397d1c2b2a741d1d5ef0cbf52660ad99640dfc14fcb0b1f99c469b6
   languageName: node
   linkType: hard
 

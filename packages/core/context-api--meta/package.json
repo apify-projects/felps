@@ -4,10 +4,10 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@usefelps/trail": "workspace:*",
+        "@usefelps/constants": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/request-meta": "workspace:*",
-        "@usefelps/constants": "workspace:*",
+        "@usefelps/trail": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {

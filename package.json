@@ -75,7 +75,7 @@
         "json-schema-to-ts": "2.5.3",
         "apify-client": "^2.5.2",
         "cheerio": "1.0.0-rc.10",
-        "apify": "3.0.0",
+        "apify": "next",
         "@crawlee/cheerio": "3.0.0",
         "@crawlee/playwright": "3.0.0",
         "@crawlee/core": "3.0.0",
