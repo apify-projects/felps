@@ -1,15 +1,15 @@
 {
     "name": "@usefelps/validator",
-    "version": "1.0.321",
+    "version": "1.0.322",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "ajv": "^8.11.0",
-        "ajv-formats": "^2.1.1",
         "@usefelps/constants": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/logger": "workspace:*",
-        "@usefelps/utils": "workspace:*"
+        "@usefelps/utils": "workspace:*",
+        "ajv": "^8.11.0",
+        "ajv-formats": "^2.1.1"
     },
     "devDependencies": {
         "rimraf": "^3.0.2",
