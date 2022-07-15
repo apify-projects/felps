@@ -15,12 +15,12 @@ export const create = <M extends Record<string, FT.ModelDefinition>>(actor: FT.A
             const ingest = Trail.ingested(trail);
 
             const meta = RequestMeta.create(context?.request);
-            const actorKey = meta.data.reference.fActorKey as string;
-            // const flow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, meta.data.flowName)] as FlowInstance<ReallyAny>;
+            const actorId = meta.data.reference.factorId as string;
+            // const flow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorId, meta.data.flowName)] as FlowInstance<ReallyAny>;
             const mainFlowName = Trail.getMainFlow(trail)?.name || '';
-            const mainFlow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, mainFlowName)];
+            const mainFlow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorId, mainFlowName)];
 
-            // const currentFlow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, meta.data.flowName)] as FlowInstance<ReallyAny>;
+            // const currentFlow = actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorId, meta.data.flowName)] as FlowInstance<ReallyAny>;
 
             const getModelDetails = (
                 modelName: string,

@@ -9,19 +9,25 @@
     ],
     "references": [
         {
+            "path": "../context-api"
+        },
+        {
+            "path": "../trail"
+        },
+        {
+            "path": "../trail--data-requests"
+        },
+        {
             "path": "../hook"
         },
         {
             "path": "../instance-base"
         },
         {
-            "path": "../request-meta"
-        },
-        {
-            "path": "../context-api"
-        },
-        {
             "path": "../../helpers/logger"
+        },
+        {
+            "path": "../request-meta"
         },
         {
             "path": "../constants"

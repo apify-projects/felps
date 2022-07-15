@@ -1,6 +1,7 @@
 import * as CONST from '@usefelps/constants';
 import Base from '@usefelps/instance-base';
 import TrailDataRequests from '@usefelps/trail--data-requests';
+import TrailDataState from '@usefelps/trail--data-state';
 import Trail from '@usefelps/trail';
 import RequestMeta from '@usefelps/request-meta';
 import * as FT from '@usefelps/types';
@@ -65,15 +66,15 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                     const stepNamePrefixed = CONST.PREFIXED_NAME_BY_ACTOR(actorName, stepName);
                     const step = actor.steps?.[stepNamePrefixed]
 
-                    // console.log({ flows: actor.flows, flowNamePrefixed, flow, stepName, stepNamePrefixed, step })
+                    // console.log('start', { trailId: localTrail.id })
 
-                    const inputCompleted = { ...(input || {}), flow: CONST.UNPREFIXED_NAME_BY_ACTOR(flowName) };
+                    // console.log({ flows: actor.flows, flowNamePrefixed, flow, stepName, stepNamePrefixed, step })
 
                     crawlerMode = crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode || 'http';
 
-                    const flowKey = Trail.setFlow(localTrail, {
+                    const flowId = Trail.setFlow(localTrail, {
                         name: flowNamePrefixed,
-                        input: inputCompleted,
+                        input,
                         output: undefined,
                     });
 
@@ -86,15 +87,16 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                             flowName: flowNamePrefixed,
                             stepName,
                             crawlerMode,
-                            flowKey,
-                            trailKey: localTrail.id,
+                            flowId,
+                            trailId: localTrail.id,
                         },
                     );
+
 
                     const localIngested = Trail.ingested(localTrail);
                     TrailDataRequests.set(localIngested.requests, meta.request);
 
-                    return meta.data.flowKey;
+                    return meta.data.flowId;
                 },
                 paginate(request, options) {
                     return this.next(this.currentStep() as FT.ReallyAny, request, options);
@@ -105,20 +107,30 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                     const flow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, currentMeta.data.flowName)];
                     const step = actor.steps?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, stepName)];
 
+                    // console.log('next', { trailId: currentTrail.id })
+
                     crawlerMode = step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode || 'http';
 
                     const meta = RequestMeta.extend(
-                        RequestMeta.create(request),
+                        RequestMeta.create({
+                            ...request,
+                            userData: {
+                                ...currentMeta.userData,
+                                ...request.userData,
+                            }
+                        }),
                         currentMeta.data,
                         {
                             startFlow: false,
                             stepName,
                             crawlerMode,
-                            trailKey: currentTrail.id,
+                            trailId: currentTrail.id,
                         },
                     );
 
                     const requestId = TrailDataRequests.set(ingested.requests, meta.request);
+
+                    // console.log('TrailDataRequests', TrailDataRequests.getItems(ingested.requests));
 
                     return requestId;
                 },
@@ -127,6 +139,12 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                 },
                 retry() {
                     throw new Error('Retry this step');
+                },
+                getState() {
+                    return TrailDataState.get(ingested.state);
+                },
+                setState(state) {
+                    return TrailDataState.set(ingested.state, state);
                 }
             } as FT.ContextApiFlowsAPI;
         },

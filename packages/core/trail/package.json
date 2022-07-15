@@ -7,7 +7,8 @@
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/request-meta": "workspace:*",
         "@usefelps/state": "workspace:*",
-        "@usefelps/trail--data-requests": "workspace:*"
+        "@usefelps/trail--data-requests": "workspace:*",
+        "@usefelps/trail--data-state": "workspace:*"
     },
     "devDependencies": {
         "rimraf": "^3.0.2",

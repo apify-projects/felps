@@ -47,7 +47,7 @@ export const createFrom = (request: FT.RequestSource, options: FT.TrailOptions):
     const meta = RequestMeta.create(request);
     return create({
         ...options,
-        id: meta.data?.reference?.[CONST.TRAIL_KEY_PROP],
+        id: meta.data?.reference?.[CONST.TRAIL_ID_PROP],
     });
 };
 
@@ -60,19 +60,19 @@ export const get = (trail: FT.TrailInstance): FT.TrailState => {
 // };
 export const getMainFlow = (trail: FT.TrailInstance): FT.TrailFlowState | undefined => {
     const flows = State.get(trail.store, utils.pathify(trail.id, 'flows')) || {};
-    const flowKeysOrdered = Object.keys(flows).sort(utils.compareUIDKeysFromFirst);
-    return flows[flowKeysOrdered[0]];
+    const flowIdsOrdered = Object.keys(flows).sort(utils.compareUIDKeysFromFirst);
+    return flows[flowIdsOrdered[0]];
 };
 
-export const getFlow = (trail: FT.TrailInstance, flowKey: FT.UniqueyKey | undefined): FT.TrailFlowState | undefined => {
-    if (!flowKey) return undefined;
-    return State.get(trail.store, utils.pathify(trail.id, 'flows', flowKey));
+export const getFlow = (trail: FT.TrailInstance, flowId: FT.UniqueyKey | undefined): FT.TrailFlowState | undefined => {
+    if (!flowId) return undefined;
+    return State.get(trail.store, utils.pathify(trail.id, 'flows', flowId));
 };
 
 export const setFlow = (trail: FT.TrailInstance, flowState: FT.TrailFlowState): FT.UniqueyKey => {
-    const flowKey = utils.craftUIDKey('flow');
-    State.set(trail.store, utils.pathify(trail.id, 'flows', flowKey), flowState);
-    return flowKey;
+    const flowId = utils.craftUIDKey('flow');
+    State.set(trail.store, utils.pathify(trail.id, 'flows', flowId), flowState);
+    return flowId;
 };
 
 export const setRequest = (trail: FT.TrailInstance, request: any): void => {

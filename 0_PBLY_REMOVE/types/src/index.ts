@@ -245,9 +245,9 @@ export type StepInstance = {
 export type StepHooks<Methods = any> = {
     navigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
     postNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
-    preNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
+    preCrawlHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
     onErrorHook?: HookOptions<[context: RequestContext, api: Methods & ContextApi, error: ReallyAny]>,
-    onRequestErrorHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>
+    postRequestFailedHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>
 };
 
 export type StepOptions = StepInstance
@@ -282,7 +282,7 @@ export type ContextApiFlowsAPI<F extends Record<string, FlowDefinition>, S, M> =
     currentFlow(): string,
     isCurrentStep: (stepName: keyof S) => boolean,
     isCurrentFlow: (flowName: keyof F) => boolean,
-    isCurrentActor: (actorKey: string) => boolean,
+    isCurrentActor: (actorId: string) => boolean,
     isStep: (stepNameToTest: string, stepNameExpected: keyof S) => boolean,
     isFlow: (flowNameToTest: string, flowNameExpected: keyof F) => boolean,
     isSomeStep: (stepNameToTest: string, stepNamesExpected: (keyof S)[]) => boolean,
@@ -470,10 +470,10 @@ export type ModelOptions<TSchema = JSONSchema> = ModelDefinition<TSchema>;
 export type ModelReference<T = unknown> = Partial<{
     [K in Extract<keyof T, string> as `${SnakeToCamelCase<K>}Key`]: UniqueyKey;
 } & {
-    fRequestKey: UniqueyKey,
-    fTrailKey: UniqueyKey,
-    fFlowKey: UniqueyKey,
-    fActorKey: UniqueyKey,
+    frequestId: UniqueyKey,
+    ftrailId: UniqueyKey,
+    fflowId: UniqueyKey,
+    factorId: UniqueyKey,
 }>;
 
 // stores.ts ------------------------------------------------------------
@@ -562,7 +562,7 @@ export type TrailFlowState = {
 export type TrailState = {
     id: string,
     flows: {
-        [flowKey: string]: TrailFlowState,
+        [flowId: string]: TrailFlowState,
     },
     stats: {
         startedAt: string,
@@ -780,7 +780,7 @@ export type ActorHooks<
     postActorEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preCrawlerStartedHook?: HookInstance<[actor: LocalActorInstance]>,
     postCrawlerEndedHook?: HookInstance<[actor: LocalActorInstance]>,
-    onCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
+    postCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
     preQueueStartedHook?: HookInstance<[actor: LocalActorInstance]>,
     postQueueEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preFlowStartedHook?: HookInstance<[actor: LocalActorInstance]>,

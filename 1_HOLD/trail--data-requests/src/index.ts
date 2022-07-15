@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { REQUEST_KEY_PROP, REQUEST_STATUS, REQUEST_UID_KEY } from '@usefelps/constants';
+import { REQUEST_ID_PROP, REQUEST_STATUS, REQUEST_UID_KEY } from '@usefelps/constants';
 import Base from '@usefelps/instance-base';
 import RequestMeta from '@usefelps/request-meta';
 import State from '@usefelps/state';
@@ -17,7 +17,7 @@ export const create = (options: FT.TrailDataRequestsOptions): FT.TrailDataReques
 
     return {
         ...Base.create({ key, name, id }),
-        referenceKey: REQUEST_KEY_PROP,
+        referenceKey: REQUEST_ID_PROP,
         path,
         store,
     };
@@ -60,11 +60,11 @@ export const getReference = (trailDataRequests: FT.TrailDataRequestsInstance, re
 };
 
 export const set = (trailDataRequests: FT.TrailDataRequestsInstance, request: FT.RequestSource, ref?: FT.ModelReference): FT.ModelReference => {
-    const meta = RequestMeta.extend(RequestMeta.create(request), { reference: { [REQUEST_KEY_PROP]: utils.craftUIDKey(REQUEST_UID_KEY), ...ref } });
+    const meta = RequestMeta.extend(RequestMeta.create(request), { reference: { [REQUEST_ID_PROP]: utils.craftUIDKey(REQUEST_UID_KEY), ...ref } });
 
     if (meta.data.reference) {
         const item: FT.TrailDataRequestItem = {
-            id: meta.data.reference?.[REQUEST_KEY_PROP] as string,
+            id: meta.data.reference?.[REQUEST_ID_PROP] as string,
             source: meta.request,
             snapshot: undefined,
             status: REQUEST_STATUS.CREATED,
@@ -82,7 +82,7 @@ export const setStatus = (trailDataRequests: FT.TrailDataRequestsInstance, statu
         // If no appropriate reference is found, do same as testing if it exists
         const exists = has(trailDataRequests, ref);
         if (exists) {
-            State.set(trailDataRequests.store, utils.pathify(trailDataRequests.path, ref?.[REQUEST_KEY_PROP] as string, 'status'), status);
+            State.set(trailDataRequests.store, utils.pathify(trailDataRequests.path, ref?.[REQUEST_ID_PROP] as string, 'status'), status);
         }
     } catch (error) {
         // silent
@@ -90,7 +90,7 @@ export const setStatus = (trailDataRequests: FT.TrailDataRequestsInstance, statu
 };
 
 export const getStatus = (trailDataRequests: FT.TrailDataRequestsInstance, ref: FT.ModelReference): void => {
-    return State.get(trailDataRequests.store, utils.pathify(trailDataRequests.path, ref?.[REQUEST_KEY_PROP] as string, 'status'));
+    return State.get(trailDataRequests.store, utils.pathify(trailDataRequests.path, ref?.[REQUEST_ID_PROP] as string, 'status'));
 };
 
 // export const getNextKeys = (trailDataRequests: TrailDataRequestsInstance, ref: ModelReference): UniqueyKey[] => {

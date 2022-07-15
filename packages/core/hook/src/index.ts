@@ -19,7 +19,9 @@ export const run = async <HookParametersSignature extends FT.HookParametersSigna
         return;
     }
 
-    for (const handler of deduplicateFunctions(hook.handlers)) {
+    const handlers = deduplicateFunctions(hook.handlers);
+
+    for (const handler of handlers) {
         try {
             await Promise.resolve(handler(...(args as FT.ReallyAny)));
         } catch (error) {

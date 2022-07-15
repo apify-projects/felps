@@ -19,68 +19,68 @@ export const create = <
             const currentTrail = Trail.createFrom(context?.request, { actor });
             const ingest = Trail.ingested(currentTrail);
 
-            const actorKey = currentMeta.data.reference.fActorKey as string;
+            const actorId = currentMeta.data.reference.factorId as string;
 
-            const actorKeyMustExists = () => {
-                if (!actorKey) throw new Error('Actor key not found');
+            const actorIdMustExists = () => {
+                if (!actorId) throw new Error('Actor key not found');
             };
 
             return {
-                currentStep: () => CONST.PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.stepName),
-                currentFlow: () => CONST.PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.flowName),
+                currentStep: () => CONST.PREFIXED_NAME_BY_ACTOR(actorId, currentMeta.data.stepName),
+                currentFlow: () => CONST.PREFIXED_NAME_BY_ACTOR(actorId, currentMeta.data.flowName),
                 isStep(stepNameToTest, stepNameExpected) {
-                    actorKeyMustExists();
-                    return CONST.PREFIXED_NAME_BY_ACTOR(actorKey, stepNameToTest) === CONST.PREFIXED_NAME_BY_ACTOR(actorKey, stepNameExpected as string);
+                    actorIdMustExists();
+                    return CONST.PREFIXED_NAME_BY_ACTOR(actorId, stepNameToTest) === CONST.PREFIXED_NAME_BY_ACTOR(actorId, stepNameExpected as string);
                 },
                 isSomeStep(stepNameToTest, stepNamesExpected) {
-                    actorKeyMustExists();
+                    actorIdMustExists();
                     return stepNamesExpected
-                        .map((stepNameExpected) => CONST.PREFIXED_NAME_BY_ACTOR(actorKey, stepNameExpected as string))
-                        .includes(CONST.PREFIXED_NAME_BY_ACTOR(actorKey, stepNameToTest));
+                        .map((stepNameExpected) => CONST.PREFIXED_NAME_BY_ACTOR(actorId, stepNameExpected as string))
+                        .includes(CONST.PREFIXED_NAME_BY_ACTOR(actorId, stepNameToTest));
                 },
                 isFlow(flowNameToTest, flowNameExpected) {
-                    actorKeyMustExists();
-                    return CONST.PREFIXED_NAME_BY_ACTOR(actorKey, flowNameToTest) === CONST.PREFIXED_NAME_BY_ACTOR(actorKey, flowNameExpected as string);
+                    actorIdMustExists();
+                    return CONST.PREFIXED_NAME_BY_ACTOR(actorId, flowNameToTest) === CONST.PREFIXED_NAME_BY_ACTOR(actorId, flowNameExpected as string);
                 },
                 isSomeFlow(flowNameToTest, flowNamesExpected) {
-                    actorKeyMustExists();
+                    actorIdMustExists();
                     return flowNamesExpected
-                        .map((flowNameExpected) => CONST.PREFIXED_NAME_BY_ACTOR(actorKey, flowNameExpected as string))
-                        .includes(CONST.PREFIXED_NAME_BY_ACTOR(actorKey, flowNameToTest));
+                        .map((flowNameExpected) => CONST.PREFIXED_NAME_BY_ACTOR(actorId, flowNameExpected as string))
+                        .includes(CONST.PREFIXED_NAME_BY_ACTOR(actorId, flowNameToTest));
                 },
                 isCurrentActor(actorName) {
-                    return actorKey === actorName;
+                    return actorId === actorName;
                 },
                 isCurrentStep(stepName) {
-                    return CONST.PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.stepName) === CONST.PREFIXED_NAME_BY_ACTOR(actorKey, stepName as string);
+                    return CONST.PREFIXED_NAME_BY_ACTOR(actorId, currentMeta.data.stepName) === CONST.PREFIXED_NAME_BY_ACTOR(actorId, stepName as string);
                 },
                 isCurrentFlow(flowName) {
-                    return CONST.PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.flowName) === CONST.PREFIXED_NAME_BY_ACTOR(actorKey, flowName as string);
+                    return CONST.PREFIXED_NAME_BY_ACTOR(actorId, currentMeta.data.flowName) === CONST.PREFIXED_NAME_BY_ACTOR(actorId, flowName as string);
                 },
                 asFlowName(flowName) {
-                    actorKeyMustExists();
-                    const prefixedFlowName = CONST.PREFIXED_NAME_BY_ACTOR(actorKey, flowName);
+                    actorIdMustExists();
+                    const prefixedFlowName = CONST.PREFIXED_NAME_BY_ACTOR(actorId, flowName);
                     return Object.keys(actor.flows).includes(prefixedFlowName) ? prefixedFlowName : undefined;
                 },
                 asStepName(stepName) {
-                    actorKeyMustExists();
-                    const prefixedStepName = CONST.PREFIXED_NAME_BY_ACTOR(actorKey, stepName);
+                    actorIdMustExists();
+                    const prefixedStepName = CONST.PREFIXED_NAME_BY_ACTOR(actorId, stepName);
                     return Object.keys(actor.steps).includes(prefixedStepName) ? prefixedStepName : undefined;
                 },
                 start(flowName, request, input, options) {
                     const { useNewTrail = true } = options || {};
                     let { crawlerOptions, reference } = options || {};
-                    actorKeyMustExists();
+                    actorIdMustExists();
 
-                    const flowNamePrefixed = CONST.PREFIXED_NAME_BY_ACTOR(actorKey, flowName);
+                    const flowNamePrefixed = CONST.PREFIXED_NAME_BY_ACTOR(actorId, flowName);
 
                     const localTrail = useNewTrail ? Trail.create({ actor }) : currentTrail;
 
                     const flow = actor.flows?.[flowNamePrefixed] as FT.FlowInstance<Extract<keyof S, string>>;
                     const stepName = flow?.steps?.[0];
-                    const step = actor.steps?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, stepName)];
+                    const step = actor.steps?.[CONST.PREFIXED_NAME_BY_ACTOR(actorId, stepName)];
 
-                    const currentFlow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data?.flowName)] as FT.FlowInstance<Extract<keyof S, string>>;
+                    const currentFlow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorId, currentMeta.data?.flowName)] as FT.FlowInstance<Extract<keyof S, string>>;
                     if (currentFlow && !(currentFlow.flows || []).includes(CONST.UNPREFIXED_NAME_BY_ACTOR(flowName))) {
                         throw new Error(`Flow ${flowName} is not runnable from current flow ${currentFlow.name}`);
                     };
@@ -93,10 +93,10 @@ export const create = <
                     reference = {
                         ...(currentMeta.data.reference || {}),
                         ...(reference || {}),
-                        [CONST.TRAIL_KEY_PROP]: localTrail.id,
+                        [CONST.TRAIL_ID_PROP]: localTrail.id,
                     } as FT.ModelReference<FT.ReallyAny>;
 
-                    const flowKey = Trail.setFlow(localTrail, {
+                    const flowId = Trail.setFlow(localTrail, {
                         name: flowNamePrefixed,
                         input: inputCompleted,
                         reference,
@@ -114,7 +114,7 @@ export const create = <
                             crawlerOptions,
                             reference: {
                                 ...reference,
-                                [CONST.FLOW_KEY_PROP]: flowKey,
+                                [CONST.FLOW_ID_PROP]: flowId,
                             },
                         },
                     );
@@ -128,10 +128,10 @@ export const create = <
                 },
                 next(stepName, request, reference, options) {
                     let { crawlerOptions } = options || {};
-                    actorKeyMustExists();
+                    actorIdMustExists();
 
-                    const flow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.flowName)];
-                    const step = actor.steps?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, stepName)];
+                    const flow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorId, currentMeta.data.flowName)];
+                    const step = actor.steps?.[CONST.PREFIXED_NAME_BY_ACTOR(actorId, stepName)];
 
                     crawlerOptions = mergeDeep(actor?.crawlerOptions || {}, flow?.crawlerOptions || {}, step?.crawlerOptions || {}, crawlerOptions || {});
 
@@ -144,7 +144,7 @@ export const create = <
                             crawlerOptions,
                             reference: {
                                 ...(reference || {}),
-                                [CONST.TRAIL_KEY_PROP]: currentTrail.id,
+                                [CONST.TRAIL_ID_PROP]: currentTrail.id,
                             },
                         },
                     );
@@ -153,9 +153,9 @@ export const create = <
                     return meta.data.reference;
                 },
                 nextDefault(request, reference, options) {
-                    actorKeyMustExists();
+                    actorIdMustExists();
 
-                    const flow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, currentMeta.data.flowName)];
+                    const flow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorId, currentMeta.data.flowName)];
                     const currentStepIndex = (flow?.steps || []).findIndex((localStepName: string) => localStepName
                         === CONST.UNPREFIXED_NAME_BY_ACTOR(currentMeta.data.stepName),
                     );

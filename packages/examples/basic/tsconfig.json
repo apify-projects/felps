@@ -18,13 +18,13 @@
             "path": "../../core/multi-crawler"
         },
         {
-            "path": "../../core/request-queue"
+            "path": "../../core/orchestrator"
         },
         {
             "path": "../../core/step"
         },
         {
-            "path": "../../core/orchestrator"
+            "path": "../../core/request-queue"
         },
         {
             "path": "../../core/state"

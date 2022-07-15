@@ -8,7 +8,7 @@ import * as utils from '@usefelps/utils';
 
 const mustBeLoaded = <T>(state: FT.StateInstance<T>): void => {
     if (!state.initialized) {
-        throw new Error('Store must be loaded before using it');
+        throw new Error(`Store must be loaded before using it (${state.name})`);
     }
 };
 
@@ -42,7 +42,8 @@ export const getPath = (state: FT.StateInstance, path: string): string => {
 
 export const get = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path?: string): T => {
     mustBeLoaded(state);
-    return utils.clone<FT.ReallyAny>(path ? utils.get(state.storage, getPath(state, path)) : state.storage);
+    const data = path ? utils.get(state.storage, getPath(state, path)) : state.storage;
+    return utils.clone<FT.ReallyAny>(data);
 };
 
 export const reduce = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string, valueOrReducer: FT.ReallyAny | ((previous: FT.ReallyAny) => FT.ReallyAny)): FT.ReallyAny => {
@@ -57,6 +58,12 @@ export const set = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstan
     mustBeLoaded(state);
     const absolutePath = getPath(state, path);
     return reduce(state, absolutePath as FT.ReallyAny, dataOrReducer);
+};
+
+export const replace = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string, data: (FT.ReallyAny)): void => {
+    mustBeLoaded(state);
+    const absolutePath = getPath(state, path);
+    utils.set(state.storage, absolutePath, data);
 };
 
 export const remove = <T extends FT.ReallyAny = FT.ReallyAny>(state: FT.StateInstance<T>, path: string): void => {
@@ -186,4 +193,4 @@ export const listen = <T>(state: FT.StateInstance<T>): void => {
     });
 };
 
-export default { create, get, set, remove, has, entries, values, keys, increment, decrement, pop, shift, push, unshift, setAndGetKey, update, load, persist, reduce, listen };
+export default { create, get, set, remove, has, entries, values, keys, increment, decrement, pop, shift, push, unshift, setAndGetKey, update, load, persist, reduce, listen, replace };

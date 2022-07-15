@@ -12,11 +12,29 @@ import { URL } from 'node:url';
 import { UID_KEY_PREFIX, UID_KEY_LENGTH } from '@usefelps/constants';
 import { ReallyAny } from '@usefelps/types';
 import hashMethod from 'object-hash';
-import mergeDeep from 'merge-deep';
 
 const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
 
-export const merge = mergeDeep;
+function _merge(source: any, target: any) {
+    for (const [key, val] of Object.entries(source)) {
+        if (val !== null && typeof val === `object` && ['Array', 'Object'].includes(val?.constructor?.name)) {
+            if (target[key] === undefined) {
+                target[key] = new (val as any).__proto__.constructor();
+            }
+
+            _merge(val, target[key]);
+        } else {
+            target[key] = val;
+        }
+    }
+    return target; // we're replacing in-situ, so this is more for chaining than anything else
+}
+
+export const merge = (...args: any[]): any => {
+    const merged = args.slice(1).reduce((merged, obj) => _merge(obj, merged), args[0]);
+    // console.log(`merge`, args, merged);
+    return merged;
+};
 export const hash = hashMethod;
 export const clone = cloneDeep;
 export const get = getByPath;

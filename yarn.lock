@@ -1712,16 +1712,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@usefelps/apify-client@workspace:packages/apify/apify-client":
-  version: 0.0.0-use.local
-  resolution: "@usefelps/apify-client@workspace:packages/apify/apify-client"
-  dependencies:
-    "@usefelps/types": "workspace:*"
-    rimraf: ^3.0.2
-    typescript: ^4.7.2
-  languageName: unknown
-  linkType: soft
-
 "@usefelps/apify-events@workspace:*, @usefelps/apify-events@workspace:packages/apify/apify-events":
   version: 0.0.0-use.local
   resolution: "@usefelps/apify-events@workspace:packages/apify/apify-events"
@@ -1753,6 +1743,7 @@ __metadata:
     "@usefelps/request-meta": "workspace:*"
     "@usefelps/trail": "workspace:*"
     "@usefelps/trail--data-requests": "workspace:*"
+    "@usefelps/trail--data-state": "workspace:*"
     "@usefelps/types": "workspace:*"
     merge-deep: "*"
     rimraf: ^3.0.2
@@ -1783,6 +1774,7 @@ __metadata:
     "@usefelps/constants": "workspace:*"
     "@usefelps/instance-base": "workspace:*"
     "@usefelps/request-meta": "workspace:*"
+    "@usefelps/trail": "workspace:*"
     "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
@@ -1917,6 +1909,7 @@ __metadata:
     "@usefelps/step": "workspace:*"
     "@usefelps/types": "workspace:*"
     apify: "*"
+    cagibi: ^0.0.24
     cheerio: ^1.0.0-rc.10
     htmlparser2: 8.0.1
     iconv-lite: 0.6.3
@@ -2090,6 +2083,7 @@ __metadata:
     "@usefelps/context-api": "workspace:*"
     "@usefelps/dataset": "workspace:*"
     "@usefelps/flow": "workspace:*"
+    "@usefelps/hook": "workspace:*"
     "@usefelps/request-meta": "workspace:*"
     "@usefelps/request-queue": "workspace:*"
     "@usefelps/state": "workspace:*"
@@ -2173,6 +2167,8 @@ __metadata:
     "@usefelps/instance-base": "workspace:*"
     "@usefelps/logger": "workspace:*"
     "@usefelps/request-meta": "workspace:*"
+    "@usefelps/trail": "workspace:*"
+    "@usefelps/trail--data-requests": "workspace:*"
     "@usefelps/types": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -2189,6 +2185,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@usefelps/trail--data-state@workspace:*, @usefelps/trail--data-state@workspace:packages/core/trail--data-state":
+  version: 0.0.0-use.local
+  resolution: "@usefelps/trail--data-state@workspace:packages/core/trail--data-state"
+  dependencies:
+    "@usefelps/instance-base": "workspace:*"
+    "@usefelps/state": "workspace:*"
+    rimraf: ^3.0.2
+    typescript: ^4.7.2
+  languageName: unknown
+  linkType: soft
+
 "@usefelps/trail@workspace:*, @usefelps/trail@workspace:packages/core/trail":
   version: 0.0.0-use.local
   resolution: "@usefelps/trail@workspace:packages/core/trail"
@@ -2197,6 +2204,7 @@ __metadata:
     "@usefelps/request-meta": "workspace:*"
     "@usefelps/state": "workspace:*"
     "@usefelps/trail--data-requests": "workspace:*"
+    "@usefelps/trail--data-state": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
   languageName: unknown
@@ -2211,7 +2219,6 @@ __metadata:
     "@crawlee/playwright": "*"
     "@types/flexsearch": ^0.7.3
     "@types/winston": ^2.4.4
-    apify-client: 2.5.1
     flexsearch: ^0.7.3
     json-schema-to-ts: 2.5.3
     rimraf: ^3.0.2
@@ -2451,9 +2458,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apify-client@npm:^2.5.1":
-  version: 2.5.1
-  resolution: "apify-client@npm:2.5.1"
+"apify-client@npm:^2.5.2":
+  version: 2.5.2
+  resolution: "apify-client@npm:2.5.2"
   dependencies:
     "@apify/consts": ^1.4.0
     "@apify/log": ^1.1.1
@@ -2462,7 +2469,7 @@ __metadata:
     axios: ^0.21.1
     content-type: ^1.0.4
     ow: ^0.27.0
-  checksum: d848431eeb78b9753f7d0c84c567553d8f8afd748da463035cf150c383bcb409640a83dd26cb170a6aa6763c69242ff9036872c5fa6b5324ab650f400de642f1
+  checksum: e99f30975b87b99a32f8036a3d274d5a8233534f82a8b92f7fb3dd70a2f6b3271c4a77851c6e3f5a23d65fced5748194eb408c8bd19d1c64864658a2bd57bc36
   languageName: node
   linkType: hard
 
@@ -2885,6 +2892,19 @@ __metadata:
     normalize-url: ^6.0.1
     responselike: ^2.0.0
   checksum: 6152813982945a5c9989cb457a6c499f12edcc7ade323d2fbfd759abc860bdbd1306e08096916bb413c3c47e812f8e4c0a0cc1e112c8ce94381a960f115bc77f
+  languageName: node
+  linkType: hard
+
+"cagibi@npm:^0.0.25":
+  version: 0.0.25
+  resolution: "cagibi@npm:0.0.25"
+  dependencies:
+    lodash.mergewith: ^4.6.2
+    lodash.reduce: ^4.6.0
+    minie: ^0.0.12
+    nanoid: 3.1.20
+    tslib: ^2.4.0
+  checksum: c00478209ad2c3013ac4befb3654e1c17149399816aac1275824e6b32e265442bdb28118c33d30274bc9a4ae1dc797fe915fbfac9a0cf6ccf9472a6bc84a2df4
   languageName: node
   linkType: hard
 
@@ -4195,6 +4215,13 @@ __metadata:
     typescript: ^4.7.2
   languageName: unknown
   linkType: soft
+
+"fflate@npm:^0.7.3":
+  version: 0.7.3
+  resolution: "fflate@npm:0.7.3"
+  checksum: 6d0908c54643d5f979c2ba84a0dab74d71755360731a3a3d43d6aeb81728836f086c4f4d62908e3c03d460f2ef95908daa3bfbb8527be56cac0025b96553ee64
+  languageName: node
+  linkType: hard
 
 "file-entry-cache@npm:^6.0.1":
   version: 6.0.1
@@ -6008,10 +6035,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.mergewith@npm:^4.6.2":
+  version: 4.6.2
+  resolution: "lodash.mergewith@npm:4.6.2"
+  checksum: a6db2a9339752411f21b956908c404ec1e088e783a65c8b29e30ae5b3b6384f82517662d6f425cc97c2070b546cc2c7daaa8d33f78db7b6e9be06cd834abdeb8
+  languageName: node
+  linkType: hard
+
 "lodash.pick@npm:^4.4.0":
   version: 4.4.0
   resolution: "lodash.pick@npm:4.4.0"
   checksum: 2c36cab7da6b999a20bd3373b40e31a3ef81fa264f34a6979c852c5bc8ac039379686b27380f0cb8e3781610844fafec6949c6fbbebc059c98f8fa8570e3675f
+  languageName: node
+  linkType: hard
+
+"lodash.reduce@npm:^4.6.0":
+  version: 4.6.0
+  resolution: "lodash.reduce@npm:4.6.0"
+  checksum: 81f2a1045440554f8427f895ef479f1de5c141edd7852dde85a894879312801efae0295116e5cf830c531c1a51cdab8f3628c3ad39fa21a9874bb9158d9ea075
   languageName: node
   linkType: hard
 
@@ -6227,6 +6268,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"minie@npm:^0.0.12":
+  version: 0.0.12
+  resolution: "minie@npm:0.0.12"
+  dependencies:
+    fflate: ^0.7.3
+  checksum: 02ee206b4228a96d7123c3694f47c8c18f05ebc70191662ebc80fa65f4eed30d23c503f532800220c77cd7bcceca9a5ae5c42ef887b13a047e9d697bc0b64a83
+  languageName: node
+  linkType: hard
+
 "minimatch@npm:^3.0.4, minimatch@npm:^3.1.2":
   version: 3.1.2
   resolution: "minimatch@npm:3.1.2"
@@ -6379,6 +6429,15 @@ __metadata:
   version: 2.1.3
   resolution: "ms@npm:2.1.3"
   checksum: aa92de608021b242401676e35cfa5aa42dd70cbdc082b916da7fb925c542173e36bce97ea3e804923fe92c0ad991434e4a38327e15a1b5b5f945d66df615ae6d
+  languageName: node
+  linkType: hard
+
+"nanoid@npm:3.1.20":
+  version: 3.1.20
+  resolution: "nanoid@npm:3.1.20"
+  bin:
+    nanoid: bin/nanoid.cjs
+  checksum: f6246023d5d8313c2c16be05c18cdb189a6de50ab6418b513b34086eda4aabd12866b2cbe435548c760dc43cf11830b26b14b113afde47305398e3345795e433
   languageName: node
   linkType: hard
 

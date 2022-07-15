@@ -3,13 +3,14 @@ import Base from '@usefelps/instance-base';
 import RequestMeta from '@usefelps/request-meta';
 import State from '@usefelps/state';
 import TrailDataRequests from '@usefelps/trail--data-requests';
+import TrailDataState from '@usefelps/trail--data-state';
 import * as FT from '@usefelps/types';
 import * as utils from '@usefelps/utils';
 
 export const create = (options: FT.TrailOptions): FT.TrailInstance => {
     const {
         id = utils.craftUIDKey(CONST.TRAIL_UID_PREFIX),
-        state = State.create({ name: 'trails', splitByKey: true }),
+        state, // = State.create({ name: 'trails', splitByKey: true }),
     } = options || {};
 
 
@@ -42,7 +43,7 @@ export const createFrom = (request: FT.RequestSource, options?: FT.TrailOptions)
     const meta = RequestMeta.create(request);
     return create({
         ...(options || {}),
-        id: meta.data?.[CONST.TRAIL_KEY_PROP],
+        id: meta.data?.[CONST.TRAIL_ID_PROP],
     });
 };
 
@@ -52,19 +53,19 @@ export const get = (trail: FT.TrailInstance): FT.TrailState => {
 
 export const getMainFlow = (trail: FT.TrailInstance): FT.TrailFlowState | undefined => {
     const flows = State.get(trail.state, utils.pathify(trail.id, 'flows')) || {};
-    const flowKeysOrdered = Object.keys(flows).sort(utils.compareUIDKeysFromFirst);
-    return flows[flowKeysOrdered[0]];
+    const flowIdsOrdered = Object.keys(flows).sort(utils.compareUIDKeysFromFirst);
+    return flows[flowIdsOrdered[0]];
 };
 
-export const getFlow = (trail: FT.TrailInstance, flowKey: FT.UniqueyKey | undefined): FT.TrailFlowState | undefined => {
-    if (!flowKey) return undefined;
-    return State.get(trail.state, utils.pathify(trail.id, 'flows', flowKey));
+export const getFlow = (trail: FT.TrailInstance, flowId: FT.UniqueyKey | undefined): FT.TrailFlowState | undefined => {
+    if (!flowId) return undefined;
+    return State.get(trail.state, utils.pathify(trail.id, 'flows', flowId));
 };
 
 export const setFlow = (trail: FT.TrailInstance, flowState: FT.TrailFlowState): FT.UniqueyKey => {
-    const flowKey = utils.craftUIDKey('flow');
-    State.set(trail.state, utils.pathify(trail.id, 'flows', flowKey), flowState);
-    return flowKey;
+    const flowId = utils.craftUIDKey('flow');
+    State.set(trail.state, utils.pathify(trail.id, 'flows', flowId), flowState);
+    return flowId;
 };
 
 export const setRequest = (trail: FT.TrailInstance, request: any): void => {
@@ -74,6 +75,11 @@ export const setRequest = (trail: FT.TrailInstance, request: any): void => {
 export const stage = (trail: FT.TrailInstance, type: FT.TrailDataStages): FT.TrailDataStage => {
     return {
         requests: TrailDataRequests.create({
+            id: trail.id,
+            type,
+            state: trail.state,
+        }),
+        state: TrailDataState.create({
             id: trail.id,
             type,
             state: trail.state,

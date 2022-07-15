@@ -32,7 +32,7 @@ export const add = async (queue: RequestQueueInstance, request: RequestSource, o
     const loaded = await load(queue);
     if (!loaded?.resource) throw new Error('Queue not loaded');
     Logger.info(Logger.create(queue), `Queueing ${request.url} request for: ${meta.data.stepName}.`);
-    const priority = meta.data.trailKey ? getUIDKeyTime(meta.data.trailKey) : undefined;
+    const priority = meta.data.trailId ? getUIDKeyTime(meta.data.trailId) : undefined;
     return loaded.resource.addRequest({ uniqueKey: craftUIDKey('req', 6), ...request }, { priority, ...options });
 };
 

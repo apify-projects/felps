@@ -26,12 +26,12 @@ describe('Step.create', () => {
         expect(value).toBeTruthy();
     });
 
-    it('should fire preNavigationHook()', async () => {
+    it('should fire preCrawlHook()', async () => {
         let value = 0;
         const step = Step.create({
             name: 'TEST',
             hooks: {
-                preNavigationHook: Hook.create({
+                preCrawlHook: Hook.create({
                     handlers: [
                         async () => { value = 2; },
                     ],
@@ -58,7 +58,7 @@ describe('Step.create', () => {
                         async () => { value = 1; },
                     ],
                 }),
-                postNavigationHook: Hook.create({
+                postCrawlHook: Hook.create({
                     handlers: [
                         async () => { value = 2; },
                     ],

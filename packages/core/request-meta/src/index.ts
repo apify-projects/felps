@@ -18,9 +18,9 @@ export const create = (requestOrRequestContext?: FT.RequestSource | FT.RequestCo
                 flowName: undefined,
                 stepName: undefined,
 
-                trailKey: undefined,
-                flowKey: undefined,
-                requestKey: undefined,
+                trailId: undefined,
+                flowId: undefined,
+                requestId: undefined,
 
                 crawlerMode: 'http',
             },
@@ -43,8 +43,9 @@ export const contextDefaulted = (context?: FT.RequestContext): FT.RequestContext
     return (context || {
         request: {
             userData: {
+                ...(context?.request?.userData || {}),
                 [CONST.METADATA_KEY]: {
-                    [CONST.TRAIL_KEY_PROP]: utils.craftUIDKey('trail'),
+                    [CONST.TRAIL_ID_PROP]: utils.craftUIDKey('trail'),
                 },
             },
         },

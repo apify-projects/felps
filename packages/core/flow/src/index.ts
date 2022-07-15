@@ -6,7 +6,7 @@ export const create = <
     FlowNames extends string = string,
     StepNames extends string = string,
 >(options: FT.FlowOptions<FlowNames, StepNames>): FT.FlowInstance<FlowNames, StepNames> => {
-    const { name, crawlerMode, crawlerOptions, steps = [], meta = {} } = options || {};
+    const { name, crawlerMode, steps = [], meta = {} } = options || {};
 
     const base = Base.create({ key: 'flow', name });
 
@@ -14,7 +14,6 @@ export const create = <
         ...base,
         name: base.name as FlowNames,
         crawlerMode,
-        crawlerOptions,
         steps,
         meta,
     };

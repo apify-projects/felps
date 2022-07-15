@@ -3,9 +3,10 @@ import Flow from '@usefelps/flow';
 import MultiCrawler from '@usefelps/multi-crawler';
 import Orchestrator from '@usefelps/orchestrator';
 import Step from '@usefelps/step';
-import * as utils from '@usefelps/utils';
 import { ReallyAny } from '@usefelps/types';
+import * as utils from '@usefelps/utils';
 import { ProxyConfiguration } from 'apify';
+import { make, write, Patches, read } from 'cagibi';
 
 (async () => {
     type FlowNames = 'MAIN'
@@ -14,18 +15,48 @@ import { ProxyConfiguration } from 'apify';
         'HANDLE_RESULTS' |
         'HANDLE_PAGE';
 
+    // type CrawlType = {
+    //     url: string;
+    //     results: { title: string }[]
+    // }
+
+    // type StateItems = { crawl: CrawlType };
+
+    const patches = new Patches();
+
+    // const readState = (context: RequestContext): StateItems => {
+    //     const { userData } = context.request;
+
+    //     return {
+    //         crawl: read<CrawlType>(userData?.crawl),
+    //     };
+    // };
+
     const hooks = Actor.prepareHooks({
         preActorStartedHook: {
             handlers: [
                 async (_, api) => {
-                    console.log('preActorStartedHook');
-                    api.start('MAIN', { url: 'https://www.icann.org/' });
+                    const crawl = make({ url: 'https://www.icann.org/', results: [] });
+                    patches.add(crawl);
+                    api.start('MAIN', { url: crawl.url, userData: { results: write(crawl.results) } });
                     await Orchestrator.run(Orchestrator.create(api.currentActor()), {} as ReallyAny, {});
                 }
             ],
             async onErrorHook(error) {
                 console.log(error)
             }
+        },
+        postFlowEndedHook: {
+            handlers: [
+                async () => {
+                    try {
+                        console.log({ patches: patches.map(read) })
+                        console.log('postFlowEndedHook', patches.stitch())
+                    } catch (error) {
+                        console.log(error)
+                    }
+                }
+            ]
         }
     });
 
@@ -35,8 +66,10 @@ import { ProxyConfiguration } from 'apify';
             hooks: {
                 navigationHook: {
                     handlers: [
-                        async (_, api) => {
-                            api.next('HANDLE_PAGE', { url: 'https://www.icann.org/get-started' });
+                        async (context, api) => {
+                            const { $, request: { userData } } = context;
+                            patches.add(make({ title: $('title').text() }, userData.results));
+                            api.next('HANDLE_PAGE', { url: 'https://www.icann.org/get-started', userData });
                         }
                     ]
                 }
@@ -48,8 +81,9 @@ import { ProxyConfiguration } from 'apify';
             hooks: {
                 navigationHook: {
                     handlers: [
-                        async ({ $ }) => {
-                            console.log($('title').text())
+                        async (context) => {
+                            const { $, request: { userData } } = context;
+                            patches.add(make({ title: $('title').text() }, userData.results));
                         }
                     ]
                 }

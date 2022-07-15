@@ -18,10 +18,13 @@
             "path": "../request-queue"
         },
         {
+            "path": "../context-api"
+        },
+        {
             "path": "../state"
         },
         {
-            "path": "../step"
+            "path": "../hook"
         },
         {
             "path": "../trail"
@@ -30,10 +33,10 @@
             "path": "../trail--data-requests"
         },
         {
-            "path": "../context-api"
+            "path": "../dataset"
         },
         {
-            "path": "../dataset"
+            "path": "../step"
         }
     ]
 }

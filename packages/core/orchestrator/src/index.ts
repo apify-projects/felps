@@ -2,8 +2,9 @@ import * as CONST from '@usefelps/constants';
 import Flow from '@usefelps/flow';
 import RequestMeta from '@usefelps/request-meta';
 import Queue from '@usefelps/request-queue';
+import ContextApi from '@usefelps/context-api';
 import State from '@usefelps/state';
-import Step from '@usefelps/step';
+import Hook from '@usefelps/hook';
 import Trail from '@usefelps/trail';
 import TrailDataRequests from '@usefelps/trail--data-requests';
 import * as FT from '@usefelps/types';
@@ -13,8 +14,10 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
         async handler(context: FT.RequestContext): Promise<void> {
             const trails = await State.load(actor?.stores?.trails as FT.StateInstance);
             const trail = Trail.createFrom(context?.request, { state: trails });
-            const ingest = Trail.ingested(trail);
-            const digest = Trail.digested(trail);
+            const ingested = Trail.ingested(trail);
+            const digested = Trail.digested(trail);
+
+            const contextApi = ContextApi.create(actor);
 
             const meta = RequestMeta.create(context);
             const { actorName } = meta.data;
@@ -28,17 +31,17 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
                 for (const newRequest of newRequests) {
                     Trail.promote(trailInstance, newRequest);
                     const metaLocal = RequestMeta.create(newRequest.source);
-                    TrailDataRequests.setStatus(digestLocal.requests, CONST.REQUEST_STATUS.QUEUED, metaLocal.data.requestKey);
+                    TrailDataRequests.setStatus(digestLocal.requests, CONST.REQUEST_STATUS.QUEUED, metaLocal.data.requestId);
                     try {
                         await Queue.add(actor?.queues?.default, metaLocal.request, { crawlerMode: metaLocal.data.crawlerMode });
                     } catch (error) {
-                        TrailDataRequests.setStatus(digest.requests, CONST.REQUEST_STATUS.CREATED, metaLocal.data.requestKey);
+                        TrailDataRequests.setStatus(digested.requests, CONST.REQUEST_STATUS.CREATED, metaLocal.data.requestId);
                     }
                 }
             }
 
             // INGESTED Stage
-            const newlyCreatedRequests = TrailDataRequests.getItemsListByStatus(ingest.requests, ['CREATED', 'FAILED']);
+            const newlyCreatedRequests = TrailDataRequests.getItemsListByStatus(ingested.requests, ['CREATED', 'FAILED']);
             for (const newRequest of newlyCreatedRequests) {
 
                 const metaLocal = RequestMeta.create(newRequest.source);
@@ -48,35 +51,35 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
                 if (stepIsPartofFlow) {
                     Trail.promote(trail, newRequest);
                 } else {
-                    TrailDataRequests.setStatus(ingest.requests, CONST.REQUEST_STATUS.DISCARDED, metaLocal.data.requestKey);
+                    TrailDataRequests.setStatus(ingested.requests, CONST.REQUEST_STATUS.DISCARDED, metaLocal.data.requestId);
                 }
             };
 
             // DIGESTED Stage
-            const newRequests = TrailDataRequests.getItemsListByStatus(digest.requests, 'CREATED');
+            const newRequests = TrailDataRequests.getItemsListByStatus(digested.requests, 'CREATED');
             for (const newRequest of newRequests) {
                 const metaLocal = RequestMeta.create(newRequest.source);
 
                 // TODO: Add filtering here
                 // Check if need more data or not (to avoid unnecessary requests)
 
-                if (metaLocal.data.requestKey) {
-                    TrailDataRequests.setStatus(digest.requests, CONST.REQUEST_STATUS.QUEUED, metaLocal.data.requestKey);
+                if (metaLocal.data.requestId) {
+                    TrailDataRequests.setStatus(digested.requests, CONST.REQUEST_STATUS.QUEUED, metaLocal.data.requestId);
                     try {
                         await Queue.add(actor?.queues?.default, metaLocal.request, { crawlerMode: metaLocal.data.crawlerMode });
                     } catch (error) {
-                        TrailDataRequests.setStatus(digest.requests, CONST.REQUEST_STATUS.CREATED, metaLocal.data.requestKey);
+                        TrailDataRequests.setStatus(digested.requests, CONST.REQUEST_STATUS.CREATED, metaLocal.data.requestId);
                     }
                 }
             };
 
             // REQUESTS DONE
-            const remainingRequests = TrailDataRequests.getItemsListByStatus(digest.requests, ['CREATED', 'QUEUED', 'STARTED', 'FAILED']);
-            const trailEnded = remainingRequests.length === 0;
+            const remainingRequests = TrailDataRequests.getItemsListByStatus(digested.requests, ['CREATED', 'QUEUED', 'STARTED', 'FAILED']);
+            const succeededRequests = TrailDataRequests.getItemsListByStatus(digested.requests, ['SUCCEEDED']);
+            const trailEnded = remainingRequests.length === 0 && succeededRequests.length > 0;
 
             if (trailEnded) {
-                // Run FLOW_ENDED hook
-                await Step.run(actor?.hooks?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, 'FLOW_ENDED') as 'FLOW_ENDED'] as FT.StepInstance, actor, context);
+                await Hook.run(actor?.hooks?.postFlowEndedHook, actor, context, contextApi(context));
             }
         },
     };

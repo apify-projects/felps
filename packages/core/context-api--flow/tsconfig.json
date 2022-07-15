@@ -15,6 +15,9 @@
             "path": "../trail--data-requests"
         },
         {
+            "path": "../trail--data-state"
+        },
+        {
             "path": "../trail"
         },
         {

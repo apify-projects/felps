@@ -358,9 +358,14 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
 
             Object.defineProperty(crawlingContext, 'json', {
                 get() {
-                    if (contentType.type !== APPLICATION_JSON_MIME_TYPE) return null;
-                    const jsonString = body!.toString(contentType.encoding);
-                    return JSON.parse(jsonString);
+                    // if (contentType.type !== APPLICATION_JSON_MIME_TYPE) return null;
+                    // const jsonString = body!.toString(contentType.encoding);
+                    // return JSON.parse(jsonString);
+                    try {
+                        return JSON.parse(typeof body === 'string' ? body : body?.toString?.() as string);
+                    } catch (error) {
+                        return null
+                    }
                 },
             });
 

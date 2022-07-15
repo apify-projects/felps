@@ -25,9 +25,9 @@ export const METADATA_KEY = '___felps';
 export const METADATA_CRAWLER_MODE_PATH = `${METADATA_KEY}.crawlerMode`;
 export const SCHEMA_MODEL_NAME_KEY = 'modelName';
 
-export const REQUEST_KEY_PROP = <const>'requestKey';
-export const TRAIL_KEY_PROP = <const>'trailKey';
-export const FLOW_KEY_PROP = <const>'flowKey';
-export const ACTOR_KEY_PROP = <const>'actorKey';
+export const REQUEST_ID_PROP = <const>'requestId';
+export const TRAIL_ID_PROP = <const>'trailId';
+export const FLOW_ID_PROP = <const>'flowId';
+export const ACTOR_ID_PROP = <const>'actorId';
 
 export const TRAIL_UID_PREFIX = 'trail';

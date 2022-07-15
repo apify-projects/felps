@@ -100,7 +100,7 @@ export const dependencies = (model: FT.ModelInstance): FT.ModelInstance[] => {
 
 export const referenceKeys = (model: FT.ModelInstance): FT.ReferenceKey[] => {
     return [
-        CONST.TRAIL_KEY_PROP,
+        CONST.TRAIL_ID_PROP,
         ...(model.parents || []).map((key) => CONST.REFERENCE_KEY(key)),
     ];
 };

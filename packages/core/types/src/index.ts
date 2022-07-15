@@ -2,7 +2,6 @@
 import { CheerioCrawlingContext } from '@crawlee/cheerio';
 import { Dataset, Dictionary, KeyValueStore, Request, RequestOptions } from '@crawlee/core';
 import { PlaywrightCrawlerOptions, PlaywrightCrawlingContext } from '@crawlee/playwright';
-import { ApifyClient } from 'apify-client';
 import type EventEmitter from 'eventemitter3';
 import type { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
 import type { JSONSchema7 as $JSONSchema7 } from 'json-schema';
@@ -54,6 +53,7 @@ export type _JSONSchema7<T = unknown> = boolean | JSONSchemaObject<T>;
 
 export type Self<T> = T;
 export type AnyObject = Record<string, ReallyAny>;
+export type MaybeAny = any;
 export type ReallyAny = any;
 export type UniqueyKey = string;
 export type ReferenceKey = string;
@@ -129,13 +129,13 @@ export type RequestOptionalOptions = { priority?: number, crawlerMode?: RequestC
 // shared --------------------------------------------------
 export type RequestCrawlerMode = 'http' | 'chromium' | 'firefox' | 'webkit';
 
-export type RequestCrawlerOptions = {
-    mode: RequestCrawlerMode
-};
+// export type RequestCrawlerOptions = {
+//     mode: RequestCrawlerMode
+// };
 
 export type SharedCustomCrawlerOptions = {
     crawlerMode?: RequestCrawlerMode,
-    crawlerOptions?: RequestCrawlerOptions,
+    // crawlerOptions?: RequestCrawlerOptions,
 }
 
 // @usefelps/instance-base ------------------------------------------------------------
@@ -184,15 +184,18 @@ export type StepInstance<StepNames extends string = string> = {
 
 export type StepOptions<StepNames extends string = string> = Omit<StepInstance<StepNames>, keyof InstanceBase> & { name: StepNames };
 
-export type StepHooks<Methods = any> = {
-    navigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & TContextApi>>,
-    postNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & TContextApi>>,
-    preNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & TContextApi>>,
-    onErrorHook?: HookOptions<[context: RequestContext, api: Methods & TContextApi, error: ReallyAny]>,
-    onRequestErrorHook?: HookOptions<StepOptionsHandlerParameters<Methods & TContextApi>>
+export type StepHooks = {
+    navigationHook?: HookOptions<StepOptionsHandlerParameters>,
+    preNavigationHook?: HookOptions<StepOptionsHandlerParameters>,
+    postNavigationHook?: HookOptions<StepOptionsHandlerParameters>,
+    postCrawlHook?: HookOptions<StepOptionsHandlerParameters>,
+    preCrawlHook?: HookOptions<StepOptionsHandlerParameters>,
+    responseInterceptionHook?: HookOptions<[context: RequestContext, response: ReallyAny, actor: ActorInstance]>,
+    postFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
+    postRequestFailedHook?: HookOptions<StepOptionsHandlerParameters>
 };
-export type StepOptionsHandlerParameters<Methods = any> = [context: RequestContext, api: Methods]
-export type StepOptionsHandler<Methods = unknown> = (context: RequestContext, api: Methods) => Promise<void>
+export type StepOptionsHandlerParameters = [context: RequestContext, api: TContextApi, actor: ActorInstance]
+export type StepNavigationHandler = (context: RequestContext, api: TContextApi, actor: ActorInstance) => Promise<void>
 
 // @usefelps/context-api ------------------------------------------------------------
 export type TContextApi = ContextApiMetaAPI & ContextApiHelpersAPI & ContextApiFlowsAPI;
@@ -209,7 +212,7 @@ export type ContextApiFlowsAPI = {
     currentFlow(): string,
     isCurrentStep: (stepName: string) => boolean,
     isCurrentFlow: (flowName: string) => boolean,
-    isCurrentActor: (actorKey: string) => boolean,
+    isCurrentActor: (actorId: string) => boolean,
     isStep: (stepNameToTest: string, stepNameExpected: string) => boolean,
     isFlow: (flowNameToTest: string, flowNameExpected: string) => boolean,
     isSomeStep: (stepNameToTest: string, stepNamesExpected: (string)[]) => boolean,
@@ -230,6 +233,8 @@ export type ContextApiFlowsAPI = {
     next: (stepName: Extract<string, string>, request: RequestSource, options?: { crawlerMode?: RequestCrawlerMode }) => void;
     stop: () => void;
     retry: () => void;
+    getState: () => ReallyAny;
+    setState: (state: ReallyAny) => void;
 };
 
 // @usefelps/context-api--meta ------------------------------------------------------------
@@ -238,6 +243,7 @@ export type ContextApiMetaInstance = {
 };
 
 export type ContextApiMetaAPI = {
+    getActor: () => ActorInstance;
     getActorName: () => string | undefined;
     getActorInput: () => ReallyAny,
     getUserData: () => Record<string, unknown>,
@@ -245,6 +251,7 @@ export type ContextApiMetaAPI = {
     getFlowInput: () => any;
     getFlowName: () => string;
     getStepName: () => string;
+    getContext: () => ReallyAny;
 }
 
 // @usefelps/context-api--helpers ------------------------------------------------------------
@@ -335,14 +342,14 @@ export type TrailOptions = {
 
 export type TrailFlowState = {
     name: string,
-    input: any,
-    output?: any,
+    input: ReallyAny,
+    output?: ReallyAny,
 } & SharedCustomCrawlerOptions;
 
 export type TrailState = {
     id: string,
     flows: {
-        [flowKey: string]: TrailFlowState,
+        [flowId: string]: TrailFlowState,
     },
     stats: {
         startedAt: string,
@@ -370,9 +377,23 @@ export type TrailDataStages = 'digested' | 'ingested';
 
 export type TrailDataStage = {
     requests: TrailDataRequestsInstance,
+    state: TrailDataStateInstance,
 }
 
 export type TrailDataInstance = TrailDataRequestsInstance; // TrailDataModelInstance |
+
+// trail-data-state
+export type TrailDataStateInstance = {
+    id: UniqueyKey,
+    state: StateInstance;
+    path: string;
+} & InstanceBase;
+
+export type TrailDataStateOptions = {
+    id: UniqueyKey,
+    type: TrailDataStages,
+    state: StateInstance;
+}
 
 // trail-data-requests.ts
 export type TrailDataRequestsInstance = {
@@ -533,15 +554,17 @@ export type ActorHooks<
     postActorEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preCrawlerStartedHook?: HookInstance<[actor: LocalActorInstance]>,
     postCrawlerEndedHook?: HookInstance<[actor: LocalActorInstance]>,
-    onCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
+    postCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
     preQueueStartedHook?: HookInstance<[actor: LocalActorInstance]>,
     postQueueEndedHook?: HookInstance<[actor: LocalActorInstance]>,
-    prestartFlowedHook?: HookInstance<[actor: LocalActorInstance]>,
-    postFlowEndedHook?: HookInstance<[actor: LocalActorInstance]>,
+    preFlowStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
+    postFlowEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
     preStepStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
     postStepEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
-    preNavigationHook?: HookInstance<[actor: LocalActorInstance, context: PlaywrightCrawlingContext<Dictionary<any>>, goToOptions: Record<PropertyKey, any>]>,
-    postNavigationHook?: HookInstance<[actor: LocalActorInstance, context: PlaywrightCrawlingContext<Dictionary<any>>, goToOptions: Record<PropertyKey, any>]>,
+    postNavigationHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
+    preNavigationHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
+    preCrawlHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, goToOptions: Record<PropertyKey, any>]>,
+    postCrawlHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, goToOptions: Record<PropertyKey, any>]>,
     onStepFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
     onStepRequestFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
 }
@@ -567,9 +590,9 @@ export type RequestMetaData = {
     flowName?: string,
     stepName?: string,
 
-    trailKey?: string,
-    flowKey?: string,
-    requestKey?: string,
+    trailId?: string,
+    flowId?: string,
+    requestId?: string,
 
     crawlerMode?: RequestCrawlerMode,
 }
@@ -606,13 +629,13 @@ export type LoggerInstance = {
 } & LoggerOptions;
 
 // apify-client.ts ------------------------------------------------------------
-export type ApifyClientInstance = {
-    resource: ApifyClient,
-};
+// export type ApifyClientInstance = {
+//     resource: ApifyClient,
+// };
 
-export type ApifyClientOptions = {
-    token?: string,
-};
+// export type ApifyClientOptions = {
+//     token?: string,
+// };
 
 // @usefelps/validator ------------------------------------------------------------
 export type ValidatorInstance = {

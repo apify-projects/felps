@@ -23,9 +23,9 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
             const digest = Trail.digested(trail);
 
             const meta = RequestMeta.create(context);
-            const actorKey = meta.data.reference.fActorKey as string;
+            const actorId = meta.data.reference.factorId as string;
 
-            // const flow = meta.data.flowName ? actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorKey, meta.data.flowName)] as FlowInstance<ReallyAny> : undefined;
+            // const flow = meta.data.flowName ? actor.flows?.[PREFIXED_NAME_BY_ACTOR(actorId, meta.data.flowName)] as FlowInstance<ReallyAny> : undefined;
 
             const stepApi = ContextApi.create<FT.ReallyAny, FT.ReallyAny, FT.ReallyAny, FT.ReallyAny>(actor);
             const api = stepApi(context);
@@ -57,7 +57,7 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
             if (!mainFlowName) {
                 throw new Error(`No main flow found: ${mainFlowName}`);
             };
-            const mainFlow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, mainFlowName)];
+            const mainFlow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorId, mainFlowName)];
 
             const outputModels = Model.flatten(mainFlow?.output);
             for (const model of outputModels) {
@@ -91,7 +91,7 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
                 // TODO: Add filtering here
                 // ...
                 const metaLocal = RequestMeta.create(newRequest.source);
-                const flowLocal = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, metaLocal.data.flowName)];
+                const flowLocal = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorId, metaLocal.data.flowName)];
                 const stepIsPartofFlow = !!flowLocal && Flow.has(flowLocal, metaLocal.data.stepName);
 
                 const referenceHash = utils.hash(metaLocal?.data?.reference);
@@ -138,7 +138,7 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
 
             if (trailEnded) {
                 // Run FLOW_ENDED hook
-                await Step.run(actor?.hooks?.[CONST.PREFIXED_NAME_BY_ACTOR(actorKey, 'FLOW_ENDED') as 'FLOW_ENDED'] as FT.StepInstance, actor, context);
+                await Step.run(actor?.hooks?.[CONST.PREFIXED_NAME_BY_ACTOR(actorId, 'FLOW_ENDED') as 'FLOW_ENDED'] as FT.StepInstance, actor, context);
 
                 // MODELS ------------------------------------------------------------
 
