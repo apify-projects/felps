@@ -4,16 +4,16 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@usefelps/context-api": "workspace:*",
-        "@usefelps/dataset": "workspace:*",
         "@usefelps/flow": "workspace:*",
-        "@usefelps/hook": "workspace:*",
         "@usefelps/request-meta": "workspace:*",
         "@usefelps/request-queue": "workspace:*",
+        "@usefelps/context-api": "workspace:*",
         "@usefelps/state": "workspace:*",
-        "@usefelps/step": "workspace:*",
+        "@usefelps/hook": "workspace:*",
         "@usefelps/trail": "workspace:*",
-        "@usefelps/trail--data-requests": "workspace:*"
+        "@usefelps/trail--data-requests": "workspace:*",
+        "@usefelps/dataset": "workspace:*",
+        "@usefelps/step": "workspace:*"
     },
     "devDependencies": {
         "rimraf": "^3.0.2",

@@ -4,10 +4,10 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@crawlee/core": "*",
-        "@usefelps/kv-store--adapter--apify": "workspace:*",
-        "@usefelps/request-meta": "workspace:*",
         "@usefelps/state": "workspace:*",
+        "@usefelps/request-meta": "workspace:*",
+        "@usefelps/kv-store--adapter--apify": "workspace:*",
+        "@crawlee/core": "*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
