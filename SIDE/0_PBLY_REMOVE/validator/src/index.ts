@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import Base from "@usefelps/instance-base";
+import InstanceBase from "@usefelps/instance-base";
 import Logger from "@usefelps/logger";
 import { ReallyAny, ValidatorInstance, ValidatorOptions, ValidatorValidateOptions } from '@usefelps/types';
 
@@ -18,7 +18,7 @@ function createAjv() {
 export const create = (options?: ValidatorOptions) => {
     const { name, schema = {} } = options || {};
     return {
-        ...Base.create({ key: 'validator', name: name as string }),
+        ...InstanceBase.create({ key: 'validator', name: name as string }),
         schema,
     };
 };

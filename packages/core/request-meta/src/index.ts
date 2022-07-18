@@ -1,4 +1,4 @@
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import * as CONST from '@usefelps/constants';
 import * as FT from '@usefelps/types';
 import * as utils from '@usefelps/utils';
@@ -32,7 +32,7 @@ export const create = (requestOrRequestContext?: FT.RequestSource | FT.RequestCo
     const data = Reflect.get(request.userData, CONST.METADATA_KEY);
 
     return {
-        ...Base.create({ key: 'request-meta', name: 'request-meta' }),
+        ...InstanceBase.create({ key: 'request-meta', name: 'request-meta' }),
         request: request as FT.RequestSource,
         userData,
         data,

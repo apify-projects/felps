@@ -356,30 +356,13 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
             crawlingContext.contentType = contentType;
             crawlingContext.response = response;
 
-            Object.defineProperty(crawlingContext, 'json', {
-                get() {
-                    // if (contentType.type !== APPLICATION_JSON_MIME_TYPE) return null;
-                    // const jsonString = body!.toString(contentType.encoding);
-                    // return JSON.parse(jsonString);
-                    try {
-                        return JSON.parse(typeof body === 'string' ? body : body?.toString?.() as string);
-                    } catch (error) {
-                        return null
-                    }
-                },
-            });
+            crawlingContext.body = dom ? (isXml ? $!.xml() : $!.html({ decodeEntities: false })) : body;
 
-            Object.defineProperty(crawlingContext, 'body', {
-                get() {
-                    // NOTE: For XML/HTML documents, we don't store the original body and only reconstruct it from Cheerio's DOM.
-                    // This is to save memory for high-concurrency crawls. The downside is that changes
-                    // made to DOM are reflected in the HTML, but we can live with that...
-                    if (dom) {
-                        return isXml ? $!.xml() : $!.html({ decodeEntities: false });
-                    }
-                    return body;
-                },
-            });
+            try {
+                crawlingContext.json = JSON.parse(typeof body === 'string' ? body : body?.toString?.() as string);
+            } catch (error) {
+                crawlingContext.json = undefined;
+            }
         }
 
         if (page) {

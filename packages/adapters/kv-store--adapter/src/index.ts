@@ -1,9 +1,9 @@
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import { KVStoreAdapterInstance, KVStoreAdapterListResult, KVStoreAdapterOptions, ReallyAny } from '@usefelps/types';
 
 export const create = <T = ReallyAny>(options: KVStoreAdapterOptions): KVStoreAdapterInstance<T> => {
     return {
-        ...Base.create({ name: 'kv-store-adapter' }),
+        ...InstanceBase.create({ name: 'kv-store-adapter' }),
         resource: undefined,
         init: options?.init,
         get: options.get,

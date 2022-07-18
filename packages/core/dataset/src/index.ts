@@ -13,17 +13,16 @@ export const create = (options: DatasetOptions): DatasetInstance => {
     return {
         ...base,
         resource: undefined,
+        ...options,
         hooks: {
             preDataPushedHook: Hook.create({
+                ...hooks?.preDataPushedHook,
                 name: pathify(base.name, 'preDataPushedHook'),
-                handlers: [
-                    ...(hooks?.preDataPushedHook?.handlers || []),
-                ],
             }),
-            onDataPushFailedHook: Hook.create({
-                name: pathify(base.name, 'onDataPushFailedHook'),
+            postDataPushFailedHook: Hook.create({
+                name: pathify(base.name, 'postDataPushFailedHook'),
                 handlers: [
-                    ...(hooks?.onDataPushFailedHook?.handlers || []),
+                    ...(hooks?.postDataPushFailedHook?.handlers || []),
                 ],
             }),
             postDataPushedHook: Hook.create({
@@ -65,7 +64,7 @@ export const push = async (dataset: DatasetInstance, data: ReallyAny | ReallyAny
              * Ex: Logging, etc.
              * By default: (does nothing for now)
              */
-             Hook.run(loaded.hooks.onDataPushFailedHook, dataset, data, error);
+            Hook.run(loaded.hooks.postDataPushFailedHook, dataset, data, error);
 
         } finally {
             /**

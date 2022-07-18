@@ -103,9 +103,6 @@
             "path": "packages/core/types"
         },
         {
-            "path": "packages/core/validator"
-        },
-        {
             "path": "packages/crawlee/crawler--aio-playwright"
         },
         {

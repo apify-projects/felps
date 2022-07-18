@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CheerioCrawlingContext } from '@crawlee/cheerio';
-import { Dataset, Dictionary, KeyValueStore, Request, RequestOptions } from '@crawlee/core';
-import { PlaywrightCrawlerOptions, PlaywrightCrawlingContext } from '@crawlee/playwright';
+import type { CheerioCrawlingContext } from '@crawlee/cheerio';
+import type { Dataset, Dictionary, KeyValueStore, Request, RequestOptions } from '@crawlee/core';
+import type { PlaywrightCrawlerOptions, PlaywrightCrawlingContext } from '@crawlee/playwright';
 import type EventEmitter from 'eventemitter3';
 import type { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
 import type { JSONSchema7 as $JSONSchema7 } from 'json-schema';
@@ -10,6 +10,9 @@ import type Queue from 'queue';
 import type Route from 'route-parser';
 import type { LeveledLogMethod, Logger } from 'winston';
 import * as Transport from 'winston-transport';
+
+// export type DefineInstance<T> = T & InstanceBase;
+// export type DefineOptions<I> = Partial<I>;
 
 export type MakeSchema<S> = S | Readonly<S>;
 export type JSONSchema = MakeSchema<_JSONSchema7>;
@@ -165,11 +168,7 @@ export type FlowInstance<
 export type FlowOptions<
     FlowNames extends string = string,
     StepNames extends string = string
-> = {
-    name: FlowNames,
-    steps?: StepNames[],
-    meta?: RequestMetaData,
-} & SharedCustomCrawlerOptions
+> = Partial<FlowInstance<FlowNames, StepNames>>;
 
 // @usefelps/step ------------------------------------------------------------
 export type StepInstance<StepNames extends string = string> = {
@@ -427,21 +426,17 @@ export type RequestQueueOptions = {
 
 // @usefelps/dataset ------------------------------------------------------------
 export type DatasetInstance = {
-    name: string;
-    hooks: DatasetHooks;
-    resource: Dataset | undefined;
+    hooks: DatasetHooks,
+    resource: Dataset | undefined,
 } & InstanceBase;
+
+export type DatasetOptions = Partial<DatasetInstance>;
 
 export type DatasetHooks = {
     preDataPushedHook: HookInstance<[dataset: DatasetInstance, data: ReallyAny | ReallyAny[]]>
-    onDataPushFailedHook: HookInstance<[dataset: DatasetInstance, data: ReallyAny | ReallyAny[], error: ReallyAny]>
+    postDataPushFailedHook: HookInstance<[dataset: DatasetInstance, data: ReallyAny | ReallyAny[], error: ReallyAny]>
     postDataPushedHook: HookInstance<[dataset: DatasetInstance, data: ReallyAny | ReallyAny[]]>
 };
-
-export type DatasetOptions = {
-    name?: string,
-    hooks?: DatasetHooks
-}
 
 // @usefelps/actor ------------------------------------------------------------
 export type ActorInstance<
@@ -710,7 +705,7 @@ export type EventsInstance = {
     queues: Queue[],
     batchSize: number,
     batchMinIntervals: number,
-    hooks: EventsHooks
+    hooks?: EventsHooks
 } & InstanceBase;
 
 // kv-store-adapter.ts
@@ -743,19 +738,13 @@ export type LoggerAdapterOptions = {
 export type HookParametersSignatureDefault = ReallyAny[];
 export type HookSignature<P extends any[], O = void> = (...args: P) => Promise<O>;
 
-export type HookOptions<HookParametersSignature extends HookParametersSignatureDefault = HookParametersSignatureDefault> = {
-    name?: string,
-    handlers?: HookSignature<HookParametersSignature>[],
-    validationHandler?: (...args: HookParametersSignature) => Promise<boolean>,
-    onErrorHook?: (error: ReallyAny) => Promise<void>,
-};
-
 export type HookInstance<HookParametersSignature extends HookParametersSignatureDefault = HookParametersSignatureDefault> = {
     handlers?: HookSignature<HookParametersSignature>[],
     validationHandler?: (...args: HookParametersSignature) => Promise<boolean>,
     onErrorHook?: (error: ReallyAny) => Promise<void>,
 } & Partial<InstanceBase>;
 
+export type HookOptions<HookParametersSignature extends HookParametersSignatureDefault = HookParametersSignatureDefault> = Partial<HookInstance<HookParametersSignature>>;
 
 // @usefelps/orchestrator ------------------------------------------------------------
 

@@ -2,10 +2,12 @@ import InstanceBase from '@usefelps/instance-base';
 import { deduplicateFunctions } from '@usefelps/utils';
 import * as FT from '@usefelps/types';
 
-export const create = <HookParametersSignature extends FT.HookParametersSignatureDefault = FT.HookParametersSignatureDefault>(options: FT.HookOptions<HookParametersSignature>): FT.HookInstance<HookParametersSignature> => {
+export const create = <
+    HookParametersSignature extends FT.HookParametersSignatureDefault = FT.HookParametersSignatureDefault
+>(options: FT.HookOptions<HookParametersSignature>): FT.HookInstance<HookParametersSignature> => {
     return {
         ...InstanceBase.create({ key: 'hook', name: options?.name || 'default' }),
-        handlers: options.handlers.filter(Boolean),
+        handlers: (options.handlers || []).filter(Boolean),
         validationHandler: options?.validationHandler || async function () { return true },
         onErrorHook: options?.onErrorHook,
     };

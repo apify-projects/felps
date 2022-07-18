@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import State from '@usefelps/state';
 import * as FT from '@usefelps/types';
 import * as utils from '@usefelps/utils';
@@ -13,7 +13,7 @@ export const create = (options: FT.TrailDataStateOptions): FT.TrailDataStateInst
     const path = utils.pathify(id, type, 'state');
 
     return {
-        ...Base.create({ key, name, id }),
+        ...InstanceBase.create({ key, name, id }),
         path,
         state,
     };

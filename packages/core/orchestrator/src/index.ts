@@ -1,7 +1,7 @@
 import * as CONST from '@usefelps/constants';
 import Flow from '@usefelps/flow';
 import RequestMeta from '@usefelps/request-meta';
-import Queue from '@usefelps/request-queue';
+import RequestQueue from '@usefelps/request-queue';
 import ContextApi from '@usefelps/context-api';
 import State from '@usefelps/state';
 import Hook from '@usefelps/hook';
@@ -33,7 +33,7 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
                     const metaLocal = RequestMeta.create(newRequest.source);
                     TrailDataRequests.setStatus(digestLocal.requests, CONST.REQUEST_STATUS.QUEUED, metaLocal.data.requestId);
                     try {
-                        await Queue.add(actor?.queues?.default, metaLocal.request, { crawlerMode: metaLocal.data.crawlerMode });
+                        await RequestQueue.add(actor?.queues?.default, metaLocal.request, { crawlerMode: metaLocal.data.crawlerMode });
                     } catch (error) {
                         TrailDataRequests.setStatus(digested.requests, CONST.REQUEST_STATUS.CREATED, metaLocal.data.requestId);
                     }
@@ -66,7 +66,7 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
                 if (metaLocal.data.requestId) {
                     TrailDataRequests.setStatus(digested.requests, CONST.REQUEST_STATUS.QUEUED, metaLocal.data.requestId);
                     try {
-                        await Queue.add(actor?.queues?.default, metaLocal.request, { crawlerMode: metaLocal.data.crawlerMode });
+                        await RequestQueue.add(actor?.queues?.default, metaLocal.request, { crawlerMode: metaLocal.data.crawlerMode });
                     } catch (error) {
                         TrailDataRequests.setStatus(digested.requests, CONST.REQUEST_STATUS.CREATED, metaLocal.data.requestId);
                     }

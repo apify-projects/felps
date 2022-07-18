@@ -1,13 +1,13 @@
 import { Index } from 'flexsearch';
 import getByKey from 'lodash.get';
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import * as FT from '@usefelps/types';
 
 export const create = (options: FT.SearchOptions) => {
     const { name, indexOptions, documentOptions } = options || {};
 
     return {
-        ...Base.create({ key: 'search', name: name || 'default' }),
+        ...InstanceBase.create({ key: 'search', name: name || 'default' }),
         indexOptions,
         documentOptions,
     };

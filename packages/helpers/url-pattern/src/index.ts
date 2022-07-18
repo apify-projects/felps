@@ -1,13 +1,13 @@
 import { URL } from 'node:url';
 import Route from 'route-parser';
-import Base  from '@usefelps/instance-base';
+import InstanceBase  from '@usefelps/instance-base';
 import { UrlPatternInstance, UrlPatternOptions, UrlPatternParsed } from '@usefelps/types';
 
 export const create = (options: UrlPatternOptions): UrlPatternInstance => {
     const { name, pattern } = options;
 
     return {
-        ...Base.create({ key: 'search', name: name || 'default' }),
+        ...InstanceBase.create({ key: 'search', name: name || 'default' }),
         pattern,
         resource: new Route(pattern),
     };

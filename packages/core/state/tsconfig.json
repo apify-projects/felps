@@ -9,9 +9,6 @@
     ],
     "references": [
         {
-            "path": "../../apify/apify-events"
-        },
-        {
             "path": "../instance-base"
         },
         {

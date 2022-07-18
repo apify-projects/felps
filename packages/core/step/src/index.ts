@@ -2,7 +2,7 @@ import ContextApi from '@usefelps/context-api';
 import Trail from '@usefelps/trail';
 import TrailDataRequests from '@usefelps/trail--data-requests';
 import Hook from '@usefelps/hook';
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import Logger from '@usefelps/logger';
 import RequestMeta from '@usefelps/request-meta';
 import * as FT from '@usefelps/types';
@@ -17,7 +17,7 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
         meta = {},
     } = options || {};
 
-    const base = Base.create({ key: 'step', name });
+    const base = InstanceBase.create({ key: 'step', name });
 
     const validationHandler = async (...[_, api]: StepOptionsHandlerParameters) => {
         return meta?.actorName ? api.getActorName() === meta.actorName : true;

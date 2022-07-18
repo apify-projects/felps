@@ -1,81 +1,106 @@
 import Actor from '@usefelps/actor';
+import * as constants from '@usefelps/constants'
+import ContextApi from '@usefelps/context-api';
+import ContextApiFlow from '@usefelps/context-api--flow';
+import ContextApiHelpers from '@usefelps/context-api--helpers';
+import ContextApiMeta from '@usefelps/context-api--meta';
 import Crawler from '@usefelps/crawler';
 import Dataset from '@usefelps/dataset';
 import Events from '@usefelps/events';
 import Flow from '@usefelps/flow';
 import Hook from '@usefelps/hook';
-import Base from '@usefelps/instance-base';
-import RequestMeta from '@usefelps/request-meta';
-import Queue from '@usefelps/request-queue';
-import Step from '@usefelps/step';
-import ContextApi from '@usefelps/context-api';
-import ContextApiFlow from '@usefelps/context-api--flow';
-import ContextApiHelpers from '@usefelps/context-api--helpers';
-import ContextApiMeta from '@usefelps/context-api--meta';
+import InstanceBase from '@usefelps/instance-base';
 import MultiCrawler from '@usefelps/multi-crawler';
+import Orchestrator from '@usefelps/orchestrator';
+import RequestMeta from '@usefelps/request-meta';
+import RequestQueue from '@usefelps/request-queue';
 import State from '@usefelps/state';
-import AIOPlaywrightCrawler from '@usefelps/crawlee--crawler--aio-playwright';
-import CustomRequestQueue from '@usefelps/request-queue';
-import Logger from '@usefelps/logger';
-import Mutable from '@usefelps/mutable';
-import Search from '@usefelps/search';
-import UrlPattern from '@usefelps/url-pattern';
+import Step from '@usefelps/step';
+import Trail from '@usefelps/trail';
+import TrailDataRequests from '@usefelps/trail--data-requests';
+import TrailDataState from '@usefelps/trail--data-state';
+
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
 import ApifyKvStoreAdapter from '@usefelps/kv-store--adapter--apify';
 import InMemoryKvStoreAdapter from '@usefelps/kv-store--adapter--in-memory';
 
+import ApifyEvents from '@usefelps/apify-events';
+
+import Logger from '@usefelps/logger';
+import Mutable from '@usefelps/mutable';
+import Search from '@usefelps/search';
+import UrlPattern from '@usefelps/url-pattern';
+import * as utils from '@usefelps/utils';
+
+import AIOPlaywrightCrawler from '@usefelps/crawlee--crawler--aio-playwright';
+import CustomRequestQueue from '@usefelps/crawlee--request-queue';
+
 export {
-    Base,
     Actor,
-    Crawler,
-    MultiCrawler,
-    Flow,
-    Step,
+    constants,
     ContextApi,
     ContextApiFlow,
-    ContextApiMeta,
     ContextApiHelpers,
-    State,
-    Queue,
+    ContextApiMeta,
+    Crawler,
     Dataset,
-    Hook,
     Events,
+    Flow,
+    Hook,
+    InstanceBase,
+    MultiCrawler,
+    Orchestrator,
     RequestMeta,
-    Search,
-    UrlPattern,
-    Logger,
-    Mutable,
-    CustomRequestQueue,
-    AIOPlaywrightCrawler,
+    RequestQueue,
+    State,
+    Step,
+    Trail,
+    TrailDataRequests,
+    TrailDataState,
     KvStoreAdapter,
     ApifyKvStoreAdapter,
     InMemoryKvStoreAdapter,
+    ApifyEvents,
+    Logger,
+    Mutable,
+    Search,
+    UrlPattern,
+    utils,
+    AIOPlaywrightCrawler,
+    CustomRequestQueue,
 };
 
 export default {
-    Base,
     Actor,
-    Crawler,
-    MultiCrawler,
-    Flow,
-    Step,
+    constants,
     ContextApi,
     ContextApiFlow,
-    ContextApiMeta,
     ContextApiHelpers,
-    State,
-    Queue,
+    ContextApiMeta,
+    Crawler,
     Dataset,
-    Hook,
     Events,
+    Flow,
+    Hook,
+    InstanceBase,
+    MultiCrawler,
+    Orchestrator,
     RequestMeta,
-    Search,
-    UrlPattern,
-    Logger,
-    Mutable,
-    CustomRequestQueue,
-    AIOPlaywrightCrawler,
+    RequestQueue,
+    State,
+    Step,
+    Trail,
+    TrailDataRequests,
+    TrailDataState,
     KvStoreAdapter,
     ApifyKvStoreAdapter,
     InMemoryKvStoreAdapter,
+    ApifyEvents,
+    Logger,
+    Mutable,
+    Search,
+    UrlPattern,
+    utils,
+    AIOPlaywrightCrawler,
+    CustomRequestQueue,
 };

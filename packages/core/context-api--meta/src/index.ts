@@ -1,11 +1,11 @@
 import Trail from '@usefelps/trail';
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import RequestMeta from '@usefelps/request-meta';
 import * as FT from '@usefelps/types';
 
 export const create = (actor: FT.ActorInstance): FT.ContextApiMetaInstance => {
     return {
-        ...Base.create({ key: 'context-api-meta', name: 'context-api-meta' }),
+        ...InstanceBase.create({ key: 'context-api-meta', name: 'context-api-meta' }),
         handler(context) {
             const trail = Trail.createFrom(context?.request, { state: actor?.stores?.trails as FT.StateInstance });
             const meta = RequestMeta.create(context);

@@ -1,19 +1,14 @@
 {
-    "name": "@usefelps/validator",
-    "version": "1.0.322",
+    "name": "@usefelps/dataset-collection",
+    "version": "1.0.315",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@usefelps/constants": "workspace:*",
-        "@usefelps/instance-base": "workspace:*",
-        "@usefelps/logger": "workspace:*",
-        "@usefelps/utils": "workspace:*",
-        "ajv": "^8.11.0",
-        "ajv-formats": "^2.1.1"
+        "@usefelps/dataset": "workspace:*",
+        "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
-        "rimraf": "^3.0.2",
-        "typescript": "^4.7.2"
+        "rimraf": "^3.0.2"
     },
     "directories": {
         "lib": "lib",

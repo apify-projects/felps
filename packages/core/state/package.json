@@ -1,10 +1,9 @@
 {
     "name": "@usefelps/state",
-    "version": "1.0.322",
+    "version": "1.0.326",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        ,
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/kv-store--adapter": "workspace:*",
         "@usefelps/kv-store--adapter--in-memory": "workspace:*",

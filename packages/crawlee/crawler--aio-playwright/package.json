@@ -1,9 +1,11 @@
 {
     "name": "@usefelps/crawlee--crawler--aio-playwright",
-    "version": "1.0.322",
+    "version": "1.0.326",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
+        "iconv-lite": "*",
+        "util": "*",
         "@apify/timeout": "^0.2.1",
         "@apify/utilities": "*",
         "@crawlee/browser": "*",
@@ -16,10 +18,8 @@
         "@usefelps/types": "workspace:*",
         "eventemitter3": "^4.0.7",
         "https-proxy-agent": "^5.0.1",
-        "iconv-lite": "*",
         "lodash.get": "^4.4.2",
-        "node-fetch": "2",
-        "util": "*"
+        "node-fetch": "2"
     },
     "peerDependencies": {
         "playwright": "^1.19.2"

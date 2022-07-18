@@ -1,11 +1,12 @@
 {
     "name": "@usefelps/search",
-    "version": "1.0.322",
+    "version": "1.0.326",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
         "@usefelps/instance-base": "workspace:*",
-        "@usefelps/types": "workspace:*"
+        "@usefelps/types": "workspace:*",
+        "flexsearch": "^0.7.3"
     },
     "devDependencies": {
         "rimraf": "^3.0.2",

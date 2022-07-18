@@ -1,11 +1,11 @@
 import EventEmitter from 'eventemitter3';
 import Queue from 'queue';
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import { EventsInstance, EventsOptions, ReallyAny } from '@usefelps/types';
 
 export const create = (options: EventsOptions): EventsInstance => {
     return {
-        ...Base.create({ key: 'events', name: options?.name || 'default' }),
+        ...InstanceBase.create({ key: 'events', name: options?.name || 'default' }),
         resource: options?.resource || new EventEmitter(),
         queues: options?.queues || [],
         batchSize: options?.batchSize || 10,

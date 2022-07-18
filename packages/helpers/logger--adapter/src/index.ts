@@ -1,9 +1,9 @@
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import * as FT from '@usefelps/types';
 
 export const create = (options: FT.LoggerAdapterOptions): FT.LoggerAdapterInstance => {
     return {
-        ...Base.create({ name: `logger--adapter--${options?.name}` }),
+        ...InstanceBase.create({ name: `logger--adapter--${options?.name}` }),
         adapter: options?.adapter,
     };
 }

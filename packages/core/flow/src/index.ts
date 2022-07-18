@@ -1,5 +1,5 @@
 import * as CONST from '@usefelps/constants';
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import * as FT from '@usefelps/types';
 
 export const create = <
@@ -8,7 +8,7 @@ export const create = <
 >(options: FT.FlowOptions<FlowNames, StepNames>): FT.FlowInstance<FlowNames, StepNames> => {
     const { name, crawlerMode, steps = [], meta = {} } = options || {};
 
-    const base = Base.create({ key: 'flow', name });
+    const base = InstanceBase.create({ key: 'flow', name });
 
     return {
         ...base,

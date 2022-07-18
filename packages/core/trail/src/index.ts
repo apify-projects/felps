@@ -1,5 +1,5 @@
 import * as CONST from '@usefelps/constants';
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import RequestMeta from '@usefelps/request-meta';
 import State from '@usefelps/state';
 import TrailDataRequests from '@usefelps/trail--data-requests';
@@ -15,7 +15,7 @@ export const create = (options: FT.TrailOptions): FT.TrailInstance => {
 
 
     return {
-        ...Base.create({ key: 'state-trail', name: 'trail', id }),
+        ...InstanceBase.create({ key: 'state-trail', name: 'trail', id }),
         state,
     };
 };

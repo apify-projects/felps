@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { REQUEST_ID_PROP, REQUEST_STATUS, REQUEST_UID_KEY } from '@usefelps/constants';
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import RequestMeta from '@usefelps/request-meta';
 import State from '@usefelps/state';
 import * as utils from '@usefelps/utils';
@@ -15,7 +15,7 @@ export const create = (options: FT.TrailDataRequestsOptions): FT.TrailDataReques
     const path = utils.pathify(id, type, 'requests');
 
     return {
-        ...Base.create({ key, name, id }),
+        ...InstanceBase.create({ key, name, id }),
         path,
         state,
     };

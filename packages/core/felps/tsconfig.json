@@ -12,6 +12,18 @@
             "path": "../actor"
         },
         {
+            "path": "../context-api"
+        },
+        {
+            "path": "../context-api--flow"
+        },
+        {
+            "path": "../context-api--helpers"
+        },
+        {
+            "path": "../context-api--meta"
+        },
+        {
             "path": "../crawler"
         },
         {
@@ -30,34 +42,43 @@
             "path": "../instance-base"
         },
         {
+            "path": "../multi-crawler"
+        },
+        {
+            "path": "../orchestrator"
+        },
+        {
             "path": "../request-meta"
         },
         {
             "path": "../request-queue"
         },
         {
-            "path": "../step"
-        },
-        {
-            "path": "../context-api"
-        },
-        {
-            "path": "../context-api--flow"
-        },
-        {
-            "path": "../context-api--helpers"
-        },
-        {
-            "path": "../context-api--meta"
-        },
-        {
-            "path": "../multi-crawler"
-        },
-        {
             "path": "../state"
         },
         {
-            "path": "../../crawlee/crawler--aio-playwright"
+            "path": "../step"
+        },
+        {
+            "path": "../trail"
+        },
+        {
+            "path": "../trail--data-requests"
+        },
+        {
+            "path": "../trail--data-state"
+        },
+        {
+            "path": "../../adapters/kv-store--adapter"
+        },
+        {
+            "path": "../../adapters/kv-store--adapter--apify"
+        },
+        {
+            "path": "../../adapters/kv-store--adapter--in-memory"
+        },
+        {
+            "path": "../../apify/apify-events"
         },
         {
             "path": "../../helpers/logger"
@@ -72,13 +93,10 @@
             "path": "../../helpers/url-pattern"
         },
         {
-            "path": "../../adapters/kv-store--adapter"
+            "path": "../../crawlee/crawler--aio-playwright"
         },
         {
-            "path": "../../adapters/kv-store--adapter--apify"
-        },
-        {
-            "path": "../../adapters/kv-store--adapter--in-memory"
+            "path": "../../crawlee/request-queue"
         }
     ]
 }

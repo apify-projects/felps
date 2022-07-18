@@ -1,0 +1,33 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src"
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../instance-base"
+        },
+        {
+            "path": "../request-meta"
+        },
+        {
+            "path": "../state"
+        },
+        {
+            "path": "../trail--data"
+        },
+        {
+            "path": "../constants"
+        },
+        {
+            "path": "../types"
+        },
+        {
+            "path": "../../helpers/utils"
+        }
+    ]
+}

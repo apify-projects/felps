@@ -1,4 +1,4 @@
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
 import InMemoryKvStoreAdapter from '@usefelps/kv-store--adapter--in-memory';
 import Logger from '@usefelps/logger';
@@ -22,7 +22,7 @@ export const create = <T>(options: FT.StateOptions): FT.StateInstance<T> => {
     } = options || {};
 
     return {
-        ...Base.create({ key, name, id: `${key}-${name}${kvKey ? `-${kvKey}` : ''}` }),
+        ...InstanceBase.create({ key, name, id: `${key}-${name}${kvKey ? `-${kvKey}` : ''}` }),
         type: 'state',
         adapter,
         kvKey: kvKey || name,
@@ -186,7 +186,8 @@ export const persist = async <T>(state: FT.StateInstance<T>): Promise<void> => {
     Logger.info(Logger.create(state), 'Persisting store...', { stats: state.stats });
 };
 
-export const listen = <T>(state: FT.StateInstance<T>): void => {
+// export const listen = <T>(state: FT.StateInstance<T>): void => {
+export const listen = (): void => {
     // ApifyEvents.onAll(async () => {
     //     await persist(state);
     // });

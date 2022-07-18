@@ -2,7 +2,7 @@ import * as CONST from '@usefelps/constants';
 import ContextApi from '@usefelps/context-api';
 import Crawler from '@usefelps/crawler';
 import Hook from '@usefelps/hook';
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import Logger from '@usefelps/logger';
 import Dataset from '@usefelps/dataset'
 import Orchestrator from '@usefelps/orchestrator';
@@ -49,7 +49,7 @@ export const create = <
 >
 ): LocalActorInstance => {
 
-    const base = Base.create({ key: 'actor', name: options.name });
+    const base = InstanceBase.create({ key: 'actor', name: options.name });
 
     const extendMetaContext = <T extends Record<string, FT.ReallyAny>>(collection: T, meta: FT.RequestMetaData): T => {
         return Object.keys(collection).reduce<FT.ReallyAny>((acc, key) => {
@@ -57,7 +57,7 @@ export const create = <
 
             const extended = {
                 ...value,
-                ...Base.create({ name: prefix({ name: base.name }, value.name), key: value.key }),
+                ...InstanceBase.create({ name: prefix({ name: base.name }, value.name), key: value.key }),
                 meta: { ...value.meta, ...meta },
             };
 
@@ -144,7 +144,7 @@ export const prepareHooks = <
         LocalActorInstance
     > => {
 
-        const base = Base.create({ key: 'actor-hooks', name: actor.name });
+        const base = InstanceBase.create({ key: 'actor-hooks', name: actor.name });
         const validationHandler = async (actor?: LocalActorInstance) => {
             return actor.name === base.name
         };
@@ -545,7 +545,7 @@ export const load = async (actor: FT.ActorInstance): Promise<FT.ActorInstance> =
         Object.values(stores as Record<string, FT.AnyStoreLike>).map(async (store) => {
             if (store.type === 'state') {
                 const loaded = await State.load(store as FT.StateInstance);
-                State.listen(loaded);
+                // State.listen(loaded);
                 return loaded;
             }
             // if (store.type === 'bucket') {

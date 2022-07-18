@@ -1,5 +1,5 @@
 import * as CONST from '@usefelps/constants';
-import Base from '@usefelps/instance-base';
+import InstanceBase from '@usefelps/instance-base';
 import TrailDataRequests from '@usefelps/trail--data-requests';
 import TrailDataState from '@usefelps/trail--data-state';
 import Trail from '@usefelps/trail';
@@ -8,7 +8,7 @@ import * as FT from '@usefelps/types';
 
 export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
     return {
-        ...Base.create({ key: 'context-api-flows', name: 'context-api-flows' }),
+        ...InstanceBase.create({ key: 'context-api-flows', name: 'context-api-flows' }),
         handler(context) {
             const currentMeta = RequestMeta.create(context);
             const currentTrail = Trail.createFrom(context?.request, { state: actor?.stores?.trails as FT.StateInstance });
