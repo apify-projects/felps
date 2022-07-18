@@ -85,10 +85,10 @@ export const randomNumberBetween = (min: number, max: number) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-export const resolveUrl = (absoluteUrl: string, relativeUrl: string): string | undefined => {
+export const resolveUrl = (relativeUrl: string, baseUrl: string): string | undefined => {
     if (relativeUrl === undefined) return undefined;
     try {
-        const link = new URL(absoluteUrl, relativeUrl);
+        const link = new URL(relativeUrl, baseUrl);
         return link.href;
     } catch (error) {
         return undefined;
