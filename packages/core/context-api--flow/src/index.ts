@@ -1,5 +1,6 @@
 import * as CONST from '@usefelps/constants';
 import InstanceBase from '@usefelps/instance-base';
+import Logger from '@usefelps/logger';
 import TrailDataRequests from '@usefelps/trail--data-requests';
 import TrailDataState from '@usefelps/trail--data-state';
 import Trail from '@usefelps/trail';
@@ -15,6 +16,8 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
             const ingested = Trail.ingested(currentTrail);
 
             const actorName = currentMeta.data.actorName || actor.name;
+
+            const logger = Logger.create(InstanceBase.create({ name: 'context-api-flow', key: 'context-api-flow' }));
 
             return {
                 currentActor: () => actor,
@@ -54,6 +57,11 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                     return Object.keys(actor.steps).includes(prefixedStepName) ? prefixedStepName : undefined;
                 },
                 start(flowName, request, input, options) {
+                    if (!request?.url) {
+                        Logger.info(logger, `Flow ${flowName} not started because request url is not defined`);
+                        return undefined;
+                    }
+
                     const { useNewTrail = true } = options || {};
                     let { crawlerMode } = options || {};
 
@@ -99,9 +107,19 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                     return meta.data.flowId;
                 },
                 paginate(request, options) {
+                    if (!request?.url) {
+                        Logger.info(logger, `Pagination on step not started because request url is not defined`);
+                        return undefined;
+                    }
+
                     return this.next(this.currentStep() as FT.ReallyAny, request, options);
                 },
                 next(stepName, request, options) {
+                    if (!request?.url) {
+                        Logger.info(logger, `Next step not started because request url is not defined`);
+                        return undefined;
+                    }
+
                     let { crawlerMode } = options || {};
 
                     const flow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, currentMeta.data.flowName)];

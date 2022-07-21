@@ -553,7 +553,7 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
          */
         await Hook.run(actor?.hooks?.preQueueStartedHook, actor);
 
-        const crawlerInstance = await Promise.resolve(actor?.crawler?.() || actor.crawler);
+        const crawlerInstance = await Promise.resolve(actor?.crawler?.(actor as FT.ActorInstanceBase) || actor.crawler);
         await Crawler.run(crawlerInstance, crawlerOptions);
 
         /**

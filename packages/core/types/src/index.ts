@@ -125,7 +125,7 @@ export type DeepOmitModels<T> = {
 export type ExcludeKeysWithTypeOf<T, V> = Pick<T, { [K in keyof T]: Exclude<T[K], undefined> extends V ? never : K }[keyof T]>;
 
 // apify --------------------------------------------------
-export type RequestSource = Request | RequestOptions
+export type RequestSource = Request | RequestOptions | { url: string | undefined };
 export type RequestOptionalOptions = { priority?: number, crawlerMode?: RequestCrawlerMode, forefront?: boolean | undefined } | undefined
 
 // shared --------------------------------------------------
@@ -468,7 +468,7 @@ export type ActorInstanceBase<
 > = {
     name: string,
     input: ReallyAny,
-    crawler: ITCrawler | (() => Promise<ITCrawler>),
+    crawler: ITCrawler | ((actor: ActorInstanceBase) => Promise<ITCrawler>),
     steps: ITSteps;
     contextApi: ITContextApi,
     flows: ITFlows;

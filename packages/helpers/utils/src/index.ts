@@ -104,6 +104,8 @@ export const difference = (arrayA: string[], arrayB: string[]) => arrayA.filter(
 
 export const isNumberPredicate = (nb: number) => !Number.isNaN(+nb);
 
+export const toNumber = (value: ReallyAny) => isNumberPredicate(value) ? +value : undefined;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const concatAsUniqueArray = (...arrs: any[]) => [...new Set([].concat(...arrs.filter((item) => Array.isArray(item))))];
 
