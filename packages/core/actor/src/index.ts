@@ -1,5 +1,6 @@
 import * as CONST from '@usefelps/constants';
 import ContextApi from '@usefelps/context-api';
+import Trail from '@usefelps/trail';
 import Crawler from '@usefelps/crawler';
 import Hook from '@usefelps/hook';
 import InstanceBase from '@usefelps/instance-base';
@@ -154,21 +155,14 @@ export const prepareHooks = <
                 name: utils.pathify(base.name, 'preActorStartedHook'),
                 validationHandler,
                 handlers: [
-                    async function EXPAND_STATE() {
-                        // actor, input
-                        // actor.input.data = input;
-                    },
-                    async function LOAD_STORES() {
-                        // actor
-                        // Load stores
-                        // actor.stores = await StoreCollection.load(actor?.stores as FT.StoreCollectionInstance);
-                        // StoreCollection.listen(actor.stores);
-                    },
                     ...(hooks?.preActorStartedHook?.handlers || []),
+                    async function ORCHESTRATE(actor) {
+                        await Orchestrator.run(Orchestrator.create(actor as FT.ReallyAny), {} as FT.ReallyAny, {});
+                    },
                 ],
                 onErrorHook: hooks?.preActorStartedHook?.onErrorHook,
             }),
-            postActorEndedHook: Hook.create<[actor: LocalActorInstance]>({
+            postActorEndedHook: Hook.create<[actor: LocalActorInstance, api?: FT.TContextApi]>({
                 name: utils.pathify(base.name, 'postActorEndedHook'),
                 validationHandler,
                 handlers: [
@@ -181,16 +175,19 @@ export const prepareHooks = <
                 onErrorHook: hooks?.postActorEndedHook?.onErrorHook,
             }),
 
-            preCrawlerStartedHook: Hook.create<[actor?: LocalActorInstance]>({
+            preCrawlerStartedHook: Hook.create<[actor?: LocalActorInstance, api?: FT.TContextApi]>({
                 name: utils.pathify(base.name, 'preCrawlerStartedHook'),
                 validationHandler,
                 handlers: [
                     ...(hooks?.preCrawlerStartedHook?.handlers || []),
+                    async function ORCHESTRATE(actor) {
+                        await Orchestrator.run(Orchestrator.create(actor as FT.ReallyAny), {} as FT.ReallyAny, {});
+                    },
                 ],
                 onErrorHook: hooks?.preCrawlerStartedHook?.onErrorHook,
             }),
 
-            postCrawlerEndedHook: Hook.create<[actor: LocalActorInstance]>({
+            postCrawlerEndedHook: Hook.create<[actor: LocalActorInstance, api?: FT.TContextApi]>({
                 name: utils.pathify(base.name, 'postCrawlerEndedHook'),
                 validationHandler,
                 handlers: [
@@ -251,136 +248,59 @@ export const prepareHooks = <
                 onErrorHook: hooks?.postFlowEndedHook?.onErrorHook,
             }),
 
-            preStepStartedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext]>({
+            preStepStartedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi]>({
                 name: utils.pathify(base.name, 'preStepStartedHook'),
                 validationHandler,
                 handlers: [
+                    async function CHECK_FLOW_STOPPED(actor, context, api) {
+                        const trails = await State.load(actor?.stores?.trails as FT.StateInstance);
+                        const trail = Trail.createFrom(context?.request, { state: trails });
+
+                        // Stop the step if the trail is already stopped
+                        if (Trail.get(trail).status === 'STOPPED') api.stop();
+                    },
                     ...(hooks?.preStepStartedHook?.handlers || []),
                 ],
                 onErrorHook: hooks?.preStepStartedHook?.onErrorHook,
             }),
 
-            postStepEndedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext]>({
+            postStepEndedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi]>({
                 name: utils.pathify(base.name, 'postStepEndedHook'),
                 validationHandler,
                 handlers: [
                     ...(hooks?.postStepEndedHook?.handlers || []),
+                    async function ORCHESTRATE(actor, context) {
+                        const contextApi = ContextApi.create(actor as FT.ReallyAny);
+                        await Orchestrator.run(Orchestrator.create(actor as FT.ReallyAny), context as FT.ReallyAny, contextApi(context as FT.ReallyAny));
+                    },
                 ],
                 onErrorHook: hooks?.postStepEndedHook?.onErrorHook,
             }),
 
-            preNavigationHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext]>({
+            preStepMainHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi]>({
+                name: utils.pathify(base.name, 'preStepMainHook'),
+                handlers: [
+                    ...(hooks?.preStepMainHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.preStepMainHook?.onErrorHook,
+            }),
+
+            postStepMainHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi]>({
+                name: utils.pathify(base.name, 'postStepMainHook'),
+                handlers: [
+                    ...(hooks?.postStepMainHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.postStepMainHook?.onErrorHook,
+            }),
+
+            preNavigationHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi, goToOptions: Record<PropertyKey, any>]>({
                 name: utils.pathify(base.name, 'preNavigationHook'),
                 handlers: [
-                    async function PRE_STARTED(actor, context) {
-                        const meta = RequestMeta.create(context as FT.RequestContext);
-                        const metaHook = RequestMeta.extend(meta, { isHook: true });
-
-                        const hookContext = {
-                            ...context,
-                            request: metaHook.request,
-                        } as FT.RequestContext;
-
-                        const contextApi = ContextApi.create(actor as FT.ReallyAny);
-
-                        const actorId = meta.data.actorName as string;
-
-                        const step = getStep(actor as FT.MaybeAny, actorId, meta.data.stepName);
-
-                        if (!meta.data.stopStep) {
-                            // Stop it now
-                        }
-
-                        if (!step) {
-                            // See to throw some error?
-                        }
-
-                        if (meta.data.startFlow) {
-                            await Hook.run(actor?.hooks?.preFlowStartedHook, actor, hookContext, contextApi(hookContext));
-                        }
-
-                        /**
-                         * Run any logic before the step logic is executed.
-                         * Ex: can be used for logging, anti-bot detection, catpatcha, etc.
-                         * By default: (does nothing for now)
-                         */
-                        await Hook.run(actor?.hooks?.preStepStartedHook, actor as FT.ReallyAny, hookContext);
-
-                        /**
-                         * Run any logic before the navigation occurs
-                         * By default: (does nothing for now)
-                         */
-                        await Hook.run(step?.hooks?.preNavigationHook, hookContext, contextApi(hookContext), actor as FT.ReallyAny);
-                    },
-                    ...(hooks?.preNavigationHook?.handlers || []),
-                ],
-                onErrorHook: hooks?.preNavigationHook?.onErrorHook,
-            }),
-
-            postNavigationHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext]>({
-                name: utils.pathify(base.name, 'postNavigationHook'),
-                handlers: [
-                    ...(hooks?.postNavigationHook?.handlers || []),
-                    async function POST_ENDED(actor, context) {
-                        const meta = RequestMeta.create(context as FT.RequestContext);
-                        const metaHook = RequestMeta.extend(meta, { isHook: true });
-
-                        const hookContext = {
-                            ...context,
-                            request: metaHook.request,
-                        } as FT.RequestContext;
-
-                        const contextApi = ContextApi.create(actor as FT.ReallyAny);
-
-                        const actorId = meta.data.actorName as string;
-
-                        const step = getStep(actor as FT.MaybeAny, actorId, meta.data.stepName);
-
-                        if (!step) {
-                            // Ups. See to throw some error?
-                        }
-
-                        try {
-                            /**
-                             * Run any logic after the navigation occurs
-                             * By default: (does nothing for now)
-                             */
-                            await Hook.run(step?.hooks?.postCrawlHook, hookContext, contextApi(hookContext), actor as FT.ReallyAny);
-                        } finally {
-                            // Silent
-                        }
-
-                        try {
-                            /**
-                         * Run any logic after the step logic has been executed.
-                         * Ex: can be used for checking up data this would have been made ready to push to the dataset in KV.
-                         * By default: (does nothing for now)
-                         */
-                            await Hook.run(actor?.hooks?.postStepEndedHook, actor, hookContext);
-                        } finally {
-                            // Silent
-                        }
-
-                        await Orchestrator.run(Orchestrator.create(actor as FT.ReallyAny), context as FT.ReallyAny, contextApi(context as FT.ReallyAny));
-                    },
-                ],
-                onErrorHook: hooks?.postNavigationHook?.onErrorHook,
-            }),
-
-            preCrawlHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, goToOptions: Record<PropertyKey, any>]>({
-                name: utils.pathify(base.name, 'preCrawlHook'),
-                handlers: [
-                    async function PRE_CRAWL_FLOW_MANAGEMENT(actor, context) {
+                    async function PRE_NAVIGATION_STEP(actor, context, api, goToOptions) {
                         const meta = RequestMeta.create(context as FT.RequestContext);
                         const step = getStep(actor as FT.MaybeAny, meta.data.actorName, meta.data.stepName);
 
-                        if (!meta.data.stopStep) {
-                            // Stop it now
-                        }
-
-                        if (!step) {
-                            // See to throw some error?
-                        }
+                        await Hook.run(step?.hooks?.preNavigationHook, actor as unknown as FT.ActorInstance, context as FT.RequestContext, api, goToOptions);
                     },
                     async function RESPONSE_INTERCEPTION(actor, context) {
                         const meta = RequestMeta.create(context as FT.RequestContext);
@@ -390,35 +310,54 @@ export const prepareHooks = <
                             await Hook.run(step?.hooks?.responseInterceptionHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
                         });
                     },
-                    ...(hooks?.preCrawlHook?.handlers || []),
+                    ...(hooks?.preNavigationHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.preCrawlHook?.onErrorHook,
+                onErrorHook: hooks?.preNavigationHook?.onErrorHook,
             }),
 
-            postCrawlHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, goToOptions: Record<PropertyKey, any>]>({
-                name: utils.pathify(base.name, 'postCrawlHook'),
+            postNavigationHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi, goToOptions: Record<PropertyKey, any>]>({
+                name: utils.pathify(base.name, 'postNavigationHook'),
                 handlers: [
-                    ...(hooks?.postCrawlHook?.handlers || []),
+                    async function POST_NAVIGATION_STEP(actor, context, api, goToOptions) {
+                        const meta = RequestMeta.create(context as FT.RequestContext);
+                        const step = getStep(actor as FT.MaybeAny, meta.data.actorName, meta.data.stepName);
+
+                        await Hook.run(step?.hooks?.postNavigationHook, actor as unknown as FT.ActorInstance, context as FT.RequestContext, api, goToOptions);
+                    },
+                    ...(hooks?.postNavigationHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.postCrawlHook?.onErrorHook,
+                onErrorHook: hooks?.postNavigationHook?.onErrorHook,
             }),
 
-            onStepFailedHook: Hook.create<[actor: LocalActorInstance, error: FT.ReallyAny]>({
-                name: utils.pathify(base.name, 'onStepFailedHook'),
+            postStepFailedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi, error: FT.ReallyAny]>({
+                name: utils.pathify(base.name, 'postStepFailedHook'),
                 validationHandler,
                 handlers: [
-                    ...(hooks?.onStepFailedHook?.handlers || []),
+                    ...(hooks?.postStepFailedHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.onStepFailedHook?.onErrorHook,
+                onErrorHook: hooks?.postStepFailedHook?.onErrorHook,
             }),
 
-            onStepRequestFailedHook: Hook.create<[actor: LocalActorInstance, error: FT.ReallyAny]>({
-                name: utils.pathify(base.name, 'onStepRequestFailedHook'),
+            postStepRequestFailedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi, error: FT.ReallyAny]>({
+                name: utils.pathify(base.name, 'postStepRequestFailedHook'),
                 validationHandler,
                 handlers: [
-                    ...(hooks?.onStepRequestFailedHook?.handlers || []),
+                    ...(hooks?.postStepRequestFailedHook?.handlers || []),
+                    async function ORCHESTRATE(actor, context) {
+                        const contextApi = ContextApi.create(actor as FT.ReallyAny);
+                        await Orchestrator.run(Orchestrator.create(actor as FT.ReallyAny), context as FT.ReallyAny, contextApi(context as FT.ReallyAny));
+                    },
                 ],
-                onErrorHook: hooks?.onStepRequestFailedHook?.onErrorHook,
+                onErrorHook: hooks?.postStepRequestFailedHook?.onErrorHook,
+            }),
+
+            postFailedHook: Hook.create<[actor: LocalActorInstance, error: FT.ReallyAny]>({
+                name: utils.pathify(base.name, 'postFailedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.postFailedHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.postFailedHook?.onErrorHook,
             }),
         }
     }
@@ -450,51 +389,56 @@ export const makeCrawlerOptions = async (actor: FT.ActorInstance, options?: FT.A
     const logger = Logger.create(actor);
 
     let mergedOptions = utils.merge({
-        // handlePageTimeoutSecs: 120,
-        // navigationTimeoutSecs: 60,
-        // maxConcurrency: 40,
         maxRequestRetries: 3,
         launchContext: {
             launchOptions: {
-                headless: false,
+                headless: true,
                 args: [
                     '--disable-web-security',
                     '--disable-features=IsolateOrigins,site-per-process',
                 ],
             },
-        },
-        preNavigationHooks: [
-            async (context, goToOptions) => {
-                await Hook.run(actor?.hooks?.preCrawlHook, actor, context as FT.RequestContext, goToOptions);
-            }
-        ],
-        postNavigationHooks: [
-            async (context, goToOptions) => {
-                await Hook.run(actor?.hooks?.postCrawlHook, actor, context as FT.RequestContext, goToOptions);
-            }
-        ],
-        requestHandler: (async (context: FT.RequestContext) => {
-            Logger.info(logger, `Running ${context?.request.url}`);
-
-            const meta = RequestMeta.create(context);
-            const actorId = meta.data.actorName as string;
-
-            const step = getStep(actor, actorId, meta.data.stepName);
-            await Step.run(step, actor, context);
-
-        }) as FT.ReallyAny,
-        failedRequestHandler: (async () => {
-            // Logger.info(logger, `Running ${context?.request.url}`);
-
-            // const meta = RequestMeta.create(context);
-            // const actorId = meta.data.actorName as string;
-
-            // const step = getStep(actor, actorId, meta.data.stepName);
-            // await Step.run(step, actor, context);
-        }) as FT.ReallyAny,
+        }
     } as FT.AnyCrawlerOptions, options || {});
 
-    mergedOptions.requestQueue = (await RequestQueue.load(actor?.queues?.default))?.resource;
+    Object.assign<FT.AnyCrawlerOptions, FT.AnyCrawlerOptions>(
+        mergedOptions,
+        {
+            requestQueue: (await RequestQueue.load(actor?.queues?.default))?.resource,
+            preNavigationHooks: [
+                async (context, goToOptions) => {
+                    const contextApi = ContextApi.create(actor as FT.MaybeAny);
+                    await Hook.run(actor?.hooks?.preNavigationHook, actor, context as FT.RequestContext, contextApi(context as FT.MaybeAny), goToOptions);
+                }
+            ],
+            postNavigationHooks: [
+                async (context, goToOptions) => {
+                    const contextApi = ContextApi.create(actor as FT.MaybeAny);
+                    await Hook.run(actor?.hooks?.postNavigationHook, actor, context as FT.RequestContext, contextApi(context as FT.MaybeAny), goToOptions);
+                }
+            ],
+            requestHandler: (async (context: FT.RequestContext) => {
+                Logger.info(logger, `Running ${context?.request.url}`);
+
+                const meta = RequestMeta.create(context);
+                const actorId = meta.data.actorName as string;
+
+                const step = getStep(actor, actorId, meta.data.stepName);
+                await Step.run(step, actor, context);
+
+            }) as FT.ReallyAny,
+            failedRequestHandler: (async (context: FT.RequestContext) => {
+                const meta = RequestMeta.create(context);
+                const actorId = meta.data.actorName as string;
+
+                const step = getStep(actor, actorId, meta.data.stepName);
+                const contextApi = ContextApi.create(actor);
+                await Hook.run(step?.hooks?.postRequestFailedHook, context as FT.RequestContext, contextApi(context), actor);
+
+                await Hook.run(actor?.hooks?.postStepRequestFailedHook, actor, context as FT.RequestContext, contextApi(context), context.request.errorMessages);
+            }) as FT.ReallyAny,
+        }
+    )
 
     return mergedOptions;
 };
@@ -586,7 +530,7 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
 
     const contextApi = ContextApi.create(actor);
 
-    const crawlerOptions = await makeCrawlerOptions(actor);
+    const crawlerOptions = await makeCrawlerOptions(actor, actor?.crawlerOptions);
 
     try {
         /**
@@ -600,7 +544,7 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
          * Run any logic before the crawler starts
          * By default: (does nothing for now)
          */
-        await Hook.run(actor?.hooks?.preCrawlerStartedHook, actor);
+        await Hook.run(actor?.hooks?.preCrawlerStartedHook, actor, contextApi({} as FT.ReallyAny));
 
         /**
          * Run any logic before the queue starts
@@ -609,7 +553,8 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
          */
         await Hook.run(actor?.hooks?.preQueueStartedHook, actor);
 
-        await Crawler.run(actor.crawler as FT.CrawlerInstance, crawlerOptions);
+        const crawlerInstance = await Promise.resolve(actor?.crawler?.() || actor.crawler);
+        await Crawler.run(crawlerInstance, crawlerOptions);
 
         /**
          * Run any logic once the queue ended
@@ -621,7 +566,7 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
          * Run any logic once the crawler ended
          * By default: (does nothing for now)
          */
-        await Hook.run(actor?.hooks?.postCrawlerEndedHook, actor);
+        await Hook.run(actor?.hooks?.postCrawlerEndedHook, actor, contextApi({} as FT.ReallyAny));
 
     } catch (error) {
         /**
@@ -640,7 +585,7 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
          *  - Persist the stores
          *  - Close datasets
          */
-        await Hook.run(actor?.hooks?.postActorEndedHook, actor);
+        await Hook.run(actor?.hooks?.postActorEndedHook, actor, contextApi({} as FT.ReallyAny));
     }
 };
 

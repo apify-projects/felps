@@ -9,7 +9,6 @@ export const create = (requestOrRequestContext?: FT.RequestSource | FT.RequestCo
         ...(request?.userData || {}),
         [CONST.METADATA_KEY]: utils.merge(
             {
-                isHook: false,
                 startFlow: false,
                 stopFlow: false,
                 stopStep: false,

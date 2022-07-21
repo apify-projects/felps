@@ -134,10 +134,14 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
 
                     return requestId;
                 },
-                stop() {
-                    context.request.userData = RequestMeta.extend(currentMeta, { stopStep: true }).userData;
+                stop(options) {
+                    context.request.userData = RequestMeta.extend(currentMeta, { stopStep: true, stopFlow: options?.flow }).userData;
+                    if (options?.flow) {
+                        Trail.setStatus(currentTrail, 'STOPPED');
+                    }
                 },
                 retry() {
+                    //TODO: NEED TO CHANGE THIS
                     throw new Error('Retry this step');
                 },
                 getState() {

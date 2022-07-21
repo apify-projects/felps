@@ -28,6 +28,7 @@ import ApifyEvents from '@usefelps/apify-events';
 
 import Logger from '@usefelps/logger';
 import Mutable from '@usefelps/mutable';
+import DataModel from '@usefelps/data-model';
 import Search from '@usefelps/search';
 import UrlPattern from '@usefelps/url-pattern';
 import * as utils from '@usefelps/utils';
@@ -63,6 +64,7 @@ export {
     ApifyEvents,
     Logger,
     Mutable,
+    DataModel,
     Search,
     UrlPattern,
     utils,
@@ -98,6 +100,7 @@ export default {
     ApifyEvents,
     Logger,
     Mutable,
+    DataModel,
     Search,
     UrlPattern,
     utils,

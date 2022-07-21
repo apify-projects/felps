@@ -3,6 +3,7 @@ import { PlaywrightCrawlerOptions } from '@crawlee/playwright'
 import Crawler from '@usefelps/crawler';
 import * as FT from '@usefelps/types';
 
+// & { proxyConfiguration: PlaywrightCrawlerOptions['proxyConfiguration'] | (() => Promise<PlaywrightCrawlerOptions['proxyConfiguration']>) }
 export const create = (options?: PlaywrightCrawlerOptions): FT.CrawlerInstance => {
     return Crawler.create({
         ...(options || {}),

@@ -64,7 +64,7 @@ import { make, write, Patches, read } from 'cagibi';
         Step.create<StepNames>({
             name: 'HANDLE_RESULTS',
             hooks: {
-                navigationHook: {
+                mainHook: {
                     handlers: [
                         async (context, api) => {
                             const { $, request: { userData } } = context;
@@ -79,7 +79,7 @@ import { make, write, Patches, read } from 'cagibi';
         Step.create<StepNames>({
             name: 'HANDLE_PAGE',
             hooks: {
-                navigationHook: {
+                mainHook: {
                     handlers: [
                         async (context) => {
                             const { $, request: { userData } } = context;

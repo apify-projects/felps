@@ -28,6 +28,7 @@ export const load = async (trail: FT.TrailInstance): Promise<FT.TrailInstance> =
             id: trail.id,
             flows: {},
             stats: { startedAt: new Date().toISOString() },
+            status: 'ACTIVE',
         };
 
         State.set(state, trail.id, initialState);
@@ -48,7 +49,7 @@ export const createFrom = (request: FT.RequestSource, options?: FT.TrailOptions)
 };
 
 export const get = (trail: FT.TrailInstance): FT.TrailState => {
-    return State.get(trail.state, trail.id);
+    return State.get(trail.state, trail.id) || {};
 };
 
 export const getMainFlow = (trail: FT.TrailInstance): FT.TrailFlowState | undefined => {
@@ -70,6 +71,10 @@ export const setFlow = (trail: FT.TrailInstance, flowState: FT.TrailFlowState): 
 
 export const setRequest = (trail: FT.TrailInstance, request: any): void => {
     State.set(trail.state, utils.pathify(trail.id, 'requests', request.id), request);
+};
+
+export const setStatus = (trail: FT.TrailInstance, status: FT.TrailStateStatus): void => {
+    State.set(trail.state, utils.pathify(trail.id, 'status'), status);
 };
 
 export const stage = (trail: FT.TrailInstance, type: FT.TrailDataStages): FT.TrailDataStage => {
@@ -104,4 +109,4 @@ export const promote = (trail: FT.TrailInstance, item: FT.TrailDataRequestItem):
     State.remove(trail.state, path('ingested'));
 };
 
-export default { create, createFrom, load, get, setRequest, getMainFlow, setFlow, getFlow, ingested, digested, promote };
+export default { create, createFrom, load, get, setRequest, getMainFlow, setFlow, getFlow, setStatus, ingested, digested, promote };

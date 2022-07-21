@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { CheerioCrawlingContext } from '@crawlee/cheerio';
+import type { CheerioCrawlerOptions, CheerioCrawlingContext } from '@crawlee/cheerio';
 import type { Dataset, Dictionary, KeyValueStore, Request, RequestOptions } from '@crawlee/core';
 import type { PlaywrightCrawlerOptions, PlaywrightCrawlingContext } from '@crawlee/playwright';
 import type EventEmitter from 'eventemitter3';
 import type { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
 import type { JSONSchema7 as $JSONSchema7 } from 'json-schema';
+import { FromSchema } from 'json-schema-to-ts';
 import type { Readonly } from 'json-schema-to-ts/lib/utils';
 import type Queue from 'queue';
 import type Route from 'route-parser';
@@ -130,13 +131,9 @@ export type RequestOptionalOptions = { priority?: number, crawlerMode?: RequestC
 // shared --------------------------------------------------
 export type RequestCrawlerMode = 'http' | 'chromium' | 'firefox' | 'webkit';
 
-// export type RequestCrawlerOptions = {
-//     mode: RequestCrawlerMode
-// };
-
 export type SharedCustomCrawlerOptions = {
     crawlerMode?: RequestCrawlerMode,
-    // crawlerOptions?: RequestCrawlerOptions,
+    crawlerOptions?: AnyCrawlerOptions & Record<string, ReallyAny>,
 }
 
 // @usefelps/instance-base ------------------------------------------------------------
@@ -182,11 +179,11 @@ export type StepInstance<StepNames extends string = string> = {
 export type StepOptions<StepNames extends string = string> = Omit<StepInstance<StepNames>, keyof InstanceBase> & { name: StepNames };
 
 export type StepHooks = {
-    navigationHook?: HookOptions<StepOptionsHandlerParameters>,
-    preNavigationHook?: HookOptions<StepOptionsHandlerParameters>,
-    postNavigationHook?: HookOptions<StepOptionsHandlerParameters>,
-    postCrawlHook?: HookOptions<StepOptionsHandlerParameters>,
-    preCrawlHook?: HookOptions<StepOptionsHandlerParameters>,
+    mainHook?: HookOptions<StepOptionsHandlerParameters>,
+    preMainHook?: HookOptions<StepOptionsHandlerParameters>,
+    postMainHook?: HookOptions<StepOptionsHandlerParameters>,
+    postNavigationHook?: HookOptions<[actor: ActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
+    preNavigationHook?: HookOptions<[actor: ActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
     responseInterceptionHook?: HookOptions<[context: RequestContext, response: ReallyAny, actor: ActorInstance]>,
     postFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
     postRequestFailedHook?: HookOptions<StepOptionsHandlerParameters>
@@ -228,7 +225,7 @@ export type ContextApiFlowsAPI = {
     ) => void;
     paginate: (request: RequestSource, options?: { crawlerMode?: RequestCrawlerMode }) => void;
     next: (stepName: Extract<string, string>, request: RequestSource, options?: { crawlerMode?: RequestCrawlerMode }) => void;
-    stop: () => void;
+    stop: (options?: { flow?: boolean }) => void;
     retry: () => void;
     getState: () => ReallyAny;
     setState: (state: ReallyAny) => void;
@@ -355,10 +352,13 @@ export type TrailState = {
         sizeInKb: number,
         aggregatedDurationInMs: number,
     },
+    status: TrailStateStatus,
     ingested: TrailDataStage,
     digested: TrailDataStage,
     output: any,
 }
+
+export type TrailStateStatus = 'ACTIVE' | 'STOPPED';
 
 // // @usefelps/trail-collection ------------------------------------------------------------
 // export type TrailCollectionOptions = {
@@ -468,7 +468,7 @@ export type ActorInstanceBase<
 > = {
     name: string,
     input: ReallyAny,
-    crawler: ITCrawler,
+    crawler: ITCrawler | (() => Promise<ITCrawler>),
     steps: ITSteps;
     contextApi: ITContextApi,
     flows: ITFlows;
@@ -544,22 +544,23 @@ export type ActorHooks<
         ITContextApi>
 > = {
     preActorStartedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
-    postActorEndedHook?: HookInstance<[actor: LocalActorInstance]>,
-    preCrawlerStartedHook?: HookInstance<[actor: LocalActorInstance]>,
-    postCrawlerEndedHook?: HookInstance<[actor: LocalActorInstance]>,
+    postActorEndedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
+    preCrawlerStartedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
+    postCrawlerEndedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
     postCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
     preQueueStartedHook?: HookInstance<[actor: LocalActorInstance]>,
     postQueueEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preFlowStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
     postFlowEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
-    preStepStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
-    postStepEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
-    postNavigationHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
-    preNavigationHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
-    preCrawlHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, goToOptions: Record<PropertyKey, any>]>,
-    postCrawlHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, goToOptions: Record<PropertyKey, any>]>,
-    onStepFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
-    onStepRequestFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
+    preStepStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
+    postStepEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
+    preStepMainHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
+    postStepMainHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
+    preNavigationHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
+    postNavigationHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
+    postStepFailedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, error: ReallyAny]>,
+    postStepRequestFailedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, error: ReallyAny]>,
+    postFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
 }
 
 export type ActorInput = string | {
@@ -574,7 +575,6 @@ export type RequestMetaInstance = {
 } & InstanceBase;
 
 export type RequestMetaData = {
-    isHook?: boolean,
     stopStep?: boolean,
     stopFlow?: boolean,
     startFlow?: boolean,
@@ -630,18 +630,20 @@ export type LoggerInstance = {
 //     token?: string,
 // };
 
-// @usefelps/validator ------------------------------------------------------------
-export type ValidatorInstance = {
+// @usefelps/data-model ------------------------------------------------------------
+export type DataModelInstance = {
     name: string,
     schema: JSONSchema,
 };
 
-export type ValidatorOptions = {
+export type DataModelOptions = {
     name: string,
     schema: JSONSchema,
 };
 
-export type ValidatorValidateOptions = {
+export type DataModelSchemaType<T> = FromSchema<T>;
+
+export type DataModelValidateOptions = {
     logError?: boolean,
     throwError?: boolean,
     partial?: boolean,
@@ -754,5 +756,5 @@ export type OrchestratorInstance = {
 
 // Crawlers options
 
-export type AnyCrawlerOptions = PlaywrightCrawlerOptions;
+export type AnyCrawlerOptions = PlaywrightCrawlerOptions & CheerioCrawlerOptions
 export type RequestContext = CheerioCrawlingContext<Dictionary<any>> & PlaywrightCrawlingContext<Dictionary<any>>

@@ -22,7 +22,7 @@ describe('Actor', () => {
             ...Step.createKeyed({
                 name: 'COLLECT_MOVIES_LIST',
                 hooks: {
-                    navigationHook: {
+                    mainHook: {
                         handlers: [
                             async (context) => {
                                 const state = State.create<{ deep: { node: { name: string }[] } }>({
@@ -44,7 +44,7 @@ describe('Actor', () => {
             ...Step.createKeyed({
                 name: 'COLLECT_MOVIE_DETAILS',
                 hooks: {
-                    navigationHook: {
+                    mainHook: {
                         handlers: [
                             async () => { },
                         ]

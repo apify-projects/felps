@@ -40,6 +40,8 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
                 }
             }
 
+            const stopTrailNow = Trail.get(trail).status === 'STOPPED';
+
             // INGESTED Stage
             const newlyCreatedRequests = TrailDataRequests.getItemsListByStatus(ingested.requests, ['CREATED', 'FAILED']);
             for (const newRequest of newlyCreatedRequests) {
@@ -48,10 +50,10 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
                 const flowLocal = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, metaLocal.data.flowName)];
                 const stepIsPartofFlow = !!flowLocal && Flow.has(flowLocal, metaLocal.data.stepName);
 
-                if (stepIsPartofFlow) {
-                    Trail.promote(trail, newRequest);
-                } else {
+                if (!stepIsPartofFlow || stopTrailNow) {
                     TrailDataRequests.setStatus(ingested.requests, CONST.REQUEST_STATUS.DISCARDED, metaLocal.data.requestId);
+                } else {
+                    Trail.promote(trail, newRequest);
                 }
             };
 

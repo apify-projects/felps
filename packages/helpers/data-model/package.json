@@ -1,17 +1,21 @@
 {
-    "name": "@usefelps/multi-crawler",
+    "name": "@usefelps/data-model",
     "version": "1.0.337",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
-    "peerDependencies": {
-        "playwright": "^1.19.2"
-    },
     "dependencies": {
-        "@usefelps/crawlee--crawler--aio-playwright": "workspace:*",
-        "@usefelps/crawler": "workspace:*",
-        "@usefelps/types": "workspace:*"
+        "@usefelps/constants": "workspace:*",
+        "@usefelps/instance-base": "workspace:*",
+        "@usefelps/logger": "workspace:*",
+        "@usefelps/utils": "workspace:*",
+        "ajv": "^8.11.0",
+        "ajv-formats": "^2.1.1",
+        "lodash.get": "^4.4.2",
+        "lodash.reduce": "^4.6.0"
     },
     "devDependencies": {
+        "@types/lodash.get": "^4.4.7",
+        "@types/lodash.reduce": "^4",
         "rimraf": "^3.0.2",
         "typescript": "^4.7.2"
     },

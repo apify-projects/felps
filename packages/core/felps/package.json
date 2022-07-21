@@ -1,6 +1,6 @@
 {
     "name": "felps",
-    "version": "1.0.328",
+    "version": "1.0.337",
     "description": "Flow-based crawler framework",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
@@ -14,6 +14,7 @@
         "@usefelps/crawlee--crawler--aio-playwright": "workspace:*",
         "@usefelps/crawlee--request-queue": "workspace:*",
         "@usefelps/crawler": "workspace:*",
+        "@usefelps/data-model": "workspace:*",
         "@usefelps/dataset": "workspace:*",
         "@usefelps/events": "workspace:*",
         "@usefelps/flow": "workspace:*",

@@ -9,12 +9,12 @@ describe('Step.create', () => {
         await Hook.run(actor?.hooks?.preActorStartedHook, actor, {});
     });
 
-    it('should fire navigationHook()', async () => {
+    it('should fire mainHook()', async () => {
         let value = false;
         const step = Step.create({
             name: 'TEST',
             hooks: {
-                navigationHook: Hook.create({
+                mainHook: Hook.create({
                     handlers: [
                         async () => { value = true; },
                     ],
@@ -26,17 +26,17 @@ describe('Step.create', () => {
         expect(value).toBeTruthy();
     });
 
-    it('should fire preCrawlHook()', async () => {
+    it('should fire preNavigationHook()', async () => {
         let value = 0;
         const step = Step.create({
             name: 'TEST',
             hooks: {
-                preCrawlHook: Hook.create({
+                preNavigationHook: Hook.create({
                     handlers: [
                         async () => { value = 2; },
                     ],
                 }),
-                navigationHook: Hook.create({
+                mainHook: Hook.create({
                     handlers: [
                         async () => { value = 1; },
                     ],
@@ -53,12 +53,12 @@ describe('Step.create', () => {
         const step = Step.create({
             name: 'TEST',
             hooks: {
-                navigationHook: Hook.create({
+                mainHook: Hook.create({
                     handlers: [
                         async () => { value = 1; },
                     ],
                 }),
-                postCrawlHook: Hook.create({
+                postNavigationHook: Hook.create({
                     handlers: [
                         async () => { value = 2; },
                     ],
@@ -75,7 +75,7 @@ describe('Step.create', () => {
         const step = Step.create({
             name: 'TEST',
             hooks: {
-                navigationHook: Hook.create({
+                mainHook: Hook.create({
                     handlers: [
                         async () => { throw Error('failed'); },
                     ],

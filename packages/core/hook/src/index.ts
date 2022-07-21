@@ -29,9 +29,9 @@ export const run = async <HookParametersSignature extends FT.HookParametersSigna
         } catch (error) {
             if (hook.onErrorHook) {
                 await hook.onErrorHook?.(error);
-            } else {
-                throw error;
             }
+
+            throw error;
         }
     }
 };

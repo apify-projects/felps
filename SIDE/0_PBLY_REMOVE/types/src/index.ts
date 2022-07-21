@@ -243,9 +243,9 @@ export type StepInstance = {
 } & Partial<BaseInstance>;
 
 export type StepHooks<Methods = any> = {
-    navigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
-    postNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
-    preCrawlHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
+    mainHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
+    postMainHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
+    preNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
     onErrorHook?: HookOptions<[context: RequestContext, api: Methods & ContextApi, error: ReallyAny]>,
     postRequestFailedHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>
 };
@@ -787,8 +787,8 @@ export type ActorHooks<
     postFlowEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preStepStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
     postStepEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
-    onStepFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
-    onStepRequestFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
+    postStepFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
+    postStepRequestFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
 }
 
 export type ActorInput = string | {
@@ -826,7 +826,6 @@ export type RequestCrawlerOptions = {
 };
 
 export type RequestMetaData = {
-    isHook: boolean,
     stepStop: boolean,
     flowStop: boolean,
     flowStart: boolean,

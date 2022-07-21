@@ -115,6 +115,9 @@
             "path": "packages/examples/crawler--aio-playwright"
         },
         {
+            "path": "packages/helpers/data-model"
+        },
+        {
             "path": "packages/helpers/logger"
         },
         {
