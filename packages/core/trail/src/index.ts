@@ -48,8 +48,8 @@ export const createFrom = (request: FT.RequestSource, options?: FT.TrailOptions)
     });
 };
 
-export const get = (trail: FT.TrailInstance): FT.TrailState => {
-    return State.get(trail.state, trail.id) || {};
+export const get = (trail: FT.TrailInstance, path?: string): FT.TrailState => {
+    return State.get(trail.state, utils.pathify(trail.id, path)) || {};
 };
 
 export const getMainFlow = (trail: FT.TrailInstance): FT.TrailFlowState | undefined => {

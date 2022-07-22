@@ -23,12 +23,12 @@ export const getPath = (trailDataState: FT.TrailDataStateInstance, ...segments: 
     return utils.pathify(trailDataState.path, ...segments);
 }
 
-export const get = (trailDataState: FT.TrailDataStateInstance): FT.TrailDataRequestItem => {
-    return State.get<FT.TrailDataRequestItem>(trailDataState.state, getPath(trailDataState));
+export const get = (trailDataState: FT.TrailDataStateInstance, path?: string): FT.TrailDataRequestItem => {
+    return State.get<FT.TrailDataRequestItem>(trailDataState.state, utils.pathify(getPath(trailDataState), path));
 };
 
-export const set = (trailDataState: FT.TrailDataStateInstance, state: FT.ReallyAny): void => {
-    State.replace(trailDataState.state, getPath(trailDataState), state);
+export const set = (trailDataState: FT.TrailDataStateInstance, state: FT.ReallyAny, path?: string): void => {
+    State.replace(trailDataState.state, utils.pathify(getPath(trailDataState), path), state);
 };
 
 export default { create, get, set };
