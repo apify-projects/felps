@@ -162,11 +162,11 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                     //TODO: NEED TO CHANGE THIS
                     throw new Error('Retry this step');
                 },
-                getState() {
-                    return TrailDataState.get(ingested.state);
+                getState(path) {
+                    return TrailDataState.get(ingested.state, path);
                 },
-                setState(state) {
-                    return TrailDataState.set(ingested.state, state);
+                setState(state, path) {
+                    return TrailDataState.set(ingested.state, state, path);
                 }
             } as FT.ContextApiFlowsAPI;
         },

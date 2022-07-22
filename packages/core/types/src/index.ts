@@ -228,8 +228,8 @@ export type ContextApiFlowsAPI = {
     next: (stepName: Extract<string, string>, request: RequestSource & { url: string | undefined }, options?: { crawlerMode?: RequestCrawlerMode }) => void;
     stop: (options?: { flow?: boolean }) => void;
     retry: () => void;
-    getState: () => ReallyAny;
-    setState: (state: ReallyAny) => void;
+    getState: (path?: string) => ReallyAny;
+    setState: (state: ReallyAny, path?: string) => void;
 };
 
 // @usefelps/context-api--meta ------------------------------------------------------------
