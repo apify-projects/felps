@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import strnum from 'strnum';
 import { customAlphabet } from 'nanoid';
 import safeStringify from 'fast-safe-stringify';
 import cloneDeep from 'lodash.clonedeep';
@@ -102,9 +103,25 @@ export const intersect = (arrayA: string[], arrayB: string[]) => arrayA.filter((
 
 export const difference = (arrayA: string[], arrayB: string[]) => arrayA.filter((item) => !arrayB.includes(item));
 
-export const isNumberPredicate = (nb: number | string) => !Number.isNaN(+(typeof nb === 'string' ? parseFloat(nb) : nb));
+export const extractNumbers = (text: string) => {
+    let numbers;
+    if (!text || typeof text !== 'string') return [];
 
-export const toNumber = (value: ReallyAny) => isNumberPredicate(value) ? +(typeof value === 'string' ? parseFloat(value) : value) : undefined;
+    numbers = text.match(/(-\d+|\d+)(,\d+)*(\.\d+)*/g);
+    numbers = numbers.map(n => Number(n.replace(/,/g, '')));
+    return numbers;
+};
+
+export const toNumbers = (text: string) => {
+    const numbers = extractNumbers(text);
+    return numbers.map((number: any) => strnum(number));
+};
+
+export const toNumber = (text: string) => {
+    return toNumbers(text)?.[0];
+};
+
+export const isNumberPredicate = (nb: ReallyAny) => !Number.isNaN(toNumber(nb));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const concatAsUniqueArray = (...arrs: any[]) => [...new Set([].concat(...arrs.filter((item) => Array.isArray(item))))];

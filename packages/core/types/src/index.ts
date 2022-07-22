@@ -631,12 +631,12 @@ export type LoggerInstance = {
 // };
 
 // @usefelps/data-model ------------------------------------------------------------
-export type DataModelInstance<S extends JSONSchema = JSONSchema> = {
+export type DataModelInstance<S extends JSONSchema> = {
     name: string,
     schema: S,
 };
 
-export type DataModelOptions<S extends JSONSchema = JSONSchema> = {
+export type DataModelOptions<S extends JSONSchema> = {
     name: string,
     schema: S,
 };

@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/utils",
-    "version": "1.0.341",
+    "version": "1.0.342",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
@@ -17,7 +17,8 @@
         "lodash.unset": "^4.5.2",
         "merge-deep": "^3.0.3",
         "nanoid": "^3.2.0",
-        "object-hash": "^3.0.0"
+        "object-hash": "^3.0.0",
+        "strnum": "^1.0.5"
     },
     "devDependencies": {
         "@types/lodash.clonedeep": "^4.5.7",
