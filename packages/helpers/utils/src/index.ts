@@ -102,9 +102,9 @@ export const intersect = (arrayA: string[], arrayB: string[]) => arrayA.filter((
 
 export const difference = (arrayA: string[], arrayB: string[]) => arrayA.filter((item) => !arrayB.includes(item));
 
-export const isNumberPredicate = (nb: number) => !Number.isNaN(+nb);
+export const isNumberPredicate = (nb: number | string) => !Number.isNaN(+(typeof nb === 'string' ? parseFloat(nb) : nb));
 
-export const toNumber = (value: ReallyAny) => isNumberPredicate(value) ? +value : undefined;
+export const toNumber = (value: ReallyAny) => isNumberPredicate(value) ? +(typeof value === 'string' ? parseFloat(value) : value) : undefined;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const concatAsUniqueArray = (...arrs: any[]) => [...new Set([].concat(...arrs.filter((item) => Array.isArray(item))))];

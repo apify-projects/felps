@@ -125,7 +125,7 @@ export type DeepOmitModels<T> = {
 export type ExcludeKeysWithTypeOf<T, V> = Pick<T, { [K in keyof T]: Exclude<T[K], undefined> extends V ? never : K }[keyof T]>;
 
 // apify --------------------------------------------------
-export type RequestSource = Request | RequestOptions | { url: string | undefined };
+export type RequestSource = Request | RequestOptions;
 export type RequestOptionalOptions = { priority?: number, crawlerMode?: RequestCrawlerMode, forefront?: boolean | undefined } | undefined
 
 // shared --------------------------------------------------
@@ -215,7 +215,7 @@ export type ContextApiFlowsAPI = {
     asStepName: (stepName: string) => (string | undefined),
     start: (
         flowName: string,
-        request: RequestSource,
+        request: RequestSource & { url: string | undefined },
         input?: ReallyAny,
         options?: {
             stepName?: string,
@@ -223,8 +223,8 @@ export type ContextApiFlowsAPI = {
             useNewTrail?: boolean
         }
     ) => void;
-    paginate: (request: RequestSource, options?: { crawlerMode?: RequestCrawlerMode }) => void;
-    next: (stepName: Extract<string, string>, request: RequestSource, options?: { crawlerMode?: RequestCrawlerMode }) => void;
+    paginate: (request: RequestSource & { url: string | undefined }, options?: { crawlerMode?: RequestCrawlerMode }) => void;
+    next: (stepName: Extract<string, string>, request: RequestSource & { url: string | undefined }, options?: { crawlerMode?: RequestCrawlerMode }) => void;
     stop: (options?: { flow?: boolean }) => void;
     retry: () => void;
     getState: () => ReallyAny;
@@ -631,17 +631,17 @@ export type LoggerInstance = {
 // };
 
 // @usefelps/data-model ------------------------------------------------------------
-export type DataModelInstance = {
+export type DataModelInstance<S extends JSONSchema = JSONSchema> = {
     name: string,
-    schema: JSONSchema,
+    schema: S,
 };
 
-export type DataModelOptions = {
+export type DataModelOptions<S extends JSONSchema = JSONSchema> = {
     name: string,
-    schema: JSONSchema,
+    schema: S,
 };
 
-export type DataModelSchemaType<T> = FromSchema<T>;
+export type DataModelSchemaType<T extends JSONSchema = JSONSchema> = FromSchema<T>;
 
 export type DataModelValidateOptions = {
     logError?: boolean,

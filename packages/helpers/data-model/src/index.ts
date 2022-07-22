@@ -12,11 +12,11 @@ function createAjv() {
     return ajv;
 }
 
-export const create = (options?: FT.DataModelOptions): FT.DataModelInstance => {
+export const create = <S extends FT.JSONSchema>(options?: FT.DataModelOptions<S>): FT.DataModelInstance<S> => {
     const { name, schema = {} } = options || {};
     return {
         ...InstanceBase.create({ key: 'data-model', name: name as string }),
-        schema,
+        schema: schema as S
     };
 };
 
@@ -58,8 +58,4 @@ export const validate = (dataModel: FT.DataModelInstance, data: FT.ReallyAny = {
 //     return reduce(data, reducer);
 // };
 
-export const schema = (dataModel: FT.DataModelInstance): FT.DataModelSchemaType<typeof dataModel.schema> => {
-    return dataModel.schema;
-};
-
-export default { create, validate, schema };
+export default { create, validate };
