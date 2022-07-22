@@ -490,14 +490,17 @@ export const load = async (actor: FT.ActorInstance): Promise<FT.ActorInstance> =
             return Dataset.load(dataset as FT.DatasetInstance);
         }));
 
-    const stores = Object.values(defaultStateStores).reduce((acc, val) => {
+    const defaultStores = Object.values(defaultStateStores).reduce((acc, val) => {
         const store = State.create(val);
         acc[store.name] = store;
         return acc;
     }, {} as { [key: string]: FT.AnyStoreLike });
 
     const storesLoaded = await Promise.all(
-        Object.values(stores as Record<string, FT.AnyStoreLike>).map(async (store) => {
+        Object.values({
+            ...defaultStores,
+            ...(actor.stores || {}),
+        } as Record<string, FT.AnyStoreLike>).map(async (store) => {
             if (store.type === 'state') {
                 const loaded = await State.load(store as FT.StateInstance);
                 // State.listen(loaded);

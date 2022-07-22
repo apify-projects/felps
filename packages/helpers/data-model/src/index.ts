@@ -20,7 +20,7 @@ export const create = <S extends FT.JSONSchema>(options?: FT.DataModelOptions<S>
     };
 };
 
-export const validate = <S extends FT.JSONSchema>(dataModel: FT.DataModelInstance<S>, data: FT.ReallyAny = {}, options: FT.DataModelValidateOptions = {}) => {
+export const validate = (dataModel: FT.DataModelInstance<FT.JSONSchema>, data: FT.ReallyAny = {}, options: FT.DataModelValidateOptions = {}) => {
     const { partial = false, logError = true, throwError = true } = options;
     const check = createAjv().compile({ ...dataModel?.schema as unknown as Record<string, FT.ReallyAny>, ...(partial ? { required: [] } : {}) });
     const valid = check(data);
