@@ -196,14 +196,25 @@ export const prepareHooks = <
                 onErrorHook: hooks?.postCrawlerEndedHook?.onErrorHook,
             }),
 
-            postCrawlerFailedHook: Hook.create<[actor: LocalActorInstance, error: FT.ReallyAny]>({
+            preCrawlerFailedHook: Hook.create<[actor: LocalActorInstance, error: FT.ReallyAny]>({
                 name: utils.pathify(base.name, 'postCrawlerFailedHook'),
                 validationHandler,
                 handlers: [
                     async function LOGGING(actor, error) {
                         Logger.error(Logger.create(actor), `Actor ${actor.name} failed`, { error } as FT.ReallyAny);
                     },
-                    ...(hooks?.postCrawlerFailedHook?.handlers || []),
+                    ...(hooks?.preCrawlerFailedHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.preCrawlerFailedHook?.onErrorHook,
+            }),
+
+            postCrawlerFailedHook: Hook.create<[actor: LocalActorInstance, error: FT.ReallyAny]>({
+                name: utils.pathify(base.name, 'postCrawlerFailedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.postCrawlerFailedHook?.handlers || [
+                        async (_, error) => { throw error; }
+                    ]),
                 ],
                 onErrorHook: hooks?.postCrawlerFailedHook?.onErrorHook,
             }),
@@ -329,13 +340,13 @@ export const prepareHooks = <
                 onErrorHook: hooks?.postNavigationHook?.onErrorHook,
             }),
 
-            postStepFailedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi, error: FT.ReallyAny]>({
-                name: utils.pathify(base.name, 'postStepFailedHook'),
+            preStepFailedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi, error: FT.ReallyAny]>({
+                name: utils.pathify(base.name, 'preStepFailedHook'),
                 validationHandler,
                 handlers: [
-                    ...(hooks?.postStepFailedHook?.handlers || []),
+                    ...(hooks?.preStepFailedHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.postStepFailedHook?.onErrorHook,
+                onErrorHook: hooks?.preStepFailedHook?.onErrorHook,
             }),
 
             postStepRequestFailedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi, error: FT.ReallyAny]>({
@@ -569,22 +580,17 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
         await Hook.run(actor?.hooks?.postCrawlerEndedHook, actor, contextApi({} as FT.ReallyAny));
 
     } catch (error) {
-        /**
-         * Run any logic once the actor failed
-         * By default:
-         *  - Logs to the console
-         */
-        await Hook.run(actor?.hooks?.postCrawlerFailedHook, actor, error);
+        try {
+            await Hook.run(actor?.hooks?.preCrawlerFailedHook, actor, error);
 
-        throw error;
+            await Hook.run(actor?.hooks?.postCrawlerFailedHook, actor, error);
+
+        } catch (err) {
+            throw err;
+        }
 
     } finally {
-        /**
-         * Run any logic once the actor ended
-         * By default:
-         *  - Persist the stores
-         *  - Close datasets
-         */
+
         await Hook.run(actor?.hooks?.postActorEndedHook, actor, contextApi({} as FT.ReallyAny));
     }
 };

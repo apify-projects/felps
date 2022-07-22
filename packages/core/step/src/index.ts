@@ -101,8 +101,8 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
                 ],
                 onErrorHook: hooks?.postNavigationHook?.onErrorHook,
             }),
-            postFailedHook: Hook.create<[context: FT.RequestContext, api: FT.TContextApi, error: FT.ReallyAny, actor: FT.ActorInstance]>({
-                name: pathify(base.name, 'postFailedHook'),
+            preFailedHook: Hook.create<[context: FT.RequestContext, api: FT.TContextApi, error: FT.ReallyAny, actor: FT.ActorInstance]>({
+                name: pathify(base.name, 'preFailedHook'),
                 validationHandler,
                 handlers: [
                     async function SET_REQUEST_STATUS(context, _, __, actor) {
@@ -112,7 +112,17 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
 
                         TrailDataRequests.setStatus(digested.requests, 'FAILED', meta.data.requestId);
                     },
-                    ...(hooks?.postFailedHook?.handlers || []),
+                    ...(hooks?.preFailedHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.preFailedHook?.onErrorHook,
+            }),
+            postFailedHook: Hook.create<[context: FT.RequestContext, api: FT.TContextApi, error: FT.ReallyAny, actor: FT.ActorInstance]>({
+                name: pathify(base.name, 'postFailedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.postFailedHook?.handlers || [
+                        async (_, __, error) => { throw error; }
+                    ]),
                 ],
                 onErrorHook: hooks?.postFailedHook?.onErrorHook,
             }),
@@ -172,15 +182,16 @@ export const run = async (step: FT.StepInstance | undefined, actor: FT.ActorInst
         await Hook.run(actor?.hooks?.postStepMainHook, actor, ctx, contextApi(ctx));
 
     } catch (error) {
-        /**
-         * Run any logic when an error occurs during the navigation
-         * By default: (does nothing for now)
-         */
-        await Hook.run(step?.hooks?.postFailedHook, ctx, contextApi(ctx), error, actor);
+        try {
+            await Hook.run(step?.hooks?.preFailedHook, ctx, contextApi(ctx), error, actor);
 
-        await Hook.run(actor?.hooks?.postStepFailedHook, actor, ctx, contextApi(ctx), error);
+            await Hook.run(actor?.hooks?.preStepFailedHook, actor, ctx, contextApi(ctx), error);
 
-        throw error;
+            await Hook.run(step?.hooks?.postFailedHook, ctx, contextApi(ctx), error, actor);
+
+        } catch (err) {
+            throw err;
+        }
 
     } finally {
         await Hook.run(actor?.hooks?.postStepEndedHook, actor, ctx, contextApi(ctx));

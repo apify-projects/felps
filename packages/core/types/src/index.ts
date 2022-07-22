@@ -185,6 +185,7 @@ export type StepHooks = {
     postNavigationHook?: HookOptions<[actor: ActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
     preNavigationHook?: HookOptions<[actor: ActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
     responseInterceptionHook?: HookOptions<[context: RequestContext, response: ReallyAny, actor: ActorInstance]>,
+    preFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
     postFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
     postRequestFailedHook?: HookOptions<StepOptionsHandlerParameters>
 };
@@ -547,6 +548,7 @@ export type ActorHooks<
     postActorEndedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
     preCrawlerStartedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
     postCrawlerEndedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
+    preCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
     postCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
     preQueueStartedHook?: HookInstance<[actor: LocalActorInstance]>,
     postQueueEndedHook?: HookInstance<[actor: LocalActorInstance]>,
@@ -558,7 +560,7 @@ export type ActorHooks<
     postStepMainHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
     preNavigationHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
     postNavigationHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
-    postStepFailedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, error: ReallyAny]>,
+    preStepFailedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, error: ReallyAny]>,
     postStepRequestFailedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, error: ReallyAny]>,
     postFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
 }

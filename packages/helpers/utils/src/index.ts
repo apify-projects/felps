@@ -107,8 +107,8 @@ export const extractNumbers = (text: string) => {
     let numbers;
     if (!text || typeof text !== 'string') return [];
 
-    numbers = text.match(/(-\d+|\d+)(,\d+)*(\.\d+)*/g);
-    numbers = numbers.map(n => Number(n.replace(/,/g, '')));
+    numbers = text.match(/(-\d+|\d+)(,\d+)*(\.\d+)*/g) || [];
+    numbers = numbers.map((str: string) => Number(str.replace(/,/g, '')));
     return numbers;
 };
 

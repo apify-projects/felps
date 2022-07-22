@@ -787,7 +787,7 @@ export type ActorHooks<
     postFlowEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preStepStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
     postStepEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext]>,
-    postStepFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
+    preStepFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
     postStepRequestFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
 }
 
