@@ -160,12 +160,20 @@ export type FlowInstance<
     name: FlowNames,
     steps: StepNames[],
     meta?: RequestMetaData,
+    hooks?: FlowHooks,
 } & SharedCustomCrawlerOptions & Omit<InstanceBase, 'name'>;
 
 export type FlowOptions<
     FlowNames extends string = string,
     StepNames extends string = string
 > = Partial<FlowInstance<FlowNames, StepNames>>;
+
+export type FlowHooks = {
+    preStartHook?: HookInstance<[context: RequestContext, api: TContextApi, actor: ActorInstance]>,
+    postEndHook?: HookInstance<[context: RequestContext, api: TContextApi, actor: ActorInstance]>,
+    preFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
+    postFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
+};
 
 // @usefelps/step ------------------------------------------------------------
 export type StepInstance<StepNames extends string = string> = {

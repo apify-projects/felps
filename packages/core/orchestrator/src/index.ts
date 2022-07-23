@@ -19,8 +19,11 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
 
             const contextApi = ContextApi.create(actor);
 
+
             const meta = RequestMeta.create(context);
             const { actorName } = meta.data;
+
+            const currentFlow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, CONST.UNPREFIXED_NAME_BY_ACTOR(meta.data.flowName))]
 
             // Handle all new flow start requests
             for (const trailId of State.keys(trails)) {
@@ -81,6 +84,8 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
             const trailEnded = remainingRequests.length === 0 && succeededRequests.length > 0;
 
             if (trailEnded) {
+                await Hook.run(currentFlow?.hooks?.postEndHook, context, contextApi(context), actor);
+
                 await Hook.run(actor?.hooks?.postFlowEndedHook, actor, context, contextApi(context));
             }
         },

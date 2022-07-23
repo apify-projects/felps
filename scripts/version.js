@@ -31,7 +31,7 @@ const [level, value] = process.argv.slice(2);
     const lines = `[${stdout.split('\n').filter(Boolean).join(',')}]`;
     const workspaces = JSON.parse(lines);
 
-    for (const index in workspaces) {
+    for (const index of Object.keys(workspaces)) {
         const workspace = workspaces[index];
         const location = path.resolve(__dirname, '../', workspace.location);
         const subPkgPath = path.resolve(location, 'package.json');

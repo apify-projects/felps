@@ -153,7 +153,11 @@ export const run = async (step: FT.StepInstance | undefined, actor: FT.ActorInst
 
     try {
         if (meta.data.startFlow) {
+            const currentFlow = actor.flows?.[meta.data.flowName]
+
             await Hook.run(actor?.hooks?.preFlowStartedHook, actor, ctx, contextApi(ctx));
+
+            await Hook.run(currentFlow?.hooks?.postEndHook, context, contextApi(context), actor);
         }
 
         if (!step) {
