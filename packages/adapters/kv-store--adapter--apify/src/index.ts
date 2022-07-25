@@ -11,14 +11,12 @@ export default () => KvStoreAdapter.create({
     async set(connectedKv, key, value) {
         return (connectedKv.resource as KeyValueStore).setValue(key, value);
     },
-    async list() {
-        // async list(connectedKv, prefix, options) {
-        // const listed = await (connectedKv.resource as KeyValueStore).client.listKeys({ exclusiveStartKey: prefix, ...(options || {}) });
+    async list(connectedKv, prefix, options) {
+        const listed = await (connectedKv.resource as KeyValueStore as any).client.listKeys({ exclusiveStartKey: prefix, ...(options || {}) });
 
         return {
-            keys: []
-            // keys: listed.items,
-            // cursor: listed.nextExclusiveStartKey,
+            keys: listed.items,
+            cursor: listed.nextExclusiveStartKey,
         };
     },
 });
