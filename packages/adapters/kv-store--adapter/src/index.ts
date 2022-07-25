@@ -3,8 +3,9 @@ import { KVStoreAdapterInstance, KVStoreAdapterListResult, KVStoreAdapterOptions
 
 export const create = <T = ReallyAny>(options: KVStoreAdapterOptions): KVStoreAdapterInstance<T> => {
     return {
-        ...InstanceBase.create({ name: 'kv-store-adapter' }),
+        ...InstanceBase.create({ name: options?.name || 'default', key: 'kv-store-adapter' }),
         resource: undefined,
+        context: options?.context || {},
         init: options?.init,
         get: options.get,
         set: options.set,
@@ -15,7 +16,7 @@ export const create = <T = ReallyAny>(options: KVStoreAdapterOptions): KVStoreAd
 export const load = async (adapter: KVStoreAdapterInstance) => {
     return {
         ...adapter,
-        resource: adapter?.resource || await Promise.resolve(adapter?.init?.()),
+        resource: adapter?.resource || await Promise.resolve(adapter?.init?.(adapter)),
     };
 };
 

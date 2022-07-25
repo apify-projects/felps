@@ -3,7 +3,8 @@ import KvStoreAdapter from '@usefelps/kv-store--adapter';
 
 export default () => KvStoreAdapter.create({
     async init(adapter) {
-        return KeyValueStore.open(adapter?.name === 'default' ? undefined : adapter?.name);
+        const { name } = adapter?.context || {};
+        return KeyValueStore.open(name === 'default' ? undefined : name);
     },
     async get(connectedKv, key) {
         return (connectedKv.resource as KeyValueStore).getValue(key);

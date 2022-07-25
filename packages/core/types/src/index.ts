@@ -725,8 +725,10 @@ export type KVStoreAdapterInstance<T = ReallyAny> = KVStoreAdapterOptions<T>
     & InstanceBase;
 
 export type KVStoreAdapterOptions<T = ReallyAny> = {
+    name?: string,
+    context?: Record<string, ReallyAny>,
     resource?: ReallyAny,
-    init?: (...args: ReallyAny[]) => ReallyAny | Promise<ReallyAny>,
+    init?: (adapter?: KVStoreAdapterInstance) => ReallyAny | Promise<ReallyAny>,
     get: (connectedKv: KVStoreAdapterInstance, key: string) => Promise<T>,
     set: (connectedKv: KVStoreAdapterInstance, key: string, value: ReallyAny, options: ReallyAny) => Promise<T>,
     list: (connectedKv: KVStoreAdapterInstance, prefix?: string, options?: ReallyAny) => Promise<KVStoreAdapterListResult>,
