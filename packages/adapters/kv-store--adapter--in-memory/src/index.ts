@@ -1,6 +1,7 @@
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
+import { KVStoreAdapterOptions } from '@usefelps/types';
 
-export default () => KvStoreAdapter.create({
+export default (options?: KVStoreAdapterOptions) => KvStoreAdapter.create({
     async init() {
         return {};
     },
@@ -16,4 +17,5 @@ export default () => KvStoreAdapter.create({
 
         return { keys: keys.map((key) => ({ key })) };
     },
+    ...options,
 });
