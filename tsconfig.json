@@ -130,6 +130,9 @@
             "path": "packages/helpers/mutable"
         },
         {
+            "path": "packages/helpers/process"
+        },
+        {
             "path": "packages/helpers/search"
         },
         {

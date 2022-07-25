@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/state",
-    "version": "1.0.352",
+    "version": "1.0.353",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
@@ -8,6 +8,7 @@
         "@usefelps/kv-store--adapter": "workspace:*",
         "@usefelps/kv-store--adapter--in-memory": "workspace:*",
         "@usefelps/logger": "workspace:*",
+        "@usefelps/process": "workspace:*",
         "@usefelps/types": "workspace:*",
         "@usefelps/utils": "workspace:*"
     },

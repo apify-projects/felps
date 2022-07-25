@@ -1690,6 +1690,7 @@ __metadata:
   dependencies:
     "@usefelps/constants": "workspace:*"
     "@usefelps/instance-base": "workspace:*"
+    "@usefelps/logger": "workspace:*"
     "@usefelps/request-meta": "workspace:*"
     "@usefelps/trail": "workspace:*"
     "@usefelps/trail--data-requests": "workspace:*"
@@ -1892,8 +1893,10 @@ __metadata:
   resolution: "@usefelps/flow@workspace:packages/core/flow"
   dependencies:
     "@usefelps/constants": "workspace:*"
+    "@usefelps/hook": "workspace:*"
     "@usefelps/instance-base": "workspace:*"
     "@usefelps/types": "workspace:*"
+    "@usefelps/utils": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
   languageName: unknown
@@ -1924,6 +1927,7 @@ __metadata:
   resolution: "@usefelps/kv-store--adapter--apify@workspace:packages/adapters/kv-store--adapter--apify"
   dependencies:
     "@usefelps/kv-store--adapter": "workspace:*"
+    "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
   languageName: unknown
@@ -1934,6 +1938,7 @@ __metadata:
   resolution: "@usefelps/kv-store--adapter--in-memory@workspace:packages/adapters/kv-store--adapter--in-memory"
   dependencies:
     "@usefelps/kv-store--adapter": "workspace:*"
+    "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
   languageName: unknown
@@ -2022,6 +2027,16 @@ __metadata:
     "@usefelps/step": "workspace:*"
     "@usefelps/trail": "workspace:*"
     "@usefelps/trail--data-requests": "workspace:*"
+    rimraf: ^3.0.2
+    typescript: ^4.7.2
+  languageName: unknown
+  linkType: soft
+
+"@usefelps/process@workspace:*, @usefelps/process@workspace:packages/helpers/process":
+  version: 0.0.0-use.local
+  resolution: "@usefelps/process@workspace:packages/helpers/process"
+  dependencies:
+    "@usefelps/types": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
   languageName: unknown
@@ -4110,6 +4125,7 @@ __metadata:
     "@usefelps/multi-crawler": "workspace:*"
     "@usefelps/mutable": "workspace:*"
     "@usefelps/orchestrator": "workspace:*"
+    "@usefelps/process": "workspace:*"
     "@usefelps/request-meta": "workspace:*"
     "@usefelps/request-queue": "workspace:*"
     "@usefelps/search": "workspace:*"

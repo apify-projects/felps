@@ -301,6 +301,7 @@ export type StateInstance<T = any> = {
     pathRoot: string;
     splitByKey?: boolean,
     initialized: boolean;
+    listened: boolean;
     storage: Record<string, unknown>;
     stats: StorageStatistics;
     _type?: T
@@ -571,6 +572,7 @@ export type ActorHooks<
     preStepFailedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, error: ReallyAny]>,
     postStepRequestFailedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi, error: ReallyAny]>,
     postFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
+    preBlackoutHook?: HookInstance<[actor: LocalActorInstance, evt: ReallyAny]>,
 }
 
 export type ActorInput = string | {

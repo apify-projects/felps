@@ -2,7 +2,7 @@ import { KeyValueStore } from '@crawlee/core';
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
 import { KVStoreAdapterOptions } from '@usefelps/types';
 
-export default (options?: KVStoreAdapterOptions) => KvStoreAdapter.create({
+export default (options?: Partial<KVStoreAdapterOptions>) => KvStoreAdapter.create({
     async init(adapter) {
         const { name } = adapter?.context || {};
         return KeyValueStore.open(name === 'default' ? undefined : name);

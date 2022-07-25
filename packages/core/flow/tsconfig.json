@@ -9,6 +9,9 @@
     ],
     "references": [
         {
+            "path": "../hook"
+        },
+        {
             "path": "../instance-base"
         },
         {
@@ -16,6 +19,9 @@
         },
         {
             "path": "../types"
+        },
+        {
+            "path": "../../helpers/utils"
         }
     ]
 }

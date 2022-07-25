@@ -1,15 +1,15 @@
 {
     "name": "@usefelps/data-model",
-    "version": "1.0.352",
+    "version": "1.0.353",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
+        "ajv": "^8.11.0",
+        "ajv-formats": "^2.1.1",
         "@usefelps/constants": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/logger": "workspace:*",
         "@usefelps/utils": "workspace:*",
-        "ajv": "^8.11.0",
-        "ajv-formats": "^2.1.1",
         "lodash.get": "^4.4.2",
         "lodash.reduce": "^4.6.0"
     },

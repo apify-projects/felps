@@ -11,8 +11,10 @@ import RequestMeta from '@usefelps/request-meta';
 import RequestQueue from '@usefelps/request-queue';
 import State from '@usefelps/state';
 import Step from '@usefelps/step';
+import Process from '@usefelps/process';
 import * as FT from '@usefelps/types';
 import * as utils from '@usefelps/utils';
+import { ReallyAny } from '@usefelps/types';
 
 export const create = <
     ITCrawler extends FT.CrawlerInstance = FT.ReallyAny,
@@ -370,6 +372,18 @@ export const prepareHooks = <
                 ],
                 onErrorHook: hooks?.postFailedHook?.onErrorHook,
             }),
+
+            preBlackoutHook: Hook.create<[actor: LocalActorInstance, evt: ReallyAny]>({
+                name: utils.pathify(base.name, 'preBlackoutHook'),
+                validationHandler,
+                handlers: [
+                    async function LOGGING(actor, evt) {
+                        Logger.error(Logger.create(actor), `Actor ${actor.name} is now blacking out`, { evt } as FT.ReallyAny);
+                    },
+                    ...(hooks?.preBlackoutHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.preBlackoutHook?.onErrorHook,
+            }),
         }
     }
 
@@ -503,7 +517,7 @@ export const load = async (actor: FT.ActorInstance): Promise<FT.ActorInstance> =
         } as Record<string, FT.AnyStoreLike>).map(async (store) => {
             if (store.type === 'state') {
                 const loaded = await State.load(store as FT.StateInstance);
-                // State.listen(loaded);
+                State.listen(loaded);
                 return loaded;
             }
             // if (store.type === 'bucket') {
@@ -541,6 +555,10 @@ export const load = async (actor: FT.ActorInstance): Promise<FT.ActorInstance> =
 export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promise<void> => {
     actor.input = input;
     actor = await load(actor);
+
+    Process.onExit(async (evt) => {
+        await Hook.run(actor?.hooks?.preBlackoutHook, actor, evt);
+    })
 
     const contextApi = ContextApi.create(actor);
 

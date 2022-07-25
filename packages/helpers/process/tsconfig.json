@@ -9,9 +9,6 @@
     ],
     "references": [
         {
-            "path": "../kv-store--adapter"
-        },
-        {
             "path": "../../core/types"
         }
     ]

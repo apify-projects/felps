@@ -4,14 +4,14 @@
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@crawlee/core": "*",
         "@usefelps/actor": "workspace:*",
         "@usefelps/flow": "workspace:*",
         "@usefelps/multi-crawler": "workspace:*",
         "@usefelps/orchestrator": "workspace:*",
+        "@usefelps/step": "workspace:*",
+        "@crawlee/core": "*",
         "@usefelps/request-queue": "workspace:*",
         "@usefelps/state": "workspace:*",
-        "@usefelps/step": "workspace:*",
         "@usefelps/types": "workspace:*",
         "apify": "*",
         "cagibi": "^0.0.24",
@@ -42,5 +42,5 @@
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
     "license": "ISC",
-    "version": "1.0.352"
+    "version": "1.0.353"
 }

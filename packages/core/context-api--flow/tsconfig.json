@@ -12,6 +12,9 @@
             "path": "../instance-base"
         },
         {
+            "path": "../../helpers/logger"
+        },
+        {
             "path": "../trail--data-requests"
         },
         {

@@ -31,6 +31,7 @@ import Mutable from '@usefelps/mutable';
 import DataModel from '@usefelps/data-model';
 import Search from '@usefelps/search';
 import UrlPattern from '@usefelps/url-pattern';
+import Process from '@usefelps/process';
 import * as utils from '@usefelps/utils';
 
 import AIOPlaywrightCrawler from '@usefelps/crawlee--crawler--aio-playwright';
@@ -67,6 +68,7 @@ export {
     DataModel,
     Search,
     UrlPattern,
+    Process,
     utils,
     AIOPlaywrightCrawler,
     CustomRequestQueue,
@@ -103,6 +105,7 @@ export default {
     DataModel,
     Search,
     UrlPattern,
+    Process,
     utils,
     AIOPlaywrightCrawler,
     CustomRequestQueue,

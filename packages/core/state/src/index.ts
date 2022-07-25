@@ -2,6 +2,7 @@ import InstanceBase from '@usefelps/instance-base';
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
 import InMemoryKvStoreAdapter from '@usefelps/kv-store--adapter--in-memory';
 import Logger from '@usefelps/logger';
+import Process from '@usefelps/process';
 import * as FT from '@usefelps/types';
 import * as utils from '@usefelps/utils';
 
@@ -29,6 +30,7 @@ export const create = <T>(options: FT.StateOptions): FT.StateInstance<T> => {
         pathRoot,
         splitByKey,
         initialized: false,
+        listened: false,
         storage: {},
         stats: { reads: 0, writes: 0 },
     };
@@ -186,11 +188,22 @@ export const persist = async <T>(state: FT.StateInstance<T>): Promise<void> => {
     Logger.info(Logger.create(state), 'Persisting store...', { stats: state.stats });
 };
 
-// export const listen = <T>(state: FT.StateInstance<T>): void => {
-export const listen = (): void => {
-    // ApifyEvents.onAll(async () => {
-    //     await persist(state);
-    // });
+export const listen = <T>(state: FT.StateInstance<T>): void => {
+    if (!state.listened) {
+        let firstInterval;
+        firstInterval = Process.onInterval(async () => {
+            await persist(state);
+            clearInterval(firstInterval);
+        }, 1000);
+
+        Process.onInterval(async () => {
+            await persist(state);
+        })
+
+        Process.onExit(async () => {
+            await persist(state);
+        })
+    }
 };
 
 export default { create, get, set, remove, has, entries, values, keys, increment, decrement, pop, shift, push, unshift, setAndGetKey, update, load, persist, reduce, listen, replace };

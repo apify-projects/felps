@@ -87,19 +87,22 @@
             "path": "../../helpers/mutable"
         },
         {
+            "path": "../../helpers/data-model"
+        },
+        {
             "path": "../../helpers/search"
         },
         {
             "path": "../../helpers/url-pattern"
         },
         {
+            "path": "../../helpers/process"
+        },
+        {
             "path": "../../crawlee/crawler--aio-playwright"
         },
         {
             "path": "../../crawlee/request-queue"
-        },
-        {
-            "path": "../../helpers/data-model"
         }
     ]
 }
