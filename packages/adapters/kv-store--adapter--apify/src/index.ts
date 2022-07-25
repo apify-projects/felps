@@ -1,6 +1,6 @@
 import { KeyValueStore } from '@crawlee/core';
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
-import { KVStoreAdapterOptions } from '@usefelps/types';
+import { KVStoreAdapterListResult, KVStoreAdapterOptions } from '@usefelps/types';
 
 export default (options?: Partial<KVStoreAdapterOptions>) => KvStoreAdapter.create({
     async init(adapter) {
@@ -14,12 +14,13 @@ export default (options?: Partial<KVStoreAdapterOptions>) => KvStoreAdapter.crea
         return (connectedKv.resource as KeyValueStore).setValue(key, value);
     },
     async list(connectedKv, prefix, options) {
-        const listed = await (connectedKv.resource as KeyValueStore as any).client.listKeys({ exclusiveStartKey: prefix, ...(options || {}) });
-
-        return {
-            keys: listed.items,
-            cursor: listed.nextExclusiveStartKey,
-        };
+        const keys: KVStoreAdapterListResult['keys'] = [];
+        await (connectedKv.resource as KeyValueStore)
+            .forEachKey(
+                (key, _, info) => { keys.push({ key, size: info.size }) },
+                { exclusiveStartKey: prefix, ...(options || {}) },
+            );
+        return { keys };
     },
     ...options,
 });

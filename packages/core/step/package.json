@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/step",
-    "version": "1.0.354",
+    "version": "1.0.355",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {

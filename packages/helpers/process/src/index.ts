@@ -9,10 +9,8 @@ export const onExit = (listener: (evt: ReallyAny) => void | Promise<void>) => {
         'SIGABRT', 'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV',
         'SIGUSR2', 'SIGTERM',
     ].forEach(evt => process.on(evt, (evtOrExitCodeOrError) => {
-        console.log(evt, evtOrExitCodeOrError)
         if (!executedOnceOnly) {
             executedOnceOnly = true;
-            console.log(evt, executedOnceOnly, listener.toString())
 
             Promise.resolve(listener(evt))
                 .catch((e) => {
