@@ -1,26 +1,29 @@
 import { ReallyAny } from '@usefelps/types';
 
 export const onExit = (listener: (evt: ReallyAny) => void | Promise<void>) => {
-    let exectuedOnceOnly = false;
+    let executedOnceOnly = false;
 
     [
         'beforeExit', 'disconnect', 'exit', 'uncaughtException', 'unhandledRejection',
         'SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP',
         'SIGABRT', 'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV',
         'SIGUSR2', 'SIGTERM',
-    ].forEach(evt => process.on(evt, async (evtOrExitCodeOrError: number | string | Error) => {
-        if (!exectuedOnceOnly) {
-            exectuedOnceOnly = true;
+    ].forEach(evt => process.on(evt, (evtOrExitCodeOrError) => {
+        console.log(evt, evtOrExitCodeOrError)
+        if (!executedOnceOnly) {
+            executedOnceOnly = true;
+            console.log(evt, executedOnceOnly, listener.toString())
 
-            try {
-                await Promise.resolve(listener(evt));
-            } catch (e) {
-                console.error('Caught error on exit listener', e);
-            }
+            Promise.resolve(listener(evt))
+                .catch((e) => {
+                    console.error('Caught error on interval listener', e);
+                })
+                .finally(() => {
+                    process.exit(isNaN(+evtOrExitCodeOrError) ? 1 : +evtOrExitCodeOrError);
+                });
         }
-
-        process.exit(isNaN(+evtOrExitCodeOrError) ? 1 : +evtOrExitCodeOrError);
     }));
+
 };
 
 export const onInterval = (listener: () => void | Promise<void>, interval: number = 30000): NodeJS.Timer => {

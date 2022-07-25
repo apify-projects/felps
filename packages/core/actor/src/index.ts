@@ -164,17 +164,20 @@ export const prepareHooks = <
                 ],
                 onErrorHook: hooks?.preActorStartedHook?.onErrorHook,
             }),
-            postActorEndedHook: Hook.create<[actor: LocalActorInstance, api?: FT.TContextApi]>({
-                name: utils.pathify(base.name, 'postActorEndedHook'),
+            preActorEndedHook: Hook.create<[actor: LocalActorInstance, api?: FT.TContextApi]>({
+                name: utils.pathify(base.name, 'preActorEndedHook'),
                 validationHandler,
                 handlers: [
-                    async function CLOSING() {
-                        // actor
-                        // await StoreCollection.persist(actor.stores);
+                    async function PERSIST_STATES(actor) {
+                        for (const store of Object.values(actor.stores)) {
+                            if (store.type === 'state') {
+                                await State.persist(store);
+                            }
+                        }
                     },
-                    ...(hooks?.postActorEndedHook?.handlers || []),
+                    ...(hooks?.preActorEndedHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.postActorEndedHook?.onErrorHook,
+                onErrorHook: hooks?.preActorEndedHook?.onErrorHook,
             }),
 
             preCrawlerStartedHook: Hook.create<[actor?: LocalActorInstance, api?: FT.TContextApi]>({
@@ -375,7 +378,6 @@ export const prepareHooks = <
 
             preBlackoutHook: Hook.create<[actor: LocalActorInstance, evt: ReallyAny]>({
                 name: utils.pathify(base.name, 'preBlackoutHook'),
-                validationHandler,
                 handlers: [
                     async function LOGGING(actor, evt) {
                         Logger.error(Logger.create(actor), `Actor ${actor.name} is now blacking out`, { evt } as FT.ReallyAny);
@@ -612,7 +614,7 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
 
     } finally {
 
-        await Hook.run(actor?.hooks?.postActorEndedHook, actor, contextApi({} as FT.ReallyAny));
+        await Hook.run(actor?.hooks?.preActorEndedHook, actor, contextApi({} as FT.ReallyAny));
     }
 };
 

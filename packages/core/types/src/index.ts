@@ -554,7 +554,7 @@ export type ActorHooks<
         ITContextApi>
 > = {
     preActorStartedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
-    postActorEndedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
+    preActorEndedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
     preCrawlerStartedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
     postCrawlerEndedHook?: HookInstance<[actor: LocalActorInstance, api: TContextApi]>,
     preCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,

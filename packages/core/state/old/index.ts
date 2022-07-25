@@ -177,7 +177,7 @@ export const persist = async <T>(state: FT.StateInstance<T>): Promise<void> => {
         await KvStoreAdapter.set(state.adapter, state.kvKey, state.storage);
     };
 
-    Logger.info(Logger.create(state), 'Persisting store...', { stats: state.stats });
+    Logger.info(Logger.create(state), 'Persisting store...');
 };
 
 // export const listen = (state: FT.StateInstance<T>): void => {

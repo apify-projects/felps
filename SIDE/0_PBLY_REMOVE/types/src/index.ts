@@ -777,7 +777,7 @@ export type ActorHooks<
     LocalActorInstance = ActorInstance<ITInput, ITCrawler, ITModels, ITStores, ITQueues, ITDatasets, ITFlows, ITSteps>
 > = {
     preActorStartedHook?: HookInstance<[actor: LocalActorInstance, input: ActorInput]>,
-    postActorEndedHook?: HookInstance<[actor: LocalActorInstance]>,
+    preActorEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preCrawlerStartedHook?: HookInstance<[actor: LocalActorInstance]>,
     postCrawlerEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     postCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
