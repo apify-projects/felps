@@ -17,8 +17,12 @@ export default (options?: Partial<KVStoreAdapterOptions>) => KvStoreAdapter.crea
         const keys: KVStoreAdapterListResult['keys'] = [];
         await (connectedKv.resource as KeyValueStore)
             .forEachKey(
-                (key, _, info) => { keys.push({ key, size: info.size }) },
-                { exclusiveStartKey: prefix, ...(options || {}) },
+                (key, _, info) => {
+                    if (key.startsWith(prefix)) {
+                        keys.push({ key, size: info.size })
+                    }
+                },
+                { ...(options || {}) },
             );
         return { keys };
     },
