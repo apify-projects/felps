@@ -157,7 +157,8 @@ export const load = async <T>(state: FT.StateInstance<T>): Promise<FT.StateInsta
             const currentKeys = await KvStoreAdapter.list(connected, state.kvKey);
             for (const { key } of currentKeys.keys) {
                 state.stats.reads++;
-                storage[key] = await KvStoreAdapter.get(connected, key) || {};
+                const [, keyId] = key.split('-');
+                storage[keyId] = await KvStoreAdapter.get(connected, key) || {};
             }
         } else {
             state.stats.reads++;
