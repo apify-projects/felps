@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/orchestrator",
-    "version": "1.0.362",
+    "version": "1.0.363",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {

@@ -63,7 +63,7 @@ export const compareUIDKeysFromLast = (a: string, b: string) => getUIDKeyTime(b)
 
 export const arrayToKeyedObject = (arr: any[], key?: string) => arr
     .reduce((acc, item) => {
-        acc[acc[key] || craftUIDKey()] = item;
+        acc[item?.[key] || craftUIDKey()] = item;
         return acc;
     }, {});
 
