@@ -11,8 +11,7 @@ export default (options?: Partial<KVStoreAdapterOptions>) => KvStoreAdapter.crea
         return (connectedKv.resource as KeyValueStore).getValue(key);
     },
     async set(connectedKv, key, value) {
-        await (connectedKv.resource as KeyValueStore).setValue(key, value);
-        console.log('set', key, value, await (connectedKv.resource as KeyValueStore).getValue(key, value))
+        return (connectedKv.resource as KeyValueStore).setValue(key, value);
     },
     async list(connectedKv, prefix, options) {
         const keys: KVStoreAdapterListResult['keys'] = [];
