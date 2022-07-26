@@ -1,6 +1,6 @@
 {
     "private": true,
-    "version": "1.0.356",
+    "version": "1.0.357",
     "author": {
         "name": "Apify",
         "email": "support@apify.com",
@@ -46,7 +46,7 @@
         "framework",
         "headless",
         "chrome",
-        "puppeteer",
+        "playwright",
         "crawler",
         "scraper"
     ],
@@ -75,14 +75,14 @@
         "json-schema-to-ts": "2.5.3",
         "apify-client": "^2.5.2",
         "cheerio": "1.0.0-rc.10",
-        "apify": "next",
-        "@crawlee/cheerio": "3.0.0",
-        "@crawlee/playwright": "3.0.0",
-        "@crawlee/core": "3.0.0",
-        "@crawlee/types": "3.0.0",
-        "@crawlee/browser": "3.0.0",
-        "@crawlee/browser-pool": "next",
-        "@crawlee/utils": "3.0.0",
+        "apify": "3.0.1",
+        "@crawlee/cheerio": "3.0.1",
+        "@crawlee/playwright": "3.0.1",
+        "@crawlee/core": "3.0.1",
+        "@crawlee/types": "3.0.1",
+        "@crawlee/browser": "3.0.1",
+        "@crawlee/browser-pool": "3.0.1",
+        "@crawlee/utils": "3.0.1",
         "@apify/utilities": "1.2.14"
     }
 }

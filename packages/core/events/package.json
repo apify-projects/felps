@@ -1,13 +1,13 @@
 {
     "name": "@usefelps/events",
-    "version": "1.0.356",
+    "version": "1.0.357",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "eventemitter3": "^4.0.7",
-        "queue": "^6.0.2",
         "@usefelps/instance-base": "workspace:*",
-        "@usefelps/types": "workspace:*"
+        "@usefelps/types": "workspace:*",
+        "eventemitter3": "^4.0.7",
+        "queue": "^6.0.2"
     },
     "devDependencies": {
         "rimraf": "^3.0.2",

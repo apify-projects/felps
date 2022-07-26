@@ -1,14 +1,14 @@
 {
     "name": "@usefelps/request-queue",
-    "version": "1.0.356",
+    "version": "1.0.357",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
+        "@crawlee/core": "*",
+        "@usefelps/crawlee--request-queue": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/logger": "workspace:*",
-        "@usefelps/crawlee--request-queue": "workspace:*",
         "@usefelps/request-meta": "workspace:*",
-        "@crawlee/core": "*",
         "@usefelps/types": "workspace:*",
         "@usefelps/utils": "workspace:*"
     },

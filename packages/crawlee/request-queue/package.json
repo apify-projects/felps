@@ -1,13 +1,13 @@
 {
     "name": "@usefelps/crawlee--request-queue",
-    "version": "1.0.356",
+    "version": "1.0.357",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@usefelps/state": "workspace:*",
-        "@usefelps/request-meta": "workspace:*",
-        "@usefelps/kv-store--adapter--apify": "workspace:*",
         "@crawlee/core": "*",
+        "@usefelps/kv-store--adapter--apify": "workspace:*",
+        "@usefelps/request-meta": "workspace:*",
+        "@usefelps/state": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {

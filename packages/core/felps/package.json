@@ -1,66 +1,72 @@
 {
-    "name": "felps",
-    "version": "1.0.356",
-    "description": "Flow-based crawler framework",
-    "main": "lib/index.js",
-    "typings": "lib/index.d.ts",
-    "dependencies": {
-        "@usefelps/actor": "workspace:*",
-        "@usefelps/context-api": "workspace:*",
-        "@usefelps/context-api--flow": "workspace:*",
-        "@usefelps/context-api--helpers": "workspace:*",
-        "@usefelps/context-api--meta": "workspace:*",
-        "@usefelps/crawler": "workspace:*",
-        "@usefelps/dataset": "workspace:*",
-        "@usefelps/events": "workspace:*",
-        "@usefelps/flow": "workspace:*",
-        "@usefelps/hook": "workspace:*",
-        "@usefelps/instance-base": "workspace:*",
-        "@usefelps/multi-crawler": "workspace:*",
-        "@usefelps/orchestrator": "workspace:*",
-        "@usefelps/request-meta": "workspace:*",
-        "@usefelps/request-queue": "workspace:*",
-        "@usefelps/state": "workspace:*",
-        "@usefelps/step": "workspace:*",
-        "@usefelps/trail": "workspace:*",
-        "@usefelps/trail--data-requests": "workspace:*",
-        "@usefelps/trail--data-state": "workspace:*",
-        "@usefelps/kv-store--adapter": "workspace:*",
-        "@usefelps/kv-store--adapter--apify": "workspace:*",
-        "@usefelps/kv-store--adapter--in-memory": "workspace:*",
-        "@usefelps/apify-events": "workspace:*",
-        "@usefelps/logger": "workspace:*",
-        "@usefelps/mutable": "workspace:*",
-        "@usefelps/data-model": "workspace:*",
-        "@usefelps/search": "workspace:*",
-        "@usefelps/url-pattern": "workspace:*",
-        "@usefelps/process": "workspace:*",
-        "@usefelps/crawlee--crawler--aio-playwright": "workspace:*",
-        "@usefelps/crawlee--request-queue": "workspace:*",
-        "apify": "*",
-        "cheerio": "^1.0.0-rc.10",
-        "playwright": "^1.19.2",
-        "playwright-core": "^1.19.2",
-        "puppeteer": "^10.4.0"
-    },
-    "devDependencies": {
-        "rimraf": "^3.0.2",
-        "typescript": "^4.7.2"
-    },
-    "directories": {
-        "lib": "lib",
-        "test": "__tests__"
-    },
-    "files": [
-        "lib"
-    ],
-    "scripts": {
-        "publish": "yarn npm publish --access public",
-        "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
-        "dev": "npm run clean && tsc --watch",
-        "build": "tsc --build",
-        "lint": "eslint ./src --ext .ts,.js,.jsx",
-        "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
-    },
-    "license": "ISC"
+  "name": "felps",
+  "version": "1.0.357",
+  "description": "Flow-based crawler framework",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "dependencies": {
+    "@usefelps/actor": "workspace:*",
+    "@usefelps/apify-events": "workspace:*",
+    "@usefelps/context-api": "workspace:*",
+    "@usefelps/context-api--flow": "workspace:*",
+    "@usefelps/context-api--helpers": "workspace:*",
+    "@usefelps/context-api--meta": "workspace:*",
+    "@usefelps/crawlee--crawler--aio-playwright": "workspace:*",
+    "@usefelps/crawlee--request-queue": "workspace:*",
+    "@usefelps/crawler": "workspace:*",
+    "@usefelps/data-model": "workspace:*",
+    "@usefelps/dataset": "workspace:*",
+    "@usefelps/events": "workspace:*",
+    "@usefelps/flow": "workspace:*",
+    "@usefelps/hook": "workspace:*",
+    "@usefelps/instance-base": "workspace:*",
+    "@usefelps/kv-store--adapter": "workspace:*",
+    "@usefelps/kv-store--adapter--apify": "workspace:*",
+    "@usefelps/kv-store--adapter--in-memory": "workspace:*",
+    "@usefelps/logger": "workspace:*",
+    "@usefelps/multi-crawler": "workspace:*",
+    "@usefelps/mutable": "workspace:*",
+    "@usefelps/orchestrator": "workspace:*",
+    "@usefelps/process": "workspace:*",
+    "@usefelps/request-meta": "workspace:*",
+    "@usefelps/request-queue": "workspace:*",
+    "@usefelps/search": "workspace:*",
+    "@usefelps/state": "workspace:*",
+    "@usefelps/step": "workspace:*",
+    "@usefelps/trail": "workspace:*",
+    "@usefelps/trail--data-requests": "workspace:*",
+    "@usefelps/trail--data-state": "workspace:*",
+    "@usefelps/url-pattern": "workspace:*",
+    "apify": "*",
+    "cheerio": "^1.0.0-rc.10",
+    "crawlee": "*"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "^4.7.2"
+  },
+  "peerDependencies": {
+    "playwright": "^1.19.2"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    }
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "publish": "yarn npm publish --access public",
+    "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
+    "dev": "npm run clean && tsc --watch",
+    "build": "tsc --build",
+    "lint": "eslint ./src --ext .ts,.js,.jsx",
+    "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
+  },
+  "license": "ISC"
 }

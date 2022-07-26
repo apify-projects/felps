@@ -1,50 +1,50 @@
 {
-    "name": "@usefelps/crawlee--crawler--aio-playwright",
-    "version": "1.0.356",
-    "main": "lib/index.js",
-    "typings": "lib/index.d.ts",
-    "dependencies": {
-        "iconv-lite": "*",
-        "util": "*",
-        "@apify/timeout": "^0.2.1",
-        "@apify/utilities": "*",
-        "@crawlee/browser": "*",
-        "@crawlee/browser-pool": "*",
-        "@crawlee/core": "*",
-        "@crawlee/playwright": "*",
-        "@crawlee/types": "*",
-        "@crawlee/utils": "*",
-        "@usefelps/constants": "workspace:*",
-        "@usefelps/types": "workspace:*",
-        "eventemitter3": "^4.0.7",
-        "https-proxy-agent": "^5.0.1",
-        "lodash.get": "^4.4.2",
-        "node-fetch": "2"
-    },
-    "peerDependencies": {
-        "playwright": "^1.19.2"
-    },
-    "devDependencies": {
-        "playwright": "^1.19.2",
-        "rimraf": "^3.0.2",
-        "typescript": "^4.7.2"
-    },
-    "directories": {
-        "lib": "lib",
-        "test": "__tests__"
-    },
-    "files": [
-        "lib"
-    ],
-    "scripts": {
-        "publish": "yarn npm publish --access public",
-        "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
-        "prepack": "yarn build",
-        "compile": "tsc",
-        "build": "yarn clean && yarn compile",
-        "dev": "yarn clean && tsc --watch",
-        "lint": "eslint ./src --ext .ts,.js,.jsx",
-        "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
-    },
-    "license": "ISC"
+  "name": "@usefelps/crawlee--crawler--aio-playwright",
+  "version": "1.0.357",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "dependencies": {
+    "@apify/timeout": "^0.2.1",
+    "@apify/utilities": "*",
+    "@crawlee/browser": "*",
+    "@crawlee/browser-pool": "*",
+    "@crawlee/core": "*",
+    "@crawlee/playwright": "*",
+    "@crawlee/types": "*",
+    "@crawlee/utils": "*",
+    "@usefelps/constants": "workspace:*",
+    "@usefelps/types": "workspace:*",
+    "eventemitter3": "^4.0.7",
+    "https-proxy-agent": "^5.0.1",
+    "iconv-lite": "*",
+    "lodash.get": "^4.4.2",
+    "node-fetch": "2",
+    "util": "*"
+  },
+  "peerDependencies": {
+    "playwright": "^1.21.1"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    }
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "publish": "yarn npm publish --access public",
+    "clean": "rimraf lib && rimraf tsconfig.tsbuildinfo",
+    "prepack": "yarn build",
+    "compile": "tsc",
+    "build": "yarn clean && yarn compile",
+    "dev": "yarn clean && tsc --watch",
+    "lint": "eslint ./src --ext .ts,.js,.jsx",
+    "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
+  },
+  "license": "ISC"
 }

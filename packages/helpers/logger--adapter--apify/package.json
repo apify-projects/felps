@@ -1,11 +1,11 @@
 {
     "name": "@usefelps/logger--adapter--apify",
-    "version": "1.0.356",
+    "version": "1.0.357",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@usefelps/logger--adapter": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
+        "@usefelps/logger--adapter": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
