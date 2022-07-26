@@ -581,22 +581,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/basic@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@crawlee/basic@npm:3.0.0"
-  dependencies:
-    "@apify/log": ^2.0.0
-    "@apify/timeout": ^0.3.0
-    "@apify/utilities": ^2.0.0
-    "@crawlee/core": ^3.0.0
-    "@crawlee/types": ^3.0.0
-    "@crawlee/utils": ^3.0.0
-    got-scraping: ^3.2.9
-    ow: ^0.28.1
-  checksum: ab30adcc79aeb797b4391d61f8feca13bbb8f367e62b88de18c2c2363e94ff7386a4003ed22732538252c89206b268600b294f2137a6ea59f1120a8135fc39cb
-  languageName: node
-  linkType: hard
-
 "@crawlee/basic@npm:^3.0.1":
   version: 3.0.1
   resolution: "@crawlee/basic@npm:3.0.1"
@@ -642,7 +626,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/browser@npm:3.0.1":
+"@crawlee/browser@npm:^3.0.1":
   version: 3.0.1
   resolution: "@crawlee/browser@npm:3.0.1"
   dependencies:
@@ -657,7 +641,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/cheerio@npm:3.0.1":
+"@crawlee/cheerio@npm:^3.0.1":
   version: 3.0.1
   resolution: "@crawlee/cheerio@npm:3.0.1"
   dependencies:
@@ -673,11 +657,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/cli@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@crawlee/cli@npm:3.0.0"
+"@crawlee/cli@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@crawlee/cli@npm:3.0.1"
   dependencies:
-    "@crawlee/templates": ^3.0.0
+    "@crawlee/templates": ^3.0.1
     ansi-colors: ^4.1.3
     fs-extra: ^10.1.0
     inquirer: ^8.2.4
@@ -685,11 +669,11 @@ __metadata:
     yargs: ^17.5.1
   bin:
     crawlee: index.js
-  checksum: f44c4b208965b86730eed96de48655e9a4e814f89545971d126f3bffeb72c9ee0b7ad5edd4b84b29604d3bc91dc2b8ea5ae10b50ad35d319eb894d23f72d8084
+  checksum: 67d17318de2b6e6ce34ea1de0ae9795e94cf98303f2f1ad7a69293cdc469d6ce031001835640575a7f81eebfcf556c3f31fa13f9ae245c273cc3743737e07fad
   languageName: node
   linkType: hard
 
-"@crawlee/core@npm:3.0.1":
+"@crawlee/core@npm:^3.0.1":
   version: 3.0.1
   resolution: "@crawlee/core@npm:3.0.1"
   dependencies:
@@ -731,7 +715,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/playwright@npm:3.0.1":
+"@crawlee/playwright@npm:^3.0.1":
   version: 3.0.1
   resolution: "@crawlee/playwright@npm:3.0.1"
   dependencies:
@@ -753,16 +737,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/puppeteer@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@crawlee/puppeteer@npm:3.0.0"
+"@crawlee/puppeteer@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@crawlee/puppeteer@npm:3.0.1"
   dependencies:
     "@apify/datastructures": ^2.0.0
     "@apify/log": ^2.0.0
-    "@crawlee/browser": ^3.0.0
-    "@crawlee/browser-pool": ^3.0.0
-    "@crawlee/types": ^3.0.0
-    "@crawlee/utils": ^3.0.0
+    "@crawlee/browser": ^3.0.1
+    "@crawlee/browser-pool": ^3.0.1
+    "@crawlee/types": ^3.0.1
+    "@crawlee/utils": ^3.0.1
+    cheerio: 1.0.0-rc.12
     jquery: ^3.6.0
     ow: ^0.28.1
   peerDependencies:
@@ -770,23 +755,23 @@ __metadata:
   peerDependenciesMeta:
     puppeteer:
       optional: true
-  checksum: 9b4ab5d23b9ad4bfd73a32bfab2cdee5ef633ceb537737aed5e3aec02e09acd954c5707b755315e621215e083657992fdea390bf8d18bba06e768a89766613be
+  checksum: 83393b75ed2ae588ea1edc275dfcd0d9fd7997af856ec320509b210ad183365be110c1d9316711a4d13e33c58426ffc13304674cffb3ba6725bcceaaa22cdb8a
   languageName: node
   linkType: hard
 
-"@crawlee/templates@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@crawlee/templates@npm:3.0.0"
+"@crawlee/templates@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@crawlee/templates@npm:3.0.1"
   dependencies:
     ansi-colors: ^4.1.3
     inquirer: ^9.0.0
     yargonaut: ^1.1.4
     yargs: ^17.5.1
-  checksum: 6c66a98203d780268b7d5e9af68586a09423d471bcb198c204d1ad836cf2c9886ec11462724dd06af7e669ae834e68980a35d2afb4902660a21e65b69d785878
+  checksum: afb80203018bf38e948f54f063a40a06cdd2d3d1807503e3cf1347d5319f1579136e27b50f8234eaf051a33a1acfde9516afcb0a94e4c6f0933801470d828810
   languageName: node
   linkType: hard
 
-"@crawlee/types@npm:3.0.1":
+"@crawlee/types@npm:^3.0.1":
   version: 3.0.1
   resolution: "@crawlee/types@npm:3.0.1"
   dependencies:
@@ -795,7 +780,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/utils@npm:3.0.1":
+"@crawlee/utils@npm:^3.0.1":
   version: 3.0.1
   resolution: "@crawlee/utils@npm:3.0.1"
   dependencies:
@@ -3327,18 +3312,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"crawlee@npm:*":
-  version: 3.0.0
-  resolution: "crawlee@npm:3.0.0"
+"crawlee@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "crawlee@npm:3.0.1"
   dependencies:
-    "@crawlee/basic": ^3.0.0
-    "@crawlee/browser": ^3.0.0
-    "@crawlee/cheerio": ^3.0.0
-    "@crawlee/cli": ^3.0.0
-    "@crawlee/core": ^3.0.0
-    "@crawlee/playwright": ^3.0.0
-    "@crawlee/puppeteer": ^3.0.0
-    "@crawlee/utils": ^3.0.0
+    "@crawlee/basic": ^3.0.1
+    "@crawlee/browser": ^3.0.1
+    "@crawlee/cheerio": ^3.0.1
+    "@crawlee/cli": ^3.0.1
+    "@crawlee/core": ^3.0.1
+    "@crawlee/playwright": ^3.0.1
+    "@crawlee/puppeteer": ^3.0.1
+    "@crawlee/utils": ^3.0.1
     import-local: ^3.1.0
   peerDependencies:
     playwright: ^1.21.1
@@ -3350,7 +3335,7 @@ __metadata:
       optional: true
   bin:
     crawlee: cli.js
-  checksum: 32e73def7308ede70681ebfc6030a2891c9507cd5a8313fb736683d43f47f810b745f588a096188a1ce6ee0aa25b5d599b3c0c2594548ece520bb9b4af93bd8c
+  checksum: 189cb2841edf27766a310e7949e1cc34f912ae2b73e1def1a15ae35cf550b61ea449dd05daa70f6b16eaa548a99989d3edf2f04ba877a7aafa098ae7e8e36fa2
   languageName: node
   linkType: hard
 
