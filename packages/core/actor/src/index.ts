@@ -155,7 +155,7 @@ export const prepareHooks = <
     ITSteps,
     ITContextApi
 >['hooks']) =>
-    (actor: Partial<FT.ActorInstance>): FT.ActorHooks<
+    (initialActor: Partial<FT.ActorInstance>): FT.ActorHooks<
         ITCrawler,
         ITStores,
         ITQueues,
@@ -166,7 +166,7 @@ export const prepareHooks = <
         LocalActorInstance
     > => {
 
-        const base = InstanceBase.create({ key: 'actor-hooks', name: actor.name });
+        const base = InstanceBase.create({ key: 'actor-hooks', name: initialActor.name });
         const validationHandler = async (actor?: LocalActorInstance) => {
             return actor.name === base.name
         };
