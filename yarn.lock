@@ -1473,6 +1473,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash.uniqby@npm:^4.7.7":
+  version: 4.7.7
+  resolution: "@types/lodash.uniqby@npm:4.7.7"
+  dependencies:
+    "@types/lodash": "*"
+  checksum: f496fd390c632f070b2bae7527cecd79c5398c6c2d14157bb85830b78ad72acbea095ddd8573f33ca97a94ac31cdaae83800373bba9f4f4f503a4dce98a87812
+  languageName: node
+  linkType: hard
+
 "@types/lodash.unset@npm:^4.5.7":
   version: 4.5.7
   resolution: "@types/lodash.unset@npm:4.5.7"
@@ -2236,6 +2245,7 @@ __metadata:
     "@types/lodash.ismatch": ^4.4.7
     "@types/lodash.pick": ^4.4.7
     "@types/lodash.set": ^4.3.7
+    "@types/lodash.uniqby": ^4.7.7
     "@types/lodash.unset": ^4.5.7
     "@usefelps/constants": "workspace:*"
     "@usefelps/types": "workspace:*"
@@ -2247,6 +2257,7 @@ __metadata:
     lodash.isobject: ^3.0.2
     lodash.pick: ^4.4.0
     lodash.set: ^4.3.2
+    lodash.uniqby: ^4.7.0
     lodash.unset: ^4.5.2
     merge-deep: ^3.0.3
     nanoid: ^3.2.0
@@ -6288,6 +6299,13 @@ __metadata:
   version: 4.4.2
   resolution: "lodash.truncate@npm:4.4.2"
   checksum: b463d8a382cfb5f0e71c504dcb6f807a7bd379ff1ea216669aa42c52fc28c54e404bfbd96791aa09e6df0de2c1d7b8f1b7f4b1a61f324d38fe98bc535aeee4f5
+  languageName: node
+  linkType: hard
+
+"lodash.uniqby@npm:^4.7.0":
+  version: 4.7.0
+  resolution: "lodash.uniqby@npm:4.7.0"
+  checksum: 659264545a95726d1493123345aad8cbf56e17810fa9a0b029852c6d42bc80517696af09d99b23bef1845d10d95e01b8b4a1da578f22aeba7a30d3e0022a4938
   languageName: node
   linkType: hard
 

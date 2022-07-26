@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/utils",
-    "version": "1.0.360",
+    "version": "1.0.362",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
@@ -14,6 +14,7 @@
         "lodash.isobject": "^3.0.2",
         "lodash.pick": "^4.4.0",
         "lodash.set": "^4.3.2",
+        "lodash.uniqby": "^4.7.0",
         "lodash.unset": "^4.5.2",
         "merge-deep": "^3.0.3",
         "nanoid": "^3.2.0",
@@ -27,6 +28,7 @@
         "@types/lodash.ismatch": "^4.4.7",
         "@types/lodash.pick": "^4.4.7",
         "@types/lodash.set": "^4.3.7",
+        "@types/lodash.uniqby": "^4.7.7",
         "@types/lodash.unset": "^4.5.7",
         "rimraf": "^3.0.2"
     },

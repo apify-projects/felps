@@ -69,12 +69,31 @@ export const create = <
         }, {});
     }
 
+    // const DefautFileStores = [
+    //     { name: 'files', kvKey: 'felps-cached-request' },
+    //     { name: 'files', kvKey: 'felps-files' },
+    //     { name: 'responseBodies', kvKey: 'felps-response-bodies' },
+    //     { name: 'browserTraces', kvKey: 'felps-browser-traces' },
+    // ];
+
     const instance = {
         ...base,
-
-        stores: options?.stores,
-        datasets: options?.datasets,
-        queues: options?.queues,
+        stores: {
+            ...utils.arrayToKeyedObject([
+                State.create({ name: 'state', kvKey: 'state' }),
+                State.create({ name: 'trails', kvKey: 'trails', splitByKey: true }),
+                State.create({ name: 'incorrectDataset', kvKey: 'incorrect-dataset', splitByKey: true }),
+            ], 'name'),
+            ...(options?.stores || {}),
+        },
+        datasets: {
+            default: Dataset.create({ name: 'default' }),
+            ...(options?.datasets || {}),
+        } as Record<string, FT.DatasetInstance>,
+        queues: {
+            default: RequestQueue.create({ name: 'default' }),
+            ...(options?.queues || {}),
+        } as Record<string, FT.RequestQueueInstance>,
 
         flows: extendMetaContext(options?.flows || {}, { actorName: base.name }),
         steps: extendMetaContext(options?.steps || {}, { actorName: base.name }),
@@ -83,7 +102,7 @@ export const create = <
 
         crawler: options?.crawler,
         crawlerMode: options?.crawlerMode || 'http',
-        // crawlerOptions: options?.crawlerOptions,
+        crawlerOptions: options?.crawlerOptions || {},
     };
 
     return {
@@ -485,57 +504,33 @@ export const getStep = (actor: FT.ActorInstance, actorName: string, stepName: st
 
 export const load = async (actor: FT.ActorInstance): Promise<FT.ActorInstance> => {
 
-    const defaultStateStores = [
-        { name: 'state', kvKey: 'state' },
-        { name: 'trails', kvKey: 'trails', splitByKey: true },
-        { name: 'incorrectDataset', kvKey: 'incorrect-dataset' },
-    ];
-
-    // const DefautFileStores = [
-    //     { name: 'files', kvKey: 'felps-cached-request' },
-    //     { name: 'files', kvKey: 'felps-files' },
-    //     { name: 'responseBodies', kvKey: 'felps-response-bodies' },
-    //     { name: 'browserTraces', kvKey: 'felps-browser-traces' },
-    // ];
-
     const datasetsLoaded = await Promise.all(
-        Object.values({
-            default: Dataset.create({}),
-            ...actor.datasets,
-        } as Record<string, FT.RequestQueueInstance>).map(async (dataset) => {
-            return Dataset.load(dataset as FT.DatasetInstance);
-        }));
+        Object.values<FT.DatasetInstance>((actor.datasets || {}))
+            .map(async (dataset) => {
+                return Dataset.load(dataset);
+            }));
 
-    const defaultStores = Object.values(defaultStateStores).reduce((acc, val) => {
-        const store = State.create(val);
-        acc[store.name] = store;
-        return acc;
-    }, {} as { [key: string]: FT.AnyStoreLike });
 
     const storesLoaded = await Promise.all(
-        Object.values({
-            ...defaultStores,
-            ...(actor.stores || {}),
-        } as Record<string, FT.AnyStoreLike>).map(async (store) => {
-            if (store.type === 'state') {
-                const loaded = await State.load(store as FT.StateInstance);
-                State.listen(loaded);
-                return loaded;
-            }
-            // if (store.type === 'bucket') {
-            //     return Bucket.load(store as FT.BucketInstance);
-            // }
-            return Promise.resolve(store);
-        }),
-    ) as FT.AnyStoreLike[];
+        Object.values<FT.AnyStoreLike>(actor.stores || {})
+            .map(async (store) => {
+                if (store.type === 'state') {
+                    const loaded = await State.load(store);
+                    State.listen(loaded);
+                    return loaded;
+                }
+                // if (store.type === 'bucket') {
+                //     return Bucket.load(store as FT.BucketInstance);
+                // }
+                return Promise.resolve(store);
+            }),
+    );
 
     const queuesLoaded = await Promise.all(
-        Object.values({
-            default: RequestQueue.create({}),
-            ...actor.queues,
-        } as Record<string, FT.RequestQueueInstance>).map(async (queue) => {
-            return RequestQueue.load(queue as FT.RequestQueueInstance);
-        }));
+        Object.values<FT.RequestQueueInstance>(actor.queues || {})
+            .map(async (queue) => {
+                return RequestQueue.load(queue);
+            }));
 
     return {
         ...actor,

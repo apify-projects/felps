@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/kv-store--adapter--in-memory",
-    "version": "1.0.360",
+    "version": "1.0.362",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {

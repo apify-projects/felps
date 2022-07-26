@@ -189,9 +189,10 @@ export const persist = async <T>(state: FT.StateInstance<T>): Promise<void> => {
     Logger.info(Logger.create(state), `Persisted store ${state.kvKey}.`);
 };
 
-export const listen = <T>(state: FT.StateInstance<T>): void => {
+export const listen = <T>(state: FT.StateInstance<T>): FT.StateInstance<T> => {
     if (!state.listened) {
-        let firstInterval;
+        state.listened = true;
+        let firstInterval: NodeJS.Timer;
         firstInterval = Process.onInterval(async () => {
             await persist(state);
             clearInterval(firstInterval);
@@ -205,6 +206,8 @@ export const listen = <T>(state: FT.StateInstance<T>): void => {
             await persist(state);
         })
     }
+
+    return state;
 };
 
 export default { create, get, set, remove, has, entries, values, keys, increment, decrement, pop, shift, push, unshift, setAndGetKey, update, load, persist, reduce, listen, replace };

@@ -9,6 +9,7 @@ import hasByPath from 'lodash.has';
 import setByPath from 'lodash.set';
 import unsetByPath from 'lodash.unset';
 import isMatchLodash from 'lodash.ismatch';
+import uniqBy from 'lodash.uniqby';
 import { URL } from 'node:url';
 import { UID_KEY_PREFIX, UID_KEY_LENGTH } from '@usefelps/constants';
 import { ReallyAny } from '@usefelps/types';
@@ -45,6 +46,7 @@ export const unset = unsetByPath;
 export const isMatch = isMatchLodash;
 export const pick = pickLodash;
 export const stringify = safeStringify;
+export const uniqByKey = uniqBy;
 
 export const deduplicateFunctions = (functions: Function[]) => {
     const index = new Map();
