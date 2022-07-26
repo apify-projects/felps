@@ -288,8 +288,7 @@ export const prepareHooks = <
                 validationHandler,
                 handlers: [
                     async function CHECK_FLOW_STOPPED(actor, context, api) {
-                        const trails = await State.load(actor?.stores?.trails as FT.StateInstance);
-                        const trail = Trail.createFrom(context?.request, { state: trails });
+                        const trail = Trail.createFrom(context?.request, { state: actor?.stores?.trails as FT.StateInstance });
 
                         // Stop the step if the trail is already stopped
                         if (Trail.get(trail).status === 'STOPPED') api.stop();

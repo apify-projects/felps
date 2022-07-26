@@ -14,10 +14,9 @@ export const create = <T = ReallyAny>(options: KVStoreAdapterOptions): KVStoreAd
 };
 
 export const load = async (adapter: KVStoreAdapterInstance) => {
-    return {
-        ...adapter,
+    return Object.assign(adapter, {
         resource: adapter?.resource || await Promise.resolve(adapter?.init?.(adapter)),
-    };
+    });
 };
 
 export const get = async <T = ReallyAny>(adapter: KVStoreAdapterInstance<T>, key: string): Promise<T> => {

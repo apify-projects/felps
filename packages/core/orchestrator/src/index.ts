@@ -12,13 +12,12 @@ import * as FT from '@usefelps/types';
 export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
     return {
         async handler(context: FT.RequestContext): Promise<void> {
-            const trails = await State.load(actor?.stores?.trails as FT.StateInstance);
+            const { trails } = (actor?.stores || {}) as { trails: FT.StateInstance }
             const trail = Trail.createFrom(context?.request, { state: trails });
             const ingested = Trail.ingested(trail);
             const digested = Trail.digested(trail);
 
             const contextApi = ContextApi.create(actor);
-
 
             const meta = RequestMeta.create(context);
             const { actorName } = meta.data;
