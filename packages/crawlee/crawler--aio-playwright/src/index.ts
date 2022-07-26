@@ -5,7 +5,8 @@ import { concatStreamToBuffer, readStreamToString } from '@apify/utilities';
 import { BrowserCrawler } from '@crawlee/browser';
 import { BrowserPlugin, CommonPage } from '@crawlee/browser-pool';
 import { Request } from '@crawlee/core';
-import { CrawlingContext, EnqueueLinksOptions, mergeCookies, PlaywrightCookie, PlaywrightCrawlerOptions, PlaywrightCrawlingContext, PlaywrightLaunchContext, PlaywrightLauncher, Session } from '@crawlee/playwright';
+import type { Cookie as CookieObject } from '@crawlee/types';
+import { CrawlingContext, EnqueueLinksOptions, mergeCookies, PlaywrightCrawlerOptions, PlaywrightCrawlingContext, PlaywrightLaunchContext, PlaywrightLauncher, Session } from '@crawlee/playwright';
 import { Dictionary } from '@crawlee/types';
 import { METADATA_CRAWLER_MODE_PATH } from '@usefelps/constants';
 import { CheerioRoot, parseContentTypeFromResponse } from '@crawlee/utils';
@@ -103,15 +104,15 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
         // console.log('_applyCookies');
         if (page) {
             const sessionCookie = session?.getCookies(request.url) ?? [];
-            const parsedPreHooksCookies = preHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as PlaywrightCookie | undefined);
-            const parsedPostHooksCookies = postHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as PlaywrightCookie | undefined);
+            const parsedPreHooksCookies = preHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as CookieObject | undefined);
+            const parsedPostHooksCookies = postHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as CookieObject | undefined);
 
             await page.context().addCookies(
                 [
                     ...sessionCookie,
                     ...parsedPreHooksCookies,
                     ...parsedPostHooksCookies,
-                ].filter((c): c is PlaywrightCookie => c !== undefined),
+                ].filter((c): c is CookieObject => c !== undefined),
             );
         } else {
             const sessionCookie = session?.getCookieString(request.url) ?? '';

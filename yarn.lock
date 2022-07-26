@@ -613,13 +613,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/browser-pool@npm:3.0.1":
-  version: 3.0.1
-  resolution: "@crawlee/browser-pool@npm:3.0.1"
+"@crawlee/browser-pool@npm:next":
+  version: 3.0.1-beta.27
+  resolution: "@crawlee/browser-pool@npm:3.0.1-beta.27"
   dependencies:
     "@apify/log": ^2.0.0
     "@apify/timeout": ^0.3.0
-    "@crawlee/types": ^3.0.1
+    "@crawlee/types": ^3.0.1-beta.27
     fingerprint-generator: ^2.0.0-dev.5
     fingerprint-injector: ^2.0.0-dev.5
     lodash.merge: ^4.6.2
@@ -638,7 +638,7 @@ __metadata:
       optional: true
     puppeteer:
       optional: true
-  checksum: 92a71bfe902c569bffeeb8a4cee894b5579020d31375ce98431a67b363a56440db9a07d6ea5b44a44c6c05bdfd7db3c2c6118df1ff2aa980425f2c686bc08428
+  checksum: d2a8f0f93a1f563d61dde51b74a53eb7c0e1db3c25d2009fc9eb3da03ef899e7e981779521183602caa1cc49e122dbcf99180497bccca44c679de137be505eef
   languageName: node
   linkType: hard
 
@@ -2495,21 +2495,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apify@npm:3.0.1":
-  version: 3.0.1
-  resolution: "apify@npm:3.0.1"
+"apify@npm:next":
+  version: 3.0.1-beta.0
+  resolution: "apify@npm:3.0.1-beta.0"
   dependencies:
     "@apify/consts": ^2.0.0
     "@apify/log": ^2.1.0
     "@apify/utilities": ^2.1.1
-    "@crawlee/core": ^3.0.0
-    "@crawlee/types": ^3.0.0
-    "@crawlee/utils": ^3.0.0
+    "@crawlee/core": ^3.0.1-beta.0
+    "@crawlee/types": ^3.0.1-beta.0
+    "@crawlee/utils": ^3.0.1-beta.0
     apify-client: ^2.6.0-beta.1
     ow: ^0.28.1
     semver: ^7.3.7
     ws: ^7.5.8
-  checksum: 1a58b0fae7b37b4f8a017133d17e378e6bd397d2a44e9ad111da723eae6f94fb582400b354ee8be587a1a9355b7b7ba5899b626b2474d03a280c7c02548056d1
+  checksum: 56bd99fea7e2158d04d0682e2d437efa9432b135da8261bef7731ff24414ee86d6f41e273397d1c2b2a741d1d5ef0cbf52660ad99640dfc14fcb0b1f99c469b6
   languageName: node
   linkType: hard
 

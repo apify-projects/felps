@@ -42,6 +42,9 @@
             "path": "../step"
         },
         {
+            "path": "../../helpers/process"
+        },
+        {
             "path": "../constants"
         },
         {

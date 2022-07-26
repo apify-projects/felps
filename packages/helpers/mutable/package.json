@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/mutable",
-    "version": "1.0.357",
+    "version": "1.0.358",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {

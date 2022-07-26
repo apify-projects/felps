@@ -21,6 +21,9 @@
             "path": "../../helpers/logger"
         },
         {
+            "path": "../../helpers/process"
+        },
+        {
             "path": "../types"
         },
         {
