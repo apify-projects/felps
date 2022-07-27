@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/context-api",
-    "version": "1.0.366",
+    "version": "1.0.367",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
