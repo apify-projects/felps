@@ -93,7 +93,7 @@ export const toUrl = (url: string): string => {
         return new URL(
             url
                 .trim()
-                .replace(/^\/+$/g, 'https://')
+                .replace(/^\/+/g, 'https://')
         ).href;
     } catch (error) {
         // fails silently
