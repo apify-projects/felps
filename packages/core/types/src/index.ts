@@ -141,6 +141,7 @@ export type InstanceBase = {
     uid?: string,
     key?: string,
     name: string,
+    description?: string,
     id: string,
 };
 

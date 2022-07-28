@@ -88,6 +88,19 @@ export const randomNumberBetween = (min: number, max: number) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
+export const toUrl = (url: string): string => {
+    try {
+        return new URL(
+            url
+                .trim()
+                .replace(/^\/+$/g, 'https://')
+        ).href;
+    } catch (error) {
+        // fails silently
+        return undefined;
+    }
+}
+
 export const resolveUrl = (relativeUrl: string, baseUrl: string): string | undefined => {
     if (relativeUrl === undefined) return undefined;
     try {
