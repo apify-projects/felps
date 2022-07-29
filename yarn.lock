@@ -581,16 +581,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/basic@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/basic@npm:3.0.2-beta.4"
+"@crawlee/basic@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/basic@npm:3.0.2"
   dependencies:
     "@apify/log": ^2.0.0
     "@apify/timeout": ^0.3.0
     "@apify/utilities": ^2.0.0
-    "@crawlee/core": ^3.0.2-beta.4
-    "@crawlee/types": ^3.0.2-beta.4
-    "@crawlee/utils": ^3.0.2-beta.4
+    "@crawlee/core": ^3.0.2
+    "@crawlee/types": ^3.0.2
+    "@crawlee/utils": ^3.0.2
     got-scraping: ^3.2.9
     ow: ^0.28.1
   checksum: 9502b294c126236490b9b3cfbdb7b1fbba047838c4e77180a123aa3c345c0ce42aaab08e6277c55b22f69e6b979b707fde700877ecab83fedba51f8131d34da3
@@ -626,28 +626,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/browser@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/browser@npm:3.0.2-beta.4"
+"@crawlee/browser@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/browser@npm:3.0.2"
   dependencies:
     "@apify/timeout": ^0.3.0
-    "@crawlee/basic": ^3.0.2-beta.4
-    "@crawlee/browser-pool": ^3.0.2-beta.4
-    "@crawlee/core": ^3.0.2-beta.4
-    "@crawlee/types": ^3.0.2-beta.4
-    "@crawlee/utils": ^3.0.2-beta.4
+    "@crawlee/basic": ^3.0.2
+    "@crawlee/browser-pool": ^3.0.2
+    "@crawlee/core": ^3.0.2
+    "@crawlee/types": ^3.0.2
+    "@crawlee/utils": ^3.0.2
     ow: ^0.28.1
   checksum: 5a1b70acd98773ccf1a18946d3222358fdf589d99d5a5820a9c8b6f3ea7cec574c03a2e2b66c32a68a526f94449aca1e08590657341193d1249abd7731e37425
   languageName: node
   linkType: hard
 
-"@crawlee/cheerio@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/cheerio@npm:3.0.2-beta.4"
+"@crawlee/cheerio@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/cheerio@npm:3.0.2"
   dependencies:
     "@apify/timeout": ^0.3.0
     "@apify/utilities": ^2.0.0
-    "@crawlee/basic": ^3.0.2-beta.4
+    "@crawlee/basic": ^3.0.2
     "@types/content-type": ^1.1.5
     cheerio: 1.0.0-rc.12
     content-type: ^1.0.4
@@ -658,11 +658,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/cli@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/cli@npm:3.0.2-beta.4"
+"@crawlee/cli@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/cli@npm:3.0.2"
   dependencies:
-    "@crawlee/templates": ^3.0.2-beta.4
+    "@crawlee/templates": ^3.0.2
     ansi-colors: ^4.1.3
     fs-extra: ^10.1.0
     inquirer: ^8.2.4
@@ -674,9 +674,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/core@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/core@npm:3.0.2-beta.4"
+"@crawlee/core@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/core@npm:3.0.2"
   dependencies:
     "@apify/consts": ^2.0.0
     "@apify/datastructures": ^2.0.0
@@ -684,9 +684,9 @@ __metadata:
     "@apify/pseudo_url": ^2.0.0
     "@apify/timeout": ^0.3.0
     "@apify/utilities": ^2.0.0
-    "@crawlee/memory-storage": ^3.0.2-beta.4
-    "@crawlee/types": ^3.0.2-beta.4
-    "@crawlee/utils": ^3.0.2-beta.4
+    "@crawlee/memory-storage": ^3.0.2
+    "@crawlee/types": ^3.0.2
+    "@crawlee/utils": ^3.0.2
     "@types/tough-cookie": ^4.0.2
     "@vladfrangu/async_event_emitter": ^2.0.0
     fs-extra: ^10.1.0
@@ -700,13 +700,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/memory-storage@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/memory-storage@npm:3.0.2-beta.4"
+"@crawlee/memory-storage@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/memory-storage@npm:3.0.2"
   dependencies:
     "@apify/log": ^2.0.0
-    "@crawlee/types": ^3.0.2-beta.4
-    "@crawlee/utils": ^3.0.2-beta.4
+    "@crawlee/types": ^3.0.2
+    "@crawlee/utils": ^3.0.2
     "@sapphire/shapeshift": ^3.0.0
     content-type: ^1.0.4
     fs-extra: ^10.1.0
@@ -716,16 +716,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/playwright@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/playwright@npm:3.0.2-beta.4"
+"@crawlee/playwright@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/playwright@npm:3.0.2"
   dependencies:
     "@apify/datastructures": ^2.0.0
     "@apify/log": ^2.0.0
-    "@crawlee/browser": ^3.0.2-beta.4
-    "@crawlee/browser-pool": ^3.0.2-beta.4
-    "@crawlee/core": ^3.0.2-beta.4
-    "@crawlee/utils": ^3.0.2-beta.4
+    "@crawlee/browser": ^3.0.2
+    "@crawlee/browser-pool": ^3.0.2
+    "@crawlee/core": ^3.0.2
+    "@crawlee/utils": ^3.0.2
     cheerio: 1.0.0-rc.12
     jquery: ^3.6.0
     ow: ^0.28.1
@@ -738,16 +738,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/puppeteer@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/puppeteer@npm:3.0.2-beta.4"
+"@crawlee/puppeteer@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/puppeteer@npm:3.0.2"
   dependencies:
     "@apify/datastructures": ^2.0.0
     "@apify/log": ^2.0.0
-    "@crawlee/browser": ^3.0.2-beta.4
-    "@crawlee/browser-pool": ^3.0.2-beta.4
-    "@crawlee/types": ^3.0.2-beta.4
-    "@crawlee/utils": ^3.0.2-beta.4
+    "@crawlee/browser": ^3.0.2
+    "@crawlee/browser-pool": ^3.0.2
+    "@crawlee/types": ^3.0.2
+    "@crawlee/utils": ^3.0.2
     cheerio: 1.0.0-rc.12
     jquery: ^3.6.0
     ow: ^0.28.1
@@ -760,9 +760,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/templates@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/templates@npm:3.0.2-beta.4"
+"@crawlee/templates@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/templates@npm:3.0.2"
   dependencies:
     ansi-colors: ^4.1.3
     inquirer: ^9.0.0
@@ -772,22 +772,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crawlee/types@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/types@npm:3.0.2-beta.4"
+"@crawlee/types@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/types@npm:3.0.2"
   dependencies:
     tslib: ^2.4.0
   checksum: e7bdb7c8c5f0b114d752938113242ae4aa5c27fcd6a2513918bc53a3401ae07e0b24db6c912079c58c80f8718ad0f85d03b5a01005d320f8c1c1d9786a6c043f
   languageName: node
   linkType: hard
 
-"@crawlee/utils@npm:^3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "@crawlee/utils@npm:3.0.2-beta.4"
+"@crawlee/utils@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@crawlee/utils@npm:3.0.2"
   dependencies:
     "@apify/log": ^2.0.0
     "@apify/ps-tree": ^1.1.4
-    "@crawlee/types": ^3.0.2-beta.4
+    "@crawlee/types": ^3.0.2
     cheerio: 1.0.0-rc.12
     content-type: ^1.0.4
     got-scraping: ^3.2.9
@@ -3324,18 +3324,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"crawlee@npm:3.0.2-beta.4":
-  version: 3.0.2-beta.4
-  resolution: "crawlee@npm:3.0.2-beta.4"
+"crawlee@npm:3.0.2":
+  version: 3.0.2
+  resolution: "crawlee@npm:3.0.2"
   dependencies:
-    "@crawlee/basic": ^3.0.2-beta.4
-    "@crawlee/browser": ^3.0.2-beta.4
-    "@crawlee/cheerio": ^3.0.2-beta.4
-    "@crawlee/cli": ^3.0.2-beta.4
-    "@crawlee/core": ^3.0.2-beta.4
-    "@crawlee/playwright": ^3.0.2-beta.4
-    "@crawlee/puppeteer": ^3.0.2-beta.4
-    "@crawlee/utils": ^3.0.2-beta.4
+    "@crawlee/basic": ^3.0.2
+    "@crawlee/browser": ^3.0.2
+    "@crawlee/cheerio": ^3.0.2
+    "@crawlee/cli": ^3.0.2
+    "@crawlee/core": ^3.0.2
+    "@crawlee/playwright": ^3.0.2
+    "@crawlee/puppeteer": ^3.0.2
+    "@crawlee/utils": ^3.0.2
     import-local: ^3.1.0
   peerDependencies:
     playwright: ^1.21.1
