@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/multi-crawler",
-    "version": "1.0.369",
+    "version": "1.0.370",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
@@ -13,7 +13,7 @@
         "typescript": "^4.7.2"
     },
     "peerDependencies": {
-        "playwright": "^1.19.2"
+        "playwright": "*"
     },
     "directories": {
         "lib": "lib",

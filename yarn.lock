@@ -1812,7 +1812,7 @@ __metadata:
     node-fetch: 2
     util: "*"
   peerDependencies:
-    playwright: ^1.21.1
+    playwright: "*"
   peerDependenciesMeta:
     playwright:
       optional: true
@@ -1915,7 +1915,7 @@ __metadata:
     cheerio: ^1.0.0-rc.10
     htmlparser2: 8.0.1
     iconv-lite: 0.6.3
-    playwright: ^1.19.2
+    playwright: "*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
   languageName: unknown
@@ -1932,7 +1932,7 @@ __metadata:
     cheerio: ^1.0.0-rc.10
     htmlparser2: 8.0.1
     iconv-lite: 0.6.3
-    playwright: ^1.19.2
+    playwright: "*"
     rimraf: ^3.0.2
     typescript: ^4.7.2
   languageName: unknown
@@ -2049,7 +2049,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    playwright: ^1.19.2
+    playwright: "*"
   languageName: unknown
   linkType: soft
 
@@ -2579,7 +2579,7 @@ __metadata:
   dependencies:
     call-bind: ^1.0.2
     define-properties: ^1.1.3
-    es-abstract: ^1.19.2
+    es-abstract: ^1.21.1
     es-shim-unscopables: ^1.0.0
   checksum: 2a652b3e8dc0bebb6117e42a5ab5738af0203a14c27341d7bb2431467bdb4b348e2c5dc555dfcda8af0a5e4075c400b85311ded73861c87290a71a17c3e0a257
   languageName: node
@@ -2591,7 +2591,7 @@ __metadata:
   dependencies:
     call-bind: ^1.0.2
     define-properties: ^1.1.3
-    es-abstract: ^1.19.2
+    es-abstract: ^1.21.1
     es-shim-unscopables: ^1.0.0
   checksum: 818538f39409c4045d874be85df0dbd195e1446b14d22f95bdcfefea44ae77db44e42dcd89a559254ec5a7c8b338cfc986cc6d641e3472f9a5326b21eb2976a2
   languageName: node
@@ -3766,7 +3766,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"es-abstract@npm:^1.19.1, es-abstract@npm:^1.19.2":
+"es-abstract@npm:^1.19.1, es-abstract@npm:^1.21.1":
   version: 1.19.5
   resolution: "es-abstract@npm:1.19.5"
   dependencies:
@@ -4334,7 +4334,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.7.2
   peerDependencies:
-    playwright: ^1.19.2
+    playwright: "*"
   peerDependenciesMeta:
     playwright:
       optional: true
@@ -7273,23 +7273,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.22.2":
-  version: 1.22.2
-  resolution: "playwright-core@npm:1.22.2"
+"playwright-core@npm:1.24.1":
+  version: 1.24.1
+  resolution: "playwright-core@npm:1.24.1"
   bin:
     playwright: cli.js
-  checksum: 7381c35359b4338282f73dc902c1c1311e8e7cbf852f445dd6b430ebcb7eafc842b8e512d238fdc0b70d1da2b14046f297b19dac027c6a0a62ff217e70f6a07c
+  checksum: cad6a43ebb12c99e13c8f5a105ba558cfdd8e5e72e36e2afe47e9f834abd42eab04beb0a73ffcbff28bf0d0ae95e59dc005bc123f6eb562c6f1866cc90f3ed76
   languageName: node
   linkType: hard
 
-"playwright@npm:^1.19.2":
-  version: 1.22.2
-  resolution: "playwright@npm:1.22.2"
+"playwright@npm:*":
+  version: 1.24.1
+  resolution: "playwright@npm:1.24.1"
   dependencies:
-    playwright-core: 1.22.2
+    playwright-core: 1.24.1
   bin:
     playwright: cli.js
-  checksum: e9e9c4a959d27b6bea3144a0cb19b15124226fb0017e65978fe781fc79129793028ec68dbe9252674120b9a0079bd0e4d17bd2e1258e66032d5ec5427f35cb6f
+  checksum: b8931abb7fc39845a3be6ba118abb36f0e294275c62e50d65f67695c2b8ef8b9f6d9a94fad30c76fb9025f13c6fd44a7acfca8e957f35fd574b93bc26dfc3024
   languageName: node
   linkType: hard
 
