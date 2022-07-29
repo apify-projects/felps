@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/trail--data-requests",
-    "version": "1.0.370",
+    "version": "1.0.371",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
