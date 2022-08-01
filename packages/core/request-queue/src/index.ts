@@ -11,6 +11,7 @@ export const create = (options?: RequestQueueOptions): RequestQueueInstance => {
     return {
         ...InstanceBase.create({ key: 'request-queue', name }),
         resource: undefined,
+        lastInfo: undefined,
     };
 };
 
@@ -19,11 +20,12 @@ export const load = async (queue: RequestQueueInstance): Promise<RequestQueueIns
 
     const manager = new StorageManager(CrawleeRequestQueue);
     const resource = await manager.openStorage(queue.name !== 'default' ? queue.name : undefined) as unknown as CrawleeRequestQueue;
-
+    const lastInfo = await resource.getInfo();
     return {
         ...queue,
         ...InstanceBase.create({ key: 'request-queue', name: queue.name, id: resource.id }),
         resource,
+        lastInfo,
     };
 };
 

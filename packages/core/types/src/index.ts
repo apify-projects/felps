@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { CheerioCrawlerOptions, CheerioCrawlingContext } from '@crawlee/cheerio';
-import type { Dataset, Dictionary, KeyValueStore, Request, RequestOptions } from '@crawlee/core';
+import type { Dataset, Dictionary, KeyValueStore, Request, RequestOptions, RequestQueue } from '@crawlee/core';
+import type { RequestQueueInfo } from '@crawlee/types';
 import type { PlaywrightCrawlerOptions, PlaywrightCrawlingContext } from '@crawlee/playwright';
 import type EventEmitter from 'eventemitter3';
 import type { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
@@ -214,6 +215,7 @@ export type ContextApiFlowsAPI = {
     currentActor(): ActorInstance,
     currentStep(): string,
     currentFlow(): string,
+    hasHadEnqueuedRequests: () => boolean,
     isCurrentStep: (stepName: string) => boolean,
     isCurrentFlow: (flowName: string) => boolean,
     isCurrentActor: (actorId: string) => boolean,
@@ -428,7 +430,8 @@ export type TrailDataRequestItem = {
 
 // @usefelps/request-queue ------------------------------------------------------------
 export type RequestQueueInstance = {
-    resource?: ReallyAny, // RequestQueue
+    resource?: RequestQueue,
+    lastInfo?: RequestQueueInfo,
 } & InstanceBase;
 
 export type RequestQueueOptions = {

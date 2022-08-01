@@ -23,6 +23,10 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                 currentActor: () => actor,
                 currentStep: () => CONST.PREFIXED_NAME_BY_ACTOR(actorName, currentMeta.data.stepName),
                 currentFlow: () => CONST.PREFIXED_NAME_BY_ACTOR(actorName, currentMeta.data.flowName),
+                hasHadEnqueuedRequests: () => {
+                    const queue = actor.queues?.default;
+                    return queue.lastInfo.totalRequestCount > 0;
+                },
                 isStep(stepNameToTest, stepNameExpected) {
                     return CONST.PREFIXED_NAME_BY_ACTOR(actorName, stepNameToTest) === CONST.PREFIXED_NAME_BY_ACTOR(actorName, stepNameExpected);
                 },
