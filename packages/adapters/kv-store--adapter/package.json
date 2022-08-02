@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/kv-store--adapter",
-    "version": "1.0.373",
+    "version": "1.0.374",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
