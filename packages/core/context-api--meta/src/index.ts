@@ -13,12 +13,13 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiMetaInstance => {
             return {
                 getActor: () => actor,
                 getActorName: () => meta.data.actorName,
+                getActorData: () => actor?.data,
                 getActorInput: () => actor.input,
                 getUserData: () => meta.userData || {},
                 getMetaData: () => meta.data || {},
                 getFlowName: () => meta.data.flowName,
-                getStepName: () => meta.data.stepName,
                 getFlowInput: () => Trail.getFlow(trail, meta.data.flowId)?.input || {},
+                getStepName: () => meta.data.stepName,
                 getContext: () => context,
             } as FT.ContextApiMetaAPI;
         },

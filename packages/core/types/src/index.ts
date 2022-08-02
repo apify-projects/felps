@@ -250,6 +250,7 @@ export type ContextApiMetaInstance = {
 
 export type ContextApiMetaAPI = {
     getActor: () => ActorInstance;
+    getActorData: () => ReallyAny;
     getActorName: () => string | undefined;
     getActorInput: () => ReallyAny,
     getUserData: () => Record<string, unknown>,
@@ -482,6 +483,7 @@ export type ActorInstanceBase<
 > = {
     name: string,
     input: ReallyAny,
+    data: ReallyAny,
     crawler: ITCrawler | ((actor: ActorInstanceBase) => Promise<ITCrawler>),
     steps: ITSteps;
     contextApi: ITContextApi,

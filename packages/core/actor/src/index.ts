@@ -78,6 +78,8 @@ export const create = <
 
     const instance = {
         ...base,
+        input: options.input,
+        data: options.data,
         stores: {
             ...utils.arrayToKeyedObject([
                 State.create({ name: 'state', kvKey: 'state' }),

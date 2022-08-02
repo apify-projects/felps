@@ -230,8 +230,7 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
             await this._executeHooks(this.postNavigationHooks, crawlingContext as FT.ReallyAny, gotoOptions);
 
         } else {
-            const gotOptions = {} as OptionsInit;
-            const { request } = crawlingContext as CheerioCrawlingContext;
+            const { request, gotOptions = {} } = crawlingContext as (CheerioCrawlingContext & RequestFunctionOptions);
             const preNavigationHooksCookies = this._getCookieHeaderFromRequest(request);
 
             // Execute pre navigation hooks before applying session pool cookies,
