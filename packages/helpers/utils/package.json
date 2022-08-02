@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/utils",
-    "version": "1.0.376",
+    "version": "1.0.377",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {

@@ -343,13 +343,22 @@ export const prepareHooks = <
                         const step = getStep(actor as FT.MaybeAny, meta.data.actorName, meta.data.stepName);
 
                         context?.page?.route('**', async (route, request) => {
-                            await Hook.run(step?.hooks?.routeInterceptionHook, context as FT.RequestContext, route, request, actor as FT.ReallyAny);
+                            const proxiedRoute = new Proxy(route, {
+                                get: (target, prop) => {
+                                    if (typeof target[prop] === 'function') {
+                                        return async (...args) => {
+                                            if (!(route as any)._handled) return target[prop](...args);
+                                        }
+                                    }
 
-                            try {
-                                route.continue();
-                            } catch (error) {
+                                    return target[prop];
+                                }
+                            });
 
-                            }
+                            await Hook.run(step?.hooks?.routeInterceptionHook, context as FT.RequestContext, proxiedRoute, request, actor as FT.ReallyAny);
+
+                            await proxiedRoute.continue();
+
                         });
                     },
                     async function RESPONSE_INTERCEPTION(actor, context) {
