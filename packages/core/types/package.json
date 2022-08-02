@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/types",
-    "version": "1.0.375",
+    "version": "1.0.376",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
@@ -15,6 +15,7 @@
         "@types/flexsearch": "^0.7.3",
         "@types/winston": "^2.4.4",
         "eventemitter3": "4.0.7",
+        "playwright-core": "latest",
         "queue": "6.0.2",
         "rimraf": "^3.0.2",
         "route-parser": "0.0.5",

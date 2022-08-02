@@ -2185,6 +2185,7 @@ __metadata:
     eventemitter3: 4.0.7
     flexsearch: ^0.7.3
     json-schema-to-ts: 2.5.3
+    playwright-core: latest
     queue: 6.0.2
     rimraf: ^3.0.2
     route-parser: 0.0.5
@@ -7122,7 +7123,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.24.2":
+"playwright-core@npm:1.24.2, playwright-core@npm:latest":
   version: 1.24.2
   resolution: "playwright-core@npm:1.24.2"
   bin:

@@ -343,7 +343,7 @@ export const prepareHooks = <
                         const step = getStep(actor as FT.MaybeAny, meta.data.actorName, meta.data.stepName);
 
                         context?.page?.route('**', async (route, request) => {
-                            await Hook.run(step?.hooks?.routeInterceptionHook, context as FT.RequestContext, route, request as unknown as FT.RequestSource, actor as FT.ReallyAny);
+                            await Hook.run(step?.hooks?.routeInterceptionHook, context as FT.RequestContext, route, request, actor as FT.ReallyAny);
 
                             try {
                                 route.continue();

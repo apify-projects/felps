@@ -194,7 +194,7 @@ export type StepHooks = {
     postMainHook?: HookOptions<StepOptionsHandlerParameters>,
     postNavigationHook?: HookOptions<[actor: ActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
     preNavigationHook?: HookOptions<[actor: ActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
-    routeInterceptionHook?: HookOptions<[context: RequestContext, route: Route, request: RequestSource, actor: ActorInstance]>,
+    routeInterceptionHook?: HookOptions<[context: RequestContext, route: Route, request: import('playwright-core').Request, actor: ActorInstance]>,
     responseInterceptionHook?: HookOptions<[context: RequestContext, response: ReallyAny, actor: ActorInstance]>,
     preFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
     postFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
