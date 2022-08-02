@@ -338,6 +338,20 @@ export const prepareHooks = <
 
                         await Hook.run(step?.hooks?.preNavigationHook, actor as unknown as FT.ActorInstance, context as FT.RequestContext, api, goToOptions);
                     },
+                    async function ROUTE_INTERCEPTION(actor, context) {
+                        const meta = RequestMeta.create(context as FT.RequestContext);
+                        const step = getStep(actor as FT.MaybeAny, meta.data.actorName, meta.data.stepName);
+
+                        context?.page?.route('**', async (route) => {
+                            await Hook.run(step?.hooks?.routeInterceptionHook, context as FT.RequestContext, route, actor as FT.ReallyAny);
+
+                            try {
+                                route.continue();
+                            } catch (error) {
+
+                            }
+                        });
+                    },
                     async function RESPONSE_INTERCEPTION(actor, context) {
                         const meta = RequestMeta.create(context as FT.RequestContext);
                         const step = getStep(actor as FT.MaybeAny, meta.data.actorName, meta.data.stepName);

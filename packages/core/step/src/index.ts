@@ -68,6 +68,14 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
                 ],
                 onErrorHook: hooks?.postMainHook?.onErrorHook,
             }),
+            routeInterceptionHook: Hook.create({
+                name: pathify(base.name, 'routeInterceptionHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.routeInterceptionHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.routeInterceptionHook?.onErrorHook,
+            }),
             responseInterceptionHook: Hook.create({
                 name: pathify(base.name, 'responseInterceptionHook'),
                 validationHandler,

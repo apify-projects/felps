@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { CheerioCrawlerOptions, CheerioCrawlingContext } from '@crawlee/cheerio';
 import type { Dataset, Dictionary, KeyValueStore, Request, RequestOptions, RequestQueue } from '@crawlee/core';
-import type { RequestQueueInfo } from '@crawlee/types';
 import type { PlaywrightCrawlerOptions, PlaywrightCrawlingContext } from '@crawlee/playwright';
+import type { RequestQueueInfo } from '@crawlee/types';
 import type EventEmitter from 'eventemitter3';
 import type { IndexOptions, IndexOptionsForDocumentSearch } from 'flexsearch';
 import type { JSONSchema7 as $JSONSchema7 } from 'json-schema';
@@ -194,6 +194,7 @@ export type StepHooks = {
     postMainHook?: HookOptions<StepOptionsHandlerParameters>,
     postNavigationHook?: HookOptions<[actor: ActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
     preNavigationHook?: HookOptions<[actor: ActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
+    routeInterceptionHook?: HookOptions<[context: RequestContext, route: ReallyAny, actor: ActorInstance]>,
     responseInterceptionHook?: HookOptions<[context: RequestContext, response: ReallyAny, actor: ActorInstance]>,
     preFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
     postFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
@@ -250,8 +251,8 @@ export type ContextApiMetaInstance = {
 
 export type ContextApiMetaAPI = {
     getActor: () => ActorInstance;
-    getActorData: () => ReallyAny;
     getActorName: () => string | undefined;
+    getActorData: () => ReallyAny;
     getActorInput: () => ReallyAny,
     getUserData: () => Record<string, unknown>,
     getMetaData: () => RequestMetaData,
