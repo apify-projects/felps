@@ -53,6 +53,22 @@ export const create = <
                 ],
                 onErrorHook: hooks?.responseInterceptionHook?.onErrorHook,
             }),
+
+            prePageOpenedInjectScript: Hook.create({
+                name: pathify(base.name, 'prePageOpenedInjectScript'),
+                handlers: [
+                    ...(hooks?.prePageOpenedInjectScript?.handlers || []),
+                ],
+                onErrorHook: hooks?.prePageOpenedInjectScript?.onErrorHook,
+            }),
+
+            preAnyPageOpenedInjectScript: Hook.create({
+                name: pathify(base.name, 'preAnyPageOpenedInjectScript'),
+                handlers: [
+                    ...(hooks?.preAnyPageOpenedInjectScript?.handlers || []),
+                ],
+                onErrorHook: hooks?.preAnyPageOpenedInjectScript?.onErrorHook,
+            }),
         }
     };
 };

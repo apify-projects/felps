@@ -156,6 +156,14 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
                 ],
                 onErrorHook: hooks?.prePageOpenedInjectScript?.onErrorHook,
             }),
+
+            preAnyPageOpenedInjectScript: Hook.create({
+                name: pathify(base.name, 'preAnyPageOpenedInjectScript'),
+                handlers: [
+                    ...(hooks?.preAnyPageOpenedInjectScript?.handlers || []),
+                ],
+                onErrorHook: hooks?.preAnyPageOpenedInjectScript?.onErrorHook,
+            }),
         },
     };
 };

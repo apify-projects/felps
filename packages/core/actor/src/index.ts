@@ -379,6 +379,25 @@ export const prepareHooks = <
                         });
                     },
                     async function INJECTING_SCRIPTS(actor, context, api) {
+
+                        const promises = [];
+
+                        for (const browser of context.browserController.browser.contexts()) {
+                            promises.push(
+                                (async () => {
+                                    const inject = browser.addInitScript.bind(browser);
+
+                                    await Hook.run(actor?.hooks?.preAnyPageOpenedInjectScript, actor as FT.ReallyAny, inject);
+
+                                    await Hook.run(api.getFlow()?.hooks?.preAnyPageOpenedInjectScript, inject, actor as FT.ReallyAny);
+
+                                    await Hook.run(api.getStep()?.hooks?.preAnyPageOpenedInjectScript, inject, actor as FT.ReallyAny);
+                                })()
+                            );
+                        }
+
+                        await Promise.all(promises);
+
                         const inject = context.page.addInitScript.bind(context.page);
 
                         await Hook.run(actor?.hooks?.prePageOpenedInjectScript, actor as FT.ReallyAny, inject);
@@ -386,6 +405,7 @@ export const prepareHooks = <
                         await Hook.run(api.getFlow()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
 
                         await Hook.run(api.getStep()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
+
                     },
                     ...(hooks?.preNavigationHook?.handlers || []),
                 ],
@@ -470,6 +490,14 @@ export const prepareHooks = <
                     ...(hooks?.prePageOpenedInjectScript?.handlers || []),
                 ],
                 onErrorHook: hooks?.prePageOpenedInjectScript?.onErrorHook,
+            }),
+
+            preAnyPageOpenedInjectScript: Hook.create({
+                name: utils.pathify(base.name, 'preAnyPageOpenedInjectScript'),
+                handlers: [
+                    ...(hooks?.preAnyPageOpenedInjectScript?.handlers || []),
+                ],
+                onErrorHook: hooks?.preAnyPageOpenedInjectScript?.onErrorHook,
             }),
         }
     }

@@ -178,6 +178,7 @@ export type FlowHooks = {
     routeInterceptionHook?: HookOptions<[context: RequestContext, route: Route, request: import('playwright-core').Request, actor: ActorInstance]>,
     responseInterceptionHook?: HookOptions<[context: RequestContext, response: ReallyAny, actor: ActorInstance]>,
     prePageOpenedInjectScript?: HookOptions<[inject: import('playwright-core').BrowserContext['addInitScript'], actor: ActorInstance]>,
+    preAnyPageOpenedInjectScript?: HookOptions<[inject: import('playwright-core').BrowserContext['addInitScript'], actor: ActorInstance]>,
 };
 
 // @usefelps/step ------------------------------------------------------------
@@ -200,6 +201,7 @@ export type StepHooks = {
     routeInterceptionHook?: HookOptions<[context: RequestContext, route: Route, request: import('playwright-core').Request, actor: ActorInstance]>,
     responseInterceptionHook?: HookOptions<[context: RequestContext, response: ReallyAny, actor: ActorInstance]>,
     prePageOpenedInjectScript?: HookOptions<[inject: import('playwright-core').BrowserContext['addInitScript'], actor: ActorInstance]>,
+    preAnyPageOpenedInjectScript?: HookOptions<[inject: import('playwright-core').BrowserContext['addInitScript'], actor: ActorInstance]>,
     preFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
     postFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
     postRequestFailedHook?: HookOptions<StepOptionsHandlerParameters>
@@ -589,6 +591,7 @@ export type ActorHooks<
     routeInterceptionHook?: HookOptions<[actor: LocalActorInstance, context: RequestContext, route: Route, request: import('playwright-core').Request]>,
     responseInterceptionHook?: HookOptions<[actor: LocalActorInstance, context: RequestContext, response: ReallyAny]>,
     prePageOpenedInjectScript?: HookOptions<[actor: LocalActorInstance, inject: import('playwright-core').BrowserContext['addInitScript']]>,
+    preAnyPageOpenedInjectScript?: HookOptions<[actor: LocalActorInstance, inject: import('playwright-core').BrowserContext['addInitScript']]>,
 }
 
 export type ActorInput = string | {
