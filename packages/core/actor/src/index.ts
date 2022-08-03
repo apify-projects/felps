@@ -333,21 +333,25 @@ export const prepareHooks = <
                 name: utils.pathify(base.name, 'preNavigationHook'),
                 handlers: [
                     async function PRE_NAVIGATION_STEP(actor, context, api, goToOptions) {
-                        const meta = RequestMeta.create(context as FT.RequestContext);
-                        const step = getStep(actor as FT.MaybeAny, meta.data.actorName, meta.data.stepName);
-
-                        await Hook.run(step?.hooks?.preNavigationHook, actor as unknown as FT.ActorInstance, context as FT.RequestContext, api, goToOptions);
+                        await Hook.run(api.getStep()?.hooks?.preNavigationHook, actor as unknown as FT.ActorInstance, context as FT.RequestContext, api, goToOptions);
                     },
-                    async function ROUTE_INTERCEPTION(actor, context) {
-                        const meta = RequestMeta.create(context as FT.RequestContext);
-                        const step = getStep(actor as FT.MaybeAny, meta.data.actorName, meta.data.stepName);
-
-                        context?.page?.route('**', async (route, request) => {
+                    async function ROUTE_INTERCEPTION(actor, context, api) {
+                        await context?.page?.route('**', async (route, request) => {
                             const proxiedRoute = new Proxy(route, {
                                 get: (target, prop) => {
+
                                     if (typeof target[prop] === 'function') {
                                         return async (...args) => {
-                                            if (!(route as any)._handled) return target[prop](...args);
+                                            try {
+                                                await target[prop](...args);
+                                            } catch (error) {
+                                                const message = (error as any).message;
+                                                if (message.includes('Route') && message.includes('handled')) {
+                                                    // console.log('Caught Route is already handled!');
+                                                } else {
+                                                    throw error;
+                                                }
+                                            }
                                         }
                                     }
 
@@ -355,18 +359,23 @@ export const prepareHooks = <
                                 }
                             });
 
-                            await Hook.run(step?.hooks?.routeInterceptionHook, context as FT.RequestContext, proxiedRoute, request, actor as FT.ReallyAny);
+                            await Hook.run(actor?.hooks?.routeInterceptionHook, actor as FT.ReallyAny, context as FT.RequestContext, proxiedRoute, request);
+
+                            await Hook.run(api.getFlow()?.hooks?.routeInterceptionHook, context as FT.RequestContext, proxiedRoute, request, actor as FT.ReallyAny);
+
+                            await Hook.run(api.getStep()?.hooks?.routeInterceptionHook, context as FT.RequestContext, proxiedRoute, request, actor as FT.ReallyAny);
 
                             await proxiedRoute.continue();
 
                         });
                     },
-                    async function RESPONSE_INTERCEPTION(actor, context) {
-                        const meta = RequestMeta.create(context as FT.RequestContext);
-                        const step = getStep(actor as FT.MaybeAny, meta.data.actorName, meta.data.stepName);
-
+                    async function RESPONSE_INTERCEPTION(actor, context, api) {
                         context?.page?.on?.('response', async (response) => {
-                            await Hook.run(step?.hooks?.responseInterceptionHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
+                            await Hook.run(actor?.hooks?.responseInterceptionHook, actor as FT.ReallyAny, context as FT.RequestContext, response);
+
+                            await Hook.run(api.getFlow()?.hooks?.responseInterceptionHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
+
+                            await Hook.run(api.getStep()?.hooks?.responseInterceptionHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
                         });
                     },
                     ...(hooks?.preNavigationHook?.handlers || []),
@@ -429,6 +438,30 @@ export const prepareHooks = <
                 ],
                 onErrorHook: hooks?.preBlackoutHook?.onErrorHook,
             }),
+
+            routeInterceptionHook: Hook.create({
+                name: utils.pathify(base.name, 'routeInterceptionHook'),
+                handlers: [
+                    ...(hooks?.routeInterceptionHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.routeInterceptionHook?.onErrorHook,
+            }),
+
+            responseInterceptionHook: Hook.create({
+                name: utils.pathify(base.name, 'responseInterceptionHook'),
+                handlers: [
+                    ...(hooks?.responseInterceptionHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.responseInterceptionHook?.onErrorHook,
+            }),
+
+            prePageOpenedInjectScript: Hook.create({
+                name: utils.pathify(base.name, 'prePageOpenedInjectScript'),
+                handlers: [
+                    ...(hooks?.prePageOpenedInjectScript?.handlers || []),
+                ],
+                onErrorHook: hooks?.prePageOpenedInjectScript?.onErrorHook,
+            }),
         }
     }
 
@@ -468,6 +501,32 @@ export const makeCrawlerOptions = async (actor: FT.ActorInstance, options?: FT.A
                     '--disable-features=IsolateOrigins,site-per-process',
                 ],
             },
+        },
+        browserPoolOptions: {
+            postLaunchHooks: [
+                async (_, browserController) => {
+                    const promises = [];
+
+                    for (const browser of browserController.browser.contexts()) {
+                        promises.push(
+                            (async () => {
+                                const contextApi = ContextApi.create(actor as FT.ReallyAny);
+                                const api = contextApi({} as FT.ReallyAny);
+
+                                const inject = browser.addInitScript.bind(browser);
+
+                                await Hook.run(actor?.hooks?.prePageOpenedInjectScript, actor as FT.ReallyAny, inject);
+
+                                await Hook.run(api.getFlow()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
+
+                                await Hook.run(api.getStep()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
+                            })()
+                        );
+                    }
+
+                    await Promise.all(promises);
+                },
+            ],
         }
     } as FT.AnyCrawlerOptions, options || {});
 

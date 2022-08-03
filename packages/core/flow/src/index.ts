@@ -39,6 +39,20 @@ export const create = <
                 handlers: hooks?.postFailedHook?.handlers || [],
                 onErrorHook: hooks?.postFailedHook?.onErrorHook,
             }),
+            routeInterceptionHook: Hook.create({
+                name: pathify(base.name, 'routeInterceptionHook'),
+                handlers: [
+                    ...(hooks?.routeInterceptionHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.routeInterceptionHook?.onErrorHook,
+            }),
+            responseInterceptionHook: Hook.create({
+                name: pathify(base.name, 'responseInterceptionHook'),
+                handlers: [
+                    ...(hooks?.responseInterceptionHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.responseInterceptionHook?.onErrorHook,
+            }),
         }
     };
 };
