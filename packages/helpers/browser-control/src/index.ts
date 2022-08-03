@@ -1,48 +1,47 @@
 import { ClickManagerOptions } from '@usefelps/types';
 
 export const SCRIPTS = {
-    blockWindowOpenMethod() {
-        //@ts-ignore
+    blockWindowOpenMethod: `
         window.open = function () {
             console.log('Page attempted to open new window with window.open');
         };
-    },
+    `,
 
     // This is heavily inspired by the original work of mstephen19
     // https://github.com/mstephen19/apify-click-events
 
     clickManager({
-        enableOnPagesIncluding = ['*'],
+        enableOnPages = ['*'],
         blockGlobalEvents = true,
         blockElementEvents = true,
         mode = 'WHITELIST', // WHITELIST, BLACKLIST
         whitelist = [],
         blacklist = [],
         stopClickPropagation = true,
-    }: ClickManagerOptions) {
+    }: Partial<ClickManagerOptions>) {
+        return `
         (() => {
             const CLICK_MANAGER_KEY = '__CM__';
             const typesToBlock = ['click', 'mousedown', 'mouseup', 'pointerdown', 'pointerup'];
 
-            const url = window.location.href;
-
-            if (!enableOnPagesIncluding.includes('*')) {
-                if (!enableOnPagesIncluding.some((str: string) => url.includes(str))) return;
-            }
-
-            // Add whitelist and blacklist lists to the window
-
             let clickManager = {
-                whitelist,
-                blacklist,
-                mode,
-                blockGlobalEvents,
-                blockElementEvents,
-                stopClickPropagation,
+                enableOnPages: ${enableOnPages},
+                whitelist: ${whitelist},
+                blacklist: ${blacklist},
+                mode: "${mode}",
+                blockGlobalEvents: ${blockGlobalEvents},
+                blockElementEvents: ${blockElementEvents},
+                stopClickPropagation: ${stopClickPropagation},
             }
 
             //@ts-ignore
             window[CLICK_MANAGER_KEY] = clickManager;
+
+            const url = window.location.href;
+
+            if (! window[CLICK_MANAGER_KEY].enableOnPages.includes('*')) {
+                if (! window[CLICK_MANAGER_KEY].enableOnPages.some((str: string) => url.includes(str))) return;
+            }
 
             if (window[CLICK_MANAGER_KEY].blockElementEvents) {
                 // Block any targeted listeners from even being added
@@ -145,6 +144,7 @@ export const SCRIPTS = {
             }
 
         })()
+        `
     }
 }
 

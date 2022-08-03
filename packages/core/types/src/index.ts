@@ -793,7 +793,7 @@ export type RequestContext = CheerioCrawlingContext<Dictionary<any>> & Playwrigh
 // @usefelps/browser-control-helpers ------------------------------------------------------------
 
 export type ClickManagerOptions = {
-    enableOnPagesIncluding: string[],
+    enableOnPages: string[],
     blockGlobalEvents: boolean,
     blockElementEvents: boolean,
     mode: 'WHITELIST' | 'BLACKLIST',

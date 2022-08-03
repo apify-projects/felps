@@ -379,21 +379,13 @@ export const prepareHooks = <
                         });
                     },
                     async function INJECTING_SCRIPTS(actor, context, api) {
-                        const promises = [];
-                        for (const browser of context.browserController.browser.contexts()) {
-                            promises.push(
-                                (async () => {
-                                    const inject = browser.addInitScript.bind(browser);
+                        const inject = context.page.addInitScript.bind(context.page);
 
-                                    await Hook.run(actor?.hooks?.prePageOpenedInjectScript, actor as FT.ReallyAny, inject);
+                        await Hook.run(actor?.hooks?.prePageOpenedInjectScript, actor as FT.ReallyAny, inject);
 
-                                    await Hook.run(api.getFlow()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
+                        await Hook.run(api.getFlow()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
 
-                                    await Hook.run(api.getStep()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
-                                })()
-                            );
-                        }
-                        await Promise.all(promises);
+                        await Hook.run(api.getStep()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
                     },
                     ...(hooks?.preNavigationHook?.handlers || []),
                 ],
