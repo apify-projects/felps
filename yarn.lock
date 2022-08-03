@@ -1691,6 +1691,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@usefelps/browser-control@workspace:*, @usefelps/browser-control@workspace:packages/helpers/browser-control":
+  version: 0.0.0-use.local
+  resolution: "@usefelps/browser-control@workspace:packages/helpers/browser-control"
+  dependencies:
+    "@usefelps/types": "workspace:*"
+    rimraf: ^3.0.2
+    typescript: ^4.7.2
+  languageName: unknown
+  linkType: soft
+
 "@usefelps/constants@workspace:*, @usefelps/constants@workspace:packages/core/constants":
   version: 0.0.0-use.local
   resolution: "@usefelps/constants@workspace:packages/core/constants"
@@ -4198,6 +4208,7 @@ __metadata:
   dependencies:
     "@usefelps/actor": "workspace:*"
     "@usefelps/apify-events": "workspace:*"
+    "@usefelps/browser-control": "workspace:*"
     "@usefelps/context-api": "workspace:*"
     "@usefelps/context-api--flow": "workspace:*"
     "@usefelps/context-api--helpers": "workspace:*"

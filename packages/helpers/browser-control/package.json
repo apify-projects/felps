@@ -1,10 +1,9 @@
 {
-    "name": "@usefelps/kv-store--adapter",
+    "name": "@usefelps/browser-control",
     "version": "1.0.380",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
-        "@usefelps/instance-base": "workspace:*",
         "@usefelps/types": "workspace:*"
     },
     "devDependencies": {

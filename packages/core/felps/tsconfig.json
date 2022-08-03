@@ -99,6 +99,9 @@
             "path": "../../helpers/process"
         },
         {
+            "path": "../../helpers/browser-control"
+        },
+        {
             "path": "../../crawlee/crawler--aio-playwright"
         },
         {

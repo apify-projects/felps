@@ -33,6 +33,7 @@ import Search from '@usefelps/search';
 import UrlPattern from '@usefelps/url-pattern';
 import Process from '@usefelps/process';
 import * as utils from '@usefelps/utils';
+import BrowserControl from '@usefelps/browser-control';
 
 import AIOPlaywrightCrawler from '@usefelps/crawlee--crawler--aio-playwright';
 import CustomRequestQueue from '@usefelps/crawlee--request-queue';
@@ -70,6 +71,7 @@ export {
     UrlPattern,
     Process,
     utils,
+    BrowserControl,
     AIOPlaywrightCrawler,
     CustomRequestQueue,
 };
@@ -107,6 +109,7 @@ export default {
     UrlPattern,
     Process,
     utils,
+    BrowserControl,
     AIOPlaywrightCrawler,
     CustomRequestQueue,
 };

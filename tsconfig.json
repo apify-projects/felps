@@ -115,6 +115,9 @@
             "path": "packages/examples/crawler--aio-playwright"
         },
         {
+            "path": "packages/helpers/browser-control"
+        },
+        {
             "path": "packages/helpers/data-model"
         },
         {

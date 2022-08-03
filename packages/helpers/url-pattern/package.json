@@ -1,12 +1,12 @@
 {
     "name": "@usefelps/url-pattern",
-    "version": "1.0.379",
+    "version": "1.0.380",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
+        "route-parser": "^0.0.5",
         "@usefelps/instance-base": "workspace:*",
-        "@usefelps/types": "workspace:*",
-        "route-parser": "^0.0.5"
+        "@usefelps/types": "workspace:*"
     },
     "devDependencies": {
         "rimraf": "^3.0.2",

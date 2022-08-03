@@ -1,12 +1,14 @@
 {
     "name": "@usefelps/utils",
-    "version": "1.0.379",
+    "version": "1.0.380",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
+        "strnum": "^1.0.5",
+        "fast-safe-stringify": "^2.1.1",
+        "object-hash": "^3.0.0",
         "@usefelps/constants": "workspace:*",
         "@usefelps/types": "workspace:*",
-        "fast-safe-stringify": "^2.1.1",
         "lodash.clonedeep": "^4.5.0",
         "lodash.get": "^4.4.2",
         "lodash.has": "^4.5.2",
@@ -17,9 +19,7 @@
         "lodash.uniqby": "^4.7.0",
         "lodash.unset": "^4.5.2",
         "merge-deep": "^3.0.3",
-        "nanoid": "^3.2.0",
-        "object-hash": "^3.0.0",
-        "strnum": "^1.0.5"
+        "nanoid": "^3.2.0"
     },
     "devDependencies": {
         "@types/lodash.clonedeep": "^4.5.7",

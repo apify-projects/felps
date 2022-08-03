@@ -788,3 +788,16 @@ export type OrchestratorInstance = {
 
 export type AnyCrawlerOptions = PlaywrightCrawlerOptions & CheerioCrawlerOptions
 export type RequestContext = CheerioCrawlingContext<Dictionary<any>> & PlaywrightCrawlingContext<Dictionary<any>>
+
+
+// @usefelps/browser-control-helpers ------------------------------------------------------------
+
+export type ClickManagerOptions = {
+    enableOnPagesIncluding: string[],
+    blockGlobalEvents: boolean,
+    blockElementEvents: boolean,
+    mode: 'WHITELIST' | 'BLACKLIST',
+    whitelist: string[],
+    blacklist: string[],
+    stopClickPropagation: boolean,
+}
