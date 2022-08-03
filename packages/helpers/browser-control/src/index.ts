@@ -8,6 +8,9 @@ export const SCRIPTS = {
         };
     },
 
+    // This is heavily inspired by the original work of mstephen19
+    // https://github.com/mstephen19/apify-click-events
+
     clickManager({
         enableOnPagesIncluding = ['*'],
         blockGlobalEvents = true,
