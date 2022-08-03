@@ -378,6 +378,23 @@ export const prepareHooks = <
                             await Hook.run(api.getStep()?.hooks?.responseInterceptionHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
                         });
                     },
+                    async function INJECTING_SCRIPTS(actor, context, api) {
+                        const promises = [];
+                        for (const browser of context.browserController.browser.contexts()) {
+                            promises.push(
+                                (async () => {
+                                    const inject = browser.addInitScript.bind(browser);
+
+                                    await Hook.run(actor?.hooks?.prePageOpenedInjectScript, actor as FT.ReallyAny, inject);
+
+                                    await Hook.run(api.getFlow()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
+
+                                    await Hook.run(api.getStep()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
+                                })()
+                            );
+                        }
+                        await Promise.all(promises);
+                    },
                     ...(hooks?.preNavigationHook?.handlers || []),
                 ],
                 onErrorHook: hooks?.preNavigationHook?.onErrorHook,
@@ -502,32 +519,17 @@ export const makeCrawlerOptions = async (actor: FT.ActorInstance, options?: FT.A
                 ],
             },
         },
-        browserPoolOptions: {
-            postLaunchHooks: [
-                async (_, browserController) => {
-                    const promises = [];
+        // browserPoolOptions: {
+        //     postLaunchHooks: [
+        //         async (_, browserController) => {
+        //             const promises = [];
 
-                    for (const browser of browserController.browser.contexts()) {
-                        promises.push(
-                            (async () => {
-                                const contextApi = ContextApi.create(actor as FT.ReallyAny);
-                                const api = contextApi({} as FT.ReallyAny);
 
-                                const inject = browser.addInitScript.bind(browser);
 
-                                await Hook.run(actor?.hooks?.prePageOpenedInjectScript, actor as FT.ReallyAny, inject);
-
-                                await Hook.run(api.getFlow()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
-
-                                await Hook.run(api.getStep()?.hooks?.prePageOpenedInjectScript, inject, actor as FT.ReallyAny);
-                            })()
-                        );
-                    }
-
-                    await Promise.all(promises);
-                },
-            ],
-        }
+        //             await Promise.all(promises);
+        //         },
+        //     ],
+        // }
     } as FT.AnyCrawlerOptions, options || {});
 
     Object.assign<FT.AnyCrawlerOptions, FT.AnyCrawlerOptions>(
