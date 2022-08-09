@@ -244,7 +244,7 @@ export type StepInstance = {
 
 export type StepHooks<Methods = any> = {
     mainHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
-    postMainHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
+    postEndedHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
     preNavigationHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>,
     onErrorHook?: HookOptions<[context: RequestContext, api: Methods & ContextApi, error: ReallyAny]>,
     postRequestFailedHook?: HookOptions<StepOptionsHandlerParameters<Methods & ContextApi>>
@@ -776,8 +776,8 @@ export type ActorHooks<
     ITSteps extends StepCollectionInstance<ITModels, ReallyAny, ReallyAny, ITInput> = StepCollectionInstance<ITModels, ReallyAny, ReallyAny, ITInput>,
     LocalActorInstance = ActorInstance<ITInput, ITCrawler, ITModels, ITStores, ITQueues, ITDatasets, ITFlows, ITSteps>
 > = {
-    preActorStartedHook?: HookInstance<[actor: LocalActorInstance, input: ActorInput]>,
-    preActorEndedHook?: HookInstance<[actor: LocalActorInstance]>,
+    preStartedHook?: HookInstance<[actor: LocalActorInstance, input: ActorInput]>,
+    preEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preCrawlerStartedHook?: HookInstance<[actor: LocalActorInstance]>,
     postCrawlerEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     postCrawlerFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,

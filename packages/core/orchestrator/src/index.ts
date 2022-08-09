@@ -83,7 +83,7 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
             const trailEnded = remainingRequests.length === 0 && succeededRequests.length > 0;
 
             if (trailEnded) {
-                await Hook.run(currentFlow?.hooks?.postEndHook, context, contextApi(context), actor);
+                await Hook.run(currentFlow?.hooks?.postEndedHook, context, contextApi(context), actor);
 
                 await Hook.run(actor?.hooks?.postFlowEndedHook, actor, context, contextApi(context));
             }

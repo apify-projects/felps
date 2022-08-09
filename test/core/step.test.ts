@@ -6,7 +6,7 @@ describe('Step.create', () => {
     const actor = Actor.create({ name: 'actor' });
 
     beforeAll(async () => {
-        await Hook.run(actor?.hooks?.preActorStartedHook, actor, {});
+        await Hook.run(actor?.hooks?.preStartedHook, actor, {});
     });
 
     it('should fire mainHook()', async () => {

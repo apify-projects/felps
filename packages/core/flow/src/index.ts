@@ -19,15 +19,15 @@ export const create = <
         steps,
         meta,
         hooks: {
-            preStartHook: Hook.create({
-                name: pathify(base.name, 'preStartHook'),
-                handlers: hooks?.preStartHook?.handlers || [],
-                onErrorHook: hooks?.preStartHook?.onErrorHook,
+            preStartedHook: Hook.create({
+                name: pathify(base.name, 'preStartedHook'),
+                handlers: hooks?.preStartedHook?.handlers || [],
+                onErrorHook: hooks?.preStartedHook?.onErrorHook,
             }),
-            postEndHook: Hook.create({
-                name: pathify(base.name, 'postEndHook'),
-                handlers: hooks?.postEndHook?.handlers || [],
-                onErrorHook: hooks?.postEndHook?.onErrorHook,
+            postEndedHook: Hook.create({
+                name: pathify(base.name, 'postEndedHook'),
+                handlers: hooks?.postEndedHook?.handlers || [],
+                onErrorHook: hooks?.postEndedHook?.onErrorHook,
             }),
             preFailedHook: Hook.create({
                 name: pathify(base.name, 'preFailedHook'),
@@ -46,28 +46,28 @@ export const create = <
                 ],
                 onErrorHook: hooks?.routeInterceptionHook?.onErrorHook,
             }),
-            responseInterceptionHook: Hook.create({
-                name: pathify(base.name, 'responseInterceptionHook'),
+            postResponseReceivedHook: Hook.create({
+                name: pathify(base.name, 'postResponseReceivedHook'),
                 handlers: [
-                    ...(hooks?.responseInterceptionHook?.handlers || []),
+                    ...(hooks?.postResponseReceivedHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.responseInterceptionHook?.onErrorHook,
+                onErrorHook: hooks?.postResponseReceivedHook?.onErrorHook,
             }),
 
-            prePageOpenedInjectScript: Hook.create({
-                name: pathify(base.name, 'prePageOpenedInjectScript'),
+            prePageOpenedScriptInjection: Hook.create({
+                name: pathify(base.name, 'prePageOpenedScriptInjection'),
                 handlers: [
-                    ...(hooks?.prePageOpenedInjectScript?.handlers || []),
+                    ...(hooks?.prePageOpenedScriptInjection?.handlers || []),
                 ],
-                onErrorHook: hooks?.prePageOpenedInjectScript?.onErrorHook,
+                onErrorHook: hooks?.prePageOpenedScriptInjection?.onErrorHook,
             }),
 
-            preAnyPageOpenedInjectScript: Hook.create({
-                name: pathify(base.name, 'preAnyPageOpenedInjectScript'),
+            preAnyPageOpenedScriptInjection: Hook.create({
+                name: pathify(base.name, 'preAnyPageOpenedScriptInjection'),
                 handlers: [
-                    ...(hooks?.preAnyPageOpenedInjectScript?.handlers || []),
+                    ...(hooks?.preAnyPageOpenedScriptInjection?.handlers || []),
                 ],
-                onErrorHook: hooks?.preAnyPageOpenedInjectScript?.onErrorHook,
+                onErrorHook: hooks?.preAnyPageOpenedScriptInjection?.onErrorHook,
             }),
         }
     };

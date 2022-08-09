@@ -37,8 +37,8 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
                 ],
                 onErrorHook: hooks?.mainHook?.onErrorHook,
             }),
-            preMainHook: Hook.create({
-                name: pathify(base.name, 'preMainHook'),
+            preStartedHook: Hook.create({
+                name: pathify(base.name, 'preStartedHook'),
                 validationHandler,
                 handlers: [
                     async function SET_REQUEST_STATUS(context, _, actor) {
@@ -49,12 +49,12 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
                         TrailDataRequests.setStatus(digested.requests, 'STARTED', meta.data.requestId);
                         // console.log('SET_REQUEST_STATUS', meta.data.requestId, TrailDataRequests.getItemsList(digested.requests))
                     },
-                    ...(hooks?.preMainHook?.handlers || []),
+                    ...(hooks?.preStartedHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.preMainHook?.onErrorHook,
+                onErrorHook: hooks?.preStartedHook?.onErrorHook,
             }),
-            postMainHook: Hook.create({
-                name: pathify(base.name, 'postMainHook'),
+            postEndedHook: Hook.create({
+                name: pathify(base.name, 'postEndedHook'),
                 validationHandler,
                 handlers: [
                     async function SET_REQUEST_STATUS(context, _, actor) {
@@ -64,9 +64,9 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
 
                         TrailDataRequests.setStatus(digested.requests, 'SUCCEEDED', meta.data.requestId);
                     },
-                    ...(hooks?.postMainHook?.handlers || []),
+                    ...(hooks?.postEndedHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.postMainHook?.onErrorHook,
+                onErrorHook: hooks?.postEndedHook?.onErrorHook,
             }),
             routeInterceptionHook: Hook.create({
                 name: pathify(base.name, 'routeInterceptionHook'),
@@ -75,13 +75,13 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
                 ],
                 onErrorHook: hooks?.routeInterceptionHook?.onErrorHook,
             }),
-            responseInterceptionHook: Hook.create({
-                name: pathify(base.name, 'responseInterceptionHook'),
+            postResponseReceivedHook: Hook.create({
+                name: pathify(base.name, 'postResponseReceivedHook'),
                 validationHandler,
                 handlers: [
-                    ...(hooks?.responseInterceptionHook?.handlers || []),
+                    ...(hooks?.postResponseReceivedHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.responseInterceptionHook?.onErrorHook,
+                onErrorHook: hooks?.postResponseReceivedHook?.onErrorHook,
             }),
             preNavigationHook: Hook.create<[actor: FT.ActorInstance, context: FT.RequestContext, api: FT.TContextApi, goToOptions: Record<PropertyKey, any>]>({
                 name: pathify(base.name, 'preNavigationHook'),
@@ -149,20 +149,20 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
                 onErrorHook: hooks?.postRequestFailedHook?.onErrorHook,
             }),
 
-            prePageOpenedInjectScript: Hook.create({
-                name: pathify(base.name, 'prePageOpenedInjectScript'),
+            prePageOpenedScriptInjection: Hook.create({
+                name: pathify(base.name, 'prePageOpenedScriptInjection'),
                 handlers: [
-                    ...(hooks?.prePageOpenedInjectScript?.handlers || []),
+                    ...(hooks?.prePageOpenedScriptInjection?.handlers || []),
                 ],
-                onErrorHook: hooks?.prePageOpenedInjectScript?.onErrorHook,
+                onErrorHook: hooks?.prePageOpenedScriptInjection?.onErrorHook,
             }),
 
-            preAnyPageOpenedInjectScript: Hook.create({
-                name: pathify(base.name, 'preAnyPageOpenedInjectScript'),
+            preAnyPageOpenedScriptInjection: Hook.create({
+                name: pathify(base.name, 'preAnyPageOpenedScriptInjection'),
                 handlers: [
-                    ...(hooks?.preAnyPageOpenedInjectScript?.handlers || []),
+                    ...(hooks?.preAnyPageOpenedScriptInjection?.handlers || []),
                 ],
-                onErrorHook: hooks?.preAnyPageOpenedInjectScript?.onErrorHook,
+                onErrorHook: hooks?.preAnyPageOpenedScriptInjection?.onErrorHook,
             }),
         },
     };
@@ -180,7 +180,7 @@ export const run = async (step: FT.StepInstance | undefined, actor: FT.ActorInst
 
             await Hook.run(actor?.hooks?.preFlowStartedHook, actor, ctx, contextApi(ctx));
 
-            await Hook.run(currentFlow?.hooks?.postEndHook, context, contextApi(context), actor);
+            await Hook.run(currentFlow?.hooks?.preStartedHook, context, contextApi(context), actor);
         }
 
         if (!step) {
@@ -191,7 +191,7 @@ export const run = async (step: FT.StepInstance | undefined, actor: FT.ActorInst
 
         await Hook.run(actor?.hooks?.preStepMainHook, actor, ctx, contextApi(ctx));
 
-        await Hook.run(step?.hooks?.preMainHook, ctx, contextApi(ctx), actor);
+        await Hook.run(step?.hooks?.preStartedHook, ctx, contextApi(ctx), actor);
 
         if (meta.data.stopStep) {
             // Stop the step now (finally {} runs first)
@@ -204,7 +204,7 @@ export const run = async (step: FT.StepInstance | undefined, actor: FT.ActorInst
          */
         await Hook.run(step?.hooks?.mainHook, ctx, contextApi(ctx), actor);
 
-        await Hook.run(step?.hooks?.postMainHook, ctx, contextApi(ctx), actor);
+        await Hook.run(step?.hooks?.postEndedHook, ctx, contextApi(ctx), actor);
 
         await Hook.run(actor?.hooks?.postStepMainHook, actor, ctx, contextApi(ctx));
 

@@ -33,7 +33,7 @@ import { make, write, Patches, read } from 'cagibi';
     // };
 
     const hooks = Actor.prepareHooks({
-        preActorStartedHook: {
+        preStartedHook: {
             handlers: [
                 async (_, api) => {
                     const crawl = make({ url: 'https://www.icann.org/', results: [] });
