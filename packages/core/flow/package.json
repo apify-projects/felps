@@ -1,12 +1,12 @@
 {
     "name": "@usefelps/flow",
-    "version": "1.0.382",
+    "version": "1.0.383",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
+        "@usefelps/constants": "workspace:*",
         "@usefelps/hook": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
-        "@usefelps/constants": "workspace:*",
         "@usefelps/types": "workspace:*",
         "@usefelps/utils": "workspace:*"
     },

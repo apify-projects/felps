@@ -173,6 +173,15 @@ export const prepareHooks = <
                 onErrorHook: hooks?.postFlowEndedHook?.onErrorHook,
             }),
 
+            postFlowFailedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi]>({
+                name: utils.pathify(base.name, 'postFlowFailedHook'),
+                validationHandler,
+                handlers: [
+                    ...(hooks?.postFlowFailedHook?.handlers || []),
+                ],
+                onErrorHook: hooks?.postFlowFailedHook?.onErrorHook,
+            }),
+
             preStepStartedHook: Hook.create<[actor: LocalActorInstance, context: FT.RequestContext, api: FT.TContextApi]>({
                 name: utils.pathify(base.name, 'preStepStartedHook'),
                 validationHandler,

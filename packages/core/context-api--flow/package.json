@@ -1,16 +1,16 @@
 {
     "name": "@usefelps/context-api--flow",
-    "version": "1.0.382",
+    "version": "1.0.383",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
+        "@usefelps/constants": "workspace:*",
         "@usefelps/instance-base": "workspace:*",
         "@usefelps/logger": "workspace:*",
+        "@usefelps/request-meta": "workspace:*",
+        "@usefelps/trail": "workspace:*",
         "@usefelps/trail--data-requests": "workspace:*",
         "@usefelps/trail--data-state": "workspace:*",
-        "@usefelps/trail": "workspace:*",
-        "@usefelps/request-meta": "workspace:*",
-        "@usefelps/constants": "workspace:*",
         "@usefelps/types": "workspace:*",
         "merge-deep": "*"
     },

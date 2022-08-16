@@ -578,6 +578,7 @@ export type ActorHooks<
     postQueueEndedHook?: HookInstance<[actor: LocalActorInstance]>,
     preFlowStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
     postFlowEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
+    postFlowFailedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
     preStepStartedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
     postStepEndedHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
     preStepMainHook?: HookInstance<[actor: LocalActorInstance, context: RequestContext, api: TContextApi]>,
