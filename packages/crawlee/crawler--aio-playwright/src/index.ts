@@ -9,7 +9,7 @@ import type { Cookie as CookieObject } from '@crawlee/types';
 import { CrawlingContext, EnqueueLinksOptions, mergeCookies, PlaywrightCrawlerOptions, PlaywrightCrawlingContext, PlaywrightLaunchContext, PlaywrightLauncher, Session } from '@crawlee/playwright';
 import { Dictionary } from '@crawlee/types';
 import { METADATA_CRAWLER_MODE_PATH } from '@usefelps/constants';
-import { CheerioRoot, parseContentTypeFromResponse } from '@crawlee/utils';
+import { CheerioRoot } from '@crawlee/utils';
 import * as FT from '@usefelps/types';
 import { gotScraping, Method, OptionsInit, Request as GotRequest, TimeoutError } from 'got-scraping';
 import type { IncomingMessage } from 'http';
@@ -20,6 +20,9 @@ import iconv from 'iconv-lite';
 import util from 'util';
 import * as cheerio from 'cheerio';
 import { IncomingHttpHeaders } from 'http';
+import contentTypeParser from 'content-type';
+import mime from 'mime-types';
+import { extname } from 'path';
 
 export interface RequestFunctionOptions {
     request: Request;
@@ -463,6 +466,37 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
     }
 
 }
+
+/**
+ * Gets parsed content type from response object
+ * @param response HTTP response object
+ */
+ function parseContentTypeFromResponse(response: IncomingMessage): { type: string; charset: BufferEncoding } {
+    const { url, headers } = response;
+    let parsedContentType;
+
+    if (headers['content-type']) {
+        try {
+            parsedContentType = contentTypeParser.parse(headers['content-type']);
+        } catch {
+            // Can not parse content type from Content-Type header. Try to parse it from file extension.
+        }
+    }
+
+    // Parse content type from file extension as fallback
+    if (!parsedContentType) {
+        const parsedUrl = new URL(url);
+        const contentTypeFromExtname = mime.contentType(extname(parsedUrl.pathname))
+            || 'application/octet-stream; charset=utf-8'; // Fallback content type, specified in https://tools.ietf.org/html/rfc7231#section-3.1.1.5
+        parsedContentType = contentTypeParser.parse(contentTypeFromExtname);
+    }
+
+    return {
+        type: parsedContentType.type,
+        charset: parsedContentType.parameters.charset as BufferEncoding,
+    };
+}
+
 
 function addResponsePropertiesToStream(stream: GotRequest) {
     const properties = [

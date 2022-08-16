@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/crawlee--crawler--aio-playwright",
-    "version": "1.0.383",
+    "version": "1.0.384",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
@@ -14,10 +14,12 @@
         "@crawlee/utils": "*",
         "@usefelps/constants": "workspace:*",
         "@usefelps/types": "workspace:*",
+        "content-type": "^1.0.4",
         "eventemitter3": "^4.0.7",
         "https-proxy-agent": "^5.0.1",
         "iconv-lite": "*",
         "lodash.get": "^4.4.2",
+        "mime-types": "^2.1.35",
         "node-fetch": "2",
         "util": "*"
     },
@@ -46,5 +48,9 @@
         "lint": "eslint ./src --ext .ts,.js,.jsx",
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
-    "license": "ISC"
+    "license": "ISC",
+    "devDependencies": {
+        "@types/content-type": "^1",
+        "@types/mime-types": "^2"
+    }
 }

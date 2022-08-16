@@ -12,12 +12,6 @@
             "path": "../context-api"
         },
         {
-            "path": "../trail"
-        },
-        {
-            "path": "../crawler"
-        },
-        {
             "path": "../hook"
         },
         {
@@ -33,16 +27,25 @@
             "path": "../request-meta"
         },
         {
-            "path": "../request-queue"
-        },
-        {
             "path": "../state"
         },
         {
-            "path": "../step"
+            "path": "../trail"
+        },
+        {
+            "path": "../crawler"
+        },
+        {
+            "path": "../dataset"
         },
         {
             "path": "../../helpers/process"
+        },
+        {
+            "path": "../request-queue"
+        },
+        {
+            "path": "../step"
         },
         {
             "path": "../constants"

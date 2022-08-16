@@ -1308,7 +1308,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/content-type@npm:^1.1.5":
+"@types/content-type@npm:^1, @types/content-type@npm:^1.1.5":
   version: 1.1.5
   resolution: "@types/content-type@npm:1.1.5"
   checksum: 77d0a88003c18c4d75f8344c678545aa1f1a4c163420c38bf669ba05eb9e0a243ecd022b2c83fbd01def608c275743000c0bf37e9ac95e16f2c3af16ec70534b
@@ -1499,6 +1499,13 @@ __metadata:
   version: 4.14.182
   resolution: "@types/lodash@npm:4.14.182"
   checksum: 7dd137aa9dbabd632408bd37009d984655164fa1ecc3f2b6eb94afe35bf0a5852cbab6183148d883e9c73a958b7fec9a9bcf7c8e45d41195add6a18c34958209
+  languageName: node
+  linkType: hard
+
+"@types/mime-types@npm:^2":
+  version: 2.1.1
+  resolution: "@types/mime-types@npm:2.1.1"
+  checksum: 106b5d556add46446a579ad25ff15d6b421851790d887edcad558c90c1e64b1defc72bfbaf4b08f208916e21d9cc45cdb951d77be51268b18221544cfe054a3c
   languageName: node
   linkType: hard
 
@@ -1697,6 +1704,7 @@ __metadata:
     "@usefelps/constants": "workspace:*"
     "@usefelps/context-api": "workspace:*"
     "@usefelps/crawler": "workspace:*"
+    "@usefelps/dataset": "workspace:*"
     "@usefelps/flow": "workspace:*"
     "@usefelps/hook": "workspace:*"
     "@usefelps/instance-base": "workspace:*"
@@ -1816,12 +1824,16 @@ __metadata:
     "@crawlee/playwright": "*"
     "@crawlee/types": "*"
     "@crawlee/utils": "*"
+    "@types/content-type": ^1
+    "@types/mime-types": ^2
     "@usefelps/constants": "workspace:*"
     "@usefelps/types": "workspace:*"
+    content-type: ^1.0.4
     eventemitter3: ^4.0.7
     https-proxy-agent: ^5.0.1
     iconv-lite: "*"
     lodash.get: ^4.4.2
+    mime-types: ^2.1.35
     node-fetch: 2
     util: "*"
   peerDependencies:
