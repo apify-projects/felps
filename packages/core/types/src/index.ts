@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { CheerioCrawlerOptions, CheerioCrawlingContext } from '@crawlee/cheerio';
-import type { Dataset, Dictionary, KeyValueStore, Request, RequestOptions, RequestQueue } from '@crawlee/core';
+import type { CrawlingContext, Dataset, Dictionary, KeyValueStore, Request, RequestOptions, RequestQueue } from '@crawlee/core';
 import type { PlaywrightCrawlerOptions, PlaywrightCrawlingContext } from '@crawlee/playwright';
 import type { RequestQueueInfo } from '@crawlee/types';
 import type EventEmitter from 'eventemitter3';
@@ -791,7 +791,7 @@ export type OrchestratorInstance = {
 // Crawlers options
 
 export type AnyCrawlerOptions = PlaywrightCrawlerOptions & CheerioCrawlerOptions
-export type RequestContext = CheerioCrawlingContext<Dictionary<any>> & PlaywrightCrawlingContext<Dictionary<any>>
+export type RequestContext = CrawlingContext & CheerioCrawlingContext<Dictionary<any>> & PlaywrightCrawlingContext<Dictionary<any>>
 
 
 // @usefelps/browser-control-helpers ------------------------------------------------------------
