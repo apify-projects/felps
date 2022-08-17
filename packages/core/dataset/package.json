@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/dataset",
-    "version": "1.0.388",
+    "version": "1.0.389",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {

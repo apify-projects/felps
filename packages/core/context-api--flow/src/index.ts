@@ -67,7 +67,6 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                     }
 
                     const { useNewTrail = true } = options || {};
-                    let { crawlerMode } = options || {};
 
                     const flowNamePrefixed = CONST.PREFIXED_NAME_BY_ACTOR(actorName, flowName);
 
@@ -82,7 +81,7 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
 
                     // console.log({ flows: actor.flows, flowNamePrefixed, flow, stepName, stepNamePrefixed, step })
 
-                    crawlerMode = crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode || 'http';
+                    const crawlerMode = options?.crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode || 'http';
 
                     const flowId = Trail.setFlow(localTrail, {
                         name: flowNamePrefixed,
@@ -124,14 +123,10 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                         return undefined;
                     }
 
-                    let { crawlerMode } = options || {};
-
                     const flow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, currentMeta.data.flowName)];
                     const step = actor.steps?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, stepName)];
 
-                    // console.log('next', { trailId: currentTrail.id })
-
-                    crawlerMode = step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode || 'http';
+                    const crawlerMode = options.crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode || 'http';
 
                     const meta = RequestMeta.extend(
                         RequestMeta.create({
