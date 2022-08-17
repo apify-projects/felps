@@ -4,8 +4,7 @@ import { addTimeoutToPromise, tryCancel } from '@apify/timeout';
 import { concatStreamToBuffer, readStreamToString } from '@apify/utilities';
 import { BrowserCrawler } from '@crawlee/browser';
 import { BrowserPlugin, CommonPage } from '@crawlee/browser-pool';
-import { Request } from '@crawlee/core';
-import type { Cookie as CookieObject } from '@crawlee/types';
+import { cookieStringToToughCookie, Request } from '@crawlee/core';
 import { CrawlingContext, EnqueueLinksOptions, mergeCookies, PlaywrightCrawlerOptions, PlaywrightCrawlingContext, PlaywrightLaunchContext, PlaywrightLauncher, Session } from '@crawlee/playwright';
 import { Dictionary } from '@crawlee/types';
 import { METADATA_CRAWLER_MODE_PATH } from '@usefelps/constants';
@@ -15,7 +14,6 @@ import { gotScraping, Method, OptionsInit, Request as GotRequest, TimeoutError }
 import type { IncomingMessage } from 'http';
 import getPath from 'lodash.get';
 import { chromium, firefox, webkit } from 'playwright';
-import { Cookie } from 'tough-cookie';
 import iconv from 'iconv-lite';
 import util from 'util';
 import * as cheerio from 'cheerio';
@@ -103,20 +101,21 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
     }
 
 
-    protected override async _applyCookies({ session, request, page }: PlaywrightCrawlingContext, preHooksCookies: string, postHooksCookies: string, gotOptions?: OptionsInit) {
+    protected override async _applyCookies({ session, request, page, browserController }: PlaywrightCrawlingContext, preHooksCookies: string, postHooksCookies: string, gotOptions?: OptionsInit) {
         // console.log('_applyCookies');
         if (page) {
             const sessionCookie = session?.getCookies(request.url) ?? [];
-            const parsedPreHooksCookies = preHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as CookieObject | undefined);
-            const parsedPostHooksCookies = postHooksCookies.split(/ *; */).map((c) => Cookie.parse(c)?.toJSON() as CookieObject | undefined);
+            const parsedPreHooksCookies = preHooksCookies.split(/ *; */).map((c) => cookieStringToToughCookie(c));
+            const parsedPostHooksCookies = postHooksCookies.split(/ *; */).map((c) => cookieStringToToughCookie(c));
+            const cookies = [
+                ...sessionCookie,
+                ...parsedPreHooksCookies,
+                ...parsedPostHooksCookies,
+            ]
+                .filter((c) => typeof c !== 'undefined' && c !== null)
+                .map((c) => ({ ...c, url: c.domain ? undefined : request.url }));
 
-            await page.context().addCookies(
-                [
-                    ...sessionCookie,
-                    ...parsedPreHooksCookies,
-                    ...parsedPostHooksCookies,
-                ].filter((c): c is CookieObject => c !== undefined),
-            );
+            await browserController.setCookies(page, cookies as any);
         } else {
             const sessionCookie = session?.getCookieString(request.url) ?? '';
             const alteredGotOptionsCookies = (gotOptions.headers?.Cookie ?? gotOptions.headers?.cookie ?? '') as string;
@@ -471,7 +470,7 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
  * Gets parsed content type from response object
  * @param response HTTP response object
  */
- function parseContentTypeFromResponse(response: IncomingMessage): { type: string; charset: BufferEncoding } {
+function parseContentTypeFromResponse(response: IncomingMessage): { type: string; charset: BufferEncoding } {
     const { url, headers } = response;
     let parsedContentType;
 

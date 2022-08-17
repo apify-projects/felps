@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/trail",
-    "version": "1.0.387",
+    "version": "1.0.388",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
