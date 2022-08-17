@@ -126,7 +126,7 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                     const flow = actor.flows?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, currentMeta.data.flowName)];
                     const step = actor.steps?.[CONST.PREFIXED_NAME_BY_ACTOR(actorName, stepName)];
 
-                    const crawlerMode = options.crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode || 'http';
+                    const crawlerMode = options?.crawlerMode || step?.crawlerMode || flow?.crawlerMode || actor?.crawlerMode || 'http';
 
                     const meta = RequestMeta.extend(
                         RequestMeta.create({
