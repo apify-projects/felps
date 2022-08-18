@@ -25,28 +25,33 @@ export default class RequestQueue extends ApifyRequestQueue {
         // State.listen(this._requestQueueHistoryStore);
     }
 
+    async enforceLoadedStores() {
+        this._requestQueueStore = await State.load(this._requestQueueStore);
+        this._requestQueueHistoryStore = await State.load(this._requestQueueHistoryStore)
+    }
+
     override async addRequest(request: RequestSource, options?: RequestOptionalOptions): Promise<QueueOperationInfo> {
         const { priority = Infinity, crawlerMode, ...restOptions } = options || {};
-        const reqQueueStore = await State.load(this._requestQueueStore);
+        await this.enforceLoadedStores()
 
         const meta = RequestMeta.extend(RequestMeta.create(request), { crawlerMode });
 
         const requestInfo = await super.addRequest(meta.request, restOptions);
-        State.set(reqQueueStore, requestInfo.requestId, priority);
+        State.set(this._requestQueueStore, requestInfo.requestId, priority);
 
         return requestInfo;
     }
 
     override async markRequestHandled(request: Request) {
-        const reqQueueHistoryStore = await State.load(this._requestQueueStore);
-        State.remove(reqQueueHistoryStore, request.id);
+        await this.enforceLoadedStores()
+        State.remove(this._requestQueueStore, request.id);
         return super.markRequestHandled(request);
     }
 
     override async reclaimRequest(request: Request, options: { forefront?: boolean } = {}) {
-        const reqQueueHistoryStore = await State.load(this._requestQueueStore);
+        await this.enforceLoadedStores()
 
-        const localRequest = State.get(reqQueueHistoryStore, request.id);
+        const localRequest = State.get(this._requestQueueStore, request.id);
         if (localRequest) {
             localRequest.retryCount++;
         }
@@ -57,15 +62,14 @@ export default class RequestQueue extends ApifyRequestQueue {
     }
 
     override async fetchNextRequest(): Promise<Request | null> {
-        const reqQueueStore = await State.load(this._requestQueueStore);
-        const reqQueueHistoryStore = await State.load(this._requestQueueHistoryStore);
+        await this.enforceLoadedStores()
 
-        const smallestPriority = Math.min(...State.values(reqQueueStore));
-        const [requestId] = State.entries(reqQueueStore).find(([, priority]) => priority === smallestPriority) || [];
+        const smallestPriority = Math.min(...State.values(this._requestQueueStore));
+        const [requestId] = State.entries(this._requestQueueStore).find(([, priority]) => priority === smallestPriority) || [];
 
         if (requestId) {
-            State.set(reqQueueHistoryStore, requestId, State.get(reqQueueStore, requestId));
-            State.remove(reqQueueStore, requestId);
+            State.set(this._requestQueueHistoryStore, requestId, State.get(this._requestQueueStore, requestId));
+            State.remove(this._requestQueueStore, requestId);
             const request = await this.getRequest(requestId);
             if (request?.handledAt) {
                 this.recentlyHandled.add(requestId, true);
