@@ -46,12 +46,12 @@ export const create = <
                 ],
                 onErrorHook: hooks?.routeInterceptionHook?.onErrorHook,
             }),
-            postResponseReceivedHook: Hook.create({
-                name: pathify(base.name, 'postResponseReceivedHook'),
+            postRequestFinishedHook: Hook.create({
+                name: pathify(base.name, 'postRequestFinishedHook'),
                 handlers: [
-                    ...(hooks?.postResponseReceivedHook?.handlers || []),
+                    ...(hooks?.postRequestFinishedHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.postResponseReceivedHook?.onErrorHook,
+                onErrorHook: hooks?.postRequestFinishedHook?.onErrorHook,
             }),
 
             prePageOpenedScriptInjection: Hook.create({

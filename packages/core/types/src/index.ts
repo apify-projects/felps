@@ -176,7 +176,7 @@ export type FlowHooks = {
     preFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
     postFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
     routeInterceptionHook?: HookOptions<[context: RequestContext, route: Route, request: import('playwright-core').Request, api: TContextApi, actor: ActorInstance]>,
-    postResponseReceivedHook?: HookOptions<[context: RequestContext, response: ReallyAny, api: TContextApi, actor: ActorInstance]>,
+    postRequestFinishedHook?: HookOptions<[context: RequestContext, request: ReallyAny, api: TContextApi, actor: ActorInstance]>,
     prePageOpenedScriptInjection?: HookOptions<[inject: import('playwright-core').BrowserContext['addInitScript'], actor: ActorInstance]>,
     preAnyPageOpenedScriptInjection?: HookOptions<[inject: import('playwright-core').BrowserContext['addInitScript'], actor: ActorInstance]>,
 };
@@ -199,7 +199,7 @@ export type StepHooks = {
     postNavigationHook?: HookOptions<[actor: ActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
     preNavigationHook?: HookOptions<[actor: ActorInstance, context: RequestContext, api: TContextApi, goToOptions: Record<PropertyKey, any>]>,
     routeInterceptionHook?: HookOptions<[context: RequestContext, route: Route, request: import('playwright-core').Request, api: TContextApi, actor: ActorInstance]>,
-    postResponseReceivedHook?: HookOptions<[context: RequestContext, response: ReallyAny, api: TContextApi, actor: ActorInstance]>,
+    postRequestFinishedHook?: HookOptions<[context: RequestContext, request: ReallyAny, api: TContextApi, actor: ActorInstance]>,
     prePageOpenedScriptInjection?: HookOptions<[inject: import('playwright-core').BrowserContext['addInitScript'], actor: ActorInstance]>,
     preAnyPageOpenedScriptInjection?: HookOptions<[inject: import('playwright-core').BrowserContext['addInitScript'], actor: ActorInstance]>,
     preFailedHook?: HookOptions<[context: RequestContext, api: TContextApi, error: ReallyAny, actor: ActorInstance]>,
@@ -590,7 +590,7 @@ export type ActorHooks<
     postFailedHook?: HookInstance<[actor: LocalActorInstance, error: ReallyAny]>,
     preBlackoutHook?: HookInstance<[actor: LocalActorInstance, evt: ReallyAny]>,
     routeInterceptionHook?: HookOptions<[actor: LocalActorInstance, context: RequestContext, route: Route, request: import('playwright-core').Request, api: TContextApi]>,
-    postResponseReceivedHook?: HookOptions<[actor: LocalActorInstance, context: RequestContext, response: ReallyAny, api: TContextApi]>,
+    postRequestFinishedHook?: HookOptions<[actor: LocalActorInstance, context: RequestContext, request: ReallyAny, api: TContextApi]>,
     prePageOpenedScriptInjection?: HookOptions<[actor: LocalActorInstance, inject: import('playwright-core').BrowserContext['addInitScript']]>,
     preAnyPageOpenedScriptInjection?: HookOptions<[actor: LocalActorInstance, inject: import('playwright-core').BrowserContext['addInitScript']]>,
 }

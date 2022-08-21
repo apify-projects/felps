@@ -75,12 +75,12 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
                 ],
                 onErrorHook: hooks?.routeInterceptionHook?.onErrorHook,
             }),
-            postResponseReceivedHook: Hook.create({
-                name: pathify(base.name, 'postResponseReceivedHook'),
+            postRequestFinishedHook: Hook.create({
+                name: pathify(base.name, 'postRequestFinishedHook'),
                 handlers: [
-                    ...(hooks?.postResponseReceivedHook?.handlers || []),
+                    ...(hooks?.postRequestFinishedHook?.handlers || []),
                 ],
-                onErrorHook: hooks?.postResponseReceivedHook?.onErrorHook,
+                onErrorHook: hooks?.postRequestFinishedHook?.onErrorHook,
             }),
             preNavigationHook: Hook.create<[actor: FT.ActorInstance, context: FT.RequestContext, api: FT.TContextApi, goToOptions: Record<PropertyKey, any>]>({
                 name: pathify(base.name, 'preNavigationHook'),
