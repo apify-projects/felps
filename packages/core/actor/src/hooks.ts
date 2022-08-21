@@ -268,22 +268,22 @@ export const prepareHooks = <
                     },
                     async function RESPONSE_RECEIVED(actor, context, api) {
                         context?.page?.on?.('response', async (response) => {
-                            await Hook.run(actor?.hooks?.postResponseReceivedHook, actor as FT.ReallyAny, context as FT.RequestContext, response);
+                            await Hook.run(actor?.hooks?.postResponseReceivedHook, actor as FT.ReallyAny, context as FT.RequestContext, response, api);
 
-                            await Hook.run(api.getFlow()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
+                            await Hook.run(api.getFlow()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response api, actor as FT.ReallyAny);
 
-                            await Hook.run(api.getStep()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
+                            await Hook.run(api.getStep()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response, api, actor as FT.ReallyAny);
                         });
                     },
-                    async function CONSOLE_FIRED(actor, context, api) {
-                        context?.page?.on?.('console', async (response) => {
-                            await Hook.run(actor?.hooks?.postResponseReceivedHook, actor as FT.ReallyAny, context as FT.RequestContext, response);
+                    // async function CONSOLE_FIRED(actor, context, api) {
+                    //     context?.page?.on?.('console', async (response) => {
+                    //         await Hook.run(actor?.hooks?.postResponseReceivedHook, actor as FT.ReallyAny, context as FT.RequestContext, response);
 
-                            await Hook.run(api.getFlow()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
+                    //         await Hook.run(api.getFlow()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
 
-                            await Hook.run(api.getStep()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
-                        });
-                    },
+                    //         await Hook.run(api.getStep()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response, actor as FT.ReallyAny);
+                    //     });
+                    // },
                     async function INJECTING_SCRIPTS(actor, context, api) {
                         if (context?.page) {
                             const promises = [];

@@ -77,7 +77,6 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
             }),
             postResponseReceivedHook: Hook.create({
                 name: pathify(base.name, 'postResponseReceivedHook'),
-                validationHandler,
                 handlers: [
                     ...(hooks?.postResponseReceivedHook?.handlers || []),
                 ],
