@@ -256,11 +256,11 @@ export const prepareHooks = <
                                 }
                             });
 
-                            await Hook.run(actor?.hooks?.routeInterceptionHook, actor as FT.ReallyAny, context as FT.RequestContext, proxiedRoute, request);
+                            await Hook.run(actor?.hooks?.routeInterceptionHook, actor as FT.ReallyAny, context as FT.RequestContext, proxiedRoute, request, api);
 
-                            await Hook.run(api.getFlow()?.hooks?.routeInterceptionHook, context as FT.RequestContext, proxiedRoute, request, actor as FT.ReallyAny);
+                            await Hook.run(api.getFlow()?.hooks?.routeInterceptionHook, context as FT.RequestContext, proxiedRoute, request, api, actor as FT.ReallyAny);
 
-                            await Hook.run(api.getStep()?.hooks?.routeInterceptionHook, context as FT.RequestContext, proxiedRoute, request, actor as FT.ReallyAny);
+                            await Hook.run(api.getStep()?.hooks?.routeInterceptionHook, context as FT.RequestContext, proxiedRoute, request, api, actor as FT.ReallyAny);
 
                             await proxiedRoute.continue();
 
@@ -270,7 +270,7 @@ export const prepareHooks = <
                         context?.page?.on?.('response', async (response) => {
                             await Hook.run(actor?.hooks?.postResponseReceivedHook, actor as FT.ReallyAny, context as FT.RequestContext, response, api);
 
-                            await Hook.run(api.getFlow()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response api, actor as FT.ReallyAny);
+                            await Hook.run(api.getFlow()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response, api, actor as FT.ReallyAny);
 
                             await Hook.run(api.getStep()?.hooks?.postResponseReceivedHook, context as FT.RequestContext, response, api, actor as FT.ReallyAny);
                         });
