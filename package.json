@@ -1,6 +1,6 @@
 {
     "private": true,
-    "version": "1.0.395",
+    "version": "1.0.396",
     "author": {
         "name": "Apify",
         "email": "support@apify.com",
@@ -72,18 +72,18 @@
     "resolutions": {
         "apify": "next",
         "cagibi": "^0.0.25",
-        "crawlee": "3.0.3",
+        "crawlee": "3.0.4",
         "flexsearch": "^0.7.21",
         "json-schema-to-ts": "2.5.3",
         "apify-client": "^2.5.2",
         "cheerio": "1.0.0-rc.10",
-        "@crawlee/cheerio": "^3.0.3",
-        "@crawlee/playwright": "^3.0.3",
-        "@crawlee/core": "^3.0.3",
-        "@crawlee/types": "^3.0.3",
-        "@crawlee/browser": "^3.0.3",
+        "@crawlee/cheerio": "^3.0.4",
+        "@crawlee/playwright": "^3.0.4",
+        "@crawlee/core": "^3.0.4",
+        "@crawlee/types": "^3.0.4",
+        "@crawlee/browser": "^3.0.4",
         "@crawlee/browser-pool": "next",
-        "@crawlee/utils": "^3.0.3",
+        "@crawlee/utils": "^3.0.4",
         "@apify/utilities": "1.2.14"
     }
 }
