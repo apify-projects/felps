@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/crawlee--crawler--aio-playwright",
-    "version": "1.0.396",
+    "version": "1.0.397",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {

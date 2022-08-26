@@ -1,6 +1,6 @@
 {
     "name": "felps",
-    "version": "1.0.396",
+    "version": "1.0.397",
     "description": "Flow-based crawler framework",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",

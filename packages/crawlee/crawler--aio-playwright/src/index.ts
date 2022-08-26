@@ -223,7 +223,7 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
             try {
                 crawlingContext.response = await this._navigationHandler(crawlingContext as FT.ReallyAny, gotoOptions) ?? undefined;
             } catch (error) {
-                this._handleNavigationTimeout(crawlingContext as FT.ReallyAny, error as Error);
+                await this._handleNavigationTimeout(crawlingContext as FT.ReallyAny, error as Error);
 
                 throw error;
             }
