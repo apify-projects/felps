@@ -51,12 +51,12 @@ export default class RequestQueue extends ApifyRequestQueue {
     override async reclaimRequest(request: Request, options: { forefront?: boolean } = {}) {
         await this.enforceLoadedStores()
 
-        const localRequest = State.get(this._requestQueueStore, request.id);
-        if (localRequest) {
-            localRequest.retryCount++;
-        }
+        // const localRequest = State.get(this._requestQueueStore, request.id);
+        // if (localRequest) {
+        //     localRequest.retryCount++;
+        // }
 
-        const queueOperationInfo = super.reclaimRequest(localRequest || request, options);
+        const queueOperationInfo = super.reclaimRequest(request, options);
 
         return queueOperationInfo;
     }
