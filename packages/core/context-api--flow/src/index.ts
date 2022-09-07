@@ -107,7 +107,10 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                     const localIngested = Trail.ingested(localTrail);
                     TrailDataRequests.set(localIngested.requests, meta.request);
 
-                    return meta.data.flowId;
+                    return {
+                        trail: localTrail,
+                        flowId,
+                    }
                 },
                 paginate(request, options) {
                     if (!request?.url) {
@@ -161,11 +164,11 @@ export const create = (actor: FT.ActorInstance): FT.ContextApiFlowsInstance => {
                     //TODO: NEED TO CHANGE THIS
                     throw new Error('Retry this step');
                 },
-                getState(path) {
-                    return TrailDataState.get(ingested.state, path);
+                getState(path, localTrail = currentTrail) {
+                    return TrailDataState.get(Trail.ingested(localTrail).state, path);
                 },
-                setState(state, path) {
-                    return TrailDataState.set(ingested.state, state, path);
+                setState(state, path, localTrail = currentTrail) {
+                    return TrailDataState.set(Trail.ingested(localTrail).state, state, path);
                 }
             } as FT.ContextApiFlowsAPI;
         },

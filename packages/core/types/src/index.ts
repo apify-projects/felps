@@ -241,13 +241,13 @@ export type ContextApiFlowsAPI = {
             crawlerMode?: RequestCrawlerMode,
             useNewTrail?: boolean
         }
-    ) => void;
+    ) => any;
     paginate: (request: RequestSource & { url: string | undefined }, options?: { crawlerMode?: RequestCrawlerMode }) => void;
     next: (stepName: Extract<string, string>, request: RequestSource & { url: string | undefined }, options?: { crawlerMode?: RequestCrawlerMode }) => void;
     stop: (options?: { flow?: boolean }) => void;
     retry: () => void;
-    getState: (path?: string) => ReallyAny;
-    setState: (state: ReallyAny, path?: string) => void;
+    getState: (path?: string, localTrail?: TrailInstance) => ReallyAny;
+    setState: (state: ReallyAny, path?: string, localTrail?: TrailInstance) => void;
 };
 
 // @usefelps/context-api--meta ------------------------------------------------------------
