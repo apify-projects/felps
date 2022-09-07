@@ -116,7 +116,7 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
                         const digested = Trail.digested(trail);
                         const meta = RequestMeta.create(context.request);
 
-                        TrailDataRequests.setStatus(digested.requests, 'FAILED', meta.data.requestId);
+                        TrailDataRequests.setStatus(digested.requests, 'TO_BE_RETRIED', meta.data.requestId);
                     },
                     ...(hooks?.preFailedHook?.handlers || []),
                 ],
@@ -141,7 +141,7 @@ export const create = <StepNames extends string = string>(options?: FT.StepOptio
                         const digested = Trail.digested(trail);
                         const meta = RequestMeta.create(context.request);
 
-                        TrailDataRequests.setStatus(digested.requests, 'DISCARDED', meta.data.requestId);
+                        TrailDataRequests.setStatus(digested.requests, 'FAILED', meta.data.requestId);
                     },
                     ...(hooks?.postRequestFailedHook?.handlers || []),
                 ],

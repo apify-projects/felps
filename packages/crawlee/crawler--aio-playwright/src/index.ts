@@ -140,7 +140,8 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
             headers: { ...request.headers, ...gotOptions?.headers },
             https: {
                 ...gotOptions?.https,
-                rejectUnauthorized: !this.ignoreSslErrors,
+                rejectUnauthorized: false,
+                // rejectUnauthorized: !this.ignoreSslErrors,
             },
             isStream: true,
         };
@@ -180,8 +181,8 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
         const crawlerMode = getPath(context?.request?.userData || {}, CONST.CRAWLER_MODE) || getPath(context?.request?.userData, METADATA_CRAWLER_MODE_PATH) || 'http';
 
         if (crawlerMode === 'http') {
-            const { session, request, proxyUrl, gotOptions } = context as unknown as RequestFunctionOptions;
-            const opts = this._getRequestOptions(request, session, proxyUrl, gotOptions);
+            const { session, request, proxyUrl, proxyInfo, gotOptions } = context as any; // as RequestFunctionOptions;
+            const opts = this._getRequestOptions(request, session, proxyUrl || proxyInfo?.url, gotOptions);
 
             return addTimeoutToPromise(
                 async () => {
@@ -400,7 +401,9 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
 
         const useIncognitoPages = this.launchContext?.useIncognitoPages;
 
-        if (this.proxyConfiguration && useIncognitoPages) {
+        // NOTE: Dirty fix, preLaunchHooks not played on browserPool!
+        // if (this.proxyConfiguration && useIncognitoPages) {
+        if (this.proxyConfiguration) {
             const { session } = context;
 
             const proxyInfo = await this.proxyConfiguration.newProxyInfo(session?.id);

@@ -11,6 +11,7 @@ export const REQUEST_STATUS: Record<TrailDataRequestItemStatus, TrailDataRequest
     STARTED: 'STARTED',
     SUCCEEDED: 'SUCCEEDED',
     FAILED: 'FAILED',
+    TO_BE_RETRIED: 'TO_BE_RETRIED',
 };
 
 export const UNPREFIXED_NAME_BY_ACTOR = (name = '') => name.split(/:/g).reverse()[0];

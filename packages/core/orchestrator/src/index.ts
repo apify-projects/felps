@@ -45,7 +45,7 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
             const stopTrailNow = Trail.get(trail).status === 'STOPPED';
 
             // INGESTED Stage
-            const newlyCreatedRequests = TrailDataRequests.getItemsListByStatus(ingested.requests, ['CREATED', 'FAILED']);
+            const newlyCreatedRequests = TrailDataRequests.getItemsListByStatus(ingested.requests, ['CREATED', 'TO_BE_RETRIED']);
             for (const newRequest of newlyCreatedRequests) {
 
                 const metaLocal = RequestMeta.create(newRequest.source);
@@ -78,11 +78,19 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
             };
 
             // REQUESTS DONE
-            const remainingRequests = TrailDataRequests.getItemsListByStatus(digested.requests, ['CREATED', 'QUEUED', 'STARTED', 'FAILED']);
+            const remainingRequests = TrailDataRequests.getItemsListByStatus(digested.requests, ['CREATED', 'QUEUED', 'STARTED', 'TO_BE_RETRIED']);
             const succeededRequests = TrailDataRequests.getItemsListByStatus(digested.requests, ['SUCCEEDED']);
             const trailEnded = remainingRequests.length === 0 && succeededRequests.length > 0;
 
             if (trailEnded) {
+
+                const failedRequests = TrailDataRequests.getItemsListByStatus(digested.requests, ['FAILED']);
+                if (failedRequests.length) {
+                    Trail.setStatus(trail, 'FAILED');
+                } else {
+                    Trail.setStatus(trail, 'COMPLETED');
+                }
+
                 await Hook.run(currentFlow?.hooks?.postEndedHook, context, contextApi(context), actor);
 
                 await Hook.run(actor?.hooks?.postFlowEndedHook, actor, context, contextApi(context));

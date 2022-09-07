@@ -381,7 +381,7 @@ export type TrailState = {
     output: any,
 }
 
-export type TrailStateStatus = 'ACTIVE' | 'STOPPED';
+export type TrailStateStatus = 'ACTIVE' | 'STOPPED' | 'FAILED' | 'COMPLETED';
 
 // // @usefelps/trail-collection ------------------------------------------------------------
 // export type TrailCollectionOptions = {
@@ -428,7 +428,7 @@ export type TrailDataRequestsOptions = {
     state: StateInstance;
 }
 
-export type TrailDataRequestItemStatus = 'CREATED' | 'DISCARDED' | 'QUEUED' | 'STARTED' | 'SUCCEEDED' | 'FAILED';
+export type TrailDataRequestItemStatus = 'CREATED' | 'TO_BE_RETRIED' | 'DISCARDED' | 'QUEUED' | 'STARTED' | 'SUCCEEDED' | 'FAILED';
 // export type TrailDataModelItemStatus = 'CREATED' | 'PUSHED' | 'DISCARDED';
 
 export type TrailDataRequestItem = {

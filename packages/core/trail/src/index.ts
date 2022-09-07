@@ -77,6 +77,10 @@ export const setStatus = (trail: FT.TrailInstance, status: FT.TrailStateStatus):
     State.set(trail.state, utils.pathify(trail.id, 'status'), status);
 };
 
+export const getStatus = (trail: FT.TrailInstance): FT.TrailStateStatus => {
+    return State.get(trail.state, utils.pathify(trail.id, 'status'));
+};
+
 export const stage = (trail: FT.TrailInstance, type: FT.TrailDataStages): FT.TrailDataStage => {
     return {
         requests: TrailDataRequests.create({
@@ -109,4 +113,4 @@ export const promote = (trail: FT.TrailInstance, item: FT.TrailDataRequestItem):
     State.remove(trail.state, path('ingested'));
 };
 
-export default { create, createFrom, load, get, setRequest, getMainFlow, setFlow, getFlow, setStatus, ingested, digested, promote };
+export default { create, createFrom, load, get, setRequest, getMainFlow, setFlow, getFlow, setStatus, getStatus, ingested, digested, promote };
