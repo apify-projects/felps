@@ -79,12 +79,12 @@ export const create = (actor: FT.ActorInstance): FT.OrchestratorInstance => {
 
             // REQUESTS DONE
             const remainingRequests = TrailDataRequests.getItemsListByStatus(digested.requests, ['CREATED', 'QUEUED', 'STARTED', 'TO_BE_RETRIED']);
+            const failedRequests = TrailDataRequests.getItemsListByStatus(digested.requests, ['FAILED']);
             const succeededRequests = TrailDataRequests.getItemsListByStatus(digested.requests, ['SUCCEEDED']);
-            const trailEnded = remainingRequests.length === 0 && succeededRequests.length > 0;
+            const trailEnded = remainingRequests.length === 0 && (succeededRequests.length > 0 || failedRequests.length > 0);
 
             if (trailEnded) {
 
-                const failedRequests = TrailDataRequests.getItemsListByStatus(digested.requests, ['FAILED']);
                 if (failedRequests.length) {
                     Trail.setStatus(trail, 'FAILED');
                 } else {
