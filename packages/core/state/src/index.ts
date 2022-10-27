@@ -2,9 +2,10 @@ import InstanceBase from '@usefelps/instance-base';
 import KvStoreAdapter from '@usefelps/kv-store--adapter';
 import InMemoryKvStoreAdapter from '@usefelps/kv-store--adapter--in-memory';
 import Logger from '@usefelps/logger';
-import Process from '@usefelps/process';
 import * as FT from '@usefelps/types';
 import * as utils from '@usefelps/utils';
+import { Actor } from 'apify';
+import pThrottle from 'p-throttle';
 
 const mustBeLoaded = <T>(state: FT.StateInstance<T>): void => {
     if (!state.initialized) {
@@ -174,7 +175,7 @@ export const load = async <T>(state: FT.StateInstance<T>): Promise<FT.StateInsta
     return state;
 };
 
-export const persist = async <T>(state: FT.StateInstance<T>): Promise<void> => {
+export const persist = pThrottle({ limit: 2, interval: 120000 })(async <T>(state: FT.StateInstance<T>): Promise<void> => {
     mustBeLoaded(state);
 
     if (state.splitByKey) {
@@ -187,24 +188,28 @@ export const persist = async <T>(state: FT.StateInstance<T>): Promise<void> => {
     };
 
     Logger.info(Logger.create(state), `Persisted store ${state.kvKey}.`);
-};
+});
 
 export const listen = <T>(state: FT.StateInstance<T>): FT.StateInstance<T> => {
     if (!state.listened) {
         state.listened = true;
-        let firstInterval: NodeJS.Timer;
-        firstInterval = Process.onInterval(async () => {
-            await persist(state);
-            clearInterval(firstInterval);
-        }, 1000);
+        // let firstInterval: NodeJS.Timer;
+        // firstInterval = Process.onInterval(async () => {
+        //     await persist(state);
+        //     clearInterval(firstInterval);
+        // }, 1000);
 
-        Process.onInterval(async () => {
-            await persist(state);
-        })
+        // Process.onInterval(async () => {
+        //     await persist(state);
+        // })
 
-        Process.onExit(async () => {
+        // Process.onExit(async () => {
+        //     await persist(state);
+        // })
+
+        Actor.on('persistState', async () => {
             await persist(state);
-        })
+        });
     }
 
     return state;

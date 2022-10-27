@@ -2169,8 +2169,12 @@ __metadata:
     "@usefelps/process": "workspace:*"
     "@usefelps/types": "workspace:*"
     "@usefelps/utils": "workspace:*"
+    apify: "*"
+    p-throttle: 4.1.1
     rimraf: ^3.0.2
     typescript: ^4.7.2
+  peerDependencies:
+    apify: "*"
   languageName: unknown
   linkType: soft
 
@@ -7252,6 +7256,13 @@ __metadata:
   dependencies:
     aggregate-error: ^3.0.0
   checksum: cb0ab21ec0f32ddffd31dfc250e3afa61e103ef43d957cc45497afe37513634589316de4eb88abdfd969fe6410c22c0b93ab24328833b8eb1ccc087fc0442a1c
+  languageName: node
+  linkType: hard
+
+"p-throttle@npm:4.1.1":
+  version: 4.1.1
+  resolution: "p-throttle@npm:4.1.1"
+  checksum: fe8709f3c3b1da7c033479375c2c302e80c1a5d86449013afa7cd46d1dc210bc824a7e4a9d088e66d31987d00878c2b5491bb2fe76246d4d2fc9a1636f5f8298
   languageName: node
   linkType: hard
 
