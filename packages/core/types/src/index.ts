@@ -310,6 +310,7 @@ export type AnyStoreLike = StateInstance | BucketInstance;
 export type StateInstance<T = any> = {
     type: 'state',
     adapter: KVStoreAdapterInstance,
+    persister: (state: StateInstance) => Promise<void>,
     kvKey: string;
     pathRoot: string;
     splitByKey?: boolean,

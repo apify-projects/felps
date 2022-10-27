@@ -27,6 +27,7 @@ export const create = <T>(options: FT.StateOptions): FT.StateInstance<T> => {
         ...InstanceBase.create({ key, name, id: `${key}-${name}${kvKey ? `-${kvKey}` : ''}` }),
         type: 'state',
         adapter,
+        persister: pThrottle({ limit: 2, interval: 120000 })(persist),
         kvKey: kvKey || name,
         pathRoot,
         splitByKey,
@@ -175,7 +176,7 @@ export const load = async <T>(state: FT.StateInstance<T>): Promise<FT.StateInsta
     return state;
 };
 
-export const persist = pThrottle({ limit: 2, interval: 120000 })(async <T>(state: FT.StateInstance<T>): Promise<void> => {
+export const persist = async <T>(state: FT.StateInstance<T>): Promise<void> => {
     mustBeLoaded(state);
 
     if (state.splitByKey) {
@@ -188,27 +189,14 @@ export const persist = pThrottle({ limit: 2, interval: 120000 })(async <T>(state
     };
 
     Logger.info(Logger.create(state), `Persisted store ${state.kvKey}.`);
-});
+};
 
 export const listen = <T>(state: FT.StateInstance<T>): FT.StateInstance<T> => {
     if (!state.listened) {
         state.listened = true;
-        // let firstInterval: NodeJS.Timer;
-        // firstInterval = Process.onInterval(async () => {
-        //     await persist(state);
-        //     clearInterval(firstInterval);
-        // }, 1000);
-
-        // Process.onInterval(async () => {
-        //     await persist(state);
-        // })
-
-        // Process.onExit(async () => {
-        //     await persist(state);
-        // })
 
         Actor.on('persistState', async () => {
-            await persist(state);
+            await state.persister(state);
         });
     }
 
