@@ -134,7 +134,7 @@ export type RequestCrawlerMode = 'http' | 'chromium' | 'firefox' | 'webkit';
 
 export type SharedCustomCrawlerOptions = {
     crawlerMode?: RequestCrawlerMode,
-    crawlerOptions?: (AnyCrawlerOptions & Record<string, ReallyAny>) | ((actor: CrawlerInstance) => Promise<AnyCrawlerOptions & Record<string, ReallyAny>>),
+    crawlerOptions?: (AnyCrawlerOptions & Record<string, ReallyAny>) | ((actor: ActorInstanceBase) => Promise<AnyCrawlerOptions & Record<string, ReallyAny>>),
 }
 
 // @usefelps/instance-base ------------------------------------------------------------
