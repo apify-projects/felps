@@ -144,7 +144,7 @@ export const combine = (actor: FT.ActorInstance, ...actors: FT.ActorInstance[]):
     return actor;
 };
 
-export const makeCrawlerOptions = async (actor: FT.ActorInstance, options?: FT.AnyCrawlerOptions): Promise<FT.AnyCrawlerOptions> => {
+export const makeCrawlerOptions = async (actor: FT.ActorInstance, ...manyOptions: FT.AnyCrawlerOptions[]): Promise<FT.AnyCrawlerOptions> => {
     const logger = Logger.create(actor);
 
     let mergedOptions = utils.merge({
@@ -169,7 +169,7 @@ export const makeCrawlerOptions = async (actor: FT.ActorInstance, options?: FT.A
         //         },
         //     ],
         // }
-    } as FT.AnyCrawlerOptions, options || {});
+    } as FT.AnyCrawlerOptions, ...manyOptions);
 
     Object.assign<FT.AnyCrawlerOptions, FT.AnyCrawlerOptions>(
         mergedOptions,
@@ -283,7 +283,8 @@ export const run = async (actor: FT.ActorInstance, input: FT.ActorInput): Promis
 
     const contextApi = ContextApi.create(actor);
 
-    const crawlerOptions = await makeCrawlerOptions(actor, actor?.crawlerOptions);
+    const otherCrawlerOptions = await Promise.resolve((actor?.crawlerOptions as any)?.(actor as FT.ActorInstanceBase) || actor?.crawlerOptions);
+    const crawlerOptions = await makeCrawlerOptions(actor, otherCrawlerOptions);
 
     try {
         /**
