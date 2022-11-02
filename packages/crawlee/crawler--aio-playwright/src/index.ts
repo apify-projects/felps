@@ -1,26 +1,27 @@
-import { DomHandler } from 'htmlparser2';
-import { WritableStream } from 'htmlparser2/lib/WritableStream';
 import { addTimeoutToPromise, tryCancel } from '@apify/timeout';
 import { concatStreamToBuffer, readStreamToString } from '@apify/utilities';
 import { BrowserCrawler } from '@crawlee/browser';
 import { BrowserPlugin, CommonPage } from '@crawlee/browser-pool';
-import { cookieStringToToughCookie, Request } from '@crawlee/core';
+import { cookieStringToToughCookie, CriticalError, Request, RequestList, RequestQueue } from '@crawlee/core';
 import { CrawlingContext, EnqueueLinksOptions, mergeCookies, PlaywrightCrawlerOptions, PlaywrightCrawlingContext, PlaywrightLaunchContext, PlaywrightLauncher, Session } from '@crawlee/playwright';
 import { Dictionary } from '@crawlee/types';
-import { METADATA_CRAWLER_MODE_PATH } from '@usefelps/constants';
 import { CheerioRoot } from '@crawlee/utils';
+import { METADATA_CRAWLER_MODE_PATH } from '@usefelps/constants';
 import * as FT from '@usefelps/types';
-import { gotScraping, Method, OptionsInit, Request as GotRequest, TimeoutError } from 'got-scraping';
-import type { IncomingMessage } from 'http';
-import getPath from 'lodash.get';
-import { chromium, firefox, webkit } from 'playwright';
-import iconv from 'iconv-lite';
-import util from 'util';
 import * as cheerio from 'cheerio';
-import { IncomingHttpHeaders } from 'http';
 import contentTypeParser from 'content-type';
+import { gotScraping, Method, OptionsInit, Request as GotRequest, TimeoutError } from 'got-scraping';
+import { DomHandler } from 'htmlparser2';
+import { WritableStream } from 'htmlparser2/lib/WritableStream';
+import type { IncomingMessage } from 'http';
+import { IncomingHttpHeaders } from 'http';
+import iconv from 'iconv-lite';
+import getPath from 'lodash.get';
 import mime from 'mime-types';
 import { extname } from 'path';
+import { chromium, firefox, webkit } from 'playwright';
+import util from 'util';
+import { Context } from 'vm';
 
 export interface RequestFunctionOptions {
     request: Request;
@@ -388,6 +389,61 @@ export default class AIOPlaywrightCrawler extends BrowserCrawler {
         if (page) request.loadedUrl = await page.url();
         else request.loadedUrl = request.url;
     }
+
+    override  async _requestFunctionErrorHandler(
+        error: Error,
+        crawlingContext: Context,
+        source: RequestList | RequestQueue,
+    ): Promise<void> {
+        const { request } = crawlingContext;
+        request.pushErrorMessage(error);
+
+        try {
+            if (error instanceof CriticalError) {
+                throw error;
+            }
+
+            const shouldRetryRequest = this._canRequestBeRetried(request, error);
+
+            if (shouldRetryRequest) {
+                this.stats.errorTrackerRetry.add(error);
+
+                await this._tagUserHandlerError(() => this.errorHandler?.(this._augmentContextWithDeprecatedError(crawlingContext as any, error), error));
+
+                if (!request.noRetry) {
+                    request.retryCount++;
+
+                    const { url, retryCount, id } = request;
+
+                    // We don't want to see the stack trace in the logs by default, when we are going to retry the request.
+                    // Thus, we print the full stack trace only when CRAWLEE_VERBOSE_LOG environment variable is set to true.
+                    const message = this._getMessageFromError(error);
+                    this.log.warning(
+                        `Reclaiming failed request back to the list or queue. ${message}`,
+                        { id, url, retryCount },
+                    );
+
+                    await source.reclaimRequest(request);
+                    return;
+                }
+            }
+
+            this.stats.errorTracker.add(error);
+
+            // If we get here, the request is either not retryable
+            // or failed more than retryCount times and will not be retried anymore.
+            // Mark the request as failed and do not retry.
+            this.handledRequestsCount++;
+            await source.markRequestHandled(request);
+            this.stats.failJob(request.id || request.uniqueKey);
+
+            await this._handleFailedRequestHandler(crawlingContext as any, error); // This function prints an error message.
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
 
     override async _runRequestHandler(context: PlaywrightCrawlingContext<Dictionary<any>>) {
         const crawlerMode = getPath(context?.request?.userData || {}, CONST.CRAWLER_MODE) || getPath(context?.request?.userData, METADATA_CRAWLER_MODE_PATH) || 'http';

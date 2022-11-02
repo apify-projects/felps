@@ -42,5 +42,5 @@
         "lint:fix": "eslint ./src --ext .ts,.js,.jsx --fix"
     },
     "license": "ISC",
-    "version": "1.1.410"
+    "version": "1.1.411"
 }

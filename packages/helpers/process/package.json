@@ -1,6 +1,6 @@
 {
     "name": "@usefelps/process",
-    "version": "1.1.410",
+    "version": "1.1.411",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
     "dependencies": {
